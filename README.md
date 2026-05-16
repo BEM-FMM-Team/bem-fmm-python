@@ -1,5 +1,15 @@
 # BEM-FMM-Python
 
+## Charge Engine
+
+## Mesh Engine
+
+## Sphere3L
+
+## Tranlation
+
+./notes.md
+
 ## Initial Setup
 
 `python3.13`
@@ -10,14 +20,10 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Remember to run
+Remember to run this every time:
 
 ```bash
 source venv/bin/activate
-````
+```
 
-## Charge Engine
-
-## Mesh Engine
-
-## Sphere3L
+There is also a nix-shell, should you fancy that.

@@ -27,6 +27,12 @@ in
     LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libs}:$LD_LIBRARY_PATH";
 
     shellHook = ''
-      source venv/bin/activate
+      if [ ! -d venv ]; then
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+      elif
+        source venv/bin/activate
+      fi
     '';
   }
