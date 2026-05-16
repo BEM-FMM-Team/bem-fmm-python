@@ -19,7 +19,7 @@ def bemf4_surface_field_potential_accurate(
     c: ndarray[tuple[Any, ...], dtype[float64]],
     center: ndarray[tuple[Any, ...], dtype[float64]],
     area: ndarray[tuple[Any, ...], dtype[float64]],
-    PC,  # TODO query is this prec
+    PC,
 ):
     const = 1 / (4 * pi)
     eps = 1e-2

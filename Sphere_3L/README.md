@@ -3,6 +3,7 @@ Initial test for translations
 
 ## Inital notes
 
+```txt
 3 Layer (4 shell) sphere model.
 Can load meshphere3, which is a sphere of radius 1, and has approximately 3000 vertices.
 Inner and Outer conductivities (S/m)
@@ -19,6 +20,7 @@ Skin : 0.465  : 0.0000
 Skull: 0.0100 : 0.4650
 GM   : 0.2750 : 0.0100
 WM   : 0.1260 : 0.2750
+```
 
 ## Implementation
 
