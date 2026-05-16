@@ -1,4 +1,5 @@
 ### Future Plans
+ - Type info everywhere
  - Have structure in python libraries
  - Move all artifacts out of source code directories
  - 3D model rendering should really not be done with matplotlib

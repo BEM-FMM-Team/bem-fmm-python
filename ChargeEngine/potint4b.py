@@ -1,7 +1,7 @@
-
-from .lib import msum, mul, div, rdiv, mul, matmul, size, vecnorm
+from .lib import  mul,  mul, size, vecnorm
 import numpy as np
-#
+from numpy import dot, cross
+
 # This function calculates n*grad(1/r) at a given observation point obsPoint
 # given a triangle with vertices r1, r2, and r3 and normal vector normal.
 # It uses the solid-angle approximation of Van Oosterom and Strackee 1983

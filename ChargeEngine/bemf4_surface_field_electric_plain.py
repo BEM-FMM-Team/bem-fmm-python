@@ -1,7 +1,5 @@
 from typing import Any
-from numpy import dtype
-from numpy import float64
-from numpy import ndarray
+from numpy import dtype, float64, ndarray
 from lib import mul
 
 from numpy import pi

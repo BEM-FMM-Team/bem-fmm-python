@@ -1,13 +1,3 @@
-#   Computes electric field for an array Points anywhere in space (line,
-#   surface, volume). This field is due to surface charges at triangular
-#   facets only. Includes accurate neighbor triangle integrals for
-#   points located close to a charged surface.
-#   R is the dimensionless radius of the precise-integration sphere
-#
-#   Copyright SNM/WAW 2017-2020
-#   R = is the local radius of precise integration in terms of average triangle size
-
-
 from numpy import float64
 from numpy import pi
 from fmm3dpy import lfmm3d
@@ -17,6 +7,14 @@ import numpy as np
 from .lib import msum, mul, div, rdiv, mul, matmul
 
 
+#   Computes electric field for an array Points anywhere in space (line,
+#   surface, volume). This field is due to surface charges at triangular
+#   facets only. Includes accurate neighbor triangle integrals for
+#   points located close to a charged surface.
+#   R is the dimensionless radius of the precise-integration sphere
+#
+#   Copyright SNM/WAW 2017-2020
+#   R = is the local radius of precise integration in terms of average triangle size
 def bemf5_volume_field_electric(
     points, c, P, t, center, area, normals, r, prec, planeABCD=[]
 ):
