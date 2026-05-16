@@ -26,13 +26,18 @@ in
 
     LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libs}:$LD_LIBRARY_PATH";
 
-    shellHook = ''
-      if [ ! -d venv ]; then
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-      elif
-        source venv/bin/activate
-      fi
-    '';
+    shellHook =
+      /*
+      bash
+      */
+      ''
+        export PYTHONPATH="$PYTHONPATH:$PWD/ChargeEngine/"
+        if [ ! -d venv ]; then
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+        else
+          source venv/bin/activate
+        fi
+      '';
   }

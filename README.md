@@ -6,7 +6,7 @@
 
 ## Sphere3L
 
-## Tranlation
+## Translation and Style
 
 ./notes.md
 

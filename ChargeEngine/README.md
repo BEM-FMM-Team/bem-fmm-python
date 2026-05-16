@@ -10,6 +10,7 @@ The non-trivial translations may require more inspection hence will be slower to
 
 + [ ] bemf1_graphics_electrodes.py
     > non-trivial, requires setup with matplotlib for patches,  skipping for now
++ [x] bemf3_inc_field_electric_constant.py
 + [ ] bemf3_inc_field_electric_dipole.py
     > find elegant solution for line 33
 + [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py

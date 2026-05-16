@@ -5,9 +5,9 @@ from bemf1_graphics_electrodes import bemf1_graphics_electrodes
 
 # load general sphere model
 def load_sphere_mesh():
-    normals = np.loadtxt("./PythonVersion01/normals.csv", delimiter=",")
-    P = np.loadtxt("./PythonVersion01/P.csv", delimiter=",")
-    t = np.loadtxt("./PythonVersion01/t.csv", delimiter=",")
+    normals = np.loadtxt("../PythonVersion01/normals.csv", delimiter=",")
+    P = np.loadtxt("../PythonVersion01/P.csv", delimiter=",")
+    t = np.loadtxt("../PythonVersion01/t.csv", delimiter=",")
     t = t.astype(int)
     t = t - 1  # since MATLAB has indicies that start at 1, but python starts at 0
     return normals, P, t
