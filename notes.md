@@ -7,25 +7,16 @@
 
 I will put things that I found and find are useful here.
 
-> Converting matlab to numpy is not as trivial as it looks.
+> Converting matlab to numpy is not as trivial as it looks. Go line by line.
 
-np docs - https://numpy.org/doc/stable/user/index.html
-quick ref on converting matlab to numpy - https://learnxinyminutes.com/matlab/
+- np docs - https://numpy.org/doc/stable/user/index.html
+- quick ref on converting matlab to numpy - https://mathesaurus.sourceforge.net/matlab-numpy.html
 
-https://mathesaurus.sourceforge.net/matlab-numpy.html
+- short ref to matlab syntax -  https://learnxinyminutes.com/matlab/
 
 #### general translations
 
-Careful with np.ndarray.\_\_mult\_\_ and np.matrix.\_\_mult\_\_, the former is always a component wise and the latter is true matrix
-$
-  A.*B -> "np.multiply" \
-  A*B -> "np.matmult" \
-  \
-  A.' -> "np.transpose" \
-  A' -> "np.matrix.(create obj).getH" \
-  "prefer the second until confirmation that i should not worry about complex values"
-$
-
+Careful with np.ndarray.\_\_mul\_\_ and np.matrix.\_\_mul\_\_, the former is always a component wise and the latter is true matrix
 
 
 ```python
