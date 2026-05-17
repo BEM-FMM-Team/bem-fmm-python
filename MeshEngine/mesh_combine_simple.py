@@ -29,7 +29,7 @@ def mesh_combine_simple(Pcell, tcell, condinner, condouter, opts = None):
         tcomb = np.vstack([tcomb, t + Pcomb.shape[0]])
         Pcomb = np.vstack([Pcomb, P])
         ncomb = np.vstack([ncomb, normals])
-        interface = np.concatenate([interface, np.full(t.shape[0], 1)])
+        interface = np.concatenate([interface, np.full(t.shape[0], i])
         condin = np.concatenate([condin, np.full(t.shape[0], condinner[i])])
         condout = np.concatenate([condout, np.full(t.shape[0], condouter[i])])
     
