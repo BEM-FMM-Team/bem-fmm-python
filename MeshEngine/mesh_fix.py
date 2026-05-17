@@ -24,8 +24,8 @@ def mesh_fix(p, t, ptol = None):
         p = p[pix, :]
         pix = ix[pix]
 
-        if t.shape[1] == p.shape[1] + 1:
-            flip = simpvol(p, t) < 0
-            t[flip, 0], t[flip, 1] = t[flip, 1], t[flip, 0].copy()
+        #if t.shape[1] == p.shape[1] + 1:
+        #    flip = simpvol(p, t) < 0
+        #    t[flip, 0], t[flip, 1] = t[flip, 1], t[flip, 0].copy()
 
     return p, t, pix
