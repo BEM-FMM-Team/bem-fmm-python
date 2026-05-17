@@ -16,4 +16,4 @@ def mesh_reorient(P, t, normals):
         if np.dot(normalcheck, normals[m, :]) < 0:
             t[m, 1:3] = t[m, 2:0:-1]
 
-        return t
+    return t
