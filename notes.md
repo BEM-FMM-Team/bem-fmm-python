@@ -50,35 +50,3 @@ I will put things that I found and find are useful here.
 Careful with np.ndarray.\_\_mul\_\_ and np.matrix.\_\_mul\_\_, the former is always a component wise and the latter is true matrix.
 According to numpy, we should generally avoid matrix and do everything with ndarrays,
 this means things like matrix multiplication should be explict (leaving `*` for component wise products)
-
-
-```python
-# Source - https://stackoverflow.com/a/26935798
-# Posted by Hooked, modified by community. See post 'Timeline' for change history
-# Retrieved 2026-05-13, License - CC BY-SA 3.0
-
-import numpy as np
-
-import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib.patches import Polygon
-from matplotlib.collections import PatchCollection
-
-fig, ax = plt.subplots()
-patches = []
-num_polygons = 5
-num_sides = 5
-
-for i in range(num_polygons):
-    polygon = Polygon(np.random.rand(num_sides ,2), True)
-    patches.append(polygon)
-
-p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
-
-colors = 100*np.random.rand(len(patches))
-p.set_array(np.array(colors))
-
-ax.add_collection(p)
-
-plt.show()
-```

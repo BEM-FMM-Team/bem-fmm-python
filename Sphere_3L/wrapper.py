@@ -44,11 +44,13 @@ if __name__ == "__main__":
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.
-    plot_tissue = 1
+    plot_tissue = 2
     # tissue id to plot
 
     bem5_plot_surface(
-        lambda plot_t_idx: eps0 * c[plot_t_idx],
+        fn=lambda plot_t_idx: eps0 * c[plot_t_idx],
+        title="Charge Solution on Surface: ",
+        cmap_label="C/m^2",
         c=c,
         P=P,
         t=t,
@@ -58,7 +60,9 @@ if __name__ == "__main__":
         plot_tissue=plot_tissue,
     )
     bem5_plot_surface(
-        lambda plot_t_idx: Ptot[plot_t_idx],
+        fn=lambda plot_t_idx: Ptot[plot_t_idx],
+        title="Potential on Surface: ",
+        cmap_label="V",
         c=c,
         P=P,
         t=t,
@@ -67,7 +71,9 @@ if __name__ == "__main__":
         tissuename=tissuename,
     )
     bem5_plot_surface(
-        lambda plot_t_idx: En[plot_t_idx],
+        fn=lambda plot_t_idx: En[plot_t_idx],
+        title="Normal E-field (inner) on Surface: ",
+        cmap_label="V/m",
         c=c,
         P=P,
         t=t,
@@ -77,7 +83,9 @@ if __name__ == "__main__":
         plot_tissue=plot_tissue,
     )
     bem5_plot_surface(
-        lambda plot_t_idx: J[plot_t_idx],
+        fn=lambda plot_t_idx: J[plot_t_idx],
+        title="Normal Current Density (inner) on Surface: ",
+        cmap_label="A/m^2",
         c=c,
         P=P,
         t=t,
