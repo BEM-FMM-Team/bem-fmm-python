@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 
 from scipy.io import loadmat
 
-from constants import eps0
 
 # ERROR broken for now
 
@@ -30,11 +29,11 @@ from constants import eps0
 
 
 # Plot potential
-def bem5_plot_surface_P(c, P, t, normals, interface, tissuename, plot_tissue=0):
+def bem5_plot_surface(fn, c, P, t, normals, interface, tissuename, plot_tissue=0):
     plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface is interesting
 
     plot_t = t[plot_t_idx]
-    plot_field = eps0 * c[plot_t_idx]
+    plot_field = fn(plot_t_idx)
 
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
@@ -42,11 +41,9 @@ def bem5_plot_surface_P(c, P, t, normals, interface, tissuename, plot_tissue=0):
     verts = np.empty((len(plot_t), 3, 3))
     for tri_index in range(len(plot_t)):
         verts[tri_index] = P[plot_t[tri_index]]
-
     poly = Poly3DCollection(
         verts, array=plot_field, cmap="jet", edgecolor="k", linewidth=0.2, alpha=1.0
     )
-
     ax.add_collection3d(poly)
 
     # Colorbar
@@ -62,13 +59,3 @@ def bem5_plot_surface_P(c, P, t, normals, interface, tissuename, plot_tissue=0):
     ax.set_zlabel("z, m")
 
     plt.show()
-
-
-# Plot electric field
-def bem5_plot_surface_E():
-    pass
-
-
-# Plot current density
-def bem5_plot_surface_J():
-    pass

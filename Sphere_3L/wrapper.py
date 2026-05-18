@@ -8,11 +8,10 @@ from bem4_charge_engine import (
     bemf4_surface_field_lhs,
 )
 
+from constants import eps0
+
 from plot import (
-    bem5_plot_surface_c,
-    bem5_plot_surface_P,
-    bem5_plot_surface_E,
-    bem5_plot_surface_J,
+    bem5_plot_surface,
 )
 
 if __name__ == "__main__":
@@ -48,7 +47,8 @@ if __name__ == "__main__":
     plot_tissue = 1
     # tissue id to plot
 
-    bem5_plot_surface_c(
+    bem5_plot_surface(
+        lambda plot_t_idx: eps0 * c[plot_t_idx],
         c=c,
         P=P,
         t=t,
@@ -57,7 +57,8 @@ if __name__ == "__main__":
         tissuename=tissuename,
         plot_tissue=plot_tissue,
     )
-    bem5_plot_surface_P(
+    bem5_plot_surface(
+        lambda plot_t_idx: Ptot[plot_t_idx],
         c=c,
         P=P,
         t=t,
@@ -65,7 +66,8 @@ if __name__ == "__main__":
         interface=interface,
         tissuename=tissuename,
     )
-    bem5_plot_surface_E(
+    bem5_plot_surface(
+        lambda plot_t_idx: En[plot_t_idx],
         c=c,
         P=P,
         t=t,
@@ -74,7 +76,8 @@ if __name__ == "__main__":
         tissuename=tissuename,
         plot_tissue=plot_tissue,
     )
-    bem5_plot_surface_J(
+    bem5_plot_surface(
+        lambda plot_t_idx: J[plot_t_idx],
         c=c,
         P=P,
         t=t,
