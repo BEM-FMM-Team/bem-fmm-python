@@ -1,19 +1,21 @@
-#   This script computes the induced surface charge density for an
-#   inhomogeneous multi-tissue object given the primary electric field, with
-#   accurate neighbor integration
-#
-#   Copyright SNM/WAW 2017-2020
+"""
+This script computes the induced surface charge density for an
+inhomogeneous multi-tissue object given the primary electric field,
+with accurate neighbor integration
 
-
-from numpy import ndarray
-import numpy as np
-
+Copyright SNM/WAW 2017-2020
+"""
 
 import sys
 
 sys.path.insert(
     1, "../ChargeEngine/"
 )  # INFO temporary path loading until we can talk about structure
+
+
+from numpy import ndarray
+import numpy as np
+import matplotlib.pyplot as plt
 
 from scipy.sparse.linalg import gmres, LinearOperator
 
@@ -28,12 +30,6 @@ from bemf3_inc_field_electric_constant import bemf3_inc_field_electric_constant
 from bemf4_surface_field_lhs import bemf4_surface_field_lhs
 
 
-def bemf2_graphics_surf_field(
-    P: ndarray, t: ndarray, FQ: ndarray, indicator: ndarray, tissue_number: int
-):
-    pass
-
-
 def charge_engine(
     center: ndarray,
     area,
@@ -44,6 +40,7 @@ def charge_engine(
     condin,
     #  Parameters of the iterative solution
     iter=50,
+    maxiter=50,
     relres=1e-6,  # Maximum possible number of iterations in the solution
     prec=1e-2,  # Minimum acceptable relative residual
     weight=1 / 2,  # FMM precision
@@ -80,9 +77,9 @@ def charge_engine(
         b,
         x0=b,
         rtol=relres,
-        restart=iter,
-        maxiter=1,
-        callback=lambda residual: resvec.append(residual),
+        # restart=iter,
+        maxiter=maxiter,
+        callback=lambda residual: print(f"{residual=}") or resvec.append(residual),
         callback_type="pr_norm",
     )
 
@@ -95,21 +92,12 @@ def charge_engine(
     En = bemf4_surface_field_electric_accurate(c, center, area, normals, EC, prec)
     J = -En * condin
 
-    return Ptot, Padd, En, J
+    plt.figure()
+    plt.semilogy(resvec, "-o")
+    plt.grid(True)
+    plt.title("Relative residual of the iterative solution")
+    plt.xlabel("Iteration number")
+    plt.ylabel("Relative residual")
+    plt.show()
 
-
-# figure
-# RESVEC = [];
-# for m = 1:size(resvec, 2)
-#     if m == size(resvec, 2)
-#         RESVEC = [RESVEC; resvec(1:its(2), m)];
-#     else
-#         RESVEC = [RESVEC; resvec(:, m)];
-#     end
-# end
-# semilogy(RESVEC, '-o'); grid on;
-# title('Relative residual of the iterative solution');
-# xlabel('Iteration number');
-# ylabel('Relative residual');
-#
-#
+    return c, Ptot, Padd, En, J

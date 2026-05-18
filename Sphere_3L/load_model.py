@@ -28,7 +28,6 @@ def load_model():
      DD - 5/2026
     """
 
-    ## Load template sphere
     S = loadmat("meshsphere3.mat")
     S["t"] = (S["t"] - 1).astype(int)
 
@@ -42,8 +41,7 @@ def load_model():
     tissuename = ["Skin", "Bone", "GM", "WM"]
 
     unit_convert = 1e-3  # from [mm] to [m] (ONLY IF MODEL IS IN [mm]!)
-    R = np.array([42, 36, 28, 25])  # radii [mm] out to in
-    R = unit_convert * R
+    R = unit_convert * np.array([42, 36, 28, 25])  # radii [mm] out to in
 
     # -- Set conductivities (S/m)
     condinner = [0.465, 0.0100, 0.2750, 0.1260]  # condin out to in
@@ -54,9 +52,9 @@ def load_model():
 
     ## Build shells
     # Build the shells for each radii. Set into cells to combine later.
-    for m, val in enumerate(R):
+    for m, radius in enumerate(R):
         # Vertices
-        Pcell.append(val * S["P"])
+        Pcell.append(radius * S["P"])
         tcell.append(S["t"])
 
     P, t, normals, condin, condout, interface = mesh_combine_simple(
@@ -69,6 +67,6 @@ def load_model():
     # Compute mesh data
     Center = mesh_tricenter(P, t)
     Area = mesh_areas(P, t)
-    contrast = (condin - condout) / (condin + condout)  # todo check
+    contrast = (condin - condout) / (condin + condout)
 
-    return P, t, Center, Area, contrast, normals, condin, condout
+    return P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename

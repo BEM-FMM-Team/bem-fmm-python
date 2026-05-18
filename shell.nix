@@ -14,6 +14,7 @@ in
     packages =
       libs
       ++ [
+        pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
             # let venv handle this
@@ -21,7 +22,7 @@ in
             # scipy
             pyqt6
 
-            pyglet
+            # pyglet
 
             (matplotlib.override {
               enableQt = true;

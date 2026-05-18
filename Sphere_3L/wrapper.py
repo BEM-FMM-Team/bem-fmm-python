@@ -15,40 +15,48 @@ from plot import (
     bem5_plot_surface_J,
 )
 
-## 1. Setup Model
-# Define EM constants
-eps0 = 8.85418782e-012  # Dielectric permittivity of vacuum(~air) F/m
-mu0 = 1.25663706e-006  # Magnetic permeability of vacuum(~air) H/m
+if __name__ == "__main__":
+    ## 1. Setup Model
 
-# -- Load model
+    # -- Load model
+    # TODO should be a dataclass object
+    P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename = (
+        load_model()
+    )
 
-P, t, Center, Area, contrast, normals, condin, condout = load_model()
+    # Neighbor integrals # INFO from old code
+    # bem2_setup_integrals;
 
-# Neighbor integrals # INFO from old code
-# bem2_setup_integrals;
+    n = t.shape[0]
 
-n = t.shape[0]
+    PC = csr_matrix((n, n))
+    EC = csr_matrix((n, n))
 
-PC = csr_matrix((n, n))
-EC = csr_matrix((n, n))
+    ## 2. Compute Charge Solution
+    c, Ptot, Padd, En, J = charge_engine(
+        center=Center,
+        area=Area,
+        contrast=contrast,
+        normals=normals,
+        PC=PC,
+        EC=EC,
+        condin=condin,
+    )
 
-## 2. Compute Charge Solution
-Ptot, Padd, En, J = charge_engine(
-    center=Center,
-    area=Area,
-    contrast=contrast,
-    normals=normals,
-    PC=PC,
-    EC=EC,
-    condin=condin,
-)
+    ## 3. Compute and Plot Fields (Surface)
+    # Compute and plot the fields of interest on desired tissue.
+    plot_tissue = 1
+    # tissue id to plot
 
-## 3. Compute and Plot Fields (Surface)
-# Compute and plot the fields of interest on desired tissue.
-plot_tissue = 1
-# tissue id to plot
-
-bem5_plot_surface_c(obj)
-bem5_plot_surface_P(obj)
-bem5_plot_surface_E(obj)
-bem5_plot_surface_J(obj)
+    bem5_plot_surface_c(
+        c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
+    )
+    # bem5_plot_surface_P(
+    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
+    # )
+    # bem5_plot_surface_E(
+    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
+    # )
+    # bem5_plot_surface_J(
+    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
+    # )
