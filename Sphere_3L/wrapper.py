@@ -49,14 +49,37 @@ if __name__ == "__main__":
     # tissue id to plot
 
     bem5_plot_surface_c(
-        c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
+        c=c,
+        P=P,
+        t=t,
+        normals=normals,
+        interface=interface,
+        tissuename=tissuename,
+        plot_tissue=plot_tissue,
     )
-    # bem5_plot_surface_P(
-    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
-    # )
-    # bem5_plot_surface_E(
-    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
-    # )
-    # bem5_plot_surface_J(
-    #     c=c, P=P, t=t, normals=normals, interface=interface, tissuename=tissuename
-    # )
+    bem5_plot_surface_P(
+        c=c,
+        P=P,
+        t=t,
+        normals=normals,
+        interface=interface,
+        tissuename=tissuename,
+    )
+    bem5_plot_surface_E(
+        c=c,
+        P=P,
+        t=t,
+        normals=normals,
+        interface=interface,
+        tissuename=tissuename,
+        plot_tissue=plot_tissue,
+    )
+    bem5_plot_surface_J(
+        c=c,
+        P=P,
+        t=t,
+        normals=normals,
+        interface=interface,
+        tissuename=tissuename,
+        plot_tissue=plot_tissue,
+    )
