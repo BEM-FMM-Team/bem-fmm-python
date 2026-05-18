@@ -8,7 +8,6 @@
 from numpy import ndarray
 import numpy as np
 
-from lib import msum
 
 import sys
 
@@ -20,11 +19,11 @@ from scipy.sparse.linalg import gmres, LinearOperator
 
 from bemf4_surface_field_lhs import bemf4_surface_field_lhs
 
-# from bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
-# from bemf4_surface_field_potential_accurate import (
-#     bemf4_surface_field_potential_accurate,
-# )
-# from bemf4_surface_field_electric_accurate import bemf4_surface_field_electric_accurate
+from bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
+from bemf4_surface_field_potential_accurate import (
+    bemf4_surface_field_potential_accurate,
+)
+from bemf4_surface_field_electric_accurate import bemf4_surface_field_electric_accurate
 from bemf3_inc_field_electric_constant import bemf3_inc_field_electric_constant
 from bemf4_surface_field_lhs import bemf4_surface_field_lhs
 
@@ -36,12 +35,13 @@ def bemf2_graphics_surf_field(
 
 
 def charge_engine(
-    center,
+    center: ndarray,
     area,
     contrast,
     normals,
     PC,
     EC,
+    condin,
     #  Parameters of the iterative solution
     iter=50,
     relres=1e-6,  # Maximum possible number of iterations in the solution
@@ -49,10 +49,12 @@ def charge_engine(
     weight=1 / 2,  # FMM precision
     # Current conservation law in the weak form
 ):
-    polarization = np.array([1, 0, 0])
+    polarization = [1, 0, 0]
+    print(center.dtype)
+    print(center.shape)
     Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
 
-    b = 2 * (contrast * msum(normals * Epri, 2))
+    b = 2 * (contrast * np.sum(normals * Epri, axis=1))
     #  Right-hand side of the BEM-FMM equation
 
     # list to store residual at every iteration
@@ -60,7 +62,16 @@ def charge_engine(
 
     A = LinearOperator(
         shape=(len(normals), len(normals)),
-        matvec=lambda c: bemf4_surface_field_lhs(c, center, area, contrast, normals),
+        matvec=lambda c: bemf4_surface_field_lhs(
+            c=c,
+            center=center,
+            area=area,
+            contrast=contrast,
+            normals=normals,
+            weight=weight,
+            EC=EC,
+            prec=prec,
+        ),
         dtype=float,
     )
 

@@ -26,6 +26,8 @@ def bemf3_inc_field_electric_constant(points, polarization):
     Epri = np.tile(
         polarization, (len(points), 1)
     )  # dupe the polarization arr at each index
+    print(f"{Epri.shape=}")
+    print(f"{points.shape=}")
     Ppri = -np.sum(
         Epri * points, axis=1
     )  # performs row-wise dot product of Epri and points
@@ -55,7 +57,7 @@ def bemf4_surface_field_electric_plain(
     #   potential and field are evaluated @ sources
     sources = np.transpose(center)
     charges = np.transpose(c * area)
-    out = fmm.lfmm3d(eps=prec, sources=sources, charges=charges, pg=2)
+    out = fmm.lfmm3d(eps=prec, sources=sources, charges=charges, pg=pg)
     P = np.transpose(out.pot) * (1 / 4 / np.pi)
     E = np.transpose(out.grad) * (-1 / 4 / np.pi)
 

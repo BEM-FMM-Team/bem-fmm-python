@@ -5,7 +5,7 @@ from fmm3dpy import lfmm3d
 
 import numpy as np
 
-from .lib import msum, mul, div, rdiv, mul, matmul
+from lib import msum, mul, div, rdiv, mul, matmul
 
 
 #   Computes electric field from the coil via the FMM
@@ -13,7 +13,7 @@ from .lib import msum, mul, div, rdiv, mul, matmul
 #
 #   Copyright SNM 2017-2020
 def bemf3_inc_field_electric(strcoil, Points, dIdt, mu0):
-    pass
+    raise NotImplmentedError
     # #   Compute pseudo potentials
     # N  = size(Points, 1);
     # segvector   =     (strcoil.Pwire(strcoil.Ewire(:, 2), :) - strcoil.Pwire(strcoil.Ewire(:, 1), :)).*repmat(strcoil.Swire, 1, 3);

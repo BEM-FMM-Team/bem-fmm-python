@@ -1,6 +1,8 @@
 from typing import Any
+
+import numpy as np
+
 from numpy import dtype, float64, ndarray
-from lib import msum, mul
 
 from bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
 
@@ -21,7 +23,7 @@ def bemf4_surface_field_electric_accurate(
     En = (
         -c / 2
         + correction  #  This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
-        + msum(mul(normals, E0), 1)  #   This is the full center-point FMM part
+        + np.sum((normals * E0), axis=1)  #   This is the full center-point FMM part
     )
 
     return En

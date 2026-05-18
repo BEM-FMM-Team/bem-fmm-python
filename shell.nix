@@ -5,24 +5,29 @@
     libGL
     glib.out
     libx11
+    freeglut
+    libGLU
   ];
 in
   pkgs.mkShell
   {
     packages =
       libs
-      ++ (with pkgs; [
-        (python313 .withPackages (p:
+      ++ [
+        (pkgs.python313.withPackages (p:
           with p; [
             # let venv handle this
             # matplotlib
             # scipy
             pyqt6
+
+            pyglet
+
+            (matplotlib.override {
+              enableQt = true;
+            })
           ]))
-        (python313Packages.matplotlib.override {
-          enableQt = true;
-        })
-      ]);
+      ];
 
     LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libs}:$LD_LIBRARY_PATH";
 
@@ -31,7 +36,7 @@ in
       bash
       */
       ''
-        export PYTHONPATH="$PYTHONPATH:$PWD/ChargeEngine/"
+        export PYTHONPATH="$PYTHONPATH:$PWD/ChargeEngine/:$PWD/MeshEngine/"
         if [ ! -d venv ]; then
           python3 -m venv venv
           source venv/bin/activate

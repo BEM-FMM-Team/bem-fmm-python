@@ -1,5 +1,17 @@
 Brainstorming and discussion from shawn
 
+All these use numpy as a backend so we dont have to worry about duplication of memory
+
+ - [trimesh](https://github.com/mikedh/trimesh) - mesh loader
+ - [shapely](https://github.com/shapely/shapely) - mesh manipulation
+ - [pyglet](https://pyglet.org/) - matplotlib is not going to cut it for large number of vertices
+
+
+Okay so matplotlib is not going to cut it for a large number of vertices. It just isnt designed for the task.
+What I suggest is one of the following (of both, dumping processed can trades storage, which im told we have practically infinite, for cpu time):
+ - trimesh rendering with pyglet
+ - dumping the raw vertices, faces, normals (for lighting, its also just nice to have normals precomputed) and colors/materials to some obj/stl/...3dmodel file and rendering it with a dedicated program.
+
 ## Style
 
 [PEP8](https://peps.python.org/pep-0008/) is what we should follow for a consistent python project.
@@ -15,6 +27,7 @@ Classes in python can be problematic but we can see where to integrate them (may
 Minimize global state, python does not work well with a bunch of global state, unless you want to fight the garbage collector (you can, only in specific casess)
 
 ## Future Plans
+ - jupyter notebooks
  - Have structure in python libraries
  - Move all artifacts out of source code directories
  - 3D model rendering should really not be done with matplotlib

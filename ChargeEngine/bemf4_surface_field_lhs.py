@@ -1,4 +1,7 @@
+import numpy as np
+
 from typing import Any
+
 from numpy import dtype, float64, ndarray
 from lib import msum, mul, div, mul, matmul
 
@@ -23,16 +26,16 @@ def bemf4_surface_field_lhs(
     _, E0 = bemf4_surface_field_electric_plain(
         c, center, area, prec
     )  #   Plain FMM result
-    correction = mul(matmul(EC, c), contrast)  #   Correction of plain FMM result
+    correction = (EC @ c) * contrast  #   Correction of plain FMM result
     LHS = (
         c
         - 2
         * correction  #   This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
         - 2
         * mul(
-            contrast, msum(mul(normals, E0), 1)
+            contrast, np.sum(normals * E0, axis=1)
         )  #   This is not-dominant center-point FMM part
-        + weight * div(msum(mul(c, area)), msum(area))
+        + weight * div(np.sum(c * area, axis=0), np.sum(area, axis=0))
     )  #   This is weight correction (optional)
 
     return LHS
