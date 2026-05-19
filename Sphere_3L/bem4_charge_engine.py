@@ -15,7 +15,6 @@ sys.path.insert(
 
 from numpy import ndarray
 import numpy as np
-import matplotlib.pyplot as plt
 
 from scipy.sparse.linalg import gmres, LinearOperator
 
@@ -30,6 +29,10 @@ from bemf3_inc_field_electric_constant import bemf3_inc_field_electric_constant
 from bemf4_surface_field_lhs import bemf4_surface_field_lhs
 
 
+from lib import timeit
+
+
+@timeit
 def charge_engine(
     center: ndarray,
     area,
@@ -47,8 +50,6 @@ def charge_engine(
     # Current conservation law in the weak form
 ):
     polarization = [1, 0, 0]
-    print(center.dtype)
-    print(center.shape)
     Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
 
     b = 2 * (contrast * np.sum(normals * Epri, axis=1))
@@ -92,12 +93,4 @@ def charge_engine(
     En = bemf4_surface_field_electric_accurate(c, center, area, normals, EC, prec)
     J = -En * condin
 
-    plt.figure()
-    plt.semilogy(resvec, "-o")
-    plt.grid(True)
-    plt.title("Relative residual of the iterative solution")
-    plt.xlabel("Iteration number")
-    plt.ylabel("Relative residual")
-    plt.show()
-
-    return c, Ptot, Padd, En, J
+    return c, Ptot, Padd, En, J, resvec

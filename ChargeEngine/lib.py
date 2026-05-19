@@ -3,6 +3,7 @@ from numpy import matmul
 from functools import reduce
 import numpy as np
 
+
 # TODO needs a better name
 
 # division in matlab does alot of things
@@ -68,3 +69,14 @@ def toc():
     time_taken = perf_counter() - internal_timer
     print(f"Time taken: {time_taken}")
     pass
+
+
+def timeit(fn):
+    def ret(*args, **kwargs):
+        t1 = perf_counter()
+        result = fn(*args, **kwargs)
+        t2 = perf_counter()
+        print(f"Function {fn.__name__!r} executed in {(t2-t1):.4f}s")
+        return result
+
+    return ret

@@ -26,10 +26,10 @@ WM   : 0.1260 : 0.2750
 
 Nothing is tested as of yet as this is the test itself
 
-- [ ] wrapper
-    - [ ] load_mesh
+- [x] wrapper
+    - [x] load_mesh
         - ...
-    - [ ] charge_engine > everything needed is complete, just the wrapper side
+    - [x] charge_engine > everything needed is complete, just the wrapper side
         - [x] surface_field_lhs ../ChargeEngine/bemf4_surface_field_lhs.py
         - [x] surface_field_electric_plain ../ChargeEngine/bemf4_surface_field_electric_plain.py
         - [x] surface_field_potential_accurate ../ChargeEngine/bemf4_surface_field_potential_accurate.py

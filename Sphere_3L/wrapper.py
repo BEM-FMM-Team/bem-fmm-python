@@ -1,12 +1,10 @@
 from scipy.sparse import csr_matrix
-import numpy as np
+
+import matplotlib.pyplot as plt
+
 
 from load_model import load_model
-from bem4_charge_engine import (
-    charge_engine,
-    bemf3_inc_field_electric_constant,
-    bemf4_surface_field_lhs,
-)
+from bem4_charge_engine import charge_engine
 
 from constants import eps0
 
@@ -32,7 +30,7 @@ if __name__ == "__main__":
     EC = csr_matrix((n, n))
 
     ## 2. Compute Charge Solution
-    c, Ptot, Padd, En, J = charge_engine(
+    c, Ptot, Padd, En, J, resvec = charge_engine(
         center=Center,
         area=Area,
         contrast=contrast,
@@ -41,6 +39,14 @@ if __name__ == "__main__":
         EC=EC,
         condin=condin,
     )
+
+    plt.figure()
+    plt.semilogy(resvec, "-o")
+    plt.grid(True)
+    plt.title("Relative residual of the iterative solution")
+    plt.xlabel("Iteration number")
+    plt.ylabel("Relative residual")
+    plt.show()
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.

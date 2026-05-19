@@ -1,3 +1,4 @@
+from lib import timeit
 import sys
 
 # INFO temporary path loading until we can talk about structure
@@ -15,17 +16,18 @@ from mesh_tricenter import mesh_tricenter
 from mesh_areas import mesh_areas
 
 
+@timeit
 def load_model():
     """
-    ### Load BEM Model
-     Load the desired BEM model.
+    Load BEM Model
+    Load the desired BEM model.
 
-     We will start with a 3 layer (4 shell) sphere.
+    We will start with a 3 layer (4 shell) sphere.
 
-     Very basic mesh loading. Create the combined mesh, create the interface
-     array. (No mesh fixing yet, will add later with head models).
+    Very basic mesh loading. Create the combined mesh, create the interface
+    array. (No mesh fixing yet, will add later with head models).
 
-     DD - 5/2026
+    DD - 5/2026
     """
 
     S = loadmat("meshsphere3.mat")
