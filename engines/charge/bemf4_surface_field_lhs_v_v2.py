@@ -1,8 +1,8 @@
 import numpy as np
+from bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
 
-from lib import rdiv
-
-from bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
+from ..lib import rdiv
 
 
 def bemf4_surface_field_lhs_v_v2(

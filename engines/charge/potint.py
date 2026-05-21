@@ -1,5 +1,5 @@
-from numpy import pi, float64, zeros, sum, sqrt
 import numpy as np
+from numpy import float64, pi, sqrt, sum, zeros
 
 
 def potint(r1, r2, r3, normal, ObsPoint):

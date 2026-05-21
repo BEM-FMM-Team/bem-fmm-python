@@ -1,39 +1,54 @@
-from numpy import ndarray
-
 import numpy as np
-
-from numpy import pi
 from fmm3dpy import lfmm3d
 
 
-#   Computes potential and electric field from the dipole distribution via the FMM
-#   at observation points (Points)
-def  bemf3_inc_field_electric_plain_dipoles(strdipolePplus: np.ndarray, strdipolePminus: np.ndarray, strdipoljsig, strdipoleCurrent, Points):
-    #   Define source (pole) positions and FMM pseudo charges
-    Positions   = 0.5 * (strdipolePplus+strdipolePminus);
-    d           = (strdipolePplus-strdipolePminus);
+def bemf3_inc_field_electric_plain_dipoles(
+    strdipolePplus=None,
+    strdipolePminus=None,
+    strdipolesig=None,
+    strdipoleCurrent=None,
+    Points=None,
+):
+    """
+    Computes potential and electric field from the dipole distribution via the FMM
+    at observation points (Points)
+    """
+
+    # Define source (pole) positions and FMM pseudo charges
+    Positions = 0.5 * (strdipolePplus + strdipolePminus)
+    d = strdipolePplus - strdipolePminus
 
     # WARNING I changed this for our particular problem GNP
     end = len(strdipoleCurrent) - 1
-    I0oversigma = strdipoleCurrent[ 0:end/2 -1 ]./strdipolesig[ 0:end/2 - 1 ]; # TODO query, wait -1 ? , wait end
-    #I0oversigma = strdipoleCurrent(1:2:end)./strdipolesig(1:2:end);
-    PseudoM     = np.tile(I0oversigma.T, (1, 3)) * d;  # plus here!
+    I0oversigma = (
+        strdipoleCurrent[np.arange(0, end // 2 + 1)]
+        / strdipolesig[np.arange(0, end // 2 + 1)]
+    )
+    # I0oversigma = strdipoleCurrent(1:2:end)./strdipolesig(1:2:end);
 
+    PseudoM = np.tile(I0oversigma.T, (1, 3)) * d
 
-    #   FMM 2019
-    nd      = 1;                    #   one vector of charges
-    sources = Positions.T;           #   source points
-    targ            = Points.T;              #   target points
-    prec            = 1e-4;                 #   precision->OK for surfaces
-    pg      = 0;                            #   nothing is evaluated at sources
-    pgt     = 2;                            #   potential/field are evaluated at targets
-    dipoles          = PseudoM.T;   #   pseudo dipoles
-    U                        = lfmm3d(prec, sources=sources, pg=pg, targets=targ, pgt=pgt, dipoles=dipoles, nd=nd);
+    # FMM 2019
+    nd = 1
+    sources = Positions.T
+    targ = Points.T
+    prec = 0.0001
+    pg = 0
+    pgt = 2
 
-    Ppri                     = 1/(4*pi)*U.pottarg.T; # TODO look back
-    Epri = np.zeros((,2)) # WARN wrong
-    Epri[:, 0]               = -1/(4*pi)*U.gradtarg[0, :]; # TODO inspect indexing
-    Epri[:, 1]               = -1/(4*pi)*U.gradtarg[1, :]; # TODO inspect indexing
-    Epri[:, 2]               = -1/(4*pi)*U.gradtarg[2, :]; # TODO inspect indexing
+    dipoles = PseudoM.T
 
+    U = lfmm3d(
+        esp=prec, sources=sources, pg=pg, targets=targ, pgt=pgt, nd=nd, dipvec=dipoles
+    )  # TODO confirm dipvec=dipolses
+
+    Ppri = +1 / (4 * np.pi) * np.transpose(U.pottarg)
+
+    Epri = np.zeroes((U.gradtarg.shape[1], 3))
+    Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]
+    Epri[:, 1] = -1 / (4 * np.pi) * U.gradtarg[1, :]
+    Epri[:, 2] = -1 / (4 * np.pi) * U.gradtarg[2, :]
+
+    # INFO i think this would be better
+    # Epri = (-1/(4*np.pi) * U.gradtarg).T
     return Epri, Ppri

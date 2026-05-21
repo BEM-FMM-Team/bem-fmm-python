@@ -1,71 +1,64 @@
-from numpy import float64
-from numpy import pi
+import numpy as np
 from fmm3dpy import lfmm3d
 
-import numpy as np
 
-from .lib import msum, mul, div, rdiv, mul, matmul
+def bemf5_volume_field_electric(Points = None,c = None,P = None,t = None,Center = None,Area = None,normals = None,R = None,prec = None,planeABCD = None):
+   """
+   Computes electric field for an array Points anywhere in space (line,
+   surface, volume). This field is due to surface charges at triangular
+   facets only. Includes accurate neighbor triangle integrals for
+   points located close to a charged surface.
+   R is the dimensionless radius of the precise-integration sphere
 
+   Copyright SNM/WAW 2017-2020
+   R = is the local radius of precise integration in terms of average triangle size
+   """
 
-#   Computes electric field for an array Points anywhere in space (line,
-#   surface, volume). This field is due to surface charges at triangular
-#   facets only. Includes accurate neighbor triangle integrals for
-#   points located close to a charged surface.
-#   R is the dimensionless radius of the precise-integration sphere
-#
-#   Copyright SNM/WAW 2017-2020
-#   R = is the local radius of precise integration in terms of average triangle size
-def bemf5_volume_field_electric(
-    points, c, P, t, center, area, normals, r, prec, planeABCD=[]
-):
-    sources = center.T  #   source points
-    targ = points.T  #   target points
-    pg = 0  #   nothing is evaluated at sources
-    pgt = 2  #   field and potential are evaluated at target points
-    U = lfmm3d(eps=prec, sources=sources, targets=targ, pgt=pgt, pg=pg)  # FMM
+    if (len(varargin) < 10):
+        planeABCD = []
 
-    charges = mul(c.T, area.T)
-    E = -U.gradtarg.T / (4 * pi)
+    #   FMM 2019
 
+    sources = Center.T
+    targ = Points.T
+    pg = 0
+    pgt = 2
+    charges = c.T * Area.T
+
+    U = lfmm3d(eps=prec,sources=sources, charges=charges,pg=pg,targets=targ,pgt=pgt)
+    E = - np.transpose(U.gradtarg) / (4 * np.pi)
     #   Undo the effect of the m-th triangle charge on neighbors and
-    #   add precise integration instead
-    #   Contribution of the charge of triangle m to the field at all points is sought
-    M = center.shape
-    const = 4 * pi
-
-    size = np.mean(np.sqrt(area))
-    if len(planeABCD) == 0:
-        eligibleTriangles = np.arange(size[t, 1], dtype=float64)
+#   add precise integration instead
+#   Contribution of the charge of triangle m to the field at all points is sought
+    M = Center.shape[0]
+    const = 4 * np.pi
+    Size = np.mean(np.sqrt(Area))
+    if (len(planeABCD)==0):
+        eligibleTriangles = np.arange(1,t.shape[1-1]+1)
     else:
-        d1 = np.abs(
-            planeABCD[0] * center[:, 0]
-            + planeABCD[1] * center[:, 1]
-            + planeABCD[2] * center[:, 2]
-            + planeABCD[3]
-        )
-        d2 = np.norm(planeABCD[0:2])
+        d1 = np.abs(planeABCD(1) * Center(:,1) + planeABCD(2) * Center(:,2) + planeABCD(3) * Center(:,3) + planeABCD(4))
+        d2 = norm(planeABCD(np.arange(1,3+1))) # INFO norm, i dont want to make a wrong assumption
+        d = d1 / d2
+        eligibleTriangles = find(d <= R * Size)
 
-        d = div(d1, d2)
-        # eligibleTriangles = find(d <= R*Size);
+    ineighborlocal = rangesearch(Points,Center[ eligibleTriangles,: ],R * Size,'NSMethod','kdtree') # INFO
 
-    # ineighborlocal   = rangesearch(Points, Center(eligibleTriangles, :), R*Size, 'NSMethod', 'kdtree'); # over triangles: M by X
-    #
-    # for j = 1:length(eligibleTriangles)
-    #     index = ineighborlocal{j};
-    #     m = eligibleTriangles(j);
-    #     if ~isempty(index)
-    #         temp        = repmat(Center(m, :), length(index), 1) - Points(index, :);   #   these are distances to the observation points
-    #         DIST        = sqrt(dot(temp, temp, 2));                                    #   single column                                            #Fast calculation for distance^2
-    #         I           = Area(m)*temp./repmat(DIST.^3, 1, 3);                         #   center-point integral, standard format
-    #         E(index, :) = E(index, :) - (- c(m)*I/const);
-    #         r1      = P(t(m, 1), :);    #   row
-    #         r2      = P(t(m, 2), :);    #   row
-    #         r3      = P(t(m, 3), :);    #   row
-    #         I       = potint2(r1, r2, r3, normals(m, :), Points(index, :));     #   analytical precise integration MATLAB
-    #         E(index, :)= E(index, :) + (- c(m)*I/const);
-    #
-    #         # if any(any(isnan(E)))
-    #         #     disp('bug')
-    #         #     disp(num2str(j))
-    #         #
-    # return E
+    for j in np.arange(1,len(eligibleTriangles)+1).reshape(-1):
+        index = ineighborlocal[j]
+        m = eligibleTriangles(j)
+        if not len(index)==0 :
+            temp = np.matlib.repmat(Center(m,:),len(index),1) - Points(index,:)
+            DIST = np.sqrt(np.dot(temp,temp,2))
+            I = Area(m) * temp / np.matlib.repmat(DIST ** 3,1,3)
+            E[index,:] = E(index,:) - (- c(m) * I / const)
+            r1 = P(t(m,1),:)
+            r2 = P(t(m,2),:)
+            r3 = P(t(m,3),:)
+            I = potint2(r1,r2,r3,normals(m,:),Points(index,:))
+            E[index,:] = E(index,:) + (- c(m) * I / const)
+            # if any(any(isnan(E)))
+#     disp('bug')
+#     disp(num2str(j))
+# end
+
+    return E

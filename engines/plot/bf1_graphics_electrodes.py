@@ -1,12 +1,11 @@
 import numpy as np
-    
-def bemf1_graphics_electrodes(P = None,t = None,strge = None,IndicatorElectrodes = None,flag = None): 
+
+
+def bemf1_graphics_electrodes(P = None,t = None,strge = None,IndicatorElectrodes = None,flag = None):
     #   Electrode plot (with thick edges)
-    
     #   Copyright SNM 2017-2018
-    
     #   Skin surface
-    
+
     for m in np.arange(1,strge.NumberOfElectrodes+1).reshape(-1):
         if flag == - 2:
             p = patch('vertices',P,'faces',t(IndicatorElectrodes == m,:))
@@ -44,4 +43,3 @@ def bemf1_graphics_electrodes(P = None,t = None,strge = None,IndicatorElectrodes
             p.FaceColor = 'none'
             p.EdgeColor = 'k'
             p.LineWidth = 0.5
-    

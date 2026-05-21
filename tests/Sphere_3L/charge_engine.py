@@ -23,7 +23,7 @@ from engines.charge.bemf4_surface_field_electric_accurate import \
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.charge.bemf4_surface_field_potential_accurate import \
     bemf4_surface_field_potential_accurate
-from engines.charge.lib import timeit
+from engines.lib import timeit
 
 
 @timeit

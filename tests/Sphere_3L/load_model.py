@@ -9,7 +9,7 @@ import numpy as np
 from scipy.io import loadmat
 
 # TODO make this more elegant
-from engines.charge.lib import timeit
+from engines.lib import timeit
 from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter

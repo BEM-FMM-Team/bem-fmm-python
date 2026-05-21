@@ -3,7 +3,7 @@ from fmm3dpy import lfmm3d
 from numpy import char, float64, pi
 
 
-def potin2(*_):
+def potint2(*_):
     raise NotImplementedError()
 
 
@@ -31,6 +31,7 @@ def bemf3_inc_field_electric_dipole(SourceDipole = None,P = None,t = None,Center
     pg = 0
     pgt = 2
 
+        charges = np.zeros((1,PseudoQ.shape[1]))
     charges[1,:] = PseudoQ.T
 
     U = lfmm3d(esps=prec,sources=sources,pg=pg,targets=targ,pgt=pgt)
@@ -57,7 +58,7 @@ def bemf3_inc_field_electric_dipole(SourceDipole = None,P = None,t = None,Center
 
     ineighborlocal = rangesearch(PositionsCenter,Center,R * Size,'NSMethod','kdtree')
     # Loop over triangles: M by X
-    M = Center.shape[1-1]
+    M = Center.shape[0]
     CurrentOverSigma = strdipoleCurrent / strdipolesig
     for m in np.arange(1,M+1).reshape(-1):
         inde = ineighborlocal[m]

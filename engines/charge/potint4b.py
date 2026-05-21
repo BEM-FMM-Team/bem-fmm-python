@@ -1,6 +1,7 @@
-from .lib import mul, size, vecnorm, repmat
 import numpy as np
-from numpy import dot, cross
+from numpy import cross, dot
+
+from .lib import mul, repmat, size, vecnorm
 
 
 def potint4b(r1, r2, r3, obsPoint):

@@ -18,20 +18,22 @@ The non-trivial translations may require more inspection hence will be slower to
 + [x] bemf4_surface_field_electric_plain.py
 + [x] bemf3_inc_field_electric_constant.py
 
-    > requires setup with matplotlib for patches, skipping for now
 + [ ] bemf3_inc_field_electric_dipole.py
-    > find elegant solution for line 33
+    > potint2 function ?
 + [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py
-    > requires mesh engine, skipping until, we can define a compatible api
+    > mesh_tri function ?
 + [ ] bemf3_inc_field_electric_plain_dipoles.py
+    > CONFIRM intent on line 43, 52
     > alot of indexing here, cant be sure until i have something to test on
 + [ ] bemf3_inc_field_electric.py
-    > matlabs' implicit field make this ...
+    > CONFIRM line 16 indexing
 + [ ] bemf4_surface_field_electric_subdiv.py
-    > requies mesh_engine, matlab ....
+    > mesh_tri function ?
 + [ ] bemf5_volume_field_electric.py
-    > matlab ....
-+ [ ] potint4b.py almost complete
-+ [ ] potint.py matlab ....
+    > norm, rangesearch ?
++ [ ] potint4b.py
+    > struggle with 3d repmat
++ [ ] potint.py
+    > complete but i am uncertain that it and matlab compute the same
 
-+ [ ] bemf1_graphics_electrodes.py -> plot engine
++ bemf1_graphics_electrodes.py -> plot engine has same function ../plot/bemf1_graphics_electrodes.py

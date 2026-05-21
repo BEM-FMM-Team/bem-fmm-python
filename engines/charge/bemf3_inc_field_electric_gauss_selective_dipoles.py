@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def bemf3_inc_field_electric_gauss_selective_dipoles(SourceDipole = None,P = None,t = None,Center = None,dipoleClusterCenter = None,gaussRadius = None
                                                      ):
     strdipolePplus = SourceDipole.src_p
