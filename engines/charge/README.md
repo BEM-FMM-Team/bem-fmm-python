@@ -8,6 +8,9 @@ Nothing is tested, just initial translations
 
 The non-trivial translations may require more inspection hence will be slower to get done.
 
+
+###### complete
+
 + [x] bemf4_surface_field_lhs_v_v2.py
 + [x] bemf4_surface_field_lhs_i.py
 + [x] bemf4_surface_field_lhs.py
@@ -18,22 +21,26 @@ The non-trivial translations may require more inspection hence will be slower to
 + [x] bemf4_surface_field_electric_plain.py
 + [x] bemf3_inc_field_electric_constant.py
 
-+ [ ] bemf3_inc_field_electric_dipole.py
-    > potint2 function ?
-+ [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py
-    > mesh_tri function ?
+###### complex and may need  double checking
++ [ ] potint.py
++ [ ] potint4b.py
+    > complete but i am uncertain that it and matlab compute the same
+
 + [ ] bemf3_inc_field_electric_plain_dipoles.py
     > CONFIRM intent on line 43, 52
     > alot of indexing here, cant be sure until i have something to test on
 + [ ] bemf3_inc_field_electric.py
     > CONFIRM line 16 indexing
+
+###### mesh engine
++ [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py
+    > mesh_tri function ?
 + [ ] bemf4_surface_field_electric_subdiv.py
     > mesh_tri function ?
+
++ [ ] bemf3_inc_field_electric_dipole.py
+    > potint2 function ?
 + [ ] bemf5_volume_field_electric.py
     > norm, rangesearch ?
-+ [ ] potint4b.py
-    > struggle with 3d repmat
-+ [ ] potint.py
-    > complete but i am uncertain that it and matlab compute the same
 
-+ bemf1_graphics_electrodes.py -> plot engine has same function ../plot/bemf1_graphics_electrodes.py
++ bemf1_graphics_electrodes.py -> plot engine has same function ../plot/bf1_graphics_electrodes.py

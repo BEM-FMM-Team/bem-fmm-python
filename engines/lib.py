@@ -1,21 +1,9 @@
-from time import perf_counter
-from numpy import matmul
 from functools import reduce
+from time import perf_counter
+
 import numpy as np
 
-
 # TODO needs a better name
-
-# division in matlab does alot of things
-
-# mldivide (A \ B) -> solve AX = B
-# div = ldiv = mldivide = lambda A, B: (
-#     np.linalg.solve(A, B)
-#     if A.shape[0] == A.shape[1]
-#     else np.linalg.lstsq(A, B, rcond=None)[0]
-# )
-# WARN not sure
-div = lambda A, B: A / B
 
 # mrdivide (A / B) -> solve X*B = A
 # rdiv = mrdivide = lambda A, B: (
@@ -25,16 +13,6 @@ div = lambda A, B: A / B
 # )
 # https://stackoverflow.com/questions/1001634/array-division-translating-from-matlab-to-python#1008869
 rdiv = lambda a, b: np.linalg.lstsq(b.T, a.T)[0].T
-
-# makes it cleaner for multiple multiplications
-mul = lambda *args: (
-    np.multiply(args[0], args[1])
-    if len(args) == 2
-    else reduce(np.multiply, args[1:], args[0])
-)
-
-msum = lambda a, dim=0: np.sum(a, dim)
-
 zeros = lambda x, y: np.zeros((x, y))
 
 # WARN untested
@@ -56,7 +34,6 @@ repmat = lambda a, m, n: np.tile(a, (m, n))
 internal_timer = 0
 
 
-# something elegant can be done here
 def tic():
     global internal_timer
     internal_timer = perf_counter()

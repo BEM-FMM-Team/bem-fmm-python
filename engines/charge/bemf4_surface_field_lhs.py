@@ -3,8 +3,7 @@ from typing import Any
 import numpy as np
 from numpy import dtype, float64, ndarray
 
-from .bemf4_surface_field_electric_plain import \
-    bemf4_surface_field_electric_plain
+from .bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
 
 
 #   Computes the left hand side of the charge equation for surface charges

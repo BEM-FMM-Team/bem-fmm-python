@@ -42,7 +42,7 @@ def bemf3_inc_field_electric_plain_dipoles(
         esp=prec, sources=sources, pg=pg, targets=targ, pgt=pgt, nd=nd, dipvec=dipoles
     )  # TODO confirm dipvec=dipolses
 
-    Ppri = +1 / (4 * np.pi) * np.transpose(U.pottarg)
+    Ppri = 1 / (4 * np.pi) * np.transpose(U.pottarg)
 
     Epri = np.zeroes((U.gradtarg.shape[1], 3))
     Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]

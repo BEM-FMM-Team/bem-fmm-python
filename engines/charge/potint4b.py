@@ -1,7 +1,6 @@
 import numpy as np
-from numpy import cross, dot
 
-from .lib import mul, repmat, size, vecnorm
+from ..lib import dot, vecnorm
 
 
 def potint4b(r1, r2, r3, obsPoint):
@@ -22,19 +21,17 @@ def potint4b(r1, r2, r3, obsPoint):
     Copyright William Wartman 2020
     """
     # Vectorize operation for triangles and observation points simultaneously
-    N = size(r1, 1)
-    # N triangles
-    M = size(obsPoint, 1)
-    # M observation points
+    N = r1.shape[0]  # N triangles
+    M = obsPoint.shape[0]  # M observation points
 
     # Dimension 1: triangle index.  Dimension 2: 3. Dimension 3: Observation point index
-    r1Exp = repmat(r1, 1, 1, M)
-    r2Exp = repmat(r2, 1, 1, M)
-    r3Exp = repmat(r3, 1, 1, M)
+    r1Exp = np.tile(r1, (1, 1, M))
+    r2Exp = np.tile(r2, (1, 1, M))
+    r3Exp = np.tile(r3, (1, 1, M))
 
-    obsPointExpA = zeros(1, 3, M)
+    obsPointExpA = np.zeros((1, 3, M))
     obsPointExpA[1, :, :] = obsPoint.T
-    obsPointExp = repmat(obsPointExpA, N, 1, 1)
+    obsPointExp = np.tile(obsPointExpA, (N, 1, 1))
 
     # Vectors from observation points to triangle vertices (N by 3 by M)
     R1 = r1Exp - obsPointExp
@@ -47,14 +44,14 @@ def potint4b(r1, r2, r3, obsPoint):
     R3norm = vecnorm(R3, 2, 2)
 
     # N by 1 by M
-    numerator = dot(R1, cross(R2, R3, axis=1), 2)
+    numerator = dot(R1, np.cross(R2, R3, axis=1), 1)
 
     # N by 1 by M
     denominator = (
         (R1norm * R2norm * R3norm)
-        + (R3norm * dot(R1, R2, axis=1))
-        + mul(R2norm, dot(R1, R3, 2))
-        + mul(R1norm, dot(R2, R3, 2))
+        + (R3norm * dot(R1, R2, 1))
+        + (R2norm * dot(R1, R3, 1))
+        + (R1norm * dot(R2, R3, 1))
     )
 
     omega = 2 * np.atan2(numerator, denominator)

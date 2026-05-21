@@ -1,9 +1,11 @@
 import matplotlib.pyplot as plt
+
 #
 from charge_engine import charge_engine
 from constants import eps0
 from load_model import load_model
 from plot import bem5_plot_surface
+
 #
 from scipy.sparse import csr_matrix
 
