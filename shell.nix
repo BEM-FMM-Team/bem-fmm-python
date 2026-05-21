@@ -41,7 +41,7 @@ in
       bash
       */
       ''
-        export PYTHONPATH="$PYTHONPATH:$PWD/ChargeEngine/:$PWD/MeshEngine/"
+        export PYTHONPATH="$PYTHONPATH:$PWD"
         if [ ! -d venv ]; then
           python3 -m venv venv
           source venv/bin/activate

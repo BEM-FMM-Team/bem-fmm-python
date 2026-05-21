@@ -1,19 +1,18 @@
-from lib import timeit
 import sys
 
-# INFO temporary path loading until we can talk about structure
-sys.path.insert(1, "../ChargeEngine/")
-sys.path.insert(1, "../MeshEngine/")
+sys.path.insert(
+    1, "../.."
+)  # INFO temporary path loading until we can talk about structure
+
 
 import numpy as np
-import trimesh
-
 from scipy.io import loadmat
 
-from lib import rdiv
-from mesh_combine_simple import mesh_combine_simple
-from mesh_tricenter import mesh_tricenter
-from mesh_areas import mesh_areas
+# TODO make this more elegant
+from engines.charge.lib import timeit
+from engines.mesh.mesh_areas import mesh_areas
+from engines.mesh.mesh_combine_simple import mesh_combine_simple
+from engines.mesh.mesh_tricenter import mesh_tricenter
 
 
 @timeit

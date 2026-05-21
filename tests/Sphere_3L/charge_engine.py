@@ -8,33 +8,27 @@ Copyright SNM/WAW 2017-2020
 
 import sys
 
+import numpy as np
+from scipy.sparse.linalg import LinearOperator, gmres
+
 sys.path.insert(
-    1, "../ChargeEngine/"
+    1, "../.."
 )  # INFO temporary path loading until we can talk about structure
 
 
-from numpy import ndarray
-import numpy as np
-
-from scipy.sparse.linalg import gmres, LinearOperator
-
-from bemf4_surface_field_lhs import bemf4_surface_field_lhs
-
-from bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
-from bemf4_surface_field_potential_accurate import (
-    bemf4_surface_field_potential_accurate,
-)
-from bemf4_surface_field_electric_accurate import bemf4_surface_field_electric_accurate
-from bemf3_inc_field_electric_constant import bemf3_inc_field_electric_constant
-from bemf4_surface_field_lhs import bemf4_surface_field_lhs
-
-
-from lib import timeit
+from engines.charge.bemf3_inc_field_electric_constant import \
+    bemf3_inc_field_electric_constant
+from engines.charge.bemf4_surface_field_electric_accurate import \
+    bemf4_surface_field_electric_accurate
+from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
+from engines.charge.bemf4_surface_field_potential_accurate import \
+    bemf4_surface_field_potential_accurate
+from engines.charge.lib import timeit
 
 
 @timeit
 def charge_engine(
-    center: ndarray,
+    center: np.ndarray,
     area,
     contrast,
     normals,

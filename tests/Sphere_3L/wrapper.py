@@ -1,16 +1,11 @@
-from scipy.sparse import csr_matrix
-
 import matplotlib.pyplot as plt
-
-
-from load_model import load_model
-from bem4_charge_engine import charge_engine
-
+#
+from charge_engine import charge_engine
 from constants import eps0
-
-from plot import (
-    bem5_plot_surface,
-)
+from load_model import load_model
+from plot import bem5_plot_surface
+#
+from scipy.sparse import csr_matrix
 
 if __name__ == "__main__":
     ## 1. Setup Model
@@ -18,7 +13,7 @@ if __name__ == "__main__":
     # -- Load model
     # TODO should be a dataclass object
     P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename = (
-        load_model("./CombinedMesh.mat")  # "meshsphere3.mat"
+        load_model("meshsphere3.mat")
     )
 
     # Neighbor integrals # INFO from old code

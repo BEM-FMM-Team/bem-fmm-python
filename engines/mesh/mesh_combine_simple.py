@@ -1,7 +1,8 @@
 import numpy as np
-from mesh_normals import mesh_normals
-from mesh_fix import mesh_fix
-from mesh_reorient import mesh_reorient
+
+from .mesh_fix import mesh_fix
+from .mesh_normals import mesh_normals
+from .mesh_reorient import mesh_reorient
 
 
 # from mesh_clean_coincident_facets import mesh_clean_coincident_facets
