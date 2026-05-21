@@ -14,6 +14,10 @@ in
     packages =
       libs
       ++ [
+        pkgs.ruff
+        pkgs.basedpyright
+        pkgs.pylint
+
         pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
@@ -37,7 +41,7 @@ in
       bash
       */
       ''
-        export PYTHONPATH="$PYTHONPATH:$PWD/ChargeEngine/:$PWD/MeshEngine/"
+        export PYTHONPATH="$PYTHONPATH:$PWD"
         if [ ! -d venv ]; then
           python3 -m venv venv
           source venv/bin/activate
