@@ -14,6 +14,10 @@ in
     packages =
       libs
       ++ [
+        pkgs.ruff
+        pkgs.basedpyright
+        pkgs.pylint
+
         pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
