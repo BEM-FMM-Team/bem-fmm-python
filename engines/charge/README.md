@@ -32,15 +32,13 @@ The non-trivial translations may require more inspection hence will be slower to
 + [ ] bemf3_inc_field_electric.py
     > CONFIRM line 16 indexing
 
-###### mesh engine
-+ [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py
-    > mesh_tri function ?
-+ [ ] bemf4_surface_field_electric_subdiv.py
-    > mesh_tri function ?
-
 + [ ] bemf3_inc_field_electric_dipole.py
     > potint2 function ?
 + [ ] bemf5_volume_field_electric.py
     > norm, rangesearch ?
+
+###### currently iterating on for the plot test
++ [ ] bemf3_inc_field_electric_gauss_selective_dipoles.py
++ [ ] bemf4_surface_field_electric_subdiv.py
 
 + bemf1_graphics_electrodes.py -> plot engine has same function ../plot/bf1_graphics_electrodes.py
