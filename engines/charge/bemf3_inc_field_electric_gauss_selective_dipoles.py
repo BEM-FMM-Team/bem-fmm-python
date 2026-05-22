@@ -1,21 +1,36 @@
 import numpy as np
 
+from engines.mesh.mesh_tri import mesh_tri
+
 from ..lib import vecnorm
+from .bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
+from .bemf3_inc_field_electric_plain_dipoles import \
+    bemf3_inc_field_electric_plain_dipoles
 
 
 def bemf3_inc_field_electric_gauss_selective_dipoles(
-    SourceDipole=None,
+    strdipolePplus=None,
+    strdipolePminus=None,
+    strdipolesig=None,
+    strdipoleCurrent=None,
     P=None,
     t=None,
     Center=None,
     dipoleClusterCenter=None,
     gaussRadius=None,
 ):
+    """
+    Compute model subdivision parameters
+    number of integration points in the Gaussian quadrature
+    for the outer potential integrals
+    Numbers 1, 4, 7, 13, 25 are permitted
+    Gaussian weights for analytical integration (for the outer integral)
+
     strdipolePplus = SourceDipole.src_p
     strdipolePminus = SourceDipole.src_m
     strdipolesig = SourceDipole.src_sig
     strdipoleCurrent = SourceDipole.src_cur
-
+    """
     ## Compute model subdivision parameters
     #   number of integration points in the Gaussian quadrature
     #   for the outer potential integrals
@@ -48,7 +63,7 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
     # trianglesToSubdiv(trianglesToSubdiv_temp{1}) = true;
 
     # This method is much faster for a single dipole cluster
-    tempDist = vecnorm(Center - dipoleClusterCenter, 2, 2)
+    tempDist = vecnorm(Center - dipoleClusterCenter, 1, 1)
     trianglesToSubdiv = tempDist <= gaussRadius
 
     ## Preallocate output variables
@@ -56,7 +71,7 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
     Ppri = np.zeros((t.shape[0], 1))
 
     ## Calculate incident fields on triangles that do not require subdivision
-    if np.any(not trianglesToSubdiv):
+    if not np.any(trianglesToSubdiv):
         wpri[not trianglesToSubdiv, :], Ppri[not trianglesToSubdiv, :] = (
             bemf3_inc_field_electric_plain(
                 strdipolePplus,
@@ -67,34 +82,38 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
             )
         )
     else:
-        print("skipping primary at triangles which do not need subdiv." % ())
+        print("skipping primary at triangles which do not need subdiv.")
 
     ## Subdivide the triangles that do require subdivision
     Center_subdiv = np.zeros((IndexS * sum(trianglesToSubdiv), 3))
-    P1 = P[t[trianglesToSubdiv, 1], :]
-    P2 = P[t[trianglesToSubdiv, 2], :]
-    P3 = P[t[trianglesToSubdiv, 3], :]
-    for j in np.arange(1, IndexS + 1).reshape(-1):
+    P1 = P[t[trianglesToSubdiv, 0], :]
+    P2 = P[t[trianglesToSubdiv, 1], :]
+    P3 = P[t[trianglesToSubdiv, 2], :]
+    for j in np.arange(IndexS):
         currentIndices = (
-            np.array([np.arange(1, np.sum(trianglesToSubdiv, axis=0) + 1)]) - 1
+            np.array([np.arange(0, np.sum(trianglesToSubdiv, axis=0))]) - 1
         ) * IndexS + j
         Center_subdiv[currentIndices, :] = (
-            coeffS[1, j] * P1 + coeffS[2, j] * P2 + coeffS[3, j] * P3
+            coeffS[0, j] * P1 + coeffS[1, j] * P2 + coeffS[2, j] * P3
         )
 
     ## Calculate incident electric fields on subdivided triangles
     E_subdiv, P_subdiv = bemf3_inc_field_electric_plain_dipoles(
-        strdipolePplus, strdipolePminus, strdipolesig, strdipoleCurrent, Center_subdiv
+        strdipolePplus=strdipolePplus,
+        strdipolePminus=strdipolePminus,
+        strdipolesig=strdipolesig,
+        strdipoleCurrent=strdipoleCurrent,
+        Points=Center_subdiv,
     )
     ## Recover average electric field at whole triangles from subdivided triangles
     # Every column contains the subdivided quantities for one full triangle
     P_subdiv_temp = np.reshape(P_subdiv, IndexS, [])
-    Ex_temp = np.reshape(E_subdiv[:, 1], IndexS, [])
-    Ey_temp = np.reshape(E_subdiv[:, 2], IndexS, [])
-    Ez_temp = np.reshape(E_subdiv[:, 3], IndexS, [])
+    Ex_temp = np.reshape(E_subdiv[:, 0], IndexS, [])
+    Ey_temp = np.reshape(E_subdiv[:, 1], IndexS, [])
+    Ez_temp = np.reshape(E_subdiv[:, 2], IndexS, [])
     ## Write to output variables
     Ppri[trianglesToSubdiv] = (weightsS * P_subdiv_temp).T
-    Epri[trianglesToSubdiv, 1] = (weightsS * Ex_temp).T
-    Epri[trianglesToSubdiv, 2] = (weightsS * Ey_temp).T
-    Epri[trianglesToSubdiv, 3] = (weightsS * Ez_temp).T
+    Epri[trianglesToSubdiv, 0] = (weightsS * Ex_temp).T
+    Epri[trianglesToSubdiv, 1] = (weightsS * Ey_temp).T
+    Epri[trianglesToSubdiv, 2] = (weightsS * Ez_temp).T
     return Epri, Ppri

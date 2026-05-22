@@ -1,8 +1,7 @@
-from numpy import ndarray
 import numpy as np
 
 
-def mesh_tricenter(P: ndarray, t: ndarray):
+def mesh_tricenter(P: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
     SYNTAX
     C = meshtricenter(P, t)
@@ -18,4 +17,5 @@ def mesh_tricenter(P: ndarray, t: ndarray):
     """
 
     C = (P[t[:, 0], :] + P[t[:, 1], :] + P[t[:, 2], :]) / 3.0
+
     return C

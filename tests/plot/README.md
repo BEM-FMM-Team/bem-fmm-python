@@ -1,6 +1,6 @@
 stlread -> trimesh
 
-- [ ] load_model
+- [x] load_model
   - [x] mesh_nomrals ../../engines/mesh/mesh_normals.py
   - [x] mesh_tricenter ../../engines/mesh/mesh_tricenter.py
   - [x] mesh_areas ../../engines/mesh/mesh_areas.py

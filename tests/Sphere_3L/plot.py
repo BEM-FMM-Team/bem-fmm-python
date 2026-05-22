@@ -92,8 +92,8 @@ def bem5_plot_surface(
     title="Plot",
     cmap_label="cmap_title",
 ):
-    plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface is interesting
-    plot_t = t[plot_t_idx]
+    plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface may not be right
+f   plot_t = t[plot_t_idx]
     plot_field = fn(plot_t_idx)
 
     fig = plt.figure()

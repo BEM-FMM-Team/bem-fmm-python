@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def mesh_normals(P, t):
+def mesh_normals(P: np.ndarray, t: np.ndarray) -> np.ndarray:
     """
     SYNTAX
     unitnormals = meshnormals(P, t)
