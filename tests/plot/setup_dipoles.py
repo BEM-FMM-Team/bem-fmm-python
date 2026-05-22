@@ -1,4 +1,5 @@
 import numpy as np
+import vedo
 from trimesh import Trimesh
 
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
@@ -27,6 +28,32 @@ def setup_dipoles(
 
     DD - 5/2026
     """
+    mesh = vedo.Mesh([P, t])
+    mesh.cellcolors = np.hstack(
+        [(normals + 1) * 127.5, 255 * np.ones((len(normals), 1))]
+    ).astype(np.uint8)
+
+    title = vedo.Latex(
+        r"E^i",
+        # s=1,
+        c="darkblue",
+        usetex=False,
+        pos=((0.10, 0.10)),
+        s=0.07,
+        # res=40,
+    )
+
+    t = vedo.Text2D(
+        "My μ^3_ω  Graph",
+        justify="center",
+        c="lb",
+    )
+    # t.pos((x0 + x1) / 2, y1 * 1.4)
+    vedo.show(
+        mesh,
+        title,
+        axes=dict(c="black", number_of_divisions=10),
+    )
 
     ## Fixed dipole positions
     # Will start with a single dipole at the origin (pointing up).
@@ -103,10 +130,6 @@ def setup_dipoles(
 
     print(Epri)
     print(Eprin)
-
-    mesh = Trimesh(vertices=P, faces=t, normals=normals)
-    mesh.visual.face_colors = np.hstack([Epri, np.ones((len(mesh.faces), 1))])
-    mesh.show()
 
     # Figure plot
     # fig = figure("Name","Plot Test");

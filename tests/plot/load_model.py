@@ -11,6 +11,7 @@
 ## Load template sphere
 import numpy as np
 import trimesh
+import vedo
 
 from engines.lib import timeit
 from engines.mesh.mesh_areas import mesh_areas
@@ -20,13 +21,13 @@ from engines.mesh.mesh_tricenter import mesh_tricenter
 
 
 def load_model():
-    mesh = trimesh.load_mesh("bone.stl")
+    # """
+    mesh = vedo.Mesh("bone.stl")
     P = mesh.vertices
-    t = mesh.faces
+    t = np.array(mesh.cells)  # WARN, not sure if triangles or just faces,
+    if t.shape[1] != 3:
+        raise RuntimeError("use trimesh to load stl")
 
-    # mesh.visual.face_colors = np.hstack(
-    #     [mesh.face_normals, np.ones((len(mesh.faces), 1))]
-    # )
     # mesh.show()
 
     ## Shell Parameters
