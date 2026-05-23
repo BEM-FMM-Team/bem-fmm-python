@@ -21,7 +21,6 @@ from engines.mesh.mesh_tricenter import mesh_tricenter
 
 
 def load_model():
-    # """
     mesh = vedo.Mesh("bone.stl")
     P = mesh.vertices
     t = np.array(mesh.cells)  # WARN, not sure if triangles or just faces,

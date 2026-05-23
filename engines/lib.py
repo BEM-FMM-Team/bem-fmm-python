@@ -1,7 +1,12 @@
-from functools import reduce
 from time import perf_counter
 
 import numpy as np
+import vedo
+from matplotlib import cm
+
+vedo.settings.default_font = "Theemim"
+
+disp = lambda n: print(f"{n.shape=}\n{n.dtype=}\n{n=}")
 
 # TODO needs a better name
 
@@ -57,3 +62,53 @@ def timeit(fn):
         return result
 
     return ret
+
+
+def patch(
+    vertices: np.ndarray,
+    faces: np.ndarray,
+    colors: np.ndarray | None = None,
+    cmap: str = "viridis",
+    clim: tuple[float, float] | None = None,
+    edge_color: str = "none",
+    title: str = "",
+    colorbar_label: str = None,
+    axes: dict | None = {
+        "c": "black",
+        "xtitle": r"x",
+        "ytitle": r"y",
+        "ztitle": r"z",
+    },  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py
+) -> vedo.Mesh:
+    mesh = vedo.Mesh([vertices, faces])
+
+    if colors is not None:
+        cdata = np.asarray(colors).flatten()
+        vmin, vmax = clim if clim else (cdata.min(), cdata.max())
+        if vmax == vmin:
+            vmax = vmin + 1
+
+        normalized = np.clip((cdata - vmin) / (vmax - vmin), 0, 1)
+        color_func = cm.get_cmap(cmap)
+        rgb = (color_func(normalized)[:, :3] * 255).astype(np.uint8)
+        mesh.cellcolors = rgb
+
+    if edge_color.lower() != "none":
+        mesh = mesh + (mesh.clone().wireframe(True).color(edge_color))
+
+    plt = vedo.Plotter(title=title, axes=axes)
+    plt.add(mesh)
+
+    # Add colorbar if colors provided and label given
+    if colors is not None and colorbar_label:
+        cbar = vedo.ScalarBar(mesh, title=colorbar_label, c="black")
+        plt.add(cbar)
+
+    vedo.show(
+        mesh,
+        title,
+        axes=axes,
+        # bg="black",
+    )
+
+    return mesh

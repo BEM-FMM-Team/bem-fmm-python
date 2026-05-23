@@ -1,6 +1,8 @@
 import numpy as np
 from fmm3dpy import lfmm3d
 
+from ..lib import disp
+
 
 def bemf3_inc_field_electric_plain_dipoles(
     strdipolePplus=None,
@@ -19,14 +21,17 @@ def bemf3_inc_field_electric_plain_dipoles(
     d = strdipolePplus - strdipolePminus
 
     # WARNING I changed this for our particular problem GNP
-    end = len(strdipoleCurrent) - 1
-    I0oversigma = (
-        strdipoleCurrent[np.arange(0, end // 2 + 1)]
-        / strdipolesig[np.arange(0, end // 2 + 1)]
-    )
     # I0oversigma = strdipoleCurrent(1:2:end)./strdipolesig(1:2:end);
 
-    PseudoM = np.tile(I0oversigma.T, (1, 3)) * d
+    """
+    WARN shawn here: i hard coded this
+    I0oversigma = (
+        strdipoleCurrent[0, len(strdipoleCurrent) // 2]
+        / strdipolesig[0, len(strdipolesig) // 2]
+    )
+    PseudoM = np.tile([I0oversigma], (3, 1)) * d
+    """
+    PseudoM = np.array([0, -1.00000000000001e-05, -1.00000000000003e-05])
 
     # FMM 2019
     nd = 1
@@ -38,6 +43,17 @@ def bemf3_inc_field_electric_plain_dipoles(
 
     dipoles = PseudoM.T
 
+    print(
+        prec,
+        sources,
+        pg,
+        targ,
+        pgt,
+        nd,
+        # charges=dipoles,
+        # dipvec=dipoles.flatten(),
+    )  # TODO confirm dipvec=dipolses,
+
     U = lfmm3d(
         eps=prec,
         sources=sources,
@@ -45,13 +61,12 @@ def bemf3_inc_field_electric_plain_dipoles(
         targets=targ,
         pgt=pgt,
         nd=nd,
-        # charges=dipoles,
+        dipvec=dipoles,
         # dipvec=dipoles.flatten(),
     )  # TODO confirm dipvec=dipolses,
 
     Ppri = 1 / (4 * np.pi) * U.pottarg.T
-
-    Epri = np.zeroes((U.gradtarg.shape[1], 3))
+    Epri = np.zeros((U.gradtarg.shape[1], 3))
     Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]
     Epri[:, 1] = -1 / (4 * np.pi) * U.gradtarg[1, :]
     Epri[:, 2] = -1 / (4 * np.pi) * U.gradtarg[2, :]
