@@ -1,12 +1,11 @@
 import numpy as np
-import vedo
-from trimesh import Trimesh
 
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
 from engines.charge.bemf3_inc_field_electric_constant import \
     bemf3_inc_field_electric_constant
 from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import \
     bemf3_inc_field_electric_gauss_selective_dipoles
+from engines.lib import patch
 
 
 def setup_dipoles(
@@ -28,33 +27,6 @@ def setup_dipoles(
 
     DD - 5/2026
     """
-    mesh = vedo.Mesh([P, t])
-    mesh.cellcolors = np.hstack(
-        [(normals + 1) * 127.5, 255 * np.ones((len(normals), 1))]
-    ).astype(np.uint8)
-
-    title = vedo.Latex(
-        r"E^i",
-        # s=1,
-        c="darkblue",
-        usetex=False,
-        pos=((0.10, 0.10)),
-        s=0.07,
-        # res=40,
-    )
-
-    t = vedo.Text2D(
-        "My μ^3_ω  Graph",
-        justify="center",
-        c="lb",
-    )
-    # t.pos((x0 + x1) / 2, y1 * 1.4)
-    vedo.show(
-        mesh,
-        title,
-        axes=dict(c="black", number_of_divisions=10),
-    )
-
     ## Fixed dipole positions
     # Will start with a single dipole at the origin (pointing up).
     dipPlus = 1e-3 * np.array([-20, 15, 40])
@@ -125,11 +97,19 @@ def setup_dipoles(
 
     ## Plot primary field
     Eprin = np.sum(Epri * normals, 1)
-    plot_t_idx = np.ones((t.shape[0], 1)) == np.ones((t.shape[0], 1))
-    # plot_field = Eprin[plot_t_idx]
+    plot_t_idx = np.ones(t.shape[0], dtype=bool)
+    plot_t = t[plot_t_idx]
+    plot_field = Eprin[plot_t_idx]
 
-    print(Epri)
-    print(Eprin)
+    patch(
+        vertices=P,
+        faces=plot_t,
+        colors=plot_field,  # replaces p.FaceVertexCData = plot_field
+        cmap="jet",  # replaces colormap("jet")
+        edge_color="none",  # replaces: p.EdgeColor = "none"
+        title=rf"Primary Field E^i on Surface: {tissuename}",
+        colorbar_label="A/m^2",
+    )
 
     # Figure plot
     # fig = figure("Name","Plot Test");
@@ -142,13 +122,7 @@ def setup_dipoles(
     # cmap = "jet";
     # colormap(cmap);
     # cb = colorbar;
-    # cb.Label.String = '$A/m^2$';
-    #
-    # # Title/Axis with Latex Interpreter
-    # title(["Primary Field $\mathbf{E}^i$ on Surface: ", tissuename(plot_tissue)])
-    # xlabel("$x$")
-    # ylabel("$y$")
-    # zlabel("$z$")
+    # cb.Label.String = ;
     #
     # # Axis background color
     # set(gca,"Color","k")
