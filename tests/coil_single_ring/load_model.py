@@ -133,7 +133,7 @@ def load_model():
         Pcell.append(Tissue.vertices)
         tcell.append(np.array(Tissue.cells))
 
-        print("Loaded: %s\n" % (fname))
+        print(f"Loaded: {fname}")
 
     # Build CombinedMesh
     P, t, normals, condin, condout, interface = mesh_combine_simple(

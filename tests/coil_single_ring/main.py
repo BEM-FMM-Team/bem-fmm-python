@@ -12,6 +12,7 @@ DD, DT - 5/2026
 
 import numpy as np
 import vedo
+from coil_setup import coil_setup
 from load_model import load_model
 
 # from setup_integrals import setup_integrals
@@ -21,33 +22,33 @@ mu0 = 1.25663706e-06
 
 if __name__ == "__main__":
     # Load model
-    (
-        P,
-        t,
-        normals,
-        Center,
-        Area,
-        contrast,
-        condinner,
-        condin,
-        condouter,
-        condout,
-        interface,
-    ) = load_model()
-
-    mesh = vedo.Mesh([P, t])
-    mesh.show()
+    # (
+    #     P,
+    #     t,
+    #     normals,
+    #     Center,
+    #     Area,
+    #     contrast,
+    #     condinner,
+    #     condin,
+    #     condouter,
+    #     condout,
+    #     interface,
+    # ) = load_model()
+    #
+    # mesh = vedo.Mesh([P, t])
+    # mesh.show()
 
     # -- Neighbor integrals
     # setup_integrals()
     #
     # ## 2. Setup Coil
     # # -- Load coil geometry
-    # coil_setup()
+    coil_setup()
     # # -- Plot coil geometry on desired tissue
     # tissue_to_plot = "wm"
     # coil_plot()
-    #
+
     # ## 3. Impressed Field
     # impressed_field()
     # ## 4. Charge Solution

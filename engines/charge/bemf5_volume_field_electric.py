@@ -56,7 +56,8 @@ def bemf5_volume_field_electric(
             + planeABCD[3]
         )
         d2 = np.linalg.norm(
-            planeABCD[np.arange(4)]
+            planeABCD[np.arange(4)],
+            axis=0,
         )  # INFO norm, i dont want to make a wrong assumption
         d = d1 / d2
         eligibleTriangles = np.nonzero(d <= R * Size)
