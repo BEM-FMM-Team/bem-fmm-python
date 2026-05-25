@@ -1,12 +1,15 @@
 import numpy as np
 
+
 def mesh_reorient(P, t, normals):
     #   This function reorient triangles (needs to be improved)
 
     #   Copyright SNM 2020
     N = t.shape[0]
     for m in range(N):
-        vertexes = P[t[m, 0:3]] # This stores the resulting matrix transposed compared to the orignal matlab code and works fine
+        vertexes = P[
+            t[m, 0:3]
+        ]  # This stores the resulting matrix transposed compared to the orignal matlab code and works fine
         r1 = vertexes[0]
         r2 = vertexes[1]
         r3 = vertexes[2]

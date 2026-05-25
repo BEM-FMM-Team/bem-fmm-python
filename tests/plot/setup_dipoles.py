@@ -1,10 +1,12 @@
 import numpy as np
 
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
-from engines.charge.bemf3_inc_field_electric_constant import \
-    bemf3_inc_field_electric_constant
-from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import \
-    bemf3_inc_field_electric_gauss_selective_dipoles
+from engines.charge.bemf3_inc_field_electric_constant import (
+    bemf3_inc_field_electric_constant,
+)
+from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import (
+    bemf3_inc_field_electric_gauss_selective_dipoles,
+)
 from engines.lib import patch
 
 

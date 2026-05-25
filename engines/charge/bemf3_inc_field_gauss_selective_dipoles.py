@@ -1,7 +1,8 @@
 import numpy as np
 from bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
-from bemf3_inc_field_electric_plain_dipoles import \
-    bemf3_inc_field_electric_plain_dipoles
+from bemf3_inc_field_electric_plain_dipoles import (
+    bemf3_inc_field_electric_plain_dipoles,
+)
 from mesh_tri import mesh_tri
 
 
