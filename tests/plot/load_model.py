@@ -10,7 +10,6 @@
 
 ## Load template sphere
 import numpy as np
-import trimesh
 import vedo
 
 from engines.lib import timeit

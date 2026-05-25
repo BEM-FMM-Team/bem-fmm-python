@@ -1,0 +1,11 @@
+# >TissueName : condin : TissueOutside
+
+>skin       : 0.148297101   : FreeSpace
+>bone       : 0.00644673    : skin
+>csf        : 1.87899971    : bone
+>gm         : 0.419054882   : csf
+>wm         : 0.347954393   : gm
+>cavities   : 1.87899971    : wm
+>ventricles : 1.654         : wm
+>eyes       : 2.164857      : skin
+>cerebellum : 0.347954393   : gm
