@@ -80,6 +80,11 @@ def patch(
         "ztitle": r"z",
     },  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py
 ) -> vedo.Mesh:
+    """
+    Convenience function
+
+    You can use it or feel free to disregard it and implement things from scratch
+    """
     mesh = vedo.Mesh([vertices, faces])
 
     # mesh.colormap(cmap, cdata)
