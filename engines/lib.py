@@ -67,12 +67,12 @@ def timeit(fn):
 def patch(
     vertices: np.ndarray,
     faces: np.ndarray,
-    colors: np.ndarray | None = None,
-    cmap: str = "viridis",
+    cdata: np.ndarray | None = None,
+    colormap: str = "viridis",
     clim: tuple[float, float] | None = None,
     edge_color: str = "none",
     title: str = "",
-    colorbar_label: str = None,
+    cmap_label: str = "",
     axes: dict | None = {
         "c": "black",
         "xtitle": r"x",
@@ -82,33 +82,28 @@ def patch(
 ) -> vedo.Mesh:
     mesh = vedo.Mesh([vertices, faces])
 
-    if colors is not None:
-        cdata = np.asarray(colors).flatten()
+    # mesh.colormap(cmap, cdata)
+
+    if cdata is not None:
+        cdata = np.asarray(cdata).flatten()
         vmin, vmax = clim if clim else (cdata.min(), cdata.max())
         if vmax == vmin:
             vmax = vmin + 1
 
         normalized = np.clip((cdata - vmin) / (vmax - vmin), 0, 1)
-        color_func = cm.get_cmap(cmap)
+        color_func = cm.get_cmap(colormap)
         rgb = (color_func(normalized)[:, :3] * 255).astype(np.uint8)
         mesh.cellcolors = rgb
 
     if edge_color.lower() != "none":
-        mesh = mesh + (mesh.clone().wireframe(True).color(edge_color))
+        mesh.linecolor(edge_color)
 
     plt = vedo.Plotter(title=title, axes=axes)
+    plt.add(vedo.Text2D(title, pos="top-center", s=1.5, font="VictorMono"))
     plt.add(mesh)
 
-    # Add colorbar if colors provided and label given
-    if colors is not None and colorbar_label:
-        cbar = vedo.ScalarBar(mesh, title=colorbar_label, c="black")
+    if cdata is not None:
+        cbar = vedo.ScalarBar(mesh, title=cmap_label, c="black")
         plt.add(cbar)
 
-    vedo.show(
-        mesh,
-        title,
-        axes=axes,
-        # bg="black",
-    )
-
-    return mesh
+    return plt

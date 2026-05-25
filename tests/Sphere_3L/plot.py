@@ -2,30 +2,28 @@ from engines.lib import patch
 
 
 def bem5_plot_surface(
-    fn,
-    c,
+    field_indexer,
     P,
     t,
-    normals,
     interface,
-    tissuename,
     plot_tissue=0,
-    cmap="jet",
     title="Plot",
-    cmap_label="cmap_title",
+    cmap_label="cmap_label",
+    cmap="jet",
 ):
     plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface may not be right
+
     plot_t = t[plot_t_idx]
-    plot_field = fn(plot_t_idx)
+    plot_field = field_indexer(plot_t_idx)
 
     patch(
         vertices=P,
         faces=plot_t,
-        colors=plot_field,  # replaces p.FaceVertexCData = plot_field
-        cmap="jet",  # replaces colormap("jet")
-        edge_color="red",  # replaces: p.EdgeColor = "none"
-        title=rf"Primary Field E^i on Surface: {tissuename}",
-        colorbar_label="fn",
+        cdata=plot_field,
+        colormap=cmap,
+        edge_color="black",
+        title=title,
+        cmap_label=cmap_label,
         axes={
             "c": "black",  # replaces set(gca,"Color","k")
             "xtitle": r"x",  # replaces xlabel("$x$")

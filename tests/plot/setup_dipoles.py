@@ -1,12 +1,10 @@
 import numpy as np
 
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
-from engines.charge.bemf3_inc_field_electric_constant import (
-    bemf3_inc_field_electric_constant,
-)
-from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import (
-    bemf3_inc_field_electric_gauss_selective_dipoles,
-)
+from engines.charge.bemf3_inc_field_electric_constant import \
+    bemf3_inc_field_electric_constant
+from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import \
+    bemf3_inc_field_electric_gauss_selective_dipoles
 from engines.lib import patch
 
 
@@ -103,15 +101,17 @@ def setup_dipoles(
     plot_t = t[plot_t_idx]
     plot_field = Eprin[plot_t_idx]
 
+    viewax = np.array([-120, 20])  # TODO embed
+
     patch(
         vertices=P,
         faces=plot_t,
-        colors=plot_field,  # replaces p.FaceVertexCData = plot_field
-        cmap="jet",  # replaces colormap("jet")
-        edge_color="none",  # replaces: p.EdgeColor = "none"
+        cdata=plot_field,  # replaces p.FaceVertexCData = plot_field
+        colormap="jet",
+        edge_color="none",
         title=rf"Primary Field E^i on Surface: {tissuename}",
-        colorbar_label="A/m^2",
-    )
+        cmap_label="A/m^2",
+    ).show()
 
     # Figure plot
     # fig = figure("Name","Plot Test");

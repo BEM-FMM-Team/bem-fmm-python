@@ -1,11 +1,9 @@
 import matplotlib.pyplot as plt
-
 #
 from charge_engine import charge_engine
 from constants import eps0
 from load_model import load_model
 from plot import bem5_plot_surface
-
 #
 from scipy.sparse import csr_matrix
 
@@ -51,49 +49,36 @@ if __name__ == "__main__":
     # tissue id to plot
 
     bem5_plot_surface(
-        fn=lambda plot_t_idx: eps0 * c[plot_t_idx],
+        field_indexer=lambda plot_t_idx: eps0 * c[plot_t_idx],
         title="Charge Solution on Surface: ",
         cmap_label="C/m^2",
-        c=c,
         P=P,
         t=t,
-        normals=normals,
         interface=interface,
-        tissuename=tissuename,
         plot_tissue=plot_tissue,
     )
     bem5_plot_surface(
-        fn=lambda plot_t_idx: Ptot[plot_t_idx],
+        field_indexer=lambda plot_t_idx: Ptot[plot_t_idx],
         title="Potential on Surface: ",
         cmap_label="V",
-        c=c,
         P=P,
         t=t,
-        normals=normals,
         interface=interface,
-        tissuename=tissuename,
     )
     bem5_plot_surface(
-        fn=lambda plot_t_idx: En[plot_t_idx],
+        field_indexer=lambda plot_t_idx: En[plot_t_idx],
         title="Normal E-field (inner) on Surface: ",
         cmap_label="V/m",
-        c=c,
         P=P,
         t=t,
-        normals=normals,
         interface=interface,
-        tissuename=tissuename,
-        plot_tissue=plot_tissue,
     )
     bem5_plot_surface(
-        fn=lambda plot_t_idx: J[plot_t_idx],
+        field_indexer=lambda plot_t_idx: J[plot_t_idx],
         title="Normal Current Density (inner) on Surface: ",
         cmap_label="A/m^2",
-        c=c,
         P=P,
         t=t,
-        normals=normals,
         interface=interface,
-        tissuename=tissuename,
         plot_tissue=plot_tissue,
     )
