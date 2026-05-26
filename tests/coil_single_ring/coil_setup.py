@@ -31,8 +31,8 @@ def coil_setup():
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    strcoil = loadmat("coil.mat")["strcoil"]
-    Coil = loadmat("coilCAD.mat")
+    strcoilPwire = loadmat("coil.mat")["strcoil"]["Pwire"]
+    CoilP = loadmat("coilCAD.mat")["P"]
 
     ## Coil Position
     # Define coil position: rotate and then tilt and move the entire coil as appropriate
@@ -50,8 +50,8 @@ def coil_setup():
     #   Transformation 3: New coil position
 
     # Apply Transformation 1: rotation about coil centerline
-    strcoilPwire = mesh_rotate2(strcoil["Pwire"], coilaxis, theta)
-    CoilP = mesh_rotate2(Coil["P"], coilaxis, theta)
+    strcoilPwire = mesh_rotate2(strcoilPwire, coilaxis, theta)
+    CoilP = mesh_rotate2(CoilP, coilaxis, theta)
 
     # Apply Transformation 2: Tilt the coil axis with direction vector Nx, Ny, Nz as required
     strcoilPwire = mesh_rotate1(strcoilPwire, Nx, Ny, Nz)
@@ -80,6 +80,13 @@ def coil_setup():
     pointsline[0:M, 0] = MoveX + dirline[0] * (argline + offline)
     pointsline[0:M, 1] = MoveY + dirline[1] * (argline + offline)
     pointsline[0:M, 2] = MoveZ + dirline[2] * (argline + offline)
+
+    return (
+        pointsline,
+        dIdt,
+        I0,
+        margin,
+    )
 
 
 # ## Find nearest intersections of the coil centerline w tissues

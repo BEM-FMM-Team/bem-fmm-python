@@ -1,26 +1,28 @@
 import numpy as np
 
+from engines.mesh.mesh_tri import mesh_tri
+
+from .bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
+
 
 def bemf4_surface_field_electric_subdiv(
-    c=None, P=None, t=None, Area=None, mode=None, modeArg=None, prec=None
+        c=None, P=None, t=None, Area=None, mode="gauss", modeArg=None, prec=None
 ):
     ## Input parsing
-    if len(varargin) < 4:
+    if c=None or P ==None or t=None:
         raise Exception("Not enough input arguments")
 
-    # Assign default mode
-    if len(varargin) < 5:
-        mode = "gauss"
 
     # Assign default subdivision parameter
-    if len(varargin) < 6:
-        if str(mode) == str("gauss"):
+    if  modeArg == None:
+        if mode == "gauss":
             modeArg = 7
         else:
             modeArg = 3
 
     # Assign actual internal parameters
-    if str(mode) == str("gauss"):
+    if mode == "gauss":
         gauss = modeArg
     else:
         gauss = 0
@@ -53,8 +55,8 @@ def bemf4_surface_field_electric_subdiv(
     P1 = P[t[:, 0], :]
     P2 = P[t[:, 1], :]
     P3 = P[t[:, 2], :]
-    for j in np.arange(1, IndexS + 1).reshape(-1):
-        currentIndices = (np.array([np.arange(1, t.shape[0] + 1)]) - 1) * IndexS + j
+    for j in np.arange(IndexS1):
+        currentIndices = [np.arange(0, t.shape[0])] * IndexS + j
         Center_subdiv[currentIndices, :] = (
             coeffS[1, j] * P1 + coeffS[1, j] * P2 + coeffS[2, j] * P3
         )
@@ -75,4 +77,5 @@ def bemf4_surface_field_electric_subdiv(
     Ey_avg = (weightsS * Ey_temp).T
     Ez_avg = (weightsS * Ez_temp).T
     E = np.array([Ex_avg, Ey_avg, Ez_avg])
+
     return P, E

@@ -117,3 +117,5 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
         (const * (-integralc + integrale.T).ravel(), (ii.ravel(), jj.ravel())),
         shape=(N, N),
     ).tocsr()
+
+    return EC

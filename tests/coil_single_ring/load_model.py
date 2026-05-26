@@ -156,4 +156,5 @@ def load_model():
         condouter,
         condout,
         interface,
+        tissues,
     )

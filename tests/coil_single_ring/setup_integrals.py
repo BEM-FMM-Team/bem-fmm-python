@@ -1,31 +1,44 @@
-#   This is a mesh processor script: it computes necessary potential
-#   integrals
-#
-#   Copyright SNM/WAW 2017-2024
+"""
+This is a mesh processor script: it computes necessary potential
+integrals
 
-##   Add accurate integration for electric field/electric potential on neighbor facets
-#   Indexes into neighbor triangles
+Copyright SNM/WAW 2017-2024
+
+Add accurate integration for electric field/electric potential on neighbor facets
+Indexes into neighbor triangles
+"""
+
 import numpy as np
 
-numThreads = 12
+from engines.mesh.mesh_neighborints_En import mesh_neighborints_En
+from engines.mesh.mesh_neighborints_Pn import mesh_neighborints_Pn
 
-RnumberE = 64
+# WARN incomplete, just a stub, also no multithreading so ..., this could take a while
 
-RnumberP = 64
 
-ineighborE = knnsearch(Center, Center, "k", RnumberE)
-ineighborP = knnsearch(Center, Center, "k", RnumberP)
+def setup_integrals():
+    numThreads = 12
+    RnumberE = 64
+    RnumberP = 64
 
-ineighborE = np.transpose(ineighborE)
+    ineighborE = knnsearch(Center, Center, "k", RnumberE)
+    ineighborP = knnsearch(Center, Center, "k", RnumberP)
 
-ineighborP = np.transpose(ineighborP)
+    ineighborE = ineighborE.T
+    ineighborP = ineighborP.T
 
-# [EC, PC] = meshneighborints(P, t, normals, Area, Center, RnumberE, RnumberP, ineighborE, ineighborP, numThreads);
-EC = mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numThreads)
-PC = mesh_neighborints_Pn(P, t, normals, Area, Center, RnumberP, ineighborP, numThreads)
-##   Normalize sparse matrix EC by variable contrast (for speed up)
-N = Center.shape[1 - 1]
-ii = ineighborE
-jj = np.matlib.repmat(np.arange(1, N + 1), RnumberE, 1)
-CO = sparse(ii, jj, contrast(ineighborE))
-EC = np.multiply(CO, EC)
+    # [EC, PC] = meshneighborints(P, t, normals, Area, Center, RnumberE, RnumberP, ineighborE, ineighborP, numThreads);
+    EC = mesh_neighborints_En(
+        P, t, normals, Area, Center, RnumberE, ineighborE, numThreads
+    )
+    PC = mesh_neighborints_Pn(
+        P, t, normals, Area, Center, RnumberP, ineighborP, numThreads
+    )
+    ##   Normalize sparse matrix EC by variable contrast (for speed up)
+    N = Center.shape[0]
+    ii = ineighborE
+    jj = np.tile(np.arange(N), (RnumberE, 1))
+    CO = sparse(ii, jj, contrast(ineighborE))
+    EC = np.multiply(CO, EC)
+
+    return PC, EC

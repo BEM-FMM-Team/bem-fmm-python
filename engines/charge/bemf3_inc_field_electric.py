@@ -13,7 +13,7 @@ def bemf3_inc_field_electric(strcoil=None, Points=None, dIdt=None, mu0=None):
     # Computes electric field from the coil via the FMM
     N = Points.shape[0]
 
-    # INFO i dont even know whats going on here with the indexing
+    # INFO debuf later
     segvector = (
         strcoil.Pwire[strcoil.Ewire[:, 1], :] - strcoil.Pwire[strcoil.Ewire[:, 0], :]
     ) * np.tile(strcoil.Swire, (1, 3))
