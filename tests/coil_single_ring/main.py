@@ -57,7 +57,7 @@ if __name__ == "__main__":
     coil_mesh = coil_plot(tissues)
 
     # ## 3. Impressed Field
-    iEpriP, Epri, b = mpressed_field()
+    iEpriP, Epri, b = iimpressed_field()
 
     # ## 4. Charge Solution
     c, Ptot, En, En_in, En_out, Jn_in, Jn_out = charge_engine(

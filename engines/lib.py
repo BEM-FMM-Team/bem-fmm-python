@@ -73,12 +73,19 @@ def patch(
     edge_color: str = "none",
     title: str = "",
     cmap_label: str = "",
-    axes: dict | None = {
-        "c": "black",
-        "xtitle": r"x",
-        "ytitle": r"y",
-        "ztitle": r"z",
-    },  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py
+    axes: dict | None = dict(
+        c="black",
+        xtitle="x",
+        ytitle="y",
+        ztitle="z",
+        zxgrid=True,
+        yzgrid=True,
+        # xyplane_color="white7",
+        # xygrid_color="white3",
+        # xline_color="white",
+        # yline_color="white",
+        # zline_color="white",
+    ),  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py
 ) -> vedo.Mesh:
     """
     Convenience function
@@ -103,7 +110,10 @@ def patch(
     if edge_color.lower() != "none":
         mesh.linecolor(edge_color)
 
-    plt = vedo.Plotter(title=title, axes=axes)
+    plt = vedo.Plotter(
+        title=title,
+        axes=axes,  # bg="black"
+    )
     plt.add(vedo.Text2D(title, pos="top-center", s=1.5, font="VictorMono"))
     plt.add(mesh)
 

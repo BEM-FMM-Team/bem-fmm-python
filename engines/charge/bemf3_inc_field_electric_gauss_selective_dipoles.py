@@ -8,9 +8,8 @@ from engines.my_types import FaceCenters, f32, vec2f32, vec3f32
 from ..lib import vecnorm
 from ..my_types import VertexIndices, Vertices
 from .bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
-from .bemf3_inc_field_electric_plain_dipoles import (
-    bemf3_inc_field_electric_plain_dipoles,
-)
+from .bemf3_inc_field_electric_plain_dipoles import \
+    bemf3_inc_field_electric_plain_dipoles
 
 
 def bemf3_inc_field_electric_gauss_selective_dipoles(

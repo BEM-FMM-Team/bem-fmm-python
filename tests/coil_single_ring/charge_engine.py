@@ -22,8 +22,6 @@ from pad_neighbor_triangles import pad_neighbor_triangles
 
 from engines.charge.bemf3_inc_field_electric_constant import \
     bemf3_inc_field_electric_constant
-from engines.charge.bemf4_surface_field_electric_accurate import \
-    bemf4_surface_field_electric_accurate
 from engines.charge.bemf4_surface_field_electric_subdiv import \
     bemf4_surface_field_electric_subdiv
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs

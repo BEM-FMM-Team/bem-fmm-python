@@ -1,33 +1,32 @@
-#### Load BEM Model
-# Load the desired BEM model.
-#
-# We will start with a 3 layer (4 shell) sphere.
-#
-# Very basic mesh loading. Create the combined mesh, create the interface
-# array. (No mesh fixing yet, will add later with head models).
-#
-# DD - 5/2026
+"""
+Load BEM Model
 
-## Load template sphere
+Load the desired BEM model.
+
+We will start with a 3 layer (4 shell) sphere.
+Very basic mesh loading. Create the combined mesh, create the interface
+array. (No mesh fixing yet, will add later with head models).
+DD - 5/2026
+Load template sphere
+"""
+
 import numpy as np
 import vedo
 
 from engines.lib import timeit
 from engines.mesh.mesh_areas import mesh_areas
-from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_normals import mesh_normals
 from engines.mesh.mesh_tricenter import mesh_tricenter
-from engines.mesh.meshref_pulse_14 import meshref_pulse_14
 
 
 @timeit
 def load_model():
     mesh = vedo.Mesh("bone.stl")
-    mesh.subdivide(3)
+    # mesh.subdivide(3)
     P = mesh.vertices
-    t = np.array(mesh.cells)  # WARN, not sure if triangles or just faces,
+    t = np.array(mesh.cells)
     if t.shape[1] != 3:
-        raise RuntimeError("use trimesh to load stl")
+        raise RuntimeError("use vedo to load stl")
 
     """
     # WARN results are a bit strange, using vedo's mesh subdivide

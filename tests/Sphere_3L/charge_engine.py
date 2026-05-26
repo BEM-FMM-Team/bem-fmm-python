@@ -7,6 +7,7 @@ Copyright SNM/WAW 2017-2020
 """
 
 import sys
+from time import perf_counter
 
 import numpy as np
 from scipy.sparse.linalg import LinearOperator, gmres
@@ -24,6 +25,9 @@ from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.charge.bemf4_surface_field_potential_accurate import \
     bemf4_surface_field_potential_accurate
 from engines.lib import timeit
+
+iteration = 0
+last_time = perf_counter()
 
 
 @timeit
@@ -67,6 +71,16 @@ def charge_engine(
         dtype=float,
     )
 
+    def cb(np_residual):
+        global iteration, last_time
+        current_time = perf_counter()
+        time = current_time - last_time
+        last_time = current_time
+        residual = float(np_residual)
+        print(f"{iteration=},{residual=},{time=}")
+        resvec.append(residual)
+        iteration += 1
+
     c, info = gmres(
         A,
         b,
@@ -74,9 +88,10 @@ def charge_engine(
         rtol=relres,
         # restart=iter,
         maxiter=maxiter,
-        callback=lambda residual: print(f"{residual=}") or resvec.append(residual),
+        callback=cb,
         callback_type="pr_norm",
     )
+    print(info)
 
     #   Find surface electric potential
     Padd = bemf4_surface_field_potential_accurate(c, center, area, PC)
