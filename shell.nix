@@ -25,6 +25,7 @@ in
             # matplotlib
             # scipy
             pyqt6
+            debugpy
 
             # pyglet
 

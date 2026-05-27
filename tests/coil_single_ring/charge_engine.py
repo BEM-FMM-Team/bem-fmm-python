@@ -18,6 +18,7 @@ sys.path.insert(
 )  # INFO temporary path loading until we can talk about structure
 
 
+import matplotlib.pyplot as plt
 from pad_neighbor_triangles import pad_neighbor_triangles
 
 from engines.charge.bemf3_inc_field_electric_constant import \
@@ -25,34 +26,56 @@ from engines.charge.bemf3_inc_field_electric_constant import \
 from engines.charge.bemf4_surface_field_electric_subdiv import \
     bemf4_surface_field_electric_subdiv
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
-from engines.lib import timeit
+from engines.lib import cache
 
 
-@timeit
-def charge_engine(
-    center: np.ndarray,
+# takes about 3 mins  to run
+# it also non deterministically faults whatever parent process called python
+@cache
+def subdiv(
+    c=None,
+    P=None,
+    t=None,
+    area=None,
+    mode=None,
+    modeArg=None,
+    prec=None,
+):
+    return bemf4_surface_field_electric_subdiv(
+        c=c,
+        P=P,
+        t=t,
+        Area=area,
+        mode=mode,
+        modeArg=modeArg,
+        prec=prec,
+    )
+
+
+iteration = 0
+last_time = perf_counter()
+
+
+# takes like 17 mins to run
+@cache
+def iterateive_solution(
+    center,
     area,
     contrast,
     normals,
-    PC,
+    weight,
     EC,
-    condin,
-    #  Parameters of the iterative solution
-    maxiter=14,
-    relres=1e-12,  # Maximum possible number of iterations in the solution
-    prec=1e-3,  # Minimum acceptable relative residual
-    weight=1 / 2,  # FMM precision
-    # Current conservation law in the weak form
+    prec,
+    maxiter,
+    relres,
+    Epri,
 ):
-    polarization = [1, 0, 0]
-    Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
-
-    b = 2 * (contrast * np.sum(normals * Epri, axis=1))
-    #  Right-hand side of the BEM-FMM equation
-
     # list to store residual at every iteration
     resvec = []
 
+    b = 2 * (contrast * np.sum(normals * Epri, axis=1))
+
+    #  Right-hand side of the BEM-FMM equation
     A = LinearOperator(
         shape=(len(normals), len(normals)),
         matvec=lambda c: bemf4_surface_field_lhs(
@@ -68,13 +91,12 @@ def charge_engine(
         dtype=float,
     )
 
-    iteration = 0
-    last_time = perf_counter()
-
-    def cb(residual):
+    def cb(np_residual):
         global iteration, last_time
         current_time = perf_counter()
         time = current_time - last_time
+        last_time = current_time
+        residual = float(np_residual)
         print(f"{iteration=},{residual=},{time=}")
         resvec.append(residual)
         iteration += 1
@@ -90,16 +112,55 @@ def charge_engine(
         callback_type="pr_norm",
     )
 
-    plt.figure()
-    plt.semilogy(resvec, "-o")
-    plt.grid(True)
-    plt.title("Relative residual of the iterative solution")
-    plt.xlabel("Iteration number")
-    plt.ylabel("Relative residual")
-    plt.show()
+    return resvec, c, info
+
+
+def charge_engine(
+    P,
+    t,
+    center: np.ndarray,
+    area,
+    contrast,
+    normals,
+    PC,
+    EC,
+    condin,
+    condout,
+    plot_residual=False,
+    #  Parameters of the iterative solution
+    maxiter=14,
+    relres=1e-12,  # Maximum possible number of iterations in the solution
+    prec=1e-3,  # Minimum acceptable relative residual
+    weight=1 / 2,  # FMM precision
+    # Current conservation law in the weak form
+):
+    polarization = [1, 0, 0]
+    Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
+
+    resvec, c, info = iterateive_solution(
+        center=center,
+        area=area,
+        contrast=contrast,
+        normals=normals,
+        weight=weight,
+        EC=EC,
+        prec=prec,
+        maxiter=maxiter,
+        relres=relres,
+        Epri=Epri,
+    )
+
+    if plot_residual:
+        plt.figure()
+        plt.semilogy(resvec, "-o")
+        plt.grid(True)
+        plt.title("Relative residual of the iterative solution")
+        plt.xlabel("Iteration number")
+        plt.ylabel("Relative residual")
+        plt.show()
 
     ##  Check charge conservation law (optional)
-    conservation_law_error = np.sum(c * Area, axis=0) / np.sum(np.abs(c) * Area, axis=0)
+    conservation_law_error = np.sum(c * area, axis=0) / np.sum(np.abs(c) * area, axis=0)
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     ##   Topological low-pass solution filtering (repeat if necessary)
@@ -114,34 +175,41 @@ def charge_engine(
     import matplotlib.tri as mtri
     DT = mtri.Triangulation(P[:,0], P[:,1], t)
     tneighbor = DT.neighbors
+
+    """
+    # TODO impl, i could not figure this out now, will try again later
     """
     DT = Delaunay(P)
+    DT.simplices = t
     tneighbor = DT.neighbors
     # Fix cases where not all triangles have three neighbors
-    tneighbor = pad_neighbor_triangles(tneighbor)
+    #tneighbor = pad_neighbor_triangles(tneighbor)
     # (repeat if necessary)
-    c = ((c * Area) + np.sum(c[tneighbor] * Area[tneighbor], 1)) / (
-        Area + np.sum(Area(tneighbor), 1)
+    c = ((c * area) + np.sum(c[tneighbor] * area[tneighbor], 1)) / (
+        area + np.sum(area(tneighbor), 1)
     )
+    """
+
     ## Compute total field and potential
     # And the normal field and current density inside/outside
     #   (i)     total normal E-field just inside/outside any model surface;
     #   (ii)    secondary continuous E-field contribution for any model surface;
     #   (iii)   secondary continuous electric potential for any model surface;
-    Ptot, Esec = bemf4_surface_field_electric_subdiv(
+    Ptot, Esec = subdiv(
         c=c,
         P=P,
         t=t,
-        Area=Area,
+        area=area,
         mode="barycentric",
         modeArg=3,
         prec=prec,
     )
-    E = Epri + Esec
+    E = Epri + Esec.T
 
     # Neighbor integral corrections
     correctionE = EC * c
-    correctionP = PC * c
+    # correctionP = PC * c # WARN unused but this op fails ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2,) + inhomogeneous part.
+
     En = np.sum(E * normals, 1) + correctionE
 
     # Normal E-Field Just Inside and Outside
@@ -151,7 +219,7 @@ def charge_engine(
     Jn_out = En_out * condout
 
     print(
-        f"Current conservation law:\nNorm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * Area))}"
+        f"Current conservation law:\nNorm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * area))}"
     )
 
-    return c, Ptot, En, En_in, En_out, Jn_in, Jn_out
+    return c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec

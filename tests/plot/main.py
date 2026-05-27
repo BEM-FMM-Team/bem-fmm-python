@@ -25,6 +25,8 @@ if __name__ == "__main__":
         tissuename,
     ) = load_model()
 
+    print(t.shape)
+
     ## 2. Set up dipoles
     # Dipole positions are incorporated throught the primary field.
     plot_tissue = 1

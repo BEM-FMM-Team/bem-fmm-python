@@ -1,10 +1,15 @@
 from time import perf_counter
+from typing import Annotated
 
 import numpy as np
 import vedo
+from joblib import Memory
 from matplotlib import cm
 
 vedo.settings.default_font = "Theemim"
+
+memory = Memory("__pycache__/joblib")
+cache = memory.cache
 
 disp = lambda n: print(f"{n.shape=}\n{n.dtype=}\n{n=}")
 
@@ -31,6 +36,7 @@ dot = lambda A, B, axis: np.sum(A.conj() * B, axis=axis)
 
 # WARN not abs sure if it works like this
 vecnorm = lambda A, p=2, dim=0: np.linalg.norm(A, ord=p, axis=dim)
+
 
 # https://stackoverflow.com/questions/1721802/what-is-the-equivalent-of-matlabs-repmat-in-numpy#1722154
 repmat = lambda a, m, n: np.tile(a, (m, n))
@@ -73,6 +79,7 @@ def patch(
     edge_color: str = "none",
     title: str = "",
     cmap_label: str = "",
+    viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
     axes: dict | None = dict(
         c="black",
         xtitle="x",
@@ -117,6 +124,9 @@ def patch(
     plt.add(vedo.Text2D(title, pos="top-center", s=1.5, font="VictorMono"))
     plt.add(mesh)
 
+    plt.azimuth(viewax[0])
+    plt.elevation(viewax[1])
+
     if cdata is not None:
         cbar = vedo.ScalarBar(mesh, title=cmap_label, c="black")
         plt.add(cbar)
@@ -127,29 +137,18 @@ def patch(
 def plot_surface(
     field_indexer,
     P,
-    t,
-    interface,
-    plot_tissue=0,
+    plot_t_idx,
+    plot_t,
     title="Plot",
     cmap_label="cmap_label",
     cmap="jet",
 ):
-    plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface may not be right
-    plot_t = t[plot_t_idx]
     plot_field = field_indexer(plot_t_idx)
-
     return patch(
         vertices=P,
         faces=plot_t,
         cdata=plot_field,
         colormap=cmap,
-        edge_color="black",
         title=title,
         cmap_label=cmap_label,
-        axes={
-            "c": "black",  # replaces set(gca,"Color","k")
-            "xtitle": r"x",  # replaces xlabel("$x$")
-            "ytitle": r"y",  # replaces ylabel("$y$")
-            "ztitle": r"z",  # replaces zlabel("$z$")
-        },
     )

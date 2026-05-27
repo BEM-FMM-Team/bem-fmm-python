@@ -1,13 +1,14 @@
 import numpy as np
-from vedo import Mesh, show
 from mesh_connee import mesh_connee
+from vedo import Mesh, show
 
 
-##NOTE: return
 def bemf2_graphics_base(P, t, c):
-    #   Surface plot
+    """
+    Surface plot
 
-    #   Copyright SNM 2017-2020
+    Copyright SNM 2017-2020
+    """
     p = Mesh([P, t])
     p.color(c.FaceColor)
     p.linecolor(c.EdgeColor)

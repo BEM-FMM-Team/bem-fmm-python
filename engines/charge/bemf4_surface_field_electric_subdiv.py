@@ -7,15 +7,14 @@ from .bemf4_surface_field_electric_plain import \
 
 
 def bemf4_surface_field_electric_subdiv(
-        c=None, P=None, t=None, Area=None, mode="gauss", modeArg=None, prec=None
+    c=None, P=None, t=None, Area=None, mode="gauss", modeArg=None, prec=None
 ):
     ## Input parsing
-    if c=None or P ==None or t=None:
+    if c is None or P is None or t is None:
         raise Exception("Not enough input arguments")
 
-
     # Assign default subdivision parameter
-    if  modeArg == None:
+    if modeArg == None:
         if mode == "gauss":
             modeArg = 7
         else:
@@ -52,30 +51,39 @@ def bemf4_surface_field_electric_subdiv(
     Center_subdiv = np.zeros((IndexS * t.shape[0], 3))
     c_subdiv = np.zeros((IndexS * c.shape[0], 1))
     Area_subdiv = np.zeros((IndexS * Area.shape[0], 1))
+
     P1 = P[t[:, 0], :]
     P2 = P[t[:, 1], :]
     P3 = P[t[:, 2], :]
-    for j in np.arange(IndexS1):
-        currentIndices = [np.arange(0, t.shape[0])] * IndexS + j
-        Center_subdiv[currentIndices, :] = (
-            coeffS[1, j] * P1 + coeffS[1, j] * P2 + coeffS[2, j] * P3
+
+    for j in range(IndexS):
+        current_indices = np.arange(t.shape[0]) * IndexS + j
+
+        Center_subdiv[current_indices, :] = (
+            coeffS[0, j] * P1 + coeffS[1, j] * P2 + coeffS[2, j] * P3
         )
-        c_subdiv[currentIndices, :] = c
-        Area_subdiv[currentIndices, :] = weightsS[j] * Area
+
+        c_subdiv[current_indices, :] = c.reshape(-1, 1)
+
+        Area_subdiv[current_indices, :] = weightsS[j] * Area.reshape(-1, 1)
 
     P, E = bemf4_surface_field_electric_plain(
         c_subdiv, Center_subdiv, Area_subdiv, prec
     )
+
     # Every column contains the subdivided quantities for one full triangle
-    P_temp = np.reshape(P, (IndexS, []))
-    Ex_temp = np.reshape(E[:, 1], (IndexS, []))
-    Ey_temp = np.reshape(E[:, 2], (IndexS, []))
-    Ez_temp = np.reshape(E[:, 3], (IndexS, []))
+
+    P_temp = np.reshape(P, (IndexS, -1))
+    Ex_temp = np.reshape(E[:, 0], (IndexS, -1))
+    Ey_temp = np.reshape(E[:, 1], (IndexS, -1))
+    Ez_temp = np.reshape(E[:, 2], (IndexS, -1))
+
     # Eavg = integral(E dA)/A.  dA = subdivided area. subdivided area/A = weightsS
-    P = (weightsS * P_temp).T
-    Ex_avg = (weightsS * Ex_temp).T
-    Ey_avg = (weightsS * Ey_temp).T
-    Ez_avg = (weightsS * Ez_temp).T
-    E = np.array([Ex_avg, Ey_avg, Ez_avg])
+    P = (weightsS @ P_temp).T
+    Ex_avg = (weightsS @ Ex_temp).T
+    Ey_avg = (weightsS @ Ey_temp).T
+    Ez_avg = (weightsS @ Ez_temp).T
+
+    E = np.vstack([Ex_avg, Ey_avg, Ez_avg])
 
     return P, E

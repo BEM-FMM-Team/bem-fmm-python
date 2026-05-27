@@ -19,7 +19,7 @@ def mesh_rotate2(P=None, axis=None, theta=None):
     """
     axis = axis / np.linalg.norm(axis)
     k = axis
-    K = np.tile(k, (P.shape[0], 1))
+    K = np.broadcast_to(k, P.shape) / np.sqrt(np.dot(k, k))
 
     cos_t = np.cos(theta)
     sin_t = np.sin(theta)

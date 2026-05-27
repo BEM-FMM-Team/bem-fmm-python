@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Annotated, Literal, TypeVar
 
 import numpy as np
@@ -25,3 +26,12 @@ CData = Annotated[np.ndarray[tuple[M], floating], "shape (M,), scalar field per 
 FaceCenters = Annotated[
     np.ndarray[tuple[N, 3], floating], "shape (N, 3), centers per triangluar face"
 ]
+
+
+# from coil.mat
+# make the math look more elegant
+@dataclass
+class StrCoil:
+    Pwire: np.ndarray[tuple[N, Literal[3]]] = None
+    Ewire: np.ndarray[tuple[N, Literal[2]]] = None
+    Swire: np.ndarray[tuple[N, Literal[1]]] = None

@@ -20,7 +20,7 @@ from typing import Literal
 import numpy as np
 import vedo
 
-from engines.lib import timeit
+from engines.lib import cache, timeit
 from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter
@@ -105,7 +105,8 @@ def build_tissue_struct(fname: str) -> TissueStruct:
     )
 
 
-@timeit
+# @timeit
+@cache
 def load_model():
     fname = "tissuelist_headreco.txt"
     tissues = build_tissue_struct(fname)

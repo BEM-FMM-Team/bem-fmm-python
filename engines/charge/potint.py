@@ -103,6 +103,7 @@ def potint(r1, r2, r3, normal, ObsPoint):
         Z[:, 3 * c1 : 3 * c1 + 3] = d3[:, None] * u[:, 3 * c1 : 3 * c1 + 3]
 
         count += 2
+
     # Contribution is zero when the projection point on the edge (Wilton et al. 1984, p. 279)
     S[np.isnan(S)] = 0
     S[np.isinf(S)] = 0

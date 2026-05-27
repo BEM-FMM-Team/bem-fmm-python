@@ -1,12 +1,24 @@
 import multiprocessing as mp
+
 import numpy as np
-from mesh_tri import mesh_tri
-from potint import potint
 from scipy.sparse import coo_matrix
 
+from ..charge.potint import potint
+from ..lib import cache
+from .mesh_tri import mesh_tri
 
+
+@cache
 def mesh_neighborints_Pn(
-    P, t, normals, Area, Center, RnumberP, ineighborP, contrast, numThreads
+    P=None,
+    t=None,
+    normals=None,
+    Area=None,
+    Center=None,
+    RnumberP=None,
+    ineighborP=None,
+    contrast=None,
+    numThreads=None,
 ):
     #   Accurate integration for electric potential on neighbor facets
     #   Done for a selected interface only ("Indicator" variable is used)
@@ -26,6 +38,7 @@ def mesh_neighborints_Pn(
 
     #   select one tissue with electrodes
     M = np.sum(contrast == 1)
+    print(f"{M=}")
 
     gauss = 25  #   number of integration points in the Gaussian quadrature
     #   for the outer potential integrals

@@ -1,15 +1,19 @@
 import numpy as np
-from mesh_tri import mesh_tri
-from potint4b import potint4b
 from scipy.sparse import coo_matrix
 
+from ..charge.potint4b import potint4b
+from ..lib import cache
+from .mesh_tri import mesh_tri
 
+
+@cache
 def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numThreads):
-    #   Accurate integration for electric field on neighbor facets using the solid angle approach
-    #   Copyright WAW/SNM 2020-2021
-    #
-    # If numThreads > 1, activate the parpool. Otherwise, use a normal for loop.
-    #
+    """
+    Accurate integration for electric field on neighbor facets using the solid angle approach
+    Copyright WAW/SNM 2020-2021
+
+    If numThreads > 1, activate the parpool. Otherwise, use a normal for loop.
+    """
     # DD - 6/25
     N = t.shape[0]
     integralxc = np.zeros(

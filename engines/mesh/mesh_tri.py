@@ -49,9 +49,10 @@ def mesh_tri(arg1, arg2=None):
         else:
             N = (M - 1) / 3 * 2
 
+
         #   Border loop - starts with the outer border of integration points
         #   and then goes inside - "triangle" by triangle
-        for m in range(1, N + 1):
+        for m in range(1, int(N) + 1):
             div = M - m - np.floor(m / eps)  #   integer - edge is divided
             scale = div / M  #   real - relative
             alpha = (1 + 2 * scale) / 3
@@ -59,6 +60,8 @@ def mesh_tri(arg1, arg2=None):
             coeff1 = np.array([alpha, beta, beta])  #  p1 new
             coeff2 = np.array([beta, alpha, beta])  #  p2 new
             coeff3 = np.array([beta, beta, alpha])  #  p3 new
+
+            div = int(div)
             #   first edge
             for n in range(1, div + 1):
                 vector = coeff1 * (div - n + 1) / div + coeff2 * (n - 1) / div
@@ -79,7 +82,6 @@ def mesh_tri(arg1, arg2=None):
         if 3 * np.floor(M / 3) != M:
             coeff[:, k] = np.array([1 / 3, 1 / 3, 1 / 3])
             weights = 1 / coeff.shape[1] * np.ones(coeff.shape[1])
-
     # nargs is 2
     else:
         #   Gaussian quadrature formulae

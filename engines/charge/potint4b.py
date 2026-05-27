@@ -25,12 +25,12 @@ def potint4b(r1, r2, r3, obsPoint):
     M = obsPoint.shape[0]  # M observation points
 
     # Dimension 1: triangle index.  Dimension 2: 3. Dimension 3: Observation point index
-    r1Exp = np.tile(r1, (1, 1, M))
-    r2Exp = np.tile(r2, (1, 1, M))
-    r3Exp = np.tile(r3, (1, 1, M))
+    r1Exp = np.tile(r1[:, :, np.newaxis], (1, 1, M))
+    r2Exp = np.tile(r2[:, :, np.newaxis], (1, 1, M))
+    r3Exp = np.tile(r3[:, :, np.newaxis], (1, 1, M))
 
     obsPointExpA = np.zeros((1, 3, M))
-    obsPointExpA[1, :, :] = obsPoint.T
+    obsPointExpA[0, :, :] = obsPoint.T
     obsPointExp = np.tile(obsPointExpA, (N, 1, 1))
 
     # Vectors from observation points to triangle vertices (N by 3 by M)
@@ -39,20 +39,22 @@ def potint4b(r1, r2, r3, obsPoint):
     R3 = r3Exp - obsPointExp
 
     # Norms of vectors (N by 1 by M)
-    R1norm = vecnorm(R1, 2, 2)
-    R2norm = vecnorm(R2, 2, 2)
-    R3norm = vecnorm(R3, 2, 2)
+    R1norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
+    R2norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
+    R3norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
 
     # N by 1 by M
-    numerator = dot(R1, np.cross(R2, R3, axis=1), 1)
+    numerator = np.sum(R1 * np.cross(R2, R3, axis=1), axis=1, keepdims=True)
+
+
 
     # N by 1 by M
     denominator = (
-        (R1norm * R2norm * R3norm)
-        + (R3norm * dot(R1, R2, 1))
-        + (R2norm * dot(R1, R3, 1))
-        + (R1norm * dot(R2, R3, 1))
-    )
+    (R1norm * R2norm * R3norm)
+    + R3norm * np.sum(R1 * R2, axis=1, keepdims=True)
+    + R2norm * np.sum(R1 * R3, axis=1, keepdims=True)
+    + R1norm * np.sum(R2 * R3, axis=1, keepdims=True)
+)
 
     omega = 2 * np.atan2(numerator, denominator)
 

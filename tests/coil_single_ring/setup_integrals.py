@@ -9,36 +9,66 @@ Indexes into neighbor triangles
 """
 
 import numpy as np
+from scipy.sparse import coo_matrix
+from sklearn.neighbors import NearestNeighbors
 
+from engines.lib import cache
 from engines.mesh.mesh_neighborints_En import mesh_neighborints_En
 from engines.mesh.mesh_neighborints_Pn import mesh_neighborints_Pn
 
-# WARN incomplete, just a stub, also no multithreading so ..., this could take a while
 
+@cache
+def setup_integrals(
+    P=None,
+    t=None,
+    normals=None,
+    Area=None,
+    Center=None,
+    contrast=None,
+    numThreads=12,
+    RnumberE=64,
+    RnumberP=64,
+):
+    # WARN come back and add logic for RnumberE == RnumberP
+    nbrs = NearestNeighbors(n_neighbors=RnumberE, algorithm="auto")
+    nbrs.fit(Center)
 
-def setup_integrals():
-    numThreads = 12
-    RnumberE = 64
-    RnumberP = 64
+    distanceE, ineighbor = nbrs.kneighbors(Center)
 
-    ineighborE = knnsearch(Center, Center, "k", RnumberE)
-    ineighborP = knnsearch(Center, Center, "k", RnumberP)
-
-    ineighborE = ineighborE.T
-    ineighborP = ineighborP.T
+    ineighborE = ineighbor.T
+    ineighborP = ineighbor.T
 
     # [EC, PC] = meshneighborints(P, t, normals, Area, Center, RnumberE, RnumberP, ineighborE, ineighborP, numThreads);
     EC = mesh_neighborints_En(
-        P, t, normals, Area, Center, RnumberE, ineighborE, numThreads
+        P=P,
+        t=t,
+        normals=normals,
+        Area=Area,
+        Center=Center,
+        RnumberE=RnumberE,
+        ineighborE=ineighborE,
+        numThreads=numThreads,
     )
     PC = mesh_neighborints_Pn(
-        P, t, normals, Area, Center, RnumberP, ineighborP, numThreads
+        P=P,
+        t=t,
+        normals=normals,
+        Area=Area,
+        Center=Center,
+        RnumberP=RnumberP,
+        ineighborP=ineighborP,
+        contrast=contrast,
+        numThreads=numThreads,
     )
-    ##   Normalize sparse matrix EC by variable contrast (for speed up)
+
+    ##  Normalize sparse matrix EC by variable contrast
     N = Center.shape[0]
     ii = ineighborE
     jj = np.tile(np.arange(N), (RnumberE, 1))
-    CO = sparse(ii, jj, contrast(ineighborE))
-    EC = np.multiply(CO, EC)
+    CO = coo_matrix(
+        (contrast[ii].ravel(order="F"), (ii.ravel(order="F"), jj.ravel(order="F"))),
+        shape=(N, N),
+    ).tocsr()
+    EC = CO.multiply(EC)
 
     return PC, EC

@@ -26,7 +26,7 @@ def bemf4_surface_field_electric_plain(
 
     pg = 2  # potential and field are evaluated
     sources = center.T  # source/target points
-    charges = (c * area).T  # real charges
+    charges = (c * area).T[0]  # real charges # WARN, this works for the single coil
     U = lfmm3d(eps=prec, sources=sources, charges=charges, pg=pg)  # FMM
     P = U.pot.T / (4 * pi)  # potential
     E = -U.grad.T / (4 * pi)  # field

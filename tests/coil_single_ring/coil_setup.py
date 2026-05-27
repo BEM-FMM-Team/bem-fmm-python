@@ -9,10 +9,12 @@
 """
 
 import numpy as np
+import vedo
 from scipy.io import loadmat
 
 from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
+from engines.my_types import StrCoil
 
 
 def coil_setup():
@@ -31,8 +33,17 @@ def coil_setup():
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    strcoilPwire = loadmat("coil.mat")["strcoil"]["Pwire"]
-    CoilP = loadmat("coilCAD.mat")["P"]
+    _strcoil = loadmat("coil.mat")["strcoil"]
+    strcoilPwire = _strcoil["Pwire"][0][0]  # found this through debugging
+    strcoil = StrCoil(
+        Pwire=_strcoil["Pwire"][0][0],
+        Ewire=_strcoil["Ewire"][0][0],
+        Swire=_strcoil["Swire"][0][0],
+    )
+
+    coilCAD = loadmat("coilCAD.mat")
+    CoilP = coilCAD["P"]
+    Coilt = coilCAD["t"] - 1
 
     ## Coil Position
     # Define coil position: rotate and then tilt and move the entire coil as appropriate
@@ -86,6 +97,9 @@ def coil_setup():
         dIdt,
         I0,
         margin,
+        strcoil,
+        CoilP,
+        Coilt,
     )
 
 
