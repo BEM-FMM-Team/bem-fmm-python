@@ -34,7 +34,6 @@ def coil_setup():
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
     _strcoil = loadmat("coil.mat")["strcoil"]
-    strcoilPwire = _strcoil["Pwire"][0][0]  # found this through debugging
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0],
@@ -61,17 +60,17 @@ def coil_setup():
     #   Transformation 3: New coil position
 
     # Apply Transformation 1: rotation about coil centerline
-    strcoilPwire = mesh_rotate2(strcoilPwire, coilaxis, theta)
+    strcoil.Pwire = mesh_rotate2(strcoil.Pwire, coilaxis, theta)
     CoilP = mesh_rotate2(CoilP, coilaxis, theta)
 
     # Apply Transformation 2: Tilt the coil axis with direction vector Nx, Ny, Nz as required
-    strcoilPwire = mesh_rotate1(strcoilPwire, Nx, Ny, Nz)
+    strcoil.Pwire = mesh_rotate1(strcoil.Pwire, Nx, Ny, Nz)
     CoilP = mesh_rotate1(CoilP, Nx, Ny, Nz)
 
     # Apply Transformation 3: Move the coil as required
-    strcoilPwire[:, 0] = strcoilPwire[:, 0] + MoveX
-    strcoilPwire[:, 1] = strcoilPwire[:, 1] + MoveY
-    strcoilPwire[:, 2] = strcoilPwire[:, 2] + MoveZ
+    strcoil.Pwire[:, 0] = strcoil.Pwire[:, 0] + MoveX
+    strcoil.Pwire[:, 1] = strcoil.Pwire[:, 1] + MoveY
+    strcoil.Pwire[:, 2] = strcoil.Pwire[:, 2] + MoveZ
 
     CoilP[:, 0] = CoilP[:, 0] + MoveX
     CoilP[:, 1] = CoilP[:, 1] + MoveY

@@ -99,7 +99,7 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
     integrale = integrale * area_self / area_neighbor
 
     ##  Define useful sparse matrices EC, PC (for GMRES speed up)
-    const = 1 / (4 * np.pi)
+    const = 1  # INFO 4pi already appiled
     integralc = np.zeros(
         (RnumberE, N)
     )  # normal integral component for array of neighbor triangles (center point) - to speed up GMRES

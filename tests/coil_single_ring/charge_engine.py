@@ -57,7 +57,7 @@ last_time = perf_counter()
 
 
 # takes like 17 mins to run
-@cache
+# @cache
 def iterateive_solution(
     center,
     area,
@@ -69,11 +69,12 @@ def iterateive_solution(
     maxiter,
     relres,
     Epri,
+    b,
+    iter,
 ):
     # list to store residual at every iteration
     resvec = []
 
-    b = 2 * (contrast * np.sum(normals * Epri, axis=1))
 
     #  Right-hand side of the BEM-FMM equation
     A = LinearOperator(
@@ -97,16 +98,16 @@ def iterateive_solution(
         time = current_time - last_time
         last_time = current_time
         residual = float(np_residual)
-        print(f"{iteration=},{residual=},{time=}")
+        print(f"{iteration=}, {residual=}, {time=}")
         resvec.append(residual)
         iteration += 1
 
     c, info = gmres(
-        A,
-        b,
-        x0=b,
+        A=A,
+        b=b,
+        x0=8*b,
         rtol=relres,
-        # restart=iter,
+        restart=iter,
         maxiter=maxiter,
         callback=cb,
         callback_type="pr_norm",
@@ -126,9 +127,11 @@ def charge_engine(
     EC,
     condin,
     condout,
-    plot_residual=False,
+    b,
+    plot_residual=True,
     #  Parameters of the iterative solution
-    maxiter=14,
+    iter=14,
+    maxiter=1,
     relres=1e-12,  # Maximum possible number of iterations in the solution
     prec=1e-3,  # Minimum acceptable relative residual
     weight=1 / 2,  # FMM precision
@@ -146,13 +149,15 @@ def charge_engine(
         EC=EC,
         prec=prec,
         maxiter=maxiter,
+        iter=iter,
         relres=relres,
         Epri=Epri,
+        b=b,
     )
 
     if plot_residual:
         plt.figure()
-        plt.semilogy(resvec, "-o")
+        plt.semilogy(resvec/resvec[0], "-o")
         plt.grid(True)
         plt.title("Relative residual of the iterative solution")
         plt.xlabel("Iteration number")
@@ -163,6 +168,7 @@ def charge_engine(
     conservation_law_error = np.sum(c * area, axis=0) / np.sum(np.abs(c) * area, axis=0)
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
+    print(f"""{conservation_law_error=}\n{solution_error=}\n{info=}""")
     ##   Topological low-pass solution filtering (repeat if necessary)
     # Find topological neighbors
 

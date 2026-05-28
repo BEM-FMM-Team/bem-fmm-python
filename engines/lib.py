@@ -8,9 +8,6 @@ from matplotlib import cm
 
 vedo.settings.default_font = "Theemim"
 
-memory = Memory("__pycache__/joblib")
-cache = memory.cache
-
 disp = lambda n: print(f"{n.shape=}\n{n.dtype=}\n{n=}")
 
 # TODO needs a better name
@@ -68,6 +65,11 @@ def timeit(fn):
         return result
 
     return ret
+
+
+memory = Memory("__pycache__/joblib")
+cache = memory.cache
+# cache = timeit
 
 
 def patch(

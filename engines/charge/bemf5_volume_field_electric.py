@@ -39,12 +39,12 @@ def bemf5_volume_field_electric(
     charges = c.T * Area.T
 
     U = lfmm3d(eps=prec, sources=sources, charges=charges, pg=pg, targets=targ, pgt=pgt)
-    E = -U.gradtarg.T / (4 * np.pi)
+    E = -U.gradtarg.T  # INFO (4pi) already applied
     #   Undo the effect of the m-th triangle charge on neighbors and
     #   add precise integration instead
     #   Contribution of the charge of triangle m to the field at all points is sought
     M = Center.shape[0]
-    const = 4 * np.pi
+    const = 1  # INFO 4pi already applied
     Size = np.mean(np.sqrt(Area))
     if len(planeABCD) == 0:
         eligibleTriangles = np.arange(1, t.shape[1 - 1] + 1)

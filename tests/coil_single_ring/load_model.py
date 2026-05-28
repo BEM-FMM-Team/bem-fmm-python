@@ -106,7 +106,7 @@ def build_tissue_struct(fname: str) -> TissueStruct:
 
 
 # @timeit
-@cache
+# @cache
 def load_model():
     fname = "tissuelist_headreco.txt"
     tissues = build_tissue_struct(fname)
@@ -131,7 +131,7 @@ def load_model():
             raise RuntimeError(f"File '{fname}' not found")
 
         # Load into cells
-        Pcell.append(Tissue.vertices)
+        Pcell.append(unit_convert * Tissue.vertices)
         tcell.append(np.array(Tissue.cells))
 
         print(f"Loaded: {fname}")

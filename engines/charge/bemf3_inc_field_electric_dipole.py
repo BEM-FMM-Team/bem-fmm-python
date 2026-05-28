@@ -47,12 +47,13 @@ def bemf3_inc_field_electric_dipole(
 
     U = lfmm3d(esps=prec, sources=sources, pg=pg, targets=targ, pgt=pgt, nd=nd)
 
-    Ppri = 1 / (4 * np.pi) * np.transpose(U.pottarg)
+    Ppri = 1 * np.transpose(U.pottarg)
 
     Epri = np.zeros((t.shape[0], 3))
-    Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]
-    Epri[:, 1] = -1 / (4 * np.pi) * U.gradtarg[1, :]
-    Epri[:, 2] = -1 / (4 * np.pi) * U.gradtarg[2, :]
+    # INFO 4pi already applied
+    Epri[:, 0] = -U.gradtarg[0, :]
+    Epri[:, 1] = -U.gradtarg[1, :]
+    Epri[:, 2] = -U.gradtarg[2, :]
 
     if flag == 0:
         return Epri, Ppri
@@ -86,17 +87,19 @@ def bemf3_inc_field_electric_dipole(
             temp = Positions[index, :] - np.tile(Center[m, :], (len(index), 1))
             DIST = np.sqrt(np.dot(temp, temp, 2))
             I = (VectorCurrent * temp) / np.tile(DIST**3, (1, 3))
-            Epri[m, :] = Epri[m, :] - (-1 / (4 * np.pi) * np.sum(I, axis=0))
+            Epri[m, :] = Epri[m, :] - (
+                -1 * np.sum(I, axis=0)
+            )  # INFO 4pi already applied
             r1 = P[t[m, 0], :]
             r2 = P[t[m, 1], :]
             r3 = P[t[m, 2], :]
             Int_ = potint2(r1, r2, r3, normals[m, :], Positions[index, :])
-            Int_ = ((VectorCurrent / (4 * np.pi)) * Int_) / Area[m]
+            Int_ = ((VectorCurrent) * Int_) / Area[m]
             Epri[m, :] = Epri[m, :] + np.sum(Int_, axis=0)
             I = CurrentOverSigma[index] / DIST
-            Ppri[m] = Ppri(m) - (1 / (4 * np.pi) * np.sum(I, 1 - 1))
+            Ppri[m] = Ppri(m) - (1 * np.sum(I, 1 - 1))
             Int_, __ = potint(r1, r2, r3, normals[m, :], Positions[index, :])
-            Int_ = (CurrentOverSigma[index] / (4 * np.pi) * Int_) / Area[m]
+            Int_ = (CurrentOverSigma[index] * Int_) / Area[m]
             Ppri[m] = Ppri[m] + np.sum(Int_, axis=0)
 
     return Epri, Ppri

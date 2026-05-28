@@ -97,7 +97,7 @@ def mesh_neighborints_Pn(
         integralpc[:, n] = IPC  #   center-point approximation
     ##  Define useful sparse matrices EC, PC (for GMRES speed up)
     N = t.shape[0]
-    const = 1 / (4 * np.pi)
+    const = 1  # info 4pi already applied
     ii = ineighborP
     jj = np.tile(np.arange(N), (RnumberP, 1))
     PC = coo_matrix(

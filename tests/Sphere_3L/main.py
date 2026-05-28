@@ -45,40 +45,40 @@ if __name__ == "__main__":
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.
+
     plot_tissue = 2
-    # tissue id to plot
+    plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface may not be right
+    plot_t = t[plot_t_idx]
 
     plot_surface(
         field_indexer=lambda plot_t_idx: eps0 * c[plot_t_idx],
         title="Charge Solution on Surface: ",
         cmap_label="C/m^2",
         P=P,
-        t=t,
-        interface=interface,
-        plot_tissue=plot_tissue,
+        plot_t=plot_t,
+        plot_t_idx=plot_t_idx,
     ).show()
     plot_surface(
         field_indexer=lambda plot_t_idx: Ptot[plot_t_idx],
         title="Potential on Surface: ",
         cmap_label="V",
         P=P,
-        t=t,
-        interface=interface,
+        plot_t=plot_t,
+        plot_t_idx=plot_t_idx,
     ).show()
     plot_surface(
         field_indexer=lambda plot_t_idx: En[plot_t_idx],
         title="Normal E-field (inner) on Surface: ",
         cmap_label="V/m",
         P=P,
-        t=t,
-        interface=interface,
+        plot_t=plot_t,
+        plot_t_idx=plot_t_idx,
     ).show()
     plot_surface(
         field_indexer=lambda plot_t_idx: J[plot_t_idx],
         title="Normal Current Density (inner) on Surface: ",
         cmap_label="A/m^2",
         P=P,
-        t=t,
-        interface=interface,
-        plot_tissue=plot_tissue,
+        plot_t=plot_t,
+        plot_t_idx=plot_t_idx,
     ).show()

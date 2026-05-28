@@ -65,11 +65,12 @@ def bemf3_inc_field_electric_plain_dipoles(
         # dipvec=dipoles.flatten(),
     )  # TODO confirm dipvec=dipolses,
 
-    Ppri = 1 / (4 * np.pi) * U.pottarg.T
+    # INFO 4pi already applied
+    Ppri = U.pottarg.T
     Epri = np.zeros((U.gradtarg.shape[1], 3))
-    Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]
-    Epri[:, 1] = -1 / (4 * np.pi) * U.gradtarg[1, :]
-    Epri[:, 2] = -1 / (4 * np.pi) * U.gradtarg[2, :]
+    Epri[:, 0] = -U.gradtarg[0, :]
+    Epri[:, 1] = -U.gradtarg[1, :]
+    Epri[:, 2] = -U.gradtarg[2, :]
 
     # INFO i think this would be better
     # Epri = (-1/(4*np.pi) * U.gradtarg).T

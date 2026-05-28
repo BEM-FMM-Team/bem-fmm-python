@@ -10,8 +10,6 @@ In matlab, this takes about 2 minutes to run to completion.
 DD, DT - 5/2026
 """
 
-from sys import exit
-
 from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
@@ -87,6 +85,7 @@ if __name__ == "__main__":
         EC=EC,
         condin=condin,
         condout=condout,
+        b=b,
     )
 
     # -- Plot coil geometry on desired tissue
@@ -95,7 +94,6 @@ if __name__ == "__main__":
 
     plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
     plot_t_idx = interface[: len(t)] == plot_tissue  # WARN interface may not be right
-
     plot_t = t[plot_t_idx]
 
     p = patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))

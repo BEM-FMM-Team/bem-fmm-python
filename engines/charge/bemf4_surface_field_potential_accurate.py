@@ -1,8 +1,6 @@
 from typing import Any
 
 import numpy as np
-
-from numpy import pi
 from fmm3dpy import lfmm3d
 
 
@@ -24,7 +22,8 @@ def bemf4_surface_field_potential_accurate(
     FMM plus correction
     """
 
-    const = 1 / (4 * pi)
+    # INFO 4pi already applied
+    const = 1
     eps = 1e-2
     pg = 1
     #   only potential here

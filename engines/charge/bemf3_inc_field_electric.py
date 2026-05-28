@@ -27,7 +27,8 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     PseudoQy = segvector[:, 1]
     PseudoQz = segvector[:, 2]
     Einc = np.zeros((N, 3))
-    const = mu0 * dIdt / (4 * np.pi)
+    # const = mu0 * dIdt / (4 * np.pi) # WARN python lfmmpy seems to apply the /4pi
+    const = mu0 * dIdt
 
     # This is -dAdt*j
     # FMM 2019
@@ -51,10 +52,10 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
 
     U = lfmm3d(
         eps=prec, sources=sources, charges=charges, pg=pg, targets=targ, pgt=pgt, nd=nd
-    )
+    ) # WARN pottarg is not exactly the same as matlab
     Einc = np.zeros((U.pottarg.shape[1], 3))
     Einc[:, 0] = const * U.pottarg[0, :]
     Einc[:, 1] = const * U.pottarg[1, :]
     Einc[:, 2] = const * U.pottarg[2, :]
 
-    return Einc
+    return Einc # INFO: victory, matches the matlab values

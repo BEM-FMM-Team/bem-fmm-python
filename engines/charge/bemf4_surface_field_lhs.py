@@ -15,9 +15,9 @@ def bemf4_surface_field_lhs(
     area: ndarray[tuple[Any, ...], dtype[float64]],
     contrast,
     normals,
-    weight,
+    weight: np.float64,
     EC,
-    prec,
+    prec: np.float64,
 ):
 
     _, E0 = bemf4_surface_field_electric_plain(

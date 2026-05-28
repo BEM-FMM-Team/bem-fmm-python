@@ -31,9 +31,10 @@ def bemf3_inc_field_electric_plain(
     charges[0, :] = PseudoQ.T
 
     U = lfmm3d(eps=prec, sources=sources, pg=pg, targets=targ, pgt=pgt, charges=charges)
-    Ppri = +1 / (4 * np.pi) * U.pottarg.T
-    Epri[:, 0] = -1 / (4 * np.pi) * U.gradtarg[0, :]
-    Epri[:, 1] = -1 / (4 * np.pi) * U.gradtarg[1, :]
-    Epri[:, 2] = -1 / (4 * np.pi) * U.gradtarg[2, :]
+    # INFO 4pi already applied
+    Ppri = U.pottarg.T
+    Epri[:, 0] = U.gradtarg[0, :]
+    Epri[:, 1] = U.gradtarg[1, :]
+    Epri[:, 2] = U.gradtarg[2, :]
 
     return Epri, Ppri

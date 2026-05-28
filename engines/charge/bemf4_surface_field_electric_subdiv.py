@@ -58,13 +58,10 @@ def bemf4_surface_field_electric_subdiv(
 
     for j in range(IndexS):
         current_indices = np.arange(t.shape[0]) * IndexS + j
-
         Center_subdiv[current_indices, :] = (
             coeffS[0, j] * P1 + coeffS[1, j] * P2 + coeffS[2, j] * P3
         )
-
         c_subdiv[current_indices, :] = c.reshape(-1, 1)
-
         Area_subdiv[current_indices, :] = weightsS[j] * Area.reshape(-1, 1)
 
     P, E = bemf4_surface_field_electric_plain(
