@@ -46,7 +46,7 @@ def mesh_combine_simple(Pcell, tcell, condinner, condouter, opts=None):
     # Fix interfaces (will need to update later!!)
     # Right now, assumes all interfaces are unique (onion shape)
     # THIS WILL NEED TO BE UPDATED LATER!!
-    interface = np.concatenate([interface, interface])
+    interface = np.vstack([interface, interface]).T # INFO this works
 
     # %%% STEP 3: FIX MESH FACES
     # %%% ----------------------

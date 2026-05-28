@@ -51,6 +51,7 @@ def load_model():
 
     condin = condinner * np.ones((t.shape[1 - 1], 1))
     condout = condouter * np.ones((t.shape[1 - 1], 1))
+
     # Compute mesh data
     normals = mesh_normals(P, t)
     Center = mesh_tricenter(P, t)

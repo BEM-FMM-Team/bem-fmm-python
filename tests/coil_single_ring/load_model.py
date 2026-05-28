@@ -101,12 +101,22 @@ def build_tissue_struct(fname: str) -> TissueStruct:
         TissueOutside=np.delete(np.array(tissues.TissueOutside), to_pop),
         ConductivityInside=np.delete(np.array(tissues.ConductivityInside), to_pop),
         ConductivityOutside=np.delete(np.array(tissues.ConductivityOutside), to_pop),
-        Color=np.delete(np.array(tissues.Color), to_pop),
+        Color=np.array(  # WARN hardcoding for now as it requires me to make a decision on colormaps, also this isnt used else where
+            [
+                [1, 0, 0],
+                [1, 0.5000, 0],
+                [1, 1, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 0, 0],
+                [1, 1, 0],
+            ]
+        ),
     )
 
 
 # @timeit
-# @cache
+@cache
 def load_model():
     fname = "tissuelist_headreco.txt"
     tissues = build_tissue_struct(fname)

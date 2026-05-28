@@ -16,8 +16,10 @@ from engines.lib import cache
 from engines.mesh.mesh_neighborints_En import mesh_neighborints_En
 from engines.mesh.mesh_neighborints_Pn import mesh_neighborints_Pn
 
+from pull_artifact import pull_artifact
 
-@cache
+
+# @cache
 def setup_integrals(
     P=None,
     t=None,
@@ -29,14 +31,17 @@ def setup_integrals(
     RnumberE=64,
     RnumberP=64,
 ):
-    # WARN come back and add logic for RnumberE == RnumberP
     nbrs = NearestNeighbors(n_neighbors=RnumberE, algorithm="auto")
     nbrs.fit(Center)
-
     distanceE, ineighbor = nbrs.kneighbors(Center)
+    ineighborE = ineighbor.T  # matches
+    ineighborP = ineighbor.T  # matches
 
-    ineighborE = ineighbor.T
-    ineighborP = ineighbor.T
+    if RnumberE != RnumberP:  # INFO not the case for coil_single
+        nbrs = NearestNeighbors(n_neighbors=RnumberP, algorithm="auto")
+        nbrs.fit(Center)
+        distanceE, ineighbor = nbrs.kneighbors(Center)
+        ineighborP = ineighbor.T
 
     # [EC, PC] = meshneighborints(P, t, normals, Area, Center, RnumberE, RnumberP, ineighborE, ineighborP, numThreads);
     EC = mesh_neighborints_En(

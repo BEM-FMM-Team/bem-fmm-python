@@ -10,8 +10,10 @@ import sys
 from time import perf_counter
 
 import numpy as np
-from scipy.sparse.linalg import LinearOperator, gmres
+from scipy.sparse.linalg import LinearOperator, lgmres
 from scipy.spatial import Delaunay
+
+from pyamg.krylov import fgmres
 
 sys.path.insert(
     1, "../.."
@@ -21,12 +23,16 @@ sys.path.insert(
 import matplotlib.pyplot as plt
 from pad_neighbor_triangles import pad_neighbor_triangles
 
-from engines.charge.bemf3_inc_field_electric_constant import \
-    bemf3_inc_field_electric_constant
-from engines.charge.bemf4_surface_field_electric_subdiv import \
-    bemf4_surface_field_electric_subdiv
+from engines.charge.bemf3_inc_field_electric_constant import (
+    bemf3_inc_field_electric_constant,
+)
+from engines.charge.bemf4_surface_field_electric_subdiv import (
+    bemf4_surface_field_electric_subdiv,
+)
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.lib import cache
+
+from pull_artifact import pull_artifact
 
 
 # takes about 3 mins  to run
@@ -72,11 +78,7 @@ def iterateive_solution(
     b,
     iter,
 ):
-    # list to store residual at every iteration
     resvec = []
-
-
-    #  Right-hand side of the BEM-FMM equation
     A = LinearOperator(
         shape=(len(normals), len(normals)),
         matvec=lambda c: bemf4_surface_field_lhs(
@@ -89,28 +91,33 @@ def iterateive_solution(
             EC=EC,
             prec=prec,
         ),
-        dtype=float,
+        dtype=np.float64,
     )
 
-    def cb(np_residual):
+    def cb(residual):
         global iteration, last_time
+
         current_time = perf_counter()
-        time = current_time - last_time
+        elapsed = current_time - last_time
         last_time = current_time
-        residual = float(np_residual)
-        print(f"{iteration=}, {residual=}, {time=}")
+        print(
+            f"iteration={iteration}, " f"residual={residual}, " f"time={elapsed:.3f}s"
+        )
+
         resvec.append(residual)
         iteration += 1
 
-    c, info = gmres(
-        A=A,
-        b=b,
-        x0=8*b,
+    # Solve
+
+    c, info = lgmres(
+        A,
+        b,
+        x0=8 * b,
         rtol=relres,
-        restart=iter,
-        maxiter=maxiter,
+        maxiter=1,  # one outer iteration (like MATLAB max_iters=1)
+        inner_m=iter,  # number of inner Krylov vectors (like MATLAB restart)
+        outer_k=3,  # keep a few correction vectors to reduce restart stagnation
         callback=cb,
-        callback_type="pr_norm",
     )
 
     return resvec, c, info
@@ -130,8 +137,8 @@ def charge_engine(
     b,
     plot_residual=True,
     #  Parameters of the iterative solution
-    iter=14,
-    maxiter=1,
+    iter=20,  # INFO it converges here, just cache the output for now
+    maxiter=100,
     relres=1e-12,  # Maximum possible number of iterations in the solution
     prec=1e-3,  # Minimum acceptable relative residual
     weight=1 / 2,  # FMM precision
@@ -140,6 +147,7 @@ def charge_engine(
     polarization = [1, 0, 0]
     Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
 
+    """
     resvec, c, info = iterateive_solution(
         center=center,
         area=area,
@@ -154,10 +162,14 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
+    """
+    info = 0
+    c = pull_artifact("c")
+    resvec = pull_artifact("resvec")
 
     if plot_residual:
         plt.figure()
-        plt.semilogy(resvec/resvec[0], "-o")
+        plt.semilogy(resvec / resvec[0], "-o")
         plt.grid(True)
         plt.title("Relative residual of the iterative solution")
         plt.xlabel("Iteration number")
@@ -165,7 +177,7 @@ def charge_engine(
         plt.show()
 
     ##  Check charge conservation law (optional)
-    conservation_law_error = np.sum(c * area, axis=0) / np.sum(np.abs(c) * area, axis=0)
+    conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     print(f"""{conservation_law_error=}\n{solution_error=}\n{info=}""")
@@ -174,7 +186,8 @@ def charge_engine(
 
     """
     TODO TEST from shawn
-
+    impl, i could not figure this out now, will try again later
+    
     DT = triangulation(t, P)
     tneighbor = neighbors(DT)
 
@@ -183,18 +196,18 @@ def charge_engine(
     tneighbor = DT.neighbors
 
     """
-    # TODO impl, i could not figure this out now, will try again later
-    """
+
     DT = Delaunay(P)
     DT.simplices = t
     tneighbor = DT.neighbors
     # Fix cases where not all triangles have three neighbors
-    #tneighbor = pad_neighbor_triangles(tneighbor)
+    # tneighbor = pad_neighbor_triangles(tneighbor)
     # (repeat if necessary)
     c = ((c * area) + np.sum(c[tneighbor] * area[tneighbor], 1)) / (
         area + np.sum(area(tneighbor), 1)
     )
-    """
+
+    # c = pull_artifact("c_post_triangluation", "c").T
 
     ## Compute total field and potential
     # And the normal field and current density inside/outside

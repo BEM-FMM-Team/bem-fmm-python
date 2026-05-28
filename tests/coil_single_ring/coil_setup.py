@@ -77,19 +77,19 @@ def coil_setup():
     CoilP[:, 2] = CoilP[:, 2] + MoveZ
 
     ## Coil Observation Line
-    # Define the observation line from the bottom center of the coil into the head
-    M = 10000
-    argline = np.linspace(0, 100e-3, M)
-    #   distance along a 100 mm long line
-    NxNyNz = np.array([Nx, Ny, Nz])
+    # direction of the coil axis
+    NxNyNz = np.array([Nx, Ny, Nz], dtype=float)
     dirline = -NxNyNz / np.linalg.norm(NxNyNz)
-    #   line direction (along the coil axis)
-    offline = 0e-3
-    #   offset from the coil
-    pointsline = np.zeros((M, 3))
-    pointsline[0:M, 0] = MoveX + dirline[0] * (argline + offline)
-    pointsline[0:M, 1] = MoveY + dirline[1] * (argline + offline)
-    pointsline[0:M, 2] = MoveZ + dirline[2] * (argline + offline)
+
+    # start point (0 mm along line)
+    # end point (100 mm along line)
+    offline = 0.0
+    L = 100e-3
+
+    pointsline = dict(
+        start=np.array([MoveX, MoveY, MoveZ]) + dirline * (0.0 + offline),
+        end=np.array([MoveX, MoveY, MoveZ]) + dirline * (L + offline),
+    )
 
     return (
         pointsline,

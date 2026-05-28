@@ -42,6 +42,10 @@ in
       bash
       */
       ''
+        nproc=$(nproc)
+        threads=$(echo "$nproc - 1" | bc)
+        export MKL_NUM_THREADS=$threads
+        export OMP_NUM_THREADS=$threads
         export PYTHONPATH="$PYTHONPATH:$PWD"
         if [ ! -d venv ]; then
           python3 -m venv venv

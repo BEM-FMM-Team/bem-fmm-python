@@ -76,7 +76,7 @@ def patch(
     vertices: np.ndarray,
     faces: np.ndarray,
     cdata: np.ndarray | None = None,
-    colormap: str = "viridis",
+    colormap: str = "jet",
     clim: tuple[float, float] | None = None,
     edge_color: str = "none",
     title: str = "",
