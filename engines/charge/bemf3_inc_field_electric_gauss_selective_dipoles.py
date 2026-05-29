@@ -8,8 +8,9 @@ from engines.my_types import FaceCenters, f32, vec2f32, vec3f32
 from ..lib import vecnorm
 from ..my_types import VertexIndices, Vertices
 from .bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
-from .bemf3_inc_field_electric_plain_dipoles import \
-    bemf3_inc_field_electric_plain_dipoles
+from .bemf3_inc_field_electric_plain_dipoles import (
+    bemf3_inc_field_electric_plain_dipoles,
+)
 
 
 def bemf3_inc_field_electric_gauss_selective_dipoles(
@@ -111,8 +112,6 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
     Ex_temp = np.reshape(E_subdiv[:, 0], (IndexS, -1), order="F")
     Ey_temp = np.reshape(E_subdiv[:, 1], (IndexS, -1), order="F")
     Ez_temp = np.reshape(E_subdiv[:, 2], (IndexS, -1), order="F")
-
-    print(f"{ trianglesToSubdiv =}")
 
     Ppri[trianglesToSubdiv, 0] = (weightsS @ P_subdiv_temp).T
 

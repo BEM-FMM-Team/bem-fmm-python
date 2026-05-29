@@ -46,15 +46,13 @@ def potint4b(r1, r2, r3, obsPoint):
     # N by 1 by M
     numerator = np.sum(R1 * np.cross(R2, R3, axis=1), axis=1, keepdims=True)
 
-
-
     # N by 1 by M
     denominator = (
-    (R1norm * R2norm * R3norm)
-    + R3norm * np.sum(R1 * R2, axis=1, keepdims=True)
-    + R2norm * np.sum(R1 * R3, axis=1, keepdims=True)
-    + R1norm * np.sum(R2 * R3, axis=1, keepdims=True)
-)
+        (R1norm * R2norm * R3norm)
+        + R3norm * np.sum(R1 * R2, axis=1, keepdims=True)
+        + R2norm * np.sum(R1 * R3, axis=1, keepdims=True)
+        + R1norm * np.sum(R2 * R3, axis=1, keepdims=True)
+    )
 
     omega = 2 * np.atan2(numerator, denominator)
 

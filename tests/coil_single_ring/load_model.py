@@ -25,6 +25,8 @@ from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter
 
+CSD = Path(__file__).resolve().parent
+
 
 class _TissueStruct:
     ID: list[int] = []
@@ -56,7 +58,7 @@ class TissueStruct:
 
 
 def build_tissue_struct(fname: str) -> TissueStruct:
-    with open(fname) as f:
+    with open(CSD / fname) as f:
         data = f.read()
 
     tissues = _TissueStruct()
@@ -89,7 +91,8 @@ def build_tissue_struct(fname: str) -> TissueStruct:
     to_pop = []
     for i in range(len(tissue_list)):
         fname = f"{tissues.Tissue[i]}.stl"
-        if not Path(fname).is_file():
+        path = CSD / fname
+        if not path.is_file():
             to_pop.append(i)
             warnings.warn(
                 f"Warning: Tissue file '{fname}' does not exist.\nRemoving tissue '{tissues.Tissue[i]}' from tissue list."
@@ -133,18 +136,18 @@ def load_model():
     Pcell = []
     tcell = []
     for m in range(tissue_count):
-        fname = f"{tissues.Tissue[m]}.stl"
+        path = CSD / f"{tissues.Tissue[m]}.stl"
         # Load tissuenp.zeros((1, tissue_count))
-        if Path(fname).is_file():
-            Tissue = vedo.Mesh(fname)
+        if path.is_file():
+            Tissue = vedo.Mesh(path)
         else:
-            raise RuntimeError(f"File '{fname}' not found")
+            raise RuntimeError(f"File '{path}' not found")
 
         # Load into cells
         Pcell.append(unit_convert * Tissue.vertices)
         tcell.append(np.array(Tissue.cells))
 
-        print(f"Loaded: {fname}")
+        print(f"Loaded: {path}")
 
     # Build CombinedMesh
     P, t, normals, condin, condout, interface = mesh_combine_simple(

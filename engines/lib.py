@@ -1,3 +1,4 @@
+from pathlib import Path
 from time import perf_counter
 from typing import Annotated
 
@@ -67,7 +68,7 @@ def timeit(fn):
     return ret
 
 
-memory = Memory("__pycache__/joblib")
+memory = Memory(Path(__file__).resolve().parent.resolve().parent / "__pycache__/joblib")
 cache = memory.cache
 # cache = timeit
 
@@ -81,6 +82,7 @@ def patch(
     edge_color: str = "none",
     title: str = "",
     cmap_label: str = "",
+    color: [float, float, float] = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
     axes: dict | None = dict(
         c="black",
@@ -105,7 +107,9 @@ def patch(
 
     # mesh.colormap(cmap, cdata)
 
-    if cdata is not None:
+    if color:
+        mesh.color(color)
+    elif cdata is not None:
         cdata = np.asarray(cdata).flatten()
         vmin, vmax = clim if clim else (cdata.min(), cdata.max())
         if vmax == vmin:
@@ -134,23 +138,3 @@ def patch(
         plt.add(cbar)
 
     return plt
-
-
-def plot_surface(
-    field_indexer,
-    P,
-    plot_t_idx,
-    plot_t,
-    title="Plot",
-    cmap_label="cmap_label",
-    cmap="jet",
-):
-    plot_field = field_indexer(plot_t_idx)
-    return patch(
-        vertices=P,
-        faces=plot_t,
-        cdata=plot_field,
-        colormap=cmap,
-        title=title,
-        cmap_label=cmap_label,
-    )

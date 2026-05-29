@@ -8,13 +8,16 @@
  DD - 5/2026
 """
 
+from pathlib import Path
+
 import numpy as np
-import vedo
 from scipy.io import loadmat
 
 from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
 from engines.my_types import StrCoil
+
+CSD = Path(__file__).resolve().parent
 
 
 def coil_setup():
@@ -33,14 +36,14 @@ def coil_setup():
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    _strcoil = loadmat("coil.mat")["strcoil"]
+    _strcoil = loadmat(CSD / "coil.mat")["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0],
         Swire=_strcoil["Swire"][0][0],
     )
 
-    coilCAD = loadmat("coilCAD.mat")
+    coilCAD = loadmat(CSD / "coilCAD.mat")
     CoilP = coilCAD["P"]
     Coilt = coilCAD["t"] - 1
 

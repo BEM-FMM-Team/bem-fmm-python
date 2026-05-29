@@ -49,7 +49,6 @@ def mesh_tri(arg1, arg2=None):
         else:
             N = (M - 1) / 3 * 2
 
-
         #   Border loop - starts with the outer border of integration points
         #   and then goes inside - "triangle" by triangle
         for m in range(1, int(N) + 1):

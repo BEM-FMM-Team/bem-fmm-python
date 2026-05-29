@@ -26,7 +26,7 @@ def bemf4_surface_field_electric_plain(
 
     pg = 2  # potential and field are evaluated
     sources = center.T  # source/target points
-    charges = (c * area).T  # real charges 
+    charges = c.reshape(-1, 1) * area  # real charges
     U = lfmm3d(eps=prec, sources=sources, charges=charges, pg=pg)  # FMM
     # INFO no need to div by 4pi
     P = U.pot.T  # potential

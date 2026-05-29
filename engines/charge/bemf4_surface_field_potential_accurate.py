@@ -28,7 +28,7 @@ def bemf4_surface_field_potential_accurate(
     pg = 1
     #   only potential here
     sources = center.T
-    charges = (c * area).T
+    charges = c.reshape(-1, 1) * area
     U = lfmm3d(eps=eps, sources=sources, charges=charges, pg=pg)
     Potential = U.pot.T
     #   Near-field correction

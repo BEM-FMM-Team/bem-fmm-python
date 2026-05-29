@@ -43,17 +43,6 @@ def bemf3_inc_field_electric_plain_dipoles(
 
     dipoles = PseudoM.T
 
-    print(
-        prec,
-        sources,
-        pg,
-        targ,
-        pgt,
-        nd,
-        # charges=dipoles,
-        # dipvec=dipoles.flatten(),
-    )  # TODO confirm dipvec=dipolses,
-
     U = lfmm3d(
         eps=prec,
         sources=sources,
@@ -62,8 +51,7 @@ def bemf3_inc_field_electric_plain_dipoles(
         pgt=pgt,
         nd=nd,
         dipvec=dipoles,
-        # dipvec=dipoles.flatten(),
-    )  # TODO confirm dipvec=dipolses,
+    )
 
     # INFO 4pi already applied
     Ppri = U.pottarg.T

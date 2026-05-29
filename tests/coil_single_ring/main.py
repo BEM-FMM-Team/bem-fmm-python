@@ -10,10 +10,13 @@ In matlab, this takes about 2 minutes to run to completion.
 DD, DT - 5/2026
 """
 
+from pathlib import Path
+
 from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
+from scipy.io import loadmat
 from setup_integrals import setup_integrals
 from vedo import Line, Mesh
 
@@ -56,15 +59,14 @@ if __name__ == "__main__":
         contrast=contrast,
     )
     """
-    """
-    PC = pull_artifact("PC")
-    PC = pull_artifact("EC")
-    """
+    ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
+    PC = ECPC["PC"]
+    EC = ECPC["EC"]
 
     # 2. Setup Coil
     # -- Load coil geometry
     (
-        pointsline,  # WARN irrelevant for now
+        pointsline,  # custom
         dIdt,  # const
         I0,  # matches
         margin,  # const
@@ -94,7 +96,7 @@ if __name__ == "__main__":
     )
 
     # 4. Charge Solution
-    """
+    # """
     c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec = charge_engine(
         P=P,
         t=t,
@@ -107,23 +109,15 @@ if __name__ == "__main__":
         condin=condin,
         condout=condout,
         b=b,
+        Epri=Epri,
     )
-    """
-    c = pull_artifact("c_final", "c")
-    Ptot = pull_artifact("Ptot")
-    En = pull_artifact("En")
-    En_in = pull_artifact("En_in")
-    En_out = pull_artifact("En_out")
-    Jn_in = pull_artifact("Jn_in")
-    Jn_out = pull_artifact("Jn_out")
-    resvec = pull_artifact("resvec")
 
     # -- Plot coil geometry on desired tissue
     tissue_to_plot = "wm"
     tissue_list = tissues.Tissue
 
     plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
-    plot_t_idx = interface[:, 0] == plot_tissue  # WARN interface may not be right
+    plot_t_idx = interface[:, 0] == plot_tissue
     plot_t = t[plot_t_idx]
 
     p = patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))

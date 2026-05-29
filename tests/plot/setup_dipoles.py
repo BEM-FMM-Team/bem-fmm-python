@@ -1,10 +1,12 @@
 import numpy as np
 
-from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import \
-    bemf3_inc_field_electric_gauss_selective_dipoles
-from engines.lib import patch
+from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import (
+    bemf3_inc_field_electric_gauss_selective_dipoles,
+)
+from engines.lib import patch, timeit
 
 
+@timeit
 def setup_dipoles(
     P,
     t,

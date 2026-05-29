@@ -52,10 +52,10 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
 
     U = lfmm3d(
         eps=prec, sources=sources, charges=charges, pg=pg, targets=targ, pgt=pgt, nd=nd
-    ) # WARN pottarg is not exactly the same as matlab
+    )  # WARN pottarg is not exactly the same as matlab
     Einc = np.zeros((U.pottarg.shape[1], 3))
     Einc[:, 0] = const * U.pottarg[0, :]
     Einc[:, 1] = const * U.pottarg[1, :]
     Einc[:, 2] = const * U.pottarg[2, :]
 
-    return Einc # INFO: victory, matches the matlab values
+    return Einc  # INFO: victory, matches the matlab values

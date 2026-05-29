@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 sys.path.insert(
     1, "../.."
@@ -45,8 +46,8 @@ def load_model(path: str):
     R = unit_convert * np.array([42, 36, 28, 25])  # radii [mm] out to in
 
     # -- Set conductivities (S/m)
-    condinner = [0.465, 0.0100, 0.2750, 0.1260]  # condin out to in
-    condouter = [0.000, 0.4650, 0.0100, 0.2750]  # condout out to in
+    condinner = np.array([0.465, 0.0100, 0.2750, 0.1260])  # condin out to in
+    condouter = np.array([0.000, 0.4650, 0.0100, 0.2750])  # condout out to in
 
     Pcell = []
     tcell = []

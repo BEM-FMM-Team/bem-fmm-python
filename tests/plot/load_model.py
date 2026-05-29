@@ -10,6 +10,8 @@ DD - 5/2026
 Load template sphere
 """
 
+from pathlib import Path
+
 import numpy as np
 import vedo
 
@@ -18,10 +20,12 @@ from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_normals import mesh_normals
 from engines.mesh.mesh_tricenter import mesh_tricenter
 
+CSD = Path(__file__).resolve().parent
+
 
 @timeit
 def load_model():
-    mesh = vedo.Mesh("bone.stl")
+    mesh = vedo.Mesh(CSD / "bone.stl")
     # mesh.subdivide(3)
     P = mesh.vertices
     t = np.array(mesh.cells)

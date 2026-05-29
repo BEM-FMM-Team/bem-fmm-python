@@ -17,13 +17,16 @@ sys.path.insert(
 )  # INFO temporary path loading until we can talk about structure
 
 
-from engines.charge.bemf3_inc_field_electric_constant import \
-    bemf3_inc_field_electric_constant
-from engines.charge.bemf4_surface_field_electric_accurate import \
-    bemf4_surface_field_electric_accurate
+from engines.charge.bemf3_inc_field_electric_constant import (
+    bemf3_inc_field_electric_constant,
+)
+from engines.charge.bemf4_surface_field_electric_accurate import (
+    bemf4_surface_field_electric_accurate,
+)
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
-from engines.charge.bemf4_surface_field_potential_accurate import \
-    bemf4_surface_field_potential_accurate
+from engines.charge.bemf4_surface_field_potential_accurate import (
+    bemf4_surface_field_potential_accurate,
+)
 from engines.lib import timeit
 
 iteration = 0
