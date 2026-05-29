@@ -24,63 +24,71 @@ def mesh_tri(arg1, arg2=None):
     # nargs is 0
     if arg1 is None:
         raise ValueError("Requires at least 1 input")
-
     # nargs is 1
-
     elif arg2 is None:
-        #   Barycentric triangle subdivision - coefficients for vertexes only
+        M = int(
+            arg1
+        )  #   Barycentric triangle subdivision - coefficients for vertexes only
         #   M - subdivision order (number of subtriangles is M*M)
-        M = arg1
-        coeff = np.zeros((3, M * M))
-        weights = np.zeros(M * M)
+
+        # Handle tiny M (degenerate)
         if M < 2:
-            coeff[:, 0] = [1 / 3, 1 / 3, 1 / 3]
-            weights[0] = 1
-
-        coeff = np.zeros((3, M * M))  # anomolous
-        k = 0
-        scale = 1
-        eps = 2.0 + 1e-9  #    scaling
-
-        if M % 3 == 0:
-            N = M / 3 * 2
-        elif M % 3 == 2:
-            N = M / 3 * 2 - 1 / 3
+            coeff = np.zeros((3, 1))
+            coeff[:, 0] = [1 / 3, 1 / 3, 1 / 3]  # center barycentric for single point
+            weights = np.array([1.0])  # single weight = 1
         else:
-            N = (M - 1) / 3 * 2
+            coeff = np.zeros((3, M * M))  # preallocate (may be larger than used)
+            k = 0  # next fill index (0-based for Python)
+            eps = 2.0 + 1e-9  # scaling (small offset to avoid exact 2)
 
-        #   Border loop - starts with the outer border of integration points
-        #   and then goes inside - "triangle" by triangle
-        for m in range(1, int(N) + 1):
-            div = M - m - np.floor(m / eps)  #   integer - edge is divided
-            scale = div / M  #   real - relative
-            alpha = (1 + 2 * scale) / 3
-            beta = (1 - scale) / 3
-            coeff1 = np.array([alpha, beta, beta])  #  p1 new
-            coeff2 = np.array([beta, alpha, beta])  #  p2 new
-            coeff3 = np.array([beta, beta, alpha])  #  p3 new
+            # Compute N following MATLAB logic (N may be non-integer; iterate to int(N))
+            if M % 3 == 0:
+                N = M / 3 * 2
+            elif M % 3 == 2:
+                N = M / 3 * 2 - 1 / 3
+            else:
+                N = (M - 1) / 3 * 2
 
-            div = int(div)
-            #   first edge
-            for n in range(1, div + 1):
-                vector = coeff1 * (div - n + 1) / div + coeff2 * (n - 1) / div
-                coeff[:, k] = vector
-                k += 1
-            #   second edge
-            for n in range(1, div + 1):
-                vector = coeff2 * (div - n + 1) / div + coeff3 * (n - 1) / div
-                coeff[:, k] = vector
-                k += 1
-            #   third edge
-            for n in range(1, div + 1):
-                vector = coeff3 * (div - n + 1) / div + coeff1 * (n - 1) / div
-                coeff[:, k] = vector
+            # Border loop - starts with the outer border of integration points
+            # and then goes inside - "triangle" by "triangle"
+            for m in range(1, int(N) + 1):
+                # div: integer - edge is divided into 'div' segments (XX-jump-XX-jump)
+                div = int(M - m - np.floor(m / eps))
+                if div <= 0:
+                    continue
+                scale = div / M  # real - relative scale
+                alpha = (1 + 2 * scale) / 3
+                beta = (1 - scale) / 3
+                coeff1 = np.array([alpha, beta, beta])  # p1 new
+                coeff2 = np.array([beta, alpha, beta])  # p2 new
+                coeff3 = np.array([beta, beta, alpha])  # p3 new
+
+                # first edge
+                for n in range(1, div + 1):
+                    vector = coeff1 * (div - n + 1) / div + coeff2 * (n - 1) / div
+                    coeff[:, k] = vector
+                    k += 1
+
+                # second edge
+                for n in range(1, div + 1):
+                    vector = coeff2 * (div - n + 1) / div + coeff3 * (n - 1) / div
+                    coeff[:, k] = vector
+                    k += 1
+
+                # third edge
+                for n in range(1, div + 1):
+                    vector = coeff3 * (div - n + 1) / div + coeff1 * (n - 1) / div
+                    coeff[:, k] = vector
+                    k += 1
+
+            # Center point (if M is not divisible by 3)
+            if 3 * np.floor(M / 3) != M:
+                coeff[:, k] = np.array([1 / 3, 1 / 3, 1 / 3])
                 k += 1
 
-        #   Center point
-        if 3 * np.floor(M / 3) != M:
-            coeff[:, k] = np.array([1 / 3, 1 / 3, 1 / 3])
-            weights = 1 / coeff.shape[1] * np.ones(coeff.shape[1])
+            # Trim unused preallocated columns and compute uniform weights
+            coeff = coeff[:, :k]
+            weights = np.ones(coeff.shape[1]) / coeff.shape[1]
     # nargs is 2
     else:
         #   Gaussian quadrature formulae
