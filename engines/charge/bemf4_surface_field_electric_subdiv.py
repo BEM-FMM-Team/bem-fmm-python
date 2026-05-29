@@ -2,7 +2,8 @@ import numpy as np
 
 from engines.mesh.mesh_tri import mesh_tri
 
-from .bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
+from .bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
 
 
 def bemf4_surface_field_electric_subdiv(
@@ -67,19 +68,24 @@ def bemf4_surface_field_electric_subdiv(
         c_subdiv, Center_subdiv, Area_subdiv, prec
     )
 
-    # Every column contains the subdivided quantities for one full triangle
+    w = np.asarray(weightsS).ravel()
 
-    P_temp = np.reshape(P, (IndexS, -1))
-    Ex_temp = np.reshape(E[:, 0], (IndexS, -1))
-    Ey_temp = np.reshape(E[:, 1], (IndexS, -1))
-    Ez_temp = np.reshape(E[:, 2], (IndexS, -1))
+    P = np.asarray(P)
+    E = np.asarray(E)
 
-    # Eavg = integral(E dA)/A.  dA = subdivided area. subdivided area/A = weightsS
-    P = (weightsS @ P_temp).T
-    Ex_avg = (weightsS @ Ex_temp).T
-    Ey_avg = (weightsS @ Ey_temp).T
-    Ez_avg = (weightsS @ Ez_temp).T
+    # WARN if data came from MATLAB, use order='F'; otherwise omit order arg.
+    P_temp = P.reshape(IndexS, -1, order="F")  # (IndexS, ntri)
+    Ex_temp = E[:, 0].reshape(IndexS, -1, order="F")
+    Ey_temp = E[:, 1].reshape(IndexS, -1, order="F")
+    Ez_temp = E[:, 2].reshape(IndexS, -1, order="F")
 
-    E = np.vstack([Ex_avg, Ey_avg, Ez_avg])
+    # weighted average over
+    P_vec = w @ P_temp
+    Ex_avg = w @ Ex_temp
+    Ey_avg = w @ Ey_temp
+    Ez_avg = w @ Ez_temp
+
+    P = P_vec.reshape(-1, 1)
+    E = np.vstack([Ex_avg, Ey_avg, Ez_avg]).T
 
     return P, E

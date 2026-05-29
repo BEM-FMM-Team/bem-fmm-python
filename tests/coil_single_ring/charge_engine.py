@@ -8,6 +8,7 @@ Copyright SNM/WAW 2017-2020
 
 import sys
 from time import perf_counter
+from warnings import warn
 
 import numpy as np
 from pyamg.krylov import fgmres
@@ -23,10 +24,12 @@ import matplotlib.pyplot as plt
 from pad_neighbor_triangles import pad_neighbor_triangles
 from pull_artifact import pull_artifact
 
-from engines.charge.bemf3_inc_field_electric_constant import \
-    bemf3_inc_field_electric_constant
-from engines.charge.bemf4_surface_field_electric_subdiv import \
-    bemf4_surface_field_electric_subdiv
+from engines.charge.bemf3_inc_field_electric_constant import (
+    bemf3_inc_field_electric_constant,
+)
+from engines.charge.bemf4_surface_field_electric_subdiv import (
+    bemf4_surface_field_electric_subdiv,
+)
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.lib import cache
 
@@ -161,6 +164,9 @@ def charge_engine(
     c = pull_artifact("c_pre", "c")
     resvec = pull_artifact("resvec")
 
+    if info != 0:
+        warn(f"Iterative Solution did not converge: {info}")
+
     if plot_residual:
         plt.figure()
         plt.semilogy(resvec / resvec[0], "-o")
@@ -175,9 +181,9 @@ def charge_engine(
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     print(f"""{conservation_law_error=}\n{solution_error=}\n{info=}""")
+
     ##   Topological low-pass solution filtering (repeat if necessary)
     # Find topological neighbors
-
     """
     TODO TEST from shawn
 
@@ -205,7 +211,7 @@ def charge_engine(
     #   (i)     total normal E-field just inside/outside any model surface;
     #   (ii)    secondary continuous E-field contribution for any model surface;
     #   (iii)   secondary continuous electric potential for any model surface;
-    """
+    # """
     Ptot, Esec = subdiv(
         c=c,
         P=P,
@@ -215,9 +221,9 @@ def charge_engine(
         modeArg=3,
         prec=prec,
     )
-    """
-    Ptot, Esec = pull_artifact("Ptot"), pull_artifact("Esec").T
-    E = Epri + Esec.T
+    # """
+    # Ptot, Esec = pull_artifact("Ptot"), pull_artifact("Esec").T
+    E = Epri + Esec
 
     # Neighbor integral corrections
     correctionE = EC * c

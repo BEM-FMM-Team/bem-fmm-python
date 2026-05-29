@@ -96,7 +96,6 @@ if __name__ == "__main__":
     )
 
     # 4. Charge Solution
-    # """
     c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec = charge_engine(
         P=P,
         t=t,
