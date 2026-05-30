@@ -1,7 +1,5 @@
 import numpy as np
 
-from ..lib import dot, vecnorm
-
 
 def potint4b(r1, r2, r3, obsPoint):
     """
@@ -40,8 +38,8 @@ def potint4b(r1, r2, r3, obsPoint):
 
     # Norms of vectors (N by 1 by M)
     R1norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
-    R2norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
-    R3norm = np.linalg.norm(R1, ord=2, axis=1, keepdims=True)
+    R2norm = np.linalg.norm(R2, ord=2, axis=1, keepdims=True)
+    R3norm = np.linalg.norm(R3, ord=2, axis=1, keepdims=True)
 
     # N by 1 by M
     numerator = np.sum(R1 * np.cross(R2, R3, axis=1), axis=1, keepdims=True)
