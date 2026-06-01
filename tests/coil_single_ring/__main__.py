@@ -33,6 +33,8 @@ from load_model import load_model
 from scipy.io import loadmat
 from setup_integrals import setup_integrals
 from vedo import Line, Mesh
+from scipy.sparse import csr_matrix
+
 
 from engines.lib import patch
 from tests.coil_single_ring.pull_artifact import pull_artifact
@@ -63,7 +65,7 @@ if __name__ == "__main__":
 
     # Neighbor integrals
     # INFO sparse matrices are hard to debug visually
-
+    """
     PC, EC = setup_integrals(
         P=P,
         t=t,
@@ -72,17 +74,22 @@ if __name__ == "__main__":
         Center=Center,
         contrast=contrast,
     )
-    """
+
     # big one
     PC=<Compressed Sparse Column sparse matrix of dtype 'float64'
         with 7679360 stored elements and shape (873578, 873578)>
     EC=<Compressed Sparse Column sparse matrix of dtype 'float64'
         with 54781091 stored elements and shape (873578, 873578)>
-
-    ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
-    PC = ECPC["PC"]
-    EC = ECPC["EC"]
         """
+    if False:
+        ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
+        PC = ECPC["PC"]
+        EC = ECPC["EC"]
+
+    n = t.shape[0]
+    PC = csr_matrix((n, n))
+    EC = csr_matrix((n, n))
+
 
     # print(f"{PC=}")
     # print(f"{EC=}")

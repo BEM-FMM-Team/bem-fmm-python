@@ -9,6 +9,7 @@ Right-hand side b of the matrix equation Zc = b. Compute pointwise
 Surface charge density is normalized by eps0: real charge density is eps0*c
 """
 
+from engines.lib import timeit, cache
 from typing import Literal
 
 import numpy as np
@@ -16,7 +17,8 @@ import numpy as np
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
 from engines.my_types import StrCoil
 
-
+@timeit
+@cache
 def impressed_field(
     P=None,
     t=None,

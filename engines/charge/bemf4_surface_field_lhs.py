@@ -30,9 +30,9 @@ def bemf4_surface_field_lhs(
         * correction  #   This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
         - 2
         * (
-            contrast * np.sum(normals * E0, axis=1)
+            contrast * np.sum(normals * E0, 1)
         )  #   This is not-dominant center-point FMM part
-        + weight * (np.sum(c * area, axis=0) / np.sum(area, axis=0))
+        + weight * (np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0))
     )  #   This is weight correction (optional)
 
     return LHS

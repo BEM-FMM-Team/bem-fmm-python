@@ -27,6 +27,8 @@ FaceCenters = Annotated[
     np.ndarray[tuple[N, 3], floating], "shape (N, 3), centers per triangluar face"
 ]
 
+NArray = Annotated[np.ndarray[tuple[Literal["N"]], np.float64] | np.ndarray[tuple[Literal["N"], Literal[1]], np.float64], "(N,) or (N, 1) will be reshaped"] 
+
 
 # from coil.mat
 # make the math look more elegant

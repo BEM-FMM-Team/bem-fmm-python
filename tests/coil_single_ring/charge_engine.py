@@ -6,6 +6,7 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
+from engines.lib import timeit
 import sys
 from time import perf_counter
 from warnings import warn
@@ -28,11 +29,11 @@ from engines.charge.bemf3_inc_field_electric_constant import \
 from engines.charge.bemf4_surface_field_electric_subdiv import \
     bemf4_surface_field_electric_subdiv
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
+from engines.fgmres import fgmres
 from engines.lib import cache
 
 
-# takes about 3 mins  to run
-# it also non deterministically faults whatever parent process called python
+@timeit
 @cache
 def subdiv(
     c=None,
@@ -54,12 +55,8 @@ def subdiv(
     )
 
 
-iteration = 0
-last_time = perf_counter()
-
-
-# takes like 17 mins to run
-# @cache
+@timeit
+@cache
 def iterateive_solution(
     center,
     area,
@@ -74,51 +71,22 @@ def iterateive_solution(
     b,
     iter,
 ):
-    resvec = []
-    A = LinearOperator(
-        shape=(len(normals), len(normals)),
-        matvec=lambda c: bemf4_surface_field_lhs(
-            c=c,
-            center=center,
-            area=area,
-            contrast=contrast,
-            normals=normals,
-            weight=weight,
-            EC=EC,
-            prec=prec,
-        ),
-        dtype=np.float64,
+    MATVEC = lambda c: bemf4_surface_field_lhs(
+        c=c,
+        center=center,
+        area=area,
+        contrast=contrast,
+        normals=normals,
+        weight=weight,
+        EC=EC,
+        prec=prec,
     )
+    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=8 * b)
 
-    def cb(residual):
-        global iteration, last_time
+    return resvec, c, its, resvec
 
-        current_time = perf_counter()
-        elapsed = current_time - last_time
-        last_time = current_time
-        print(
-            f"iteration={iteration}, " f"residual={residual}, " f"time={elapsed:.3f}s"
-        )
-
-        resvec.append(residual)
-        iteration += 1
-
-    # Solve
-
-    c, info = gmres(
-        A,
-        b,
-        x0=8 * b,
-        rtol=relres,
-        maxiter=1,  # one outer iteration (like MATLAB max_iters=1)
-        inner_m=iter,  # number of inner Krylov vectors (like MATLAB restart)
-        outer_k=3,  # keep a few correction vectors to reduce restart stagnation
-        callback=cb,
-    )
-
-    return resvec, c, info
-
-
+@timeit
+@cache
 def charge_engine(
     P,
     t,
@@ -134,14 +102,14 @@ def charge_engine(
     Epri,
     plot_residual=True,
     #  Parameters of the iterative solution
-    iter=20,  # INFO it converges here, just cache the output for now
-    maxiter=100,
-    relres=1e-12,  # Maximum possible number of iterations in the solution
-    prec=1e-3,  # Minimum acceptable relative residual
+    iter=30,  # INFO it converges here, just cache the output for now
+    maxiter=1,
+    relres=1e-06, # 1e-12,  # Maximum possible number of iterations in the solution
+    prec=1e-2,# 1e-3,  # Minimum acceptable relative residual
     weight=1 / 2,  # FMM precision
     # Current conservation law in the weak form
 ):
-    """
+    # """
     resvec, c, info = iterateive_solution(
         center=center,
         area=area,
@@ -156,13 +124,9 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
-    """
-    info = 0
-    c = pull_artifact("c_pre", "c")
-    resvec = pull_artifact("resvec")
-
-    if info != 0:
-        warn(f"Iterative Solution did not converge: {info}")
+    # """
+    # c = pull_artifact("c_pre", "c")
+    # resvec = pull_artifact("resvec")
 
     if plot_residual:
         plt.figure()
@@ -171,7 +135,8 @@ def charge_engine(
         plt.title("Relative residual of the iterative solution")
         plt.xlabel("Iteration number")
         plt.ylabel("Relative residual")
-        plt.show()
+        plt.ion()
+        plt.show(block=False)
 
     ##  Check charge conservation law (optional)
     conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)

@@ -8,6 +8,7 @@
  DD - 5/2026
 """
 
+from engines.lib import timeit, cache
 from pathlib import Path
 
 import numpy as np
@@ -19,7 +20,8 @@ from engines.my_types import StrCoil
 
 ASSETS = Path(__file__).resolve().parent / "assets"
 
-
+@timeit
+@cache
 def coil_setup():
     ## Coil Parameters
     # Define dIdt (for electric field)
