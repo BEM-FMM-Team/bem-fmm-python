@@ -48,8 +48,8 @@ if __name__ == "__main__":
     ) = load_model()
 
     # Neighbor integrals
-    # INFO sparse matrices are hard to debug
-    """
+    # INFO sparse matrices are hard to debug visually
+
     PC, EC = setup_integrals(
         P=P,
         t=t,
@@ -59,9 +59,21 @@ if __name__ == "__main__":
         contrast=contrast,
     )
     """
+    # big one
+    PC=<Compressed Sparse Column sparse matrix of dtype 'float64'
+        with 7679360 stored elements and shape (873578, 873578)>
+    EC=<Compressed Sparse Column sparse matrix of dtype 'float64'
+        with 54781091 stored elements and shape (873578, 873578)>
+
     ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
     PC = ECPC["PC"]
     EC = ECPC["EC"]
+        """
+
+    # print(f"{PC=}")
+    # print(f"{EC=}")
+
+    # exit(0)
 
     # 2. Setup Coil
     # -- Load coil geometry

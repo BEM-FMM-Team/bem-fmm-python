@@ -51,13 +51,7 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
         N
     ):  #   inner integral (n =1 - first column of the system matrix, etc.)
         # Calculate observation points on this triangle
-        ObsPoints = np.zeros((IndexS, 3))
-        for p in range(IndexS):
-            ObsPoints[p, :] = (
-                coeffS[0, p] * P[t[n, 0], :]
-                + coeffS[1, p] * P[t[n, 1], :]
-                + coeffS[2, p] * P[t[n, 2], :]
-            )
+        ObsPoints = coeffS.T @ P[t[n]]
         # Get vertices of neighbor triangles acting on this triangle
         index = ineighborE[:, n]
         r1 = P[t[index, 0], :]  # get first vertex of each neighbor triangle
@@ -94,8 +88,8 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
             :, 2
         ]  #   center-point integrals, entries of non-zero rows of n-th column
     ## Properly weight integrale with the self-triangle area instead of the neighbor-triangle area
-    area_neighbor = Area[ineighborE.T]
-    area_self = np.tile(Area[:, None], (1, RnumberE))
+    area_neighbor = Area[ineighborE.T][:,:,0]
+    area_self = np.tile(Area, (1, RnumberE))
     integrale = integrale * area_self / area_neighbor
 
     ##  Define useful sparse matrices EC, PC (for GMRES speed up)

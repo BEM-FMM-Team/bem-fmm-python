@@ -12,7 +12,7 @@ from warnings import warn
 
 import numpy as np
 from pyamg.krylov import fgmres
-from scipy.sparse.linalg import LinearOperator, lgmres
+from scipy.sparse.linalg import LinearOperator, gmres
 from scipy.spatial import Delaunay
 
 sys.path.insert(
@@ -24,12 +24,10 @@ import matplotlib.pyplot as plt
 from pad_neighbor_triangles import pad_neighbor_triangles
 from pull_artifact import pull_artifact
 
-from engines.charge.bemf3_inc_field_electric_constant import (
-    bemf3_inc_field_electric_constant,
-)
-from engines.charge.bemf4_surface_field_electric_subdiv import (
-    bemf4_surface_field_electric_subdiv,
-)
+from engines.charge.bemf3_inc_field_electric_constant import \
+    bemf3_inc_field_electric_constant
+from engines.charge.bemf4_surface_field_electric_subdiv import \
+    bemf4_surface_field_electric_subdiv
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.lib import cache
 
@@ -108,7 +106,7 @@ def iterateive_solution(
 
     # Solve
 
-    c, info = lgmres(
+    c, info = gmres(
         A,
         b,
         x0=8 * b,
@@ -144,7 +142,7 @@ def charge_engine(
     weight=1 / 2,  # FMM precision
     # Current conservation law in the weak form
 ):
-    """
+
     resvec, c, info = iterateive_solution(
         center=center,
         area=area,
@@ -159,10 +157,10 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
-    """
-    info = 0
-    c = pull_artifact("c_pre", "c")
-    resvec = pull_artifact("resvec")
+
+    # info = 0
+    # c = pull_artifact("c_pre", "c")
+    # resvec = pull_artifact("resvec")
 
     if info != 0:
         warn(f"Iterative Solution did not converge: {info}")

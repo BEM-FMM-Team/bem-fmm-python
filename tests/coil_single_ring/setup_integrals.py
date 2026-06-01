@@ -9,14 +9,13 @@ Indexes into neighbor triangles
 """
 
 import numpy as np
+from pull_artifact import pull_artifact
 from scipy.sparse import coo_matrix
 from sklearn.neighbors import NearestNeighbors
 
 from engines.lib import cache
 from engines.mesh.mesh_neighborints_En import mesh_neighborints_En
 from engines.mesh.mesh_neighborints_Pn import mesh_neighborints_Pn
-
-from pull_artifact import pull_artifact
 
 
 # @cache
@@ -43,7 +42,6 @@ def setup_integrals(
         distanceE, ineighbor = nbrs.kneighbors(Center)
         ineighborP = ineighbor.T
 
-    # [EC, PC] = meshneighborints(P, t, normals, Area, Center, RnumberE, RnumberP, ineighborE, ineighborP, numThreads);
     EC = mesh_neighborints_En(
         P=P,
         t=t,
