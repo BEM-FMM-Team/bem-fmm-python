@@ -17,7 +17,7 @@ from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
 from engines.my_types import StrCoil
 
-CSD = Path(__file__).resolve().parent
+ASSETS = Path(__file__).resolve().parent / "assets"
 
 
 def coil_setup():
@@ -36,14 +36,14 @@ def coil_setup():
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    _strcoil = loadmat(CSD / "coil.mat")["strcoil"]
+    _strcoil = loadmat(ASSETS / "coil.mat")["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0],
         Swire=_strcoil["Swire"][0][0],
     )
 
-    coilCAD = loadmat(CSD / "coilCAD.mat")
+    coilCAD = loadmat(ASSETS / "coilCAD.mat")
     CoilP = coilCAD["P"]
     Coilt = coilCAD["t"] - 1
 

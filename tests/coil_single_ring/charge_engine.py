@@ -142,7 +142,7 @@ def charge_engine(
     weight=1 / 2,  # FMM precision
     # Current conservation law in the weak form
 ):
-
+    """
     resvec, c, info = iterateive_solution(
         center=center,
         area=area,
@@ -157,10 +157,11 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
+    """
 
-    # info = 0
-    # c = pull_artifact("c_pre", "c")
-    # resvec = pull_artifact("resvec")
+    info = 0
+    c = pull_artifact("c_pre", "c")
+    resvec = pull_artifact("resvec")
 
     if info != 0:
         warn(f"Iterative Solution did not converge: {info}")
@@ -183,18 +184,11 @@ def charge_engine(
     ##   Topological low-pass solution filtering (repeat if necessary)
     # Find topological neighbors
     """
-    TODO TEST from shawn
+    NOTE disabled for now
 
     DT = triangulation(t, P);
-    tneighbor = neighbors(DT)
+    tneighbor = neighbors(DT) # 873573x3 double
 
-    DT = Delaunay(P)
-    DT.simplices = t
-    tneighbor = DT.neighbors
-
-    873573x3 double
-    ...
-    """
     tneighbor = pull_artifact("tneighbor") - 1
     # Fix cases where not all triangles have three neighbors
     # (repeat if necessary)
@@ -203,6 +197,7 @@ def charge_engine(
     c = (
         (c * area) + np.sum(np.asarray(c)[tneighbor] * np.asarray(area)[tneighbor], 1)
     ) / (area + np.sum(np.asarray(area)[tneighbor], 1))
+    """
 
     ## Compute total field and potential
     # And the normal field and current density inside/outside

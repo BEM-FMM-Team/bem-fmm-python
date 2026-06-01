@@ -86,10 +86,14 @@ if __name__ == "__main__":
         CoilP,  # matches
         Coilt,  # matches, indexing -1
     ) = coil_setup()
-    obs_line = Line(
-        pointsline["start"],
-        pointsline["end"],
-    ).lw(3)
+    obs_line = (
+        Line(
+            pointsline["start"],
+            pointsline["end"],
+        )
+        .lw(3)
+        .color("red")
+    )
     coil_mesh = Mesh([CoilP, Coilt])
 
     # 3. Impressed Field

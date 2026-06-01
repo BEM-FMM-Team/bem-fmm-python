@@ -25,7 +25,7 @@ from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter
 
-CSD = Path(__file__).resolve().parent
+ASSETS = Path(__file__).resolve().parent / "assets"
 
 
 class _TissueStruct:
@@ -58,7 +58,7 @@ class TissueStruct:
 
 
 def build_tissue_struct(fname: str) -> TissueStruct:
-    with open(CSD / fname) as f:
+    with open(ASSETS / fname) as f:
         data = f.read()
 
     tissues = _TissueStruct()
@@ -91,7 +91,7 @@ def build_tissue_struct(fname: str) -> TissueStruct:
     to_pop = []
     for i in range(len(tissue_list)):
         fname = f"{tissues.Tissue[i]}.stl"
-        path = CSD / fname
+        path = ASSETS / fname
         if not path.is_file():
             to_pop.append(i)
             warnings.warn(
@@ -136,7 +136,7 @@ def load_model():
     Pcell = []
     tcell = []
     for m in range(tissue_count):
-        path = CSD / f"{tissues.Tissue[m]}.stl"
+        path = ASSETS / f"{tissues.Tissue[m]}.stl"
         # Load tissuenp.zeros((1, tissue_count))
         if path.is_file():
             Tissue = vedo.Mesh(path)

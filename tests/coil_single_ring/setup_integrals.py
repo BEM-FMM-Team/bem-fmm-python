@@ -52,17 +52,18 @@ def setup_integrals(
         ineighborE=ineighborE,
         numThreads=numThreads,
     )
-    PC = mesh_neighborints_Pn(
-        P=P,
-        t=t,
-        normals=normals,
-        Area=Area,
-        Center=Center,
-        RnumberP=RnumberP,
-        ineighborP=ineighborP,
-        contrast=contrast,
-        numThreads=numThreads,
-    )
+    # PC = mesh_neighborints_Pn(
+    #     P=P,
+    #     t=t,
+    #     normals=normals,
+    #     Area=Area,
+    #     Center=Center,
+    #     RnumberP=RnumberP,
+    #     ineighborP=ineighborP,
+    #     contrast=contrast,
+    #     numThreads=numThreads,
+    # )
+    PC = 0
 
     ##  Normalize sparse matrix EC by variable contrast
     N = Center.shape[0]
