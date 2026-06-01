@@ -91,12 +91,13 @@ def patch(
         ztitle="z",
         zxgrid=True,
         yzgrid=True,
+        number_of_divisions=20,
         # xyplane_color="white7",
         # xygrid_color="white3",
         # xline_color="white",
         # yline_color="white",
         # zline_color="white",
-    ),  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py
+    ),  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py https://raw.githubusercontent.com/marcomusy/vedo/refs/heads/master/examples/pyplot/custom_axes1.py
 ) -> vedo.Mesh:
     """
     Convenience function

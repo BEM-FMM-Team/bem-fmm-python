@@ -11,7 +11,6 @@ from time import perf_counter
 from warnings import warn
 
 import numpy as np
-from pyamg.krylov import fgmres
 from scipy.sparse.linalg import LinearOperator, gmres
 from scipy.spatial import Delaunay
 
@@ -158,7 +157,6 @@ def charge_engine(
         b=b,
     )
     """
-
     info = 0
     c = pull_artifact("c_pre", "c")
     resvec = pull_artifact("resvec")

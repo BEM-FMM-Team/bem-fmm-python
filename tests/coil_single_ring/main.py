@@ -143,36 +143,51 @@ if __name__ == "__main__":
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
     # viewax = np.array([160, 20])
-    ChargeSolution = patch(
-        title="Charge Solution on Surface: ",
-        cmap_label="C/m^2",
-        cdata=eps0 * c[plot_t_idx],
-        vertices=P,
-        faces=plot_t,
+    ChargeSolution = (
+        patch(
+            P,
+            plot_t,
+            eps0 * c[plot_t_idx],
+            title="Charge Solution on Surface: ",
+            cmap_label="C/m^2",
+        )
+        .add(obs_line)
+        .add(coil_mesh)
+        .show()
     )
-    PotentialSurface = patch(
-        title="Potential on Surface: ",
-        cmap_label="V",
-        cdata=Ptot[plot_t_idx],
-        vertices=P,
-        faces=plot_t,
+    PotentialSurface = (
+        patch(
+            P,
+            plot_t,
+            Ptot[plot_t_idx],
+            title="Potential on Surface: ",
+            cmap_label="V",
+        )
+        .add(obs_line)
+        .add(coil_mesh)
+        .show()
     )
-    Efield = patch(
-        title="Normal E-field (inner) on Surface: ",
-        cmap_label="V/m",
-        cdata=En_in[plot_t_idx],
-        vertices=P,
-        faces=plot_t,
+    Efield = (
+        patch(
+            P,
+            plot_t,
+            En_in[plot_t_idx],
+            title="Normal E-field (inner) on Surface: ",
+            cmap_label="V/m",
+        )
+        .add(obs_line)
+        .add(coil_mesh)
+        .show()
     )
-    CurrentDensity = patch(
-        cdata=Jn_in[plot_t_idx],
-        title="Normal Current Density (inner) on Surface: ",
-        cmap_label="A/m^2",
-        vertices=P,
-        faces=plot_t,
+    CurrentDensity = (
+        patch(
+            P,
+            plot_t,
+            Jn_in[plot_t_idx],
+            title="Normal Current Density (inner) on Surface: ",
+            cmap_label="A/m^2",
+        )
+        .add(obs_line)
+        .add(coil_mesh)
+        .show()
     )
-    views = [CurrentDensity, Efield, PotentialSurface, ChargeSolution]
-    for v in views:
-        v.add(obs_line)
-        v.add(coil_mesh)
-        v.show()
