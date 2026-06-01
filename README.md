@@ -5,9 +5,20 @@
 ### Windows
 Install `python3.13`. Cannot be sure other versions will work.
 
+- most likely this one -> 64bit https://www.python.org/ftp/python/3.13.13/python-3.13.13-amd64.exe
+- 32bit https://www.python.org/ftp/python/3.13.13/python-3.13.13.exe
+
 Open `cmd.exe` in this directory.
 
-```bat
+Powershell (better)
+
+```ps1
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+.\setup_env.ps1
+```
+
+Cmd
+```batch
 call setup_env.bat
 ```
 
