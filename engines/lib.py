@@ -134,6 +134,7 @@ def patch(
     plt.azimuth(viewax[0])
     plt.elevation(viewax[1])
 
+    # colorbar
     if cdata is not None:
         cbar = vedo.ScalarBar(mesh, title=cmap_label, c="black")
         plt.add(cbar)

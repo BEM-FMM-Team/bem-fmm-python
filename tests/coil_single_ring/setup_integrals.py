@@ -42,16 +42,17 @@ def setup_integrals(
         distanceE, ineighbor = nbrs.kneighbors(Center)
         ineighborP = ineighbor.T
 
-    EC = mesh_neighborints_En(
-        P=P,
-        t=t,
-        normals=normals,
-        Area=Area,
-        Center=Center,
-        RnumberE=RnumberE,
-        ineighborE=ineighborE,
-        numThreads=numThreads,
-    )
+    EC = 0
+    # EC = mesh_neighborints_En(
+    #     P=P,
+    #     t=t,
+    #     normals=normals,
+    #     Area=Area,
+    #     Center=Center,
+    #     RnumberE=RnumberE,
+    #     ineighborE=ineighborE,
+    #     numThreads=numThreads,
+    # )
     # PC = mesh_neighborints_Pn(
     #     P=P,
     #     t=t,

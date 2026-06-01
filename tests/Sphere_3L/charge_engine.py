@@ -17,16 +17,14 @@ sys.path.insert(
 )  # INFO temporary path loading until we can talk about structure
 
 
-from engines.charge.bemf3_inc_field_electric_constant import (
-    bemf3_inc_field_electric_constant,
-)
-from engines.charge.bemf4_surface_field_electric_accurate import (
-    bemf4_surface_field_electric_accurate,
-)
+from engines.charge.bemf3_inc_field_electric_constant import \
+    bemf3_inc_field_electric_constant
+from engines.charge.bemf4_surface_field_electric_accurate import \
+    bemf4_surface_field_electric_accurate
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
-from engines.charge.bemf4_surface_field_potential_accurate import (
-    bemf4_surface_field_potential_accurate,
-)
+from engines.charge.bemf4_surface_field_potential_accurate import \
+    bemf4_surface_field_potential_accurate
+from engines.fgmres import fgmres
 from engines.lib import timeit
 
 iteration = 0
@@ -54,47 +52,20 @@ def charge_engine(
     Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
 
     b = 2 * (contrast * np.sum(normals * Epri, axis=1))
+
     #  Right-hand side of the BEM-FMM equation
-
-    # list to store residual at every iteration
-    resvec = []
-
-    A = LinearOperator(
-        shape=(len(normals), len(normals)),
-        matvec=lambda c: bemf4_surface_field_lhs(
-            c=c,
-            center=center,
-            area=area,
-            contrast=contrast,
-            normals=normals,
-            weight=weight,
-            EC=EC,
-            prec=prec,
-        ),
-        dtype=float,
+    MATVEC = lambda c: bemf4_surface_field_lhs(
+        c=c,
+        center=center,
+        area=area,
+        contrast=contrast,
+        normals=normals,
+        weight=weight,
+        EC=EC,
+        prec=prec,
     )
 
-    def cb(np_residual):
-        global iteration, last_time
-        current_time = perf_counter()
-        time = current_time - last_time
-        last_time = current_time
-        residual = float(np_residual)
-        print(f"{iteration=},{residual=},{time=}")
-        resvec.append(residual)
-        iteration += 1
-
-    c, info = gmres(
-        A,
-        b,
-        x0=b,
-        rtol=relres,
-        # restart=iter,
-        maxiter=maxiter,
-        callback=cb,
-        callback_type="pr_norm",
-    )
-    print(info)
+    (c, its, resvec) = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=b)
 
     #   Find surface electric potential
     Padd = bemf4_surface_field_potential_accurate(c, center, area, PC)

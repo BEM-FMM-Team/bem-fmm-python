@@ -30,7 +30,7 @@ There is also a nix-shell, should you fancy that.
 ### Windows
 ```bash
 python .\tests\plot
-python .\tests\Sphere3L
+python .\tests\Sphere_3L
 python .\tests\coil_single_ring
 ```
 
@@ -40,7 +40,7 @@ Something about `OpenGL Context` failed to be created or `libmesa` not found: th
 ### Linux
 ```bash
 python3 ./tests/plot
-python3 ./tests/Sphere3L
+python3 ./tests/Sphere_3L
 python3 ./tests/coil_single_ring
 ```
 

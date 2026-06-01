@@ -110,6 +110,19 @@ if __name__ == "__main__":
     )
     coil_mesh = Mesh([CoilP, Coilt])
 
+    # -- Plot coil geometry on desired tissue
+    tissue_to_plot = "wm"
+    tissue_list = tissues.Tissue
+
+    plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
+    plot_t_idx = interface[:, 0] == plot_tissue
+    plot_t = t[plot_t_idx]
+
+    p = patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))
+    p.add(coil_mesh)
+    p.add(obs_line)
+    p.show()
+
     # 3. Impressed Field
     (
         EpriP,  # matches
@@ -140,19 +153,6 @@ if __name__ == "__main__":
         b=b,
         Epri=Epri,
     )
-
-    # -- Plot coil geometry on desired tissue
-    tissue_to_plot = "wm"
-    tissue_list = tissues.Tissue
-
-    plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
-    plot_t_idx = interface[:, 0] == plot_tissue
-    plot_t = t[plot_t_idx]
-
-    p = patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))
-    p.add(coil_mesh)
-    p.add(obs_line)
-    p.show()
 
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
