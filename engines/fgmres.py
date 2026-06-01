@@ -112,7 +112,7 @@ def fgmres(
     J = np.zeros((2, restart))
 
     # Krylov subspace
-    V = [None] * restart
+    V = V = [None] * (restart + 1)
     # Preconditioned subspace
     if P is not None:
         Z = [None] * restart

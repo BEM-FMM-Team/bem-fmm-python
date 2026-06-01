@@ -102,7 +102,7 @@ def charge_engine(
     Epri,
     plot_residual=True,
     #  Parameters of the iterative solution
-    iter=30,  # INFO it converges here, just cache the output for now
+    iter=1000,  # INFO it converges here, just cache the output for now
     maxiter=1,
     relres=1e-06, # 1e-12,  # Maximum possible number of iterations in the solution
     prec=1e-2,# 1e-3,  # Minimum acceptable relative residual
