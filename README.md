@@ -8,27 +8,20 @@ Install `python3.13`. Cannot be sure other versions will work.
 - most likely this one -> 64bit https://www.python.org/ftp/python/3.13.13/python-3.13.13-amd64.exe
 - 32bit https://www.python.org/ftp/python/3.13.13/python-3.13.13.exe
 
-Open `cmd.exe` in this directory.
+Open `cmd.exe`/`powershell` in this directory.
 
-Powershell (better)
 
-```ps1
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-.\setup_env.ps1
-```
-
-Cmd
+Permissions were getting in the way so setup is global, `setup_venv.bat` setup the virtual environment if you do not want to pollute your global python environment.
 ```batch
-call setup_env.bat
+pip install -r requirements.txt
 ```
 
 ### Linux
 Install `python3.13`.
 
-```bash
-source ./setup_env.sh
+```batch
+pip install -r requirements.txt
 ```
-
 
 There is also a nix-shell, should you fancy that.
 
@@ -36,9 +29,9 @@ There is also a nix-shell, should you fancy that.
 
 ### Windows
 ```bash
-python .\tests\plot\main.py
-python .\tests\Sphere3L\main.py
-python .\tests\coil_single_ring\main.py
+python .\tests\plot
+python .\tests\Sphere3L
+python .\tests\coil_single_ring
 ```
 
 #### Possible errors
@@ -46,9 +39,9 @@ Something about `OpenGL Context` failed to be created or `libmesa` not found: th
 
 ### Linux
 ```bash
-python3 ./tests/plot/main.py
-python3 ./tests/Sphere3L/main.py
-python3 ./tests/coil_single_ring/main.py
+python3 ./tests/plot
+python3 ./tests/Sphere3L
+python3 ./tests/coil_single_ring
 ```
 
 

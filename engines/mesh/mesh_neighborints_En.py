@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import numpy as np
 from scipy.sparse import coo_matrix
 
@@ -6,7 +8,7 @@ from ..lib import cache
 from .mesh_tri import mesh_tri
 
 
-@cache
+# @cache
 def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numThreads):
     """
     Accurate integration for electric field on neighbor facets using the solid angle approach
@@ -47,9 +49,8 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
     #   Main loop for analytical double integrals (parallel, 24 workers)
     #   This is the loop over columns of the system matrix
     integrale = np.zeros((N, RnumberE))
-    for n in range(
-        N
-    ):  #   inner integral (n =1 - first column of the system matrix, etc.)
+
+    def _process_column(n):
         # Calculate observation points on this triangle
         ObsPoints = coeffS.T @ P[t[n]]
         # Get vertices of neighbor triangles acting on this triangle
@@ -67,7 +68,6 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
         Int = (
             weightsS @ Int_temp
         )  # Exploiting dimensions of weightsS and Int_temp to ensure proper product occurs
-        integrale[n, :] = Int
 
         #   Center-point electric-field integrals
         temp = (
@@ -78,17 +78,31 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
             Area[n] * temp / (DIST[:, None] ** 3)
         )  #   center-point integral, standard format
         I[0, :] = 0  #   self integrals will give zero
-        integralxc[:, n] = -I[
-            :, 0
-        ]  #   center-point integrals, entries of non-zero rows of n-th column
-        integralyc[:, n] = -I[
-            :, 1
-        ]  #   center-point integrals, entries of non-zero rows of n-th column
-        integralzc[:, n] = -I[
-            :, 2
-        ]  #   center-point integrals, entries of non-zero rows of n-th column
+
+        # return results for placement
+        return n, Int, -I[:, 0], -I[:, 1], -I[:, 2]
+
+    if numThreads is not None and numThreads > 1:
+        with ThreadPoolExecutor(max_workers=numThreads) as ex:
+            futures = {ex.submit(_process_column, n): n for n in range(N)}
+            for fut in as_completed(futures):
+                n, Int, ix, iy, iz = fut.result()
+                integrale[n, :] = Int
+                integralxc[:, n] = ix
+                integralyc[:, n] = iy
+                integralzc[:, n] = iz
+    else:
+        for n in range(
+            N
+        ):  #   inner integral (n =1 - first column of the system matrix, etc.)
+            n, Int, ix, iy, iz = _process_column(n)
+            integrale[n, :] = Int
+            integralxc[:, n] = ix
+            integralyc[:, n] = iy
+            integralzc[:, n] = iz
+
     ## Properly weight integrale with the self-triangle area instead of the neighbor-triangle area
-    area_neighbor = Area[ineighborE.T][:,:,0]
+    area_neighbor = Area[ineighborE.T][:, :, 0]
     area_self = np.tile(Area, (1, RnumberE))
     integrale = integrale * area_self / area_neighbor
 
@@ -98,17 +112,30 @@ def mesh_neighborints_En(P, t, normals, Area, Center, RnumberE, ineighborE, numT
         (RnumberE, N)
     )  # normal integral component for array of neighbor triangles (center point) - to speed up GMRES
 
-    for n in range(
-        N
-    ):  #   inner integral; (n =1 - first column of the system matrix, etc.)
+    def _process_column_normal(n):
         index = ineighborE[
             :, n
         ]  #   those are non-zero rows of the system matrix for given n
-        integralc[:, n] = (
+        val = (
             integralxc[:, n] * normals[index, 0]
             + integralyc[:, n] * normals[index, 1]
             + integralzc[:, n] * normals[index, 2]
         )
+        return n, val
+
+    if numThreads is not None and numThreads > 1:
+        with ThreadPoolExecutor(max_workers=numThreads) as ex:
+            futures = {ex.submit(_process_column_normal, n): n for n in range(N)}
+            for fut in as_completed(futures):
+                n, val = fut.result()
+                integralc[:, n] = val
+    else:
+        for n in range(
+            N
+        ):  #   inner integral; (n =1 - first column of the system matrix, etc.)
+            n, val = _process_column_normal(n)
+            integralc[:, n] = val
+
     ii = ineighborE
     jj = np.tile(np.arange(N), (RnumberE, 1))
     EC = coo_matrix(

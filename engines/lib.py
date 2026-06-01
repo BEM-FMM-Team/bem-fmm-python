@@ -82,7 +82,7 @@ def patch(
     edge_color: str = "none",
     title: str = "",
     cmap_label: str = "",
-    color: [float, float, float] = None,
+    color: tuple[float, float, float] = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
     axes: dict | None = dict(
         c="black",
@@ -91,7 +91,7 @@ def patch(
         ztitle="z",
         zxgrid=True,
         yzgrid=True,
-        number_of_divisions=20,
+        number_of_divisions=10,
         # xyplane_color="white7",
         # xygrid_color="white3",
         # xline_color="white",

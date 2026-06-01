@@ -1,4 +1,16 @@
+import multiprocessing
+import os
+import sys
 from pathlib import Path
+
+os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
+os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
+
+root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
+sys.path.insert(0, str(root_dir))
+
+print(f"Setup environment {root_dir}")
+
 
 import matplotlib.pyplot as plt
 from charge_engine import charge_engine
