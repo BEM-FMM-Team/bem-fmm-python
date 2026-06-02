@@ -104,7 +104,7 @@ def charge_engine(
     #  Parameters of the iterative solution
     iter=50,
     maxiter=1,
-    relres=1e-3,  # 1e-6
+    relres=1e-6,  # 1e-6
     prec=1e-2,  # 1e-3
     weight=1 / 2,
 ):
@@ -180,8 +180,6 @@ def charge_engine(
         modeArg=3,
         prec=prec,
     )
-    # """
-    # Ptot, Esec = pull_artifact("Ptot"), pull_artifact("Esec").T
     E = Epri + Esec
 
     # Neighbor integral corrections
