@@ -37,6 +37,7 @@ from scipy.sparse import csr_matrix
 from vedo import Line, Mesh
 
 from engines.plot.patch import patch
+from engines.plot.residual import plot_residual
 
 eps0 = 8.85418782e-12
 mu0 = 1.25663706e-06
@@ -168,6 +169,8 @@ if __name__ == "__main__":
         Epri=Epri,
     )
 
+    plot_residual(resvec)
+
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
     # viewax = np.array([160, 20])
@@ -179,7 +182,7 @@ if __name__ == "__main__":
     ]
     plots_p = [
         Process(
-            target=lambda: patch(
+            target=lambda p=p: patch(
                 vertices=P,
                 faces=plot_t,
                 title=p[0],

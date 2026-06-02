@@ -110,8 +110,6 @@ def charge_engine(
     resvec = pull_artifact("resvec")
     """
 
-    plot_residual(resvec)
-
     ##  Check charge conservation law (optional)
     conservation_law_error = np.sum(
         c.reshape((-1, 1)) * area.reshape((-1, 1))

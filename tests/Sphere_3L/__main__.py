@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     plots_p = [
         Process(
-            target=lambda: patch(
+            target=lambda p=p: patch(
                 vertices=P,
                 faces=plot_t,
                 title=p[0],
