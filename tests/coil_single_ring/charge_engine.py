@@ -34,7 +34,6 @@ from engines.fgmres import fgmres
 from engines.lib import cache
 
 
-@timeit
 @cache
 def subdiv(
     c=None,
@@ -87,7 +86,6 @@ def iterative_solution(
     return resvec, c, its, resvec
 
 
-@timeit
 @cache
 def charge_engine(
     P,

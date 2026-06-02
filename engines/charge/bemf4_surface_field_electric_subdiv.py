@@ -56,7 +56,6 @@ def bemf4_surface_field_electric_subdiv(
     P2 = P[t[:, 1], :]
     P3 = P[t[:, 2], :]
 
-    print(IndexS)
     for j in range(IndexS):
         current_indices = np.arange(t.shape[0]) * IndexS + j
         Center_subdiv[current_indices, :] = (
