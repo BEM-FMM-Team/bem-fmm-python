@@ -56,6 +56,7 @@ if __name__ == "__main__":
     plt.title("Relative residual of the iterative solution")
     plt.xlabel("Iteration number")
     plt.ylabel("Relative residual")
+    plt.ion()
     plt.show()
 
     ## 3. Compute and Plot Fields (Surface)

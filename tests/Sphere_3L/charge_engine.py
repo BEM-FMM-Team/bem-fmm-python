@@ -27,9 +27,6 @@ from engines.charge.bemf4_surface_field_potential_accurate import \
 from engines.fgmres import fgmres
 from engines.lib import timeit
 
-iteration = 0
-last_time = perf_counter()
-
 
 @timeit
 def charge_engine(
@@ -65,7 +62,7 @@ def charge_engine(
         prec=prec,
     )
 
-    (c, its, resvec) = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=b)
+    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=b)
 
     #   Find surface electric potential
     Padd = bemf4_surface_field_potential_accurate(c, center, area, PC)

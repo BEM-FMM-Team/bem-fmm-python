@@ -42,6 +42,7 @@ in
       bash
       */
       ''
+        export PYTHON_JIT=1
         if [ ! -d venv ]; then
           python -m venv venv
           source venv/bin/activate

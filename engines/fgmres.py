@@ -117,7 +117,7 @@ def fgmres(
     if P is not None:
         Z = [None] * restart
 
-    resids = np.zeros((restart, max_iters))
+    resids = []
 
     for it in range(max_iters):
         # Krylov tolerance
@@ -215,7 +215,7 @@ def fgmres(
             tol_kryl = tol / (err**relaxation) if err > 0 else tol
 
             # Report the residual
-            resids[j, it] = resid
+            resids.append(resid)
 
             if verb > 1:
                 elapsed = time.time() - t_gmres_start
@@ -247,7 +247,5 @@ def fgmres(
 
     # Output
     iter = (it + 1, j + 1)
-    resids = resids[:, : it + 1]
-    resids[j + 1 : restart, it] = resid
 
     return x, iter, resids

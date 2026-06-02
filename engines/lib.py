@@ -108,19 +108,6 @@ def patch(
 
     # mesh.colormap(cmap, cdata)
 
-    if color:
-        mesh.color(color)
-    elif cdata is not None:
-        cdata = np.asarray(cdata).flatten()
-        vmin, vmax = clim if clim else (cdata.min(), cdata.max())
-        if vmax == vmin:
-            vmax = vmin + 1
-
-        normalized = np.clip((cdata - vmin) / (vmax - vmin), 0, 1)
-        color_func = cm.get_cmap(colormap)
-        rgb = (color_func(normalized)[:, :3] * 255).astype(np.uint8)
-        mesh.cellcolors = rgb
-
     if edge_color.lower() != "none":
         mesh.linecolor(edge_color)
 
@@ -136,7 +123,14 @@ def patch(
 
     # colorbar
     if cdata is not None:
-        cbar = vedo.ScalarBar(mesh, title=cmap_label, c="black")
+        mesh.celldata["values"] = cdata
+        mesh.cmap(colormap)
+
+        cbar = vedo.ScalarBar(
+            mesh,
+            title=cmap_label,
+            c="black",
+        )
         plt.add(cbar)
 
     return plt

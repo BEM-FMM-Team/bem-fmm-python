@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import sys
 from pathlib import Path
+from threading import Thread
 
 os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
 os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
@@ -31,10 +32,9 @@ from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
 from scipy.io import loadmat
+from scipy.sparse import csr_matrix
 from setup_integrals import setup_integrals
 from vedo import Line, Mesh
-from scipy.sparse import csr_matrix
-
 
 from engines.lib import patch
 from tests.coil_single_ring.pull_artifact import pull_artifact
@@ -90,7 +90,6 @@ if __name__ == "__main__":
     PC = csr_matrix((n, n))
     EC = csr_matrix((n, n))
 
-
     # print(f"{PC=}")
     # print(f"{EC=}")
 
@@ -125,10 +124,12 @@ if __name__ == "__main__":
     plot_t_idx = interface[:, 0] == plot_tissue
     plot_t = t[plot_t_idx]
 
-    p = patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))
-    p.add(coil_mesh)
-    p.add(obs_line)
-    p.show()
+    p = (
+        patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))
+        .add(coil_mesh)
+        .add(obs_line)
+        .show()
+    )
 
     # 3. Impressed Field
     (
@@ -164,7 +165,7 @@ if __name__ == "__main__":
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
     # viewax = np.array([160, 20])
-    ChargeSolution = (
+    ChargeSolution = lambda: (
         patch(
             P,
             plot_t,
@@ -176,7 +177,7 @@ if __name__ == "__main__":
         .add(coil_mesh)
         .show()
     )
-    PotentialSurface = (
+    PotentialSurface = lambda: (
         patch(
             P,
             plot_t,
@@ -188,7 +189,7 @@ if __name__ == "__main__":
         .add(coil_mesh)
         .show()
     )
-    Efield = (
+    Efield = lambda: (
         patch(
             P,
             plot_t,
@@ -200,7 +201,7 @@ if __name__ == "__main__":
         .add(coil_mesh)
         .show()
     )
-    CurrentDensity = (
+    CurrentDensity = lambda: (
         patch(
             P,
             plot_t,
@@ -212,3 +213,8 @@ if __name__ == "__main__":
         .add(coil_mesh)
         .show()
     )
+
+    ChargeSolution()
+    PotentialSurface()
+    Efield()
+    CurrentDensity()

@@ -6,7 +6,6 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
-from engines.lib import timeit
 import sys
 from time import perf_counter
 from warnings import warn
@@ -14,6 +13,8 @@ from warnings import warn
 import numpy as np
 from scipy.sparse.linalg import LinearOperator, gmres
 from scipy.spatial import Delaunay
+
+from engines.lib import timeit
 
 sys.path.insert(
     1, "../.."
@@ -57,7 +58,7 @@ def subdiv(
 
 @timeit
 @cache
-def iterateive_solution(
+def iterative_solution(
     center,
     area,
     contrast,
@@ -85,6 +86,7 @@ def iterateive_solution(
 
     return resvec, c, its, resvec
 
+
 @timeit
 @cache
 def charge_engine(
@@ -104,13 +106,13 @@ def charge_engine(
     #  Parameters of the iterative solution
     iter=1000,  # INFO it converges here, just cache the output for now
     maxiter=1,
-    relres=1e-06, # 1e-12,  # Maximum possible number of iterations in the solution
-    prec=1e-2,# 1e-3,  # Minimum acceptable relative residual
+    relres=1e-06,  # 1e-12,  # Maximum possible number of iterations in the solution
+    prec=1e-2,  # 1e-3,  # Minimum acceptable relative residual
     weight=1 / 2,  # FMM precision
     # Current conservation law in the weak form
 ):
-    # """
-    resvec, c, info = iterateive_solution(
+    """
+    resvec, c, info = iterative_solution(
         center=center,
         area=area,
         contrast=contrast,
@@ -124,9 +126,9 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
-    # """
-    # c = pull_artifact("c_pre", "c")
-    # resvec = pull_artifact("resvec")
+    """
+    c = pull_artifact("c_pre", "c")
+    resvec = pull_artifact("resvec")
 
     if plot_residual:
         plt.figure()
@@ -142,7 +144,7 @@ def charge_engine(
     conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
-    print(f"""{conservation_law_error=}\n{solution_error=}\n{info=}""")
+    print(f"""{conservation_law_error=}\n{solution_error=}""")
 
     ##   Topological low-pass solution filtering (repeat if necessary)
     # Find topological neighbors
