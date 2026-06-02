@@ -2,6 +2,7 @@ import multiprocessing
 import os
 import sys
 from pathlib import Path
+from threading import Thread
 
 os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
 os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
@@ -50,14 +51,17 @@ if __name__ == "__main__":
         condin=condin,
     )
 
+    # plt.ion()
+
     plt.figure()
     plt.semilogy(resvec, "-o")
     plt.grid(True)
     plt.title("Relative residual of the iterative solution")
     plt.xlabel("Iteration number")
     plt.ylabel("Relative residual")
-    plt.ion()
-    plt.show()
+    plt.show(
+        # block=False
+    )
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.
