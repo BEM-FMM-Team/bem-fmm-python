@@ -74,10 +74,10 @@ def bemf4_surface_field_electric_subdiv(
     E = np.asarray(E)
 
     # WARN if data came from MATLAB, use order='F'; otherwise omit order arg.
-    P_temp = P.reshape(IndexS, -1, order="F")  # (IndexS, ntri)
-    Ex_temp = E[:, 0].reshape(IndexS, -1, order="F")
-    Ey_temp = E[:, 1].reshape(IndexS, -1, order="F")
-    Ez_temp = E[:, 2].reshape(IndexS, -1, order="F")
+    P_temp = P.reshape((IndexS, -1))  # (IndexS, ntri)
+    Ex_temp = E[:, 0].reshape((IndexS, -1))
+    Ey_temp = E[:, 1].reshape((IndexS, -1))
+    Ez_temp = E[:, 2].reshape((IndexS, -1))
 
     # weighted average over
     P_vec = w @ P_temp

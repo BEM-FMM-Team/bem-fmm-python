@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 from threading import Thread
 
+import numpy as np
+
 os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
 os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
 
@@ -120,12 +122,19 @@ if __name__ == "__main__":
     tissue_to_plot = "wm"
     tissue_list = tissues.Tissue
 
-    plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
-    plot_t_idx = interface[:, 0] == plot_tissue
+    # plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
+    # plot_t_idx = interface[:, 0] == plot_tissue
+    plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]
 
     p = (
-        patch(P, plot_t, title="Single Ring Coil", viewax=(20, 160))
+        patch(
+            P,
+            plot_t,
+            title="Single Ring Coil",
+            viewax=(20, 160),
+            # color=tissues.Color[tissue_to_plot == tissue_to_plot],
+        )
         .add(coil_mesh)
         .add(obs_line)
         .show()

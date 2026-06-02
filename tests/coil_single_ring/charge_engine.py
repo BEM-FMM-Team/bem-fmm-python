@@ -83,7 +83,7 @@ def iterative_solution(
     )
     c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=8 * b)
 
-    return resvec, c, its, resvec
+    return resvec, c, its
 
 
 @cache
@@ -102,15 +102,14 @@ def charge_engine(
     Epri,
     plot_residual=True,
     #  Parameters of the iterative solution
-    iter=1000,  # INFO it converges here, just cache the output for now
+    iter=50,
     maxiter=1,
-    relres=1e-06,  # 1e-12,  # Maximum possible number of iterations in the solution
-    prec=1e-2,  # 1e-3,  # Minimum acceptable relative residual
-    weight=1 / 2,  # FMM precision
-    # Current conservation law in the weak form
+    relres=1e-3,  # 1e-6
+    prec=1e-2,  # 1e-3
+    weight=1 / 2,
 ):
-    """
-    resvec, c, info = iterative_solution(
+    # """
+    resvec, c, its = iterative_solution(
         center=center,
         area=area,
         contrast=contrast,
@@ -124,9 +123,11 @@ def charge_engine(
         Epri=Epri,
         b=b,
     )
+    c = c.reshape((-1, 1))
     """
     c = pull_artifact("c_pre", "c")
     resvec = pull_artifact("resvec")
+    """
 
     if plot_residual:
         plt.figure()
@@ -135,11 +136,13 @@ def charge_engine(
         plt.title("Relative residual of the iterative solution")
         plt.xlabel("Iteration number")
         plt.ylabel("Relative residual")
-        plt.ion()
-        plt.show(block=False)
+        # plt.ion()
+        plt.show()
 
     ##  Check charge conservation law (optional)
-    conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
+    conservation_law_error = np.sum(
+        c.reshape((-1, 1)) * area.reshape((-1, 1))
+    ) / np.sum(np.abs(c.reshape((-1, 1))) * area.reshape((-1, 1)))
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     print(f"""{conservation_law_error=}\n{solution_error=}""")
@@ -182,7 +185,7 @@ def charge_engine(
     E = Epri + Esec
 
     # Neighbor integral corrections
-    correctionE = EC * c
+    correctionE = 0  # EC * c
     # correctionP = PC * c # WARN unused but this op fails ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (2,) + inhomogeneous part.
 
     En = (np.sum(E * normals, 1).reshape(-1, 1) + correctionE).reshape(-1, 1)

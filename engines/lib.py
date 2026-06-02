@@ -106,6 +106,9 @@ def patch(
     """
     mesh = vedo.Mesh([vertices, faces])
 
+    if color is not None:
+        mesh.color(color)
+
     # mesh.colormap(cmap, cdata)
 
     if edge_color.lower() != "none":
