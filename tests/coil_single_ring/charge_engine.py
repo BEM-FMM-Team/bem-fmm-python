@@ -6,32 +6,14 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
-import sys
-from time import perf_counter
-from warnings import warn
-
 import numpy as np
-from scipy.sparse.linalg import LinearOperator, gmres
-from scipy.spatial import Delaunay
 
-from engines.lib import timeit
-
-sys.path.insert(
-    1, "../.."
-)  # INFO temporary path loading until we can talk about structure
-
-
-import matplotlib.pyplot as plt
-from pad_neighbor_triangles import pad_neighbor_triangles
-from pull_artifact import pull_artifact
-
-from engines.charge.bemf3_inc_field_electric_constant import \
-    bemf3_inc_field_electric_constant
 from engines.charge.bemf4_surface_field_electric_subdiv import \
     bemf4_surface_field_electric_subdiv
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.fgmres import fgmres
-from engines.lib import cache
+from engines.lib import cache, timeit
+from engines.plot.residual import plot_residual
 
 
 @cache
@@ -100,7 +82,6 @@ def charge_engine(
     condout,
     b,
     Epri,
-    plot_residual=True,
     #  Parameters of the iterative solution
     iter=50,
     maxiter=1,
@@ -129,15 +110,7 @@ def charge_engine(
     resvec = pull_artifact("resvec")
     """
 
-    if plot_residual:
-        plt.figure()
-        plt.semilogy(resvec / resvec[0], "-o")
-        plt.grid(True)
-        plt.title("Relative residual of the iterative solution")
-        plt.xlabel("Iteration number")
-        plt.ylabel("Relative residual")
-        # plt.ion()
-        plt.show()
+    plot_residual(resvec)
 
     ##  Check charge conservation law (optional)
     conservation_law_error = np.sum(

@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import sys
+from multiprocessing import Process
 from pathlib import Path
 from threading import Thread
 
@@ -27,19 +28,15 @@ In matlab, this takes about 2 minutes to run to completion.
 DD, DT - 5/2026
 """
 
-from pathlib import Path
 
 from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
-from scipy.io import loadmat
 from scipy.sparse import csr_matrix
-from setup_integrals import setup_integrals
 from vedo import Line, Mesh
 
-from engines.lib import patch
-from tests.coil_single_ring.pull_artifact import pull_artifact
+from engines.plot.patch import patch
 
 eps0 = 8.85418782e-12
 mu0 = 1.25663706e-06
@@ -127,8 +124,8 @@ if __name__ == "__main__":
     plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]
 
-    p = (
-        patch(
+    Process(
+        target=lambda: patch(
             P,
             plot_t,
             title="Single Ring Coil",
@@ -138,7 +135,7 @@ if __name__ == "__main__":
         .add(coil_mesh)
         .add(obs_line)
         .show()
-    )
+    ).start()
 
     # 3. Impressed Field
     (
@@ -174,56 +171,29 @@ if __name__ == "__main__":
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
     # viewax = np.array([160, 20])
-    ChargeSolution = lambda: (
-        patch(
-            P,
-            plot_t,
-            eps0 * c[plot_t_idx],
-            title="Charge Solution on Surface: ",
-            cmap_label="C/m^2",
+    plots = [
+        ("Charge Solution on Surface: ", "C/m^2", eps0 * c[plot_t_idx]),
+        ("Potential on Surface: ", "V", Ptot[plot_t_idx]),
+        ("Normal E-field (inner) on Surface: ", "V/m", En[plot_t_idx]),
+        ("Normal Current Density (inner) on Surface: ", "A/m^2", Jn_in[plot_t_idx]),
+    ]
+    plots_p = [
+        Process(
+            target=lambda: patch(
+                vertices=P,
+                faces=plot_t,
+                title=p[0],
+                cmap_label=p[1],
+                cdata=p[2],
+            )
+            .add(obs_line)
+            .add(coil_mesh)
+            .show()
         )
-        .add(obs_line)
-        .add(coil_mesh)
-        .show()
-    )
-    PotentialSurface = lambda: (
-        patch(
-            P,
-            plot_t,
-            Ptot[plot_t_idx],
-            title="Potential on Surface: ",
-            cmap_label="V",
-        )
-        .add(obs_line)
-        .add(coil_mesh)
-        .show()
-    )
-    Efield = lambda: (
-        patch(
-            P,
-            plot_t,
-            En_in[plot_t_idx],
-            title="Normal E-field (inner) on Surface: ",
-            cmap_label="V/m",
-        )
-        .add(obs_line)
-        .add(coil_mesh)
-        .show()
-    )
-    CurrentDensity = lambda: (
-        patch(
-            P,
-            plot_t,
-            Jn_in[plot_t_idx],
-            title="Normal Current Density (inner) on Surface: ",
-            cmap_label="A/m^2",
-        )
-        .add(obs_line)
-        .add(coil_mesh)
-        .show()
-    )
+        for p in plots
+    ]
 
-    ChargeSolution()
-    PotentialSurface()
-    Efield()
-    CurrentDensity()
+    for p in plots_p:
+        p.start()
+    for p in plots_p:
+        p.join()

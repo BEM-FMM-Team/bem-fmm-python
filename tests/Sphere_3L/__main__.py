@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 import sys
+from multiprocessing import Pool, Process
 from pathlib import Path
 from threading import Thread
 
@@ -13,13 +14,13 @@ sys.path.insert(0, str(root_dir))
 print(f"Setup environment {root_dir}")
 
 
-import matplotlib.pyplot as plt
 from charge_engine import charge_engine
 from constants import eps0
 from load_model import load_model
 from scipy.sparse import csr_matrix
 
-from engines.lib import patch
+from engines.plot.patch import patch
+from engines.plot.residual import plot_residual
 
 CSD = Path(__file__).resolve().parent
 
@@ -51,17 +52,7 @@ if __name__ == "__main__":
         condin=condin,
     )
 
-    # plt.ion()
-
-    plt.figure()
-    plt.semilogy(resvec, "-o")
-    plt.grid(True)
-    plt.title("Relative residual of the iterative solution")
-    plt.xlabel("Iteration number")
-    plt.ylabel("Relative residual")
-    plt.show(
-        # block=False
-    )
+    plot_residual(resvec)
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.
@@ -69,31 +60,29 @@ if __name__ == "__main__":
     plot_t_idx = interface[:, 0] == plot_tissue
     plot_t = t[plot_t_idx]
 
-    patch(
-        vertices=P,
-        faces=plot_t,
-        title="Charge Solution on Surface: ",
-        cmap_label="C/m^2",
-        cdata=eps0 * c[plot_t_idx],
-    ).show()
-    patch(
-        vertices=P,
-        faces=plot_t,
-        title="Potential on Surface: ",
-        cmap_label="V",
-        cdata=Ptot[plot_t_idx],
-    ).show()
-    patch(
-        vertices=P,
-        faces=plot_t,
-        title="Normal E-field (inner) on Surface: ",
-        cmap_label="V/m",
-        cdata=En[plot_t_idx],
-    ).show()
-    patch(
-        vertices=P,
-        faces=plot_t,
-        title="Normal Current Density (inner) on Surface: ",
-        cmap_label="A/m^2",
-        cdata=J[plot_t_idx],
-    ).show()
+    # fmt: off
+    plots = [
+        ("Charge Solution on Surface: ",                "C/m^2", eps0 * c[plot_t_idx]),
+        ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
+        ("Normal E-field (inner) on Surface: ",         "V/m",   En[plot_t_idx]),
+        ("Normal Current Density (inner) on Surface: ", "A/m^2", J[plot_t_idx]),
+    ]
+    # fmt: on
+
+    plots_p = [
+        Process(
+            target=lambda: patch(
+                vertices=P,
+                faces=plot_t,
+                title=p[0],
+                cmap_label=p[1],
+                cdata=p[2],
+            ).show()
+        )
+        for p in plots
+    ]
+
+    for p in plots_p:
+        p.start()
+    for p in plots_p:
+        p.join()
