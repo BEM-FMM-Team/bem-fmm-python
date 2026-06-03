@@ -18,9 +18,13 @@ def plot_coil_worker(
     P,
     plot_t,
     p,
-    coil_mesh,
-    obs_line,
+    CoilP,
+    Coilt,
+    obs_start,
+    obs_end,
 ):
+    coil_mesh = vedo.Mesh([CoilP, Coilt])
+    obs_line = vedo.Line(obs_start, obs_end).lw(3).color("red")
     patch(
         vertices=P,
         faces=plot_t,
@@ -36,9 +40,13 @@ def plot_single_coil_worker(
     P,
     plot_t,
     p,
-    coil_mesh,
-    obs_line,
+    CoilP,
+    Coilt,
+    obs_start,
+    obs_end,
 ):
+    coil_mesh = vedo.Mesh([CoilP, Coilt])
+    obs_line = vedo.Line(obs_start, obs_end).lw(3).color("red")
     patch(
         vertices=P,
         faces=plot_t,

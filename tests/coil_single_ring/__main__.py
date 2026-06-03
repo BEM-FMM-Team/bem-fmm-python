@@ -106,15 +106,9 @@ if __name__ == "__main__":
         CoilP,  # matches
         Coilt,  # matches, indexing -1
     ) = coil_setup()
-    obs_line = (
-        Line(
-            pointsline["start"],
-            pointsline["end"],
-        )
-        .lw(3)
-        .color("red")
-    )
-    coil_mesh = Mesh([CoilP, Coilt])
+
+    obs_start = pointsline["start"]
+    obs_end = pointsline["end"]
 
     # -- Plot coil geometry on desired tissue
     tissue_to_plot = "wm"
@@ -131,8 +125,10 @@ if __name__ == "__main__":
             P,
             plot_t,
             "Single Ring Coil",
-            coil_mesh,
-            obs_line,
+            CoilP,
+            Coilt,
+            obs_start,
+            obs_end,
         ),
     )
     single_p.start()
@@ -189,8 +185,10 @@ if __name__ == "__main__":
                 P,
                 plot_t,
                 p,
-                coil_mesh,
-                obs_line,
+                CoilP,
+                Coilt,
+                obs_start,
+                obs_end,
             ),
         )
         for p in plots
