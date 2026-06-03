@@ -4,6 +4,50 @@ import numpy as np
 import vedo
 
 
+def plot_worker(P, plot_t, p):
+    patch(
+        vertices=P,
+        faces=plot_t,
+        title=p[0],
+        cmap_label=p[1],
+        cdata=p[2],
+    ).show()
+
+
+def plot_coil_worker(
+    P,
+    plot_t,
+    p,
+    coil_mesh,
+    obs_line,
+):
+    patch(
+        vertices=P,
+        faces=plot_t,
+        title=p[0],
+        cmap_label=p[1],
+        cdata=p[2],
+    ).add(
+        coil_mesh
+    ).add(obs_line).show()
+
+
+def plot_single_coil_worker(
+    P,
+    plot_t,
+    p,
+    coil_mesh,
+    obs_line,
+):
+    patch(
+        vertices=P,
+        faces=plot_t,
+        title=p,
+    ).add(
+        coil_mesh
+    ).add(obs_line).show()
+
+
 # TODO add different colors
 def patch(
     vertices: np.ndarray,

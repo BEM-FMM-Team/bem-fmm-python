@@ -1,20 +1,21 @@
 import time
+from typing import Callable
 
 import numpy as np
 
 
 def fgmres(
-    A,
-    b,
-    tol,
-    relaxation=0,
-    max_iters=1,
-    restart=100,
-    x0=None,
-    verb=2,
-    tol_exit=None,
-    P=None,
-):
+    A: Callable[float, float] | np.ndarray,
+    b: np.ndarray,
+    tol: float,
+    relaxation: float = 0,
+    max_iters: int = 1,
+    restart: int = 100,
+    x0: np.ndarray | None = None,
+    verb: int = 2,
+    tol_exit: float | None = None,
+    P: Callable | np.ndarray | None = None,
+) -> tuple[np.ndarray, tuple[int, int], list[float]]:
     """
     Flexible GMRES method
        fgmres(A, b, tol, relaxation=0, max_iters=1, restart=100, x0=None,

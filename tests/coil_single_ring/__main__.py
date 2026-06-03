@@ -36,7 +36,7 @@ from load_model import load_model
 from scipy.sparse import csr_matrix
 from vedo import Line, Mesh
 
-from engines.plot.patch import patch
+from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
 from engines.plot.residual import plot_residual
 
 eps0 = 8.85418782e-12
@@ -125,18 +125,17 @@ if __name__ == "__main__":
     plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]
 
-    Process(
-        target=lambda: patch(
+    single_p = Process(
+        target=plot_single_coil_worker,
+        args=(
             P,
             plot_t,
-            title="Single Ring Coil",
-            viewax=(20, 160),
-            # color=tissues.Color[tissue_to_plot == tissue_to_plot],
-        )
-        .add(coil_mesh)
-        .add(obs_line)
-        .show()
-    ).start()
+            "Single Ring Coil",
+            coil_mesh,
+            obs_line,
+        ),
+    )
+    single_p.start()
 
     # 3. Impressed Field
     (
@@ -169,34 +168,38 @@ if __name__ == "__main__":
         Epri=Epri,
     )
 
-    plot_residual(resvec)
+    res_plot_p = plot_residual(resvec)
 
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
     # viewax = np.array([160, 20])
+    # fmt: off
     plots = [
-        ("Charge Solution on Surface: ", "C/m^2", eps0 * c[plot_t_idx]),
-        ("Potential on Surface: ", "V", Ptot[plot_t_idx]),
-        ("Normal E-field (inner) on Surface: ", "V/m", En[plot_t_idx]),
+        ("Charge Solution on Surface: ",                "C/m^2", eps0 * c[plot_t_idx]),
+        ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
+        ("Normal E-field (inner) on Surface: ",         "V/m",   En[plot_t_idx]),
         ("Normal Current Density (inner) on Surface: ", "A/m^2", Jn_in[plot_t_idx]),
     ]
+    # fmt: on
+
     plots_p = [
         Process(
-            target=lambda p=p: patch(
-                vertices=P,
-                faces=plot_t,
-                title=p[0],
-                cmap_label=p[1],
-                cdata=p[2],
-            )
-            .add(obs_line)
-            .add(coil_mesh)
-            .show()
+            target=plot_coil_worker,
+            args=(
+                P,
+                plot_t,
+                p,
+                coil_mesh,
+                obs_line,
+            ),
         )
         for p in plots
     ]
 
     for p in plots_p:
         p.start()
+
     for p in plots_p:
         p.join()
+    res_plot_p.join()
+    single_p.join()

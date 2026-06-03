@@ -19,10 +19,11 @@ from constants import eps0
 from load_model import load_model
 from scipy.sparse import csr_matrix
 
-from engines.plot.patch import patch
+from engines.plot.patch import patch, plot_worker
 from engines.plot.residual import plot_residual
 
 CSD = Path(__file__).resolve().parent
+
 
 if __name__ == "__main__":
     ## 1. Setup Model
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     EC = csr_matrix((n, n))
 
     ## 2. Compute Charge Solution
-    c, Ptot, Padd, En, J, resvec = charge_engine(
+    c, Ptot, Padd, En, Jn_in, resvec = charge_engine(
         center=Center,
         area=Area,
         contrast=contrast,
@@ -52,7 +53,7 @@ if __name__ == "__main__":
         condin=condin,
     )
 
-    plot_residual(resvec)
+    res_p = plot_residual(resvec)
 
     ## 3. Compute and Plot Fields (Surface)
     # Compute and plot the fields of interest on desired tissue.
@@ -65,24 +66,14 @@ if __name__ == "__main__":
         ("Charge Solution on Surface: ",                "C/m^2", eps0 * c[plot_t_idx]),
         ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
         ("Normal E-field (inner) on Surface: ",         "V/m",   En[plot_t_idx]),
-        ("Normal Current Density (inner) on Surface: ", "A/m^2", J[plot_t_idx]),
+        ("Normal Current Density (inner) on Surface: ", "A/m^2", Jn_in[plot_t_idx]),
     ]
     # fmt: on
 
-    plots_p = [
-        Process(
-            target=lambda p=p: patch(
-                vertices=P,
-                faces=plot_t,
-                title=p[0],
-                cmap_label=p[1],
-                cdata=p[2],
-            ).show()
-        )
-        for p in plots
-    ]
+    plots_p = [Process(target=plot_worker, args=(P, plot_t, p)) for p in plots]
 
     for p in plots_p:
         p.start()
     for p in plots_p:
         p.join()
+    res_p.join()
