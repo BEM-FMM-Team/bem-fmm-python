@@ -110,6 +110,13 @@ def charge_engine(
     resvec = pull_artifact("resvec")
     """
 
+    """
+    # Ax = b (find x),
+    # residual = |Ax-b|
+    # we know A=MATVEC, b=Epri, x=c, resid = Ax-b = MATVEC(c)-Epri
+    # En = (c-resid)/contrast.
+    """
+    
     ##  Check charge conservation law (optional)
     conservation_law_error = np.sum(
         c.reshape((-1, 1)) * area.reshape((-1, 1))
