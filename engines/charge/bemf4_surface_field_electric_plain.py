@@ -2,7 +2,6 @@ from typing import Any
 
 import numpy as np
 from fmm3dpy import lfmm3d
-from numpy import pi
 
 
 def bemf4_surface_field_electric_plain(

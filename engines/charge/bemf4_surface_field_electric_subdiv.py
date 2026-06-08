@@ -1,5 +1,7 @@
 import numpy as np
 
+# WARN may be inaccurate
+
 from engines.mesh.mesh_tri import mesh_tri
 
 from .bemf4_surface_field_electric_plain import \

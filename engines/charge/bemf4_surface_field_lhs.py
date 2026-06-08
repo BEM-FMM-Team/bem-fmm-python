@@ -3,16 +3,17 @@ from typing import Any
 import numpy as np
 from numpy import dtype, float64, ndarray
 
-from .bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
+from .bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
 
 
 #   Computes the left hand side of the charge equation for surface charges
 #   LHS is the user-defined function of c equal to c - Z_times_c which is
 #   exactly the left-hand side of the matrix equation Zc = b
 def bemf4_surface_field_lhs(
-    c: ndarray[tuple[Any, ...], dtype[float64]],
-    center: ndarray[tuple[Any, ...], dtype[float64]],
-    area: ndarray[tuple[Any, ...], dtype[float64]],
+    c,
+    center,
+    area,
     contrast,
     normals,
     weight: np.float64,
@@ -32,7 +33,8 @@ def bemf4_surface_field_lhs(
         * (
             contrast * np.sum(normals * E0, 1)
         )  #   This is not-dominant center-point FMM part
-        + weight * (np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0))
+        + weight
+        * (np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0))
     )  #   This is weight correction (optional)
 
     return LHS

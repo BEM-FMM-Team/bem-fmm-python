@@ -3,7 +3,6 @@ import os
 import sys
 from multiprocessing import Process
 from pathlib import Path
-from threading import Thread
 
 import numpy as np
 
@@ -34,7 +33,6 @@ from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
 from scipy.sparse import csr_matrix
-from vedo import Line, Mesh
 
 from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
 from engines.plot.residual import plot_residual
@@ -75,25 +73,13 @@ if __name__ == "__main__":
         contrast=contrast,
     )
 
-    # big one
-    PC=<Compressed Sparse Column sparse matrix of dtype 'float64'
-        with 7679360 stored elements and shape (873578, 873578)>
-    EC=<Compressed Sparse Column sparse matrix of dtype 'float64'
-        with 54781091 stored elements and shape (873578, 873578)>
-        """
-    if False:
-        ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
-        PC = ECPC["PC"]
-        EC = ECPC["EC"]
-
+    ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
+    PC = ECPC["PC"]
+    EC = ECPC["EC"]
+    """
     n = t.shape[0]
     PC = csr_matrix((n, n))
     EC = csr_matrix((n, n))
-
-    # print(f"{PC=}")
-    # print(f"{EC=}")
-
-    # exit(0)
 
     # 2. Setup Coil
     # -- Load coil geometry
@@ -150,13 +136,10 @@ if __name__ == "__main__":
 
     # 4. Charge Solution
     c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec = charge_engine(
-        P=P,
-        t=t,
         center=Center,
         area=Area,
         contrast=contrast,
         normals=normals,
-        PC=PC,
         EC=EC,
         condin=condin,
         condout=condout,

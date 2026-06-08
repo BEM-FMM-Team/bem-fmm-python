@@ -7,6 +7,7 @@
     libx11
     freeglut
     libGLU
+    libxcursor
   ];
 in
   pkgs.mkShell
@@ -14,6 +15,8 @@ in
     packages =
       libs
       ++ [
+        pkgs.conda
+
         pkgs.ruff
         pkgs.basedpyright
         pkgs.pylint
@@ -26,6 +29,7 @@ in
             # scipy
             pyqt6
             debugpy
+            ipython
 
             # pyglet
 
