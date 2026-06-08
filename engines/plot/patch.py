@@ -2,6 +2,7 @@ from typing import Annotated
 
 import numpy as np
 import vedo
+from vedo import Latex
 
 
 def plot_worker(P, plot_t, p):
@@ -56,65 +57,66 @@ def plot_single_coil_worker(
     ).add(obs_line).show()
 
 
-# TODO add different colors
+# temporary for testing, not really useful at runtime since python default args are evaled once
+configs = [
+    dict(colormap="jet", bg="white", axes_c="black"),
+    dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="white"),
+    dict(colormap="inferno", bg="#080808", axes_c="#666666"),
+    dict(colormap="magma", bg="#05020a", bg2="#1a0510", axes_c="#888888"),
+    dict(colormap="hot", bg="black", axes_c="white"),
+    dict(colormap="turbo", bg="#111111", axes_c="#aaaaaa"),
+    dict(colormap="viridis", bg="white", edge_color="#e0e0e0", axes_c="black"),
+    dict(colormap="RdBu_r", bg="white", edge_color="#dddddd", axes_c="black"),
+    dict(colormap="bone", bg="black", axes_c="#555555"),
+    dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
+]
+config = configs[2]
+
+
 def patch(
     vertices: np.ndarray,
     faces: np.ndarray,
     cdata: np.ndarray | None = None,
-    colormap: str = "jet",
-    edge_color: str = "none",
+    colormap: str = config["colormap"],
+    bg: str = config.get("bg", "white"),
+    bg2: str | None = config.get("bg2", None),
+    edge_color: str = config.get("edge_color", "none"),
     title: str = "",
+    title_font="VictorMono",
+    title_size=1.5,
     cmap_label: str = "",
     color: tuple[float, float, float] = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
     axes: dict | None = dict(
-        c="black",
+        c=config["axes_c"],
         xtitle="x",
         ytitle="y",
         ztitle="z",
         zxgrid=True,
         yzgrid=True,
         number_of_divisions=10,
-        # xyplane_color="white7",
-        # xygrid_color="white3",
-        # xline_color="white",
-        # yline_color="white",
-        # zline_color="white",
-    ),  # https://github.com/marcomusy/vedo/blob/master/examples/pyplot/custom_axes1.py https://raw.githubusercontent.com/marcomusy/vedo/refs/heads/master/examples/pyplot/custom_axes1.py
+    ),
 ) -> vedo.Mesh:
-    """
-    Convenience function
-
-    You can use it or feel free to disregard it and implement things from scratch
-    """
     mesh = vedo.Mesh([vertices, faces])
-
     if color is not None:
         mesh.color(color)
-
     if edge_color.lower() != "none":
         mesh.linecolor(edge_color)
 
-    plt = vedo.Plotter(
-        title=title,
-        axes=axes,
-    )
-    plt.add(vedo.Text2D(title, pos="top-center", s=1.5, font="VictorMono"))
-    plt.add(mesh)
+    plt_kw = dict(title=title, axes=axes, bg=bg)
+    if bg2 is not None:
+        plt_kw["bg2"] = bg2
 
+    plt = vedo.Plotter(**plt_kw)
+    plt.add(vedo.Text2D(title, pos="top-center", s=title_size, font=title_font))
+
+    plt.add(mesh)
     plt.azimuth(viewax[0])
     plt.elevation(viewax[1])
-
-    # colorbar
     if cdata is not None:
         mesh.celldata["values"] = cdata
         mesh.cmap(colormap)
-
-        cbar = vedo.ScalarBar(
-            mesh,
-            title=cmap_label,
-            c="black",
-        )
+        cbar = vedo.ScalarBar(mesh, title=cmap_label, c=axes.get("c", "black"))
         plt.add(cbar)
 
     return plt

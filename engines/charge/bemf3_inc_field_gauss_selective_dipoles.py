@@ -3,7 +3,8 @@ from bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
 from bemf3_inc_field_electric_plain_dipoles import (
     bemf3_inc_field_electric_plain_dipoles,
 )
-from mesh_tri import mesh_tri
+
+from ..mesh.mesh_tri import mesh_tri
 
 
 def bemf3_inc_field_electric_gauss_selective_dipoles(

@@ -154,10 +154,10 @@ if __name__ == "__main__":
     # viewax = np.array([160, 20])
     # fmt: off
     plots = [
-        ("Charge Solution on Surface: ",                "C/m^2", eps0 * c[plot_t_idx]),
+        ("Charge Solution on Surface: ",                "C/m²", eps0 * c[plot_t_idx]),
         ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
         ("Normal E-field (inner) on Surface: ",         "V/m",   En[plot_t_idx]),
-        ("Normal Current Density (inner) on Surface: ", "A/m^2", Jn_in[plot_t_idx]),
+        ("Normal Current Density (inner) on Surface: ", "A/m²", Jn_in[plot_t_idx]),
     ]
     # fmt: on
 

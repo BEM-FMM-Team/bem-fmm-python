@@ -13,20 +13,15 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     Compute pseudo potentials
     """
     # Computes electric field from the coil via the FMM
-    N = Points.shape[0]
 
-    segvector = (
-        strcoil.Pwire[strcoil.Ewire[:, 1] - 1, :]
-        - strcoil.Pwire[strcoil.Ewire[:, 0] - 1, :]
-    ) * np.tile(strcoil.Swire, (1, 3))
-    segpoints = 0.5 * (
-        strcoil.Pwire[strcoil.Ewire[:, 0] - 1, :]
-        + strcoil.Pwire[strcoil.Ewire[:, 1] - 1, :]
-    )
+    P0 = strcoil.Pwire[strcoil.Ewire[:, 0] - 1, :]
+    P1 = strcoil.Pwire[strcoil.Ewire[:, 1] - 1, :]
+    segvector = (P1 - P0) * np.tile(strcoil.Swire, (1, 3))
+    segpoints = 0.5 * (P0 + P1)
     PseudoQx = segvector[:, 0]
     PseudoQy = segvector[:, 1]
     PseudoQz = segvector[:, 2]
-    Einc = np.zeros((N, 3))
+
     # const = mu0 * dIdt / (4 * np.pi) # WARN python lfmmpy seems to apply the /4pi
     const = mu0 * dIdt
 
@@ -40,9 +35,9 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     pgt = 1
 
     charges = np.zeros((3, len(PseudoQx)))
-    charges[0, :] = PseudoQx.T
-    charges[1, :] = PseudoQy.T
-    charges[2, :] = PseudoQz.T
+    charges[0, :] = PseudoQx
+    charges[1, :] = PseudoQy
+    charges[2, :] = PseudoQz
     # INFO i think this should work but ...
     # i could vectorise this, but im not sure if the intent is the same
     # charges = np.vstack([PseudoQx, PseudoQy, PseudoQz])

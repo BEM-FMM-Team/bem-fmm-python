@@ -1,11 +1,8 @@
-from typing import Iterable
-
 import numpy as np
 
 from engines.mesh.mesh_tri import mesh_tri
-from engines.my_types import FaceCenters, f32, vec2f32, vec3f32
+from engines.my_types import FaceCenters, vec2f32, vec3f32
 
-from ..lib import vecnorm
 from ..my_types import VertexIndices, Vertices
 from .bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
 from .bemf3_inc_field_electric_plain_dipoles import (
@@ -72,16 +69,18 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
     Ppri = np.zeros((t.shape[0], 1))
 
     ## Calculate incident fields on triangles that do not require subdivision
-    if np.any(~trianglesToSubdiv):
+
+    notSubdiv = ~trianglesToSubdiv
+    if np.any(notSubdiv):
         E_temp, P_temp = bemf3_inc_field_electric_plain(
             strdipolePplus=strdipolePplus,
             strdipolePminus=strdipolePminus,
             strdipolesig=strdipolesig,
             strdipoleCurrent=strdipoleCurrent,
-            Points=Center[~trianglesToSubdiv, :],
+            Points=Center[notSubdiv, :],
         )
-        Epri[~trianglesToSubdiv, :] = E_temp
-        Ppri[~trianglesToSubdiv, :] = P_temp
+        Epri[notSubdiv, :] = E_temp
+        Ppri[notSubdiv, :] = P_temp
     else:
         print("skipping primary at triangles which do not need subdiv")
 

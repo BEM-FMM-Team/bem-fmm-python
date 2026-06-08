@@ -72,6 +72,7 @@ def charge_engine(
     iter=50,
     maxiter=1,
     relres=1e-3,  # 1e-6
+    iter_prec=1e-3,  # for residual solution
     prec=1e-2,  # 1e-3
     weight=1 / 2,
 ):
@@ -83,7 +84,7 @@ def charge_engine(
         normals=normals,
         weight=weight,
         EC=EC,
-        prec=prec,
+        prec=iter_prec,
         maxiter=maxiter,
         iter=iter,
         relres=relres,

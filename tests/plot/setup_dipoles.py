@@ -1,8 +1,7 @@
 import numpy as np
 
-from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import (
-    bemf3_inc_field_electric_gauss_selective_dipoles,
-)
+from engines.charge.bemf3_inc_field_electric_gauss_selective_dipoles import \
+    bemf3_inc_field_electric_gauss_selective_dipoles
 from engines.lib import timeit
 from engines.plot.patch import patch
 
@@ -107,10 +106,9 @@ def setup_dipoles(
         vertices=P,
         faces=plot_t,
         cdata=plot_field,  # replaces p.FaceVertexCData = plot_field
-        colormap="jet",
         edge_color="none",
-        title=rf"Primary Field E^i on Surface: {tissuename}",
-        cmap_label="A/m^2",
+        title=rf"Primary Field Eⁱ on Surface: {tissuename[0]}",
+        cmap_label="A/m²",
     ).show()
 
     # Figure plot
