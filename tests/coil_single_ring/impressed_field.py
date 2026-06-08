@@ -17,6 +17,7 @@ import numpy as np
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
 from engines.my_types import StrCoil
 
+
 @timeit
 @cache
 def impressed_field(

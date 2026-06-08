@@ -8,8 +8,9 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf4_surface_field_electric_plain import \
-    bemf4_surface_field_electric_plain
+from engines.charge.bemf4_surface_field_electric_plain import (
+    bemf4_surface_field_electric_plain,
+)
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
@@ -89,6 +90,13 @@ def charge_engine(
         b=b,
     )
     c = c.reshape((-1, 1))
+
+    """
+    # Ax = b (find x),
+    # residual = |Ax-b|
+    # we know A=MATVEC, b=Epri, x=c, resid = Ax-b = MATVEC(c)-Epri
+    # En = (c-resid)/contrast.
+    """
 
     ##  Check charge conservation law (optional)
     conservation_law_error = np.sum(

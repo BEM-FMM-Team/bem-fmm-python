@@ -20,6 +20,7 @@ from engines.my_types import StrCoil
 
 ASSETS = Path(__file__).resolve().parent / "assets"
 
+
 @timeit
 @cache
 def coil_setup():

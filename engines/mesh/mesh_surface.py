@@ -3,34 +3,37 @@ from mesh_cross_section import mesh_cross_section
 from meshfill import meshfill
 from mesh_fix import mesh_fix
 
+
 def meshsurface(Pcenter, a, b, M, flag):
-#   Outputs a 2-manifold P, t mesh for a single arbitrarily 
-#   bent conductor. The conductor could be either open or closed. In the
-#   last case, the start point and the end point must coincide.
-#   Inputs:
-#   Pcenter - centerline of the conductor in 3D [:, 3];
-#   a - major axis/side (always in the z direction) of conductor cross-section;
-#   b - minor axis/side (always in the z direction) of conductor cross-section;
-#   M - number of cross-section subdivisions (approximate for rectangular
-#   cross-section);
-#   flag is equal to one for the elliptical cross-section and equals two for
-#   the rectangular cross-sectionH
-#   Outputs:
-#   P  -  P-aray of surface mesh vertices
-#   t  -  t-array of surface triangular facets
-#   SNM 2018-2020
+    #   Outputs a 2-manifold P, t mesh for a single arbitrarily
+    #   bent conductor. The conductor could be either open or closed. In the
+    #   last case, the start point and the end point must coincide.
+    #   Inputs:
+    #   Pcenter - centerline of the conductor in 3D [:, 3];
+    #   a - major axis/side (always in the z direction) of conductor cross-section;
+    #   b - minor axis/side (always in the z direction) of conductor cross-section;
+    #   M - number of cross-section subdivisions (approximate for rectangular
+    #   cross-section);
+    #   flag is equal to one for the elliptical cross-section and equals two for
+    #   the rectangular cross-sectionH
+    #   Outputs:
+    #   P  -  P-aray of surface mesh vertices
+    #   t  -  t-array of surface triangular facets
+    #   SNM 2018-2020
     ##  Create 2-manifold surface mesh
     Nodes = Pcenter.shape[0]
-    Closed = (np.linalg.norm(Pcenter[0, :] - Pcenter[-1, :]) < 1024 * np.finfo(float).eps)
+    Closed = np.linalg.norm(Pcenter[0, :] - Pcenter[-1, :]) < 1024 * np.finfo(float).eps
     PathVector = Pcenter[1:, :] - Pcenter[:-1, :]
-    ##   Add nodes/triangles for conductor side surface   
+    ##   Add nodes/triangles for conductor side surface
     t = np.empty((0, 3))
     for m in range(Nodes - 1):
-        if m == 0: # bottom only
+        if m == 0:  # bottom only
             UnitPathVector = PathVector[0, :] + Closed * PathVector[-1, :]
             UnitPathVector = UnitPathVector / np.linalg.norm(UnitPathVector)
             pbottom, e = mesh_cross_section(a, b, UnitPathVector, M, flag)
-            NE = e.shape[0] # number of nodes/edges in the cross-section, global for the entire code
+            NE = e.shape[
+                0
+            ]  # number of nodes/edges in the cross-section, global for the entire code
             pbottom = pbottom + Pcenter[m, :]
             P = pbottom
         if m >= 0 and m < Nodes - 2:
@@ -39,7 +42,7 @@ def meshsurface(Pcenter, a, b, M, flag):
             ptop, e = mesh_cross_section(a, b, UnitPathVector, M, flag)
             ptop = ptop + Pcenter[m + 1, :]
             P = np.vstack((P, ptop))
-        if m == Nodes - 2: # top only
+        if m == Nodes - 2:  # top only
             UnitPathVector = PathVector[-1, :] + Closed * PathVector[0, :]
             UnitPathVector = UnitPathVector / np.linalg.norm(UnitPathVector)
             ptop, e = mesh_cross_section(a, b, UnitPathVector, M, flag)
@@ -48,7 +51,7 @@ def meshsurface(Pcenter, a, b, M, flag):
         #   Local connectivity: bottom to top
         t1 = np.zeros((NE, 3))
         t1[:, 0:2] = e  #   Lower nodes
-        t1[:, 2] = e[:, 0] + NE #   Upper nodes
+        t1[:, 2] = e[:, 0] + NE  #   Upper nodes
         t2 = np.zeros((NE, 3))
         t2[:, 1] = e[:, 0] + NE
         t2[:, 0] = e[:, 1] + NE
