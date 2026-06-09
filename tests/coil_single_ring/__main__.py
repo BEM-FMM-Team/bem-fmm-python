@@ -63,16 +63,15 @@ if __name__ == "__main__":
 
     # Neighbor integrals
     # INFO sparse matrices are hard to debug visually
+    # PC, EC = setup_integrals(
+    #     P=P,
+    #     t=t,
+    #     normals=normals,
+    #     Area=Area,
+    #     Center=Center,
+    #     contrast=contrast,
+    # )
     """
-    PC, EC = setup_integrals(
-        P=P,
-        t=t,
-        normals=normals,
-        Area=Area,
-        Center=Center,
-        contrast=contrast,
-    )
-
     ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
     PC = ECPC["PC"]
     EC = ECPC["EC"]
@@ -100,7 +99,7 @@ if __name__ == "__main__":
     tissue_to_plot = "wm"
     tissue_list = tissues.Tissue
 
-    # plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
+    plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
     # plot_t_idx = interface[:, 0] == plot_tissue
     plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]

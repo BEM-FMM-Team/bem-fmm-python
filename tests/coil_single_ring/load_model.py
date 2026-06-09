@@ -29,14 +29,13 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 
 
 class _TissueStruct:
-    ID: list[int] = []
-    Tissue: list[str] = []
-    TissueOutside: list[str] = []
-    ConductivityInside: list[np.float64] = []
-    ConductivityOutside: list[np.float64] = []
-    Color: list[np.ndarray[tuple[Literal[1], Literal[3]], np.float64]] = (
-        []
-    )  # iterable of len 3
+    def __init__(self):
+        self.ID: list[int] = []
+        self.Tissue: list[str] = []
+        self.TissueOutside: list[str] = []
+        self.ConductivityInside: list[np.float64] = []
+        self.ConductivityOutside: list[np.float64] = []
+        self.Color: list = []  # iterable of len 3
 
 
 @dataclass
@@ -92,7 +91,7 @@ def build_tissue_struct(fname: str) -> TissueStruct:
     for i in range(len(tissue_list)):
         fname = f"{tissues.Tissue[i]}.stl"
         path = ASSETS / fname
-        if not path.is_file() or ("bone" not in str(path)):  # TODO remove second part
+        if not path.is_file() or ("wm" not in str(path)):  # TODO remove second part
             to_pop.append(i)
             warnings.warn(
                 f"Warning: Tissue file '{fname}' does not exist.\nRemoving tissue '{tissues.Tissue[i]}' from tissue list."

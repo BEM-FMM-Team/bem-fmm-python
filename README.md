@@ -1,29 +1,31 @@
 # BEM-FMM-Python
 
+This repository is in a rapidly changing state.
+
 ## Setup
 
-### Windows
+Download the repo
 Install `python3.13`. Cannot be sure other versions will work.
 
-- most likely this one -> 64bit https://www.python.org/ftp/python/3.13.13/python-3.13.13-amd64.exe
-- 32bit https://www.python.org/ftp/python/3.13.13/python-3.13.13.exe
+Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
-Open `cmd.exe`/`powershell` in this directory.
+Run the following:
 
-
-Permissions were getting in the way so setup is global, `setup_venv.bat` setup the virtual environment if you do not want to pollute your global python environment.
 ```batch
 pip install -r requirements.txt
+```
+
+### Windows
+We recompile and ship with fmm3dpy with openmp and other optimizations for a 3~4x speedup.
+```bash
+pip install .\wheels\fmm3dpy-2.1.0-cp313-cp313-win_amd64.whl
 ```
 
 ### Linux
-Install `python3.13`.
 
-```batch
-pip install -r requirements.txt
+```bash
+pip install ./wheels/fmm3dpy-2.1.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
 ```
-
-There is also a nix-shell, should you fancy that.
 
 ## Tests
 
@@ -43,10 +45,3 @@ python3 ./tests/plot
 python3 ./tests/Sphere_3L
 python3 ./tests/coil_single_ring
 ```
-
-
-## Charge Engine
-
-## Mesh Engine
-
-## Sphere3L

@@ -1,4 +1,3 @@
-fmm3dpy
 numpy
 scikit-learn
 vedo

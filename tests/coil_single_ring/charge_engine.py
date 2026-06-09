@@ -8,9 +8,8 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf4_surface_field_electric_plain import (
-    bemf4_surface_field_electric_plain,
-)
+from engines.charge.bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
@@ -100,9 +99,8 @@ def charge_engine(
     """
 
     ##  Check charge conservation law (optional)
-    conservation_law_error = np.sum(
-        c.reshape((-1, 1)) * area.reshape((-1, 1))
-    ) / np.sum(np.abs(c.reshape((-1, 1))) * area.reshape((-1, 1)))
+    area_col = area.reshape((-1, 1))
+    conservation_law_error = np.sum(c * area_col) / np.sum(np.abs(c) * area_col)
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     print(f"""{conservation_law_error=}\n{solution_error=}""")
@@ -113,8 +111,9 @@ def charge_engine(
     En = np.sum(normals * (Epri + Esec), 1).reshape((-1, 1))
 
     # Normal E-Field Just Inside and Outside
-    En_in = En - (1 / 2) * c
-    En_out = En + (1 / 2) * c
+    half_c = (1 / 2) * c
+    En_in = En - half_c
+    En_out = En + half_c
     Jn_in = En_in * condin.reshape(-1, 1)
     Jn_out = En_out * condout.reshape(-1, 1)
 
