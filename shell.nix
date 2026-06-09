@@ -46,7 +46,8 @@ in
       bash
       */
       ''
-        export PYTHON_JIT=1
+        export MKL_NUM_THREADS=$(nproc)
+        export OMP_NUM_THREADS=$(nproc)
         if [ ! -d venv ]; then
           python -m venv venv
           source venv/bin/activate

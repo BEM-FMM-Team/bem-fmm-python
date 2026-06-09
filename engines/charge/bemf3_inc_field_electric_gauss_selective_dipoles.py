@@ -5,9 +5,8 @@ from engines.my_types import FaceCenters, vec2f32, vec3f32
 
 from ..my_types import VertexIndices, Vertices
 from .bemf3_inc_field_electric_plain import bemf3_inc_field_electric_plain
-from .bemf3_inc_field_electric_plain_dipoles import (
-    bemf3_inc_field_electric_plain_dipoles,
-)
+from .bemf3_inc_field_electric_plain_dipoles import \
+    bemf3_inc_field_electric_plain_dipoles
 
 
 def bemf3_inc_field_electric_gauss_selective_dipoles(
@@ -85,13 +84,15 @@ def bemf3_inc_field_electric_gauss_selective_dipoles(
         print("skipping primary at triangles which do not need subdiv")
 
     ## Subdivide the triangles that do require subdivision
-    Center_subdiv = np.zeros((IndexS * np.sum(trianglesToSubdiv), 3))
+    nSubdiv = np.sum(trianglesToSubdiv)
+    Center_subdiv = np.zeros((IndexS * nSubdiv, 3))
     P0 = P[t[trianglesToSubdiv, 0], :]
     P1 = P[t[trianglesToSubdiv, 1], :]
     P2 = P[t[trianglesToSubdiv, 2], :]
 
+    baseIndices = np.arange(nSubdiv) * IndexS
     for j in range(IndexS):
-        currentIndices = np.arange(np.sum(trianglesToSubdiv)) * IndexS + j
+        currentIndices = baseIndices * IndexS + j
         Center_subdiv[currentIndices, :] = (
             coeffS[0, j] * P0 + coeffS[1, j] * P1 + coeffS[2, j] * P2
         )
