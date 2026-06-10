@@ -61,7 +61,7 @@ def plot_single_coil_worker(
 configs = [
     dict(colormap="jet", bg="white", axes_c="black"),
     dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="white"),
-    dict(colormap="inferno", bg="#080808", axes_c="#666666"),
+    dict(colormap="inferno", bg="#080808", axes_c="#ffffff"),
     dict(colormap="magma", bg="#05020a", bg2="#1a0510", axes_c="#888888"),
     dict(colormap="hot", bg="black", axes_c="white"),
     dict(colormap="turbo", bg="#111111", axes_c="#aaaaaa"),
@@ -87,6 +87,7 @@ def patch(
     cmap_label: str = "",
     color: tuple[float, float, float] = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
+    subdivide=False,  # subdivide and interpolate colordata
     axes: dict | None = dict(
         c=config["axes_c"],
         xtitle="x",
@@ -116,7 +117,12 @@ def patch(
     if cdata is not None:
         mesh.celldata["values"] = cdata
         mesh.cmap(colormap)
-        cbar = vedo.ScalarBar(mesh, title=cmap_label, c=axes.get("c", "black"))
+        cbar = vedo.ScalarBar(
+            mesh, title=cmap_label, c=axes.get("c", "black"), font_size=20
+        )
         plt.add(cbar)
+
+    if subdivide:
+        mesh.subdivide()
 
     return plt

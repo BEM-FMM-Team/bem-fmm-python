@@ -23,6 +23,8 @@ in
         pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
+            napari
+            requests
             pyqt6
             debugpy
             ipython

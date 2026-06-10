@@ -50,6 +50,13 @@ python3 tests/coil_single_ring
 ## Notes
 
 Python jit is going to become stable in a few, however we are experimenting with jax and numba.
+
+
+```bash
+set OMP_NUM_THREADS=%NUMBER_OF_PROCESSORS%
+set MKL_NUM_THREADS=%NUMBER_OF_PROCESSORS%
+```
+
 ```bash
 export MKL_NUM_THREADS=$(nproc)
 export OMP_NUM_THREADS=$(nproc)
