@@ -17,13 +17,14 @@ def bemf4_surface_field_potential_accurate(
      be included for electric field
     To obtain the true field/potential, divide the result(s) by eps0;
      Copyright SNM 2018-2020
+
     FMM 2019
     Potentials of surface charges
     FMM plus correction
+   
+    SP 2026
     """
 
-    # INFO 4pi already applied
-    const = 1
     eps = 1e-2
     pg = 1
     #   only potential here
@@ -32,7 +33,6 @@ def bemf4_surface_field_potential_accurate(
     U = lfmm3d(eps=eps, sources=sources, charges=charges, pg=pg)
     Potential = U.pot.T
     #   Near-field correction
-    Potential = const * Potential
     Potential = Potential + PC * c
 
     return Potential

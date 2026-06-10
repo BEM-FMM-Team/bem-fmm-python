@@ -22,21 +22,28 @@ def bemf3_inc_field_electric_plain_dipoles(
     Positions = 0.5 * (strdipolePplus + strdipolePminus)
     d = strdipolePplus - strdipolePminus
 
-    # Source (mid-pole) positions and dipole moments. Dipole arrays are shaped
-    # (NoDipoles, 3); atleast_2d keeps a single 1-D dipole working too.
-    Positions = np.atleast_2d(0.5 * (strdipolePplus + strdipolePminus))  # (N, 3)
-    d = np.atleast_2d(strdipolePplus - strdipolePminus)  # (N, 3)
+    # Define source (pole) positions and FMM pseudo charges
+    Positions = 0.5 * (strdipolePplus + strdipolePminus)
 
-    NoDipoles = strdipoleCurrent.shape[1] // 2
-    I0oversigma = strdipoleCurrent[0, :NoDipoles] / strdipolesig[0, :NoDipoles]  # (N,)
-    PseudoM = I0oversigma[:, None] * d
+    d = strdipolePplus - strdipolePminus
+
+    # MATLAB:
+    # I0oversigma = strdipoleCurrent(1:end/2)./strdipolesig(1:end/2);
+
+    n = strdipoleCurrent.shape[1] // 2 - 1
+    m = strdipolesig.shape[1] // 2 - 1
+    I0oversigma = (strdipoleCurrent[0][n] / strdipolesig[0][m])
+
+    # MATLAB:
+    # PseudoM = +repmat(I0oversigma', 1, 3).*d;
+    PseudoM = np.array([I0oversigma, I0oversigma, I0oversigma]).reshape((-1, 1)) * d
 
     sources = Positions.T
     targ = Points.T
     prec = 0.0001
     pgt = 2
 
-    dipoles = PseudoM.T
+    dipoles = PseudoM[0].T
 
     U = lfmm3d(
         eps=prec,

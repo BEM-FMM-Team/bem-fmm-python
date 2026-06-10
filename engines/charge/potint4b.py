@@ -17,6 +17,8 @@ def potint4b(r1, r2, r3, obsPoint):
      observation point.
 
     Copyright William Wartman 2020
+
+    SP 2026
     """
     # Vectorize operation for triangles and observation points simultaneously
     N = r1.shape[0]  # N triangles
@@ -33,7 +35,7 @@ def potint4b(r1, r2, r3, obsPoint):
 
     # Vectors from observation points to triangle vertices (N by 3 by M)
     R1 = r1Exp - obsPointExp
-    R2 = r2qExp - obsPointExp
+    R2 = r2Exp - obsPointExp
     R3 = r3Exp - obsPointExp
 
     # Norms of vectors (N by 1 by M)

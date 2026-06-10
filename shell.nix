@@ -16,7 +16,6 @@ in
       libs
       ++ [
         pkgs.conda
-
         pkgs.ruff
         pkgs.basedpyright
         pkgs.pylint
@@ -24,15 +23,9 @@ in
         pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
-            # let venv handle this
-            # matplotlib
-            # scipy
             pyqt6
             debugpy
             ipython
-
-            # pyglet
-
             (matplotlib.override {
               enableQt = true;
             })
@@ -48,6 +41,7 @@ in
       ''
         export MKL_NUM_THREADS=$(nproc)
         export OMP_NUM_THREADS=$(nproc)
+        export PYTHONPATH="$(pwd):$PYTHONPATH"
         if [ ! -d venv ]; then
           python -m venv venv
           source venv/bin/activate

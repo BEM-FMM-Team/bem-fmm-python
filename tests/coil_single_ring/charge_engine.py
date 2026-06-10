@@ -72,10 +72,9 @@ def charge_engine(
     maxiter=1,
     relres=1e-3,  # 1e-6
     iter_prec=1e-3,  # for residual solution
-    prec=1e-2,  # 1e-3
+    prec=1e-2,  # for normal field
     weight=1 / 2,
 ):
-    # """
     resvec, c, its = iterative_solution(
         center=center,
         area=area,
@@ -91,16 +90,10 @@ def charge_engine(
     )
     c = c.reshape((-1, 1))
 
-    """
-    # Ax = b (find x),
-    # residual = |Ax-b|
-    # we know A=MATVEC, b=Epri, x=c, resid = Ax-b = MATVEC(c)-Epri
-    # En = (c-resid)/contrast.
-    """
-
     ##  Check charge conservation law (optional)
     area_col = area.reshape((-1, 1))
     conservation_law_error = np.sum(c * area_col) / np.sum(np.abs(c) * area_col)
+
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
     print(f"""{conservation_law_error=}\n{solution_error=}""")

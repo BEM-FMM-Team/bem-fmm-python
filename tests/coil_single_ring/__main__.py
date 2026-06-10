@@ -6,14 +6,10 @@ from pathlib import Path
 
 import numpy as np
 
-os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
-os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
-
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(root_dir))
 
 print(f"Setup environment {root_dir}")
-
 
 """
 ### Wrapper Script
@@ -25,6 +21,7 @@ and compute the charge solution.
 In matlab, this takes about 2 minutes to run to completion.
 
 DD, DT - 5/2026
+SP 6/2026
 """
 
 

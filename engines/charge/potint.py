@@ -24,6 +24,7 @@ def potint(r1, r2, r3, normal, ObsPoint):
     triangle area A
 
     Copyright SNM 2002-2020
+    SP 2026
     """
 
     N = ObsPoint.shape[0]

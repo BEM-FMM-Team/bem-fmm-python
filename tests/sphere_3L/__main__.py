@@ -1,18 +1,11 @@
-import multiprocessing
-import os
 import sys
-from multiprocessing import Pool, Process
+from multiprocessing import Process
 from pathlib import Path
-from threading import Thread
-
-os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
-os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
 
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(root_dir))
 
 print(f"Setup environment {root_dir}")
-
 
 from charge_engine import charge_engine
 from constants import eps0
@@ -23,7 +16,6 @@ from engines.plot.patch import patch, plot_worker
 from engines.plot.residual import plot_residual
 
 CSD = Path(__file__).resolve().parent
-
 
 if __name__ == "__main__":
     ## 1. Setup Model

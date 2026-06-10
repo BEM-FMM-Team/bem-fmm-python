@@ -60,6 +60,8 @@ def fgmres(
     resids : ndarray
         Residuals for each iteration
 
+    NOTE: This was ported from MATLAB, below is the original stub
+
     Development: Sergey Dolgov (sergey.v.dolgov@gmail.com),
     Max Planck Institute for Mathematics in the Sciences, Leipzig.
 

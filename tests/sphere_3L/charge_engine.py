@@ -6,16 +6,7 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
-import sys
-from time import perf_counter
-
 import numpy as np
-from scipy.sparse.linalg import LinearOperator, gmres
-
-sys.path.insert(
-    1, "../.."
-)  # INFO temporary path loading until we can talk about structure
-
 
 from engines.charge.bemf3_inc_field_electric_constant import (
     bemf3_inc_field_electric_constant,
@@ -29,7 +20,6 @@ from engines.charge.bemf4_surface_field_potential_accurate import (
 )
 from engines.fgmres import fgmres
 from engines.lib import timeit
-
 
 @timeit
 def charge_engine(

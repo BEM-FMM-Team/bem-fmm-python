@@ -1,24 +1,22 @@
-import multiprocessing
-import os
-import sys
-from pathlib import Path
-
-os.environ["MKL_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
-os.environ["OMP_NUM_THREADS"] = str(multiprocessing.cpu_count() - 1)
-
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-
-print(f"Setup environment {root_dir}")
-
-
 """
 "Wrapper Script
 
 Wrapper script for the multi-layer sphere model.
 
 DD 5/2026
+SP 6/2026
 """
+
+import sys
+from pathlib import Path
+import numpy as np
+
+root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
+sys.path.insert(0, str(root_dir))
+
+print(f"Setup environment {root_dir}")
+
+from engines.plot.patch import patch
 
 from load_model import load_model
 from setup_dipoles import setup_dipoles
@@ -43,7 +41,7 @@ if __name__ == "__main__":
     # Dipole positions are incorporated throught the primary field.
     plot_tissue = 1
 
-    dipoles = setup_dipoles(
+    Epri, Ppri = setup_dipoles(
         P,
         t,
         normals,
@@ -56,3 +54,25 @@ if __name__ == "__main__":
         condout,
         tissuename,
     )
+
+
+    ## Plot primary field
+    Eprin = np.sum(Epri * normals, 1)
+    
+    plot_t_idx = np.ones(
+        t.shape[0], dtype=bool
+    )  # NOTE: for future reference this will be selecting a tissue
+    plot_t = t[plot_t_idx]
+    plot_field = Eprin[plot_t_idx]
+
+    viewax = np.array([-120, 20])  # TODO embed
+
+    patch(
+        vertices=P,
+        faces=plot_t,
+        cdata=plot_field,
+        edge_color="none",
+        title=rf"Primary Field Eⁱ on Surface: {tissuename[0]}",
+        cmap_label="A/m²",
+    ).show()
+
