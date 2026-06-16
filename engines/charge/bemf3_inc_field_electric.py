@@ -22,7 +22,6 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     PseudoQy = segvector[:, 1]
     PseudoQz = segvector[:, 2]
 
-    # const = mu0 * dIdt / (4 * np.pi) # WARN python lfmmpy seems to apply the /4pi
     const = mu0 * dIdt
 
     # This is -dAdt*j
@@ -31,7 +30,6 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     sources = segpoints.T
     targ = Points.T
     prec = 0.0001
-    pg = 0
     pgt = 1
 
     charges = np.zeros((3, len(PseudoQx)))
@@ -46,7 +44,7 @@ def bemf3_inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu
     # not sure if i should still to transpose
 
     U = lfmm3d(
-        eps=prec, sources=sources, charges=charges, pg=pg, targets=targ, pgt=pgt, nd=nd
+        eps=prec, sources=sources, charges=charges, targets=targ, pgt=pgt, nd=nd
     )  # WARN pottarg is not exactly the same as matlab
     Einc = np.zeros((U.pottarg.shape[1], 3))
     Einc[:, 0] = const * U.pottarg[0, :]

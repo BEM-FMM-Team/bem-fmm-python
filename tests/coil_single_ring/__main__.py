@@ -29,6 +29,7 @@ from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
+from scipy.io import loadmat
 from scipy.sparse import csr_matrix
 
 from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
@@ -68,11 +69,11 @@ if __name__ == "__main__":
     #     Center=Center,
     #     contrast=contrast,
     # )
-    """
-    ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
-    PC = ECPC["PC"]
-    EC = ECPC["EC"]
-    """
+    # """
+    # ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
+    # PC = ECPC["PC"].T
+    # EC = ECPC["EC"].T
+    # """
     n = t.shape[0]
     PC = csr_matrix((n, n))
     EC = csr_matrix((n, n))
@@ -97,8 +98,8 @@ if __name__ == "__main__":
     tissue_list = tissues.Tissue
 
     plot_tissue = tissues.ID[tissue_list == tissue_to_plot]
-    # plot_t_idx = interface[:, 0] == plot_tissue
-    plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
+    plot_t_idx = interface[:, 0] == plot_tissue
+    # plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]
 
     single_p = Process(

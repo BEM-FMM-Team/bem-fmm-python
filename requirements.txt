@@ -1,5 +1,4 @@
 numpy
-scikit-learn
 vedo
 scipy
 matplotlib

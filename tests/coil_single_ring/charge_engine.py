@@ -70,7 +70,7 @@ def charge_engine(
     #  Parameters of the iterative solution
     iter=50,
     maxiter=1,
-    relres=1e-6,  # 1e-6
+    relres=1e-3,  # 1e-6
     iter_prec=1e-3,  # for residual solution
     prec=1e-3,  # for normal field
     weight=1 / 2,

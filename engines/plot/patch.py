@@ -70,7 +70,7 @@ configs = [
     dict(colormap="bone", bg="black", axes_c="#555555"),
     dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
 ]
-config = configs[2]
+config = configs[3]
 
 
 def patch(
