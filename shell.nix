@@ -41,8 +41,8 @@ in
       bash
       */
       ''
-        export MKL_NUM_THREADS=$(nproc)
-        export OMP_NUM_THREADS=$(nproc)
+        # export MKL_NUM_THREADS=$(nproc)
+        # export OMP_NUM_THREADS=$(nproc)
         export PYTHONPATH="$(pwd):$PYTHONPATH"
         if [ ! -d venv ]; then
           python -m venv venv

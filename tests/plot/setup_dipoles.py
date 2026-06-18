@@ -1,8 +1,10 @@
 import numpy as np
 
-from engines.charge.bemf3_inc_field_gauss_selective_dipoles import \
-    bemf3_inc_field_gauss_selective_dipoles
+from engines.charge.bemf3_inc_field_gauss_selective_dipoles import (
+    bemf3_inc_field_gauss_selective_dipoles,
+)
 from engines.lib import timeit
+
 
 @timeit
 def setup_dipoles(
@@ -50,10 +52,10 @@ def setup_dipoles(
 
     condLAST = condinner[-1]
     # innermost tissue index
-    strdipolesig =  condLAST * np.ones((1, 2 * NoDipoles))
-    strdipolemcenter =  Ctr
-    strdipolemstrength =  Itot
-    strdipolemvector =  strdipolePplus - strdipolePminus
+    strdipolesig = condLAST * np.ones((1, 2 * NoDipoles))
+    strdipolemcenter = Ctr
+    strdipolemstrength = Itot
+    strdipolemvector = strdipolePplus - strdipolePminus
 
     ## Primary Field
     # Compute the primary field and rhs vector

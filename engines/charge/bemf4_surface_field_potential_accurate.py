@@ -21,7 +21,7 @@ def bemf4_surface_field_potential_accurate(
     FMM 2019
     Potentials of surface charges
     FMM plus correction
-   
+
     SP 2026
     """
 

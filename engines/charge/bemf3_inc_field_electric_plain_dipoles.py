@@ -32,7 +32,7 @@ def bemf3_inc_field_electric_plain_dipoles(
 
     n = strdipoleCurrent.shape[1] // 2 - 1
     m = strdipolesig.shape[1] // 2 - 1
-    I0oversigma = (strdipoleCurrent[0][n] / strdipolesig[0][m])
+    I0oversigma = strdipoleCurrent[0][n] / strdipolesig[0][m]
 
     # MATLAB:
     # PseudoM = +repmat(I0oversigma', 1, 3).*d;

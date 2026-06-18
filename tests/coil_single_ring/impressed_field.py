@@ -1,5 +1,4 @@
 """
-#### Impressed Field
 Compute the impressed field due to the coil current
 Copyright SNM/WAW 2017-2020
 
@@ -9,12 +8,12 @@ Right-hand side b of the matrix equation Zc = b. Compute pointwise
 Surface charge density is normalized by eps0: real charge density is eps0*c
 """
 
-from engines.lib import timeit, cache
 from typing import Literal
 
 import numpy as np
 
 from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
+from engines.lib import cache, timeit
 from engines.my_types import StrCoil
 
 
@@ -25,7 +24,7 @@ def impressed_field(
     t=None,
     normals=None,
     dIdt=None,
-    mu0=None,
+    mu0=1.25663706e-06,
     strcoil: StrCoil = None,
     contrast=None,
 ):

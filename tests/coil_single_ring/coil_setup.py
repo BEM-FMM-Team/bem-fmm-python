@@ -8,12 +8,12 @@
  DD - 5/2026
 """
 
-from engines.lib import timeit, cache
 from pathlib import Path
 
 import numpy as np
 from scipy.io import loadmat
 
+from engines.lib import cache, timeit
 from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
 from engines.my_types import StrCoil

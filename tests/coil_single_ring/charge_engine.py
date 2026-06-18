@@ -8,8 +8,9 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf4_surface_field_electric_plain import \
-    bemf4_surface_field_electric_plain
+from engines.charge.bemf4_surface_field_electric_plain import (
+    bemf4_surface_field_electric_plain,
+)
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache

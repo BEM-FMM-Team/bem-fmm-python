@@ -55,10 +55,9 @@ if __name__ == "__main__":
         tissuename,
     )
 
-
     ## Plot primary field
     Eprin = np.sum(Epri * normals, 1)
-    
+
     plot_t_idx = np.ones(
         t.shape[0], dtype=bool
     )  # NOTE: for future reference this will be selecting a tissue
@@ -75,4 +74,3 @@ if __name__ == "__main__":
         title=rf"Primary Field Eⁱ on Surface: {tissuename[0]}",
         cmap_label="A/m²",
     ).show()
-

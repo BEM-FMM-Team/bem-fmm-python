@@ -29,14 +29,10 @@ from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
-from scipy.io import loadmat
 from scipy.sparse import csr_matrix
 
 from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
 from engines.plot.residual import plot_residual
-
-eps0 = 8.85418782e-12
-mu0 = 1.25663706e-06
 
 if __name__ == "__main__":
     # INFO comments with 'matches are temporarily put for inspection purposes

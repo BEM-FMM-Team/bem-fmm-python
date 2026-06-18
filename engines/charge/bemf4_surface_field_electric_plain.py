@@ -30,5 +30,5 @@ def bemf4_surface_field_electric_plain(
 
     P = U.pot.T
     E = -U.grad.T
-    
+
     return P, E

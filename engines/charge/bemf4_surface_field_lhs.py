@@ -6,7 +6,6 @@ from numpy import dtype, float64, ndarray
 from .bemf4_surface_field_electric_plain import bemf4_surface_field_electric_plain
 
 
-
 def bemf4_surface_field_lhs(
     c: ndarray[tuple[Any, ...], dtype[float64]],
     center: ndarray[tuple[Any, ...], dtype[float64]],
@@ -21,7 +20,7 @@ def bemf4_surface_field_lhs(
     Computes the left hand side of the charge equation for surface charges
     LHS is the user-defined function of c equal to c - Z_times_c which is
     exactly the left-hand side of the matrix equation Zc = b
-    
+
     SP 2026
     """
     _, E0 = (
@@ -30,20 +29,20 @@ def bemf4_surface_field_lhs(
         )
     )  #   Plain FMM result
     correction = (EC @ c) * contrast  #   Correction of plain FMM result
-    
+
     # This is weight correction (optional)
-    weight_correction = weight * (np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0))
-    
+    weight_correction = weight * (
+        np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0)
+    )
+
     # This is not-dominant center-point FMM part
-    not_dominant_center_point = 2        * (
-            contrast * np.sum(normals * E0, 1)  # here we multiply by K(x)n(x)
-        )  
-    
-    dominant_part = 2 * correction # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
-    LHS = (
-        c
-        - dominant_part   
-        - not_dominant_center_point
-        + weight_correction)
+    not_dominant_center_point = 2 * (
+        contrast * np.sum(normals * E0, 1)  # here we multiply by K(x)n(x)
+    )
+
+    dominant_part = (
+        2 * correction
+    )  # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
+    LHS = c - dominant_part - not_dominant_center_point + weight_correction
 
     return LHS
