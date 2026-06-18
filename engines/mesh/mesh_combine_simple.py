@@ -7,12 +7,11 @@ from .mesh_reorient import mesh_reorient
 
 def mesh_combine_simple(Pcell, tcell, condinner, condouter, opts=None):
     """
-        from mesh_clean_coincident_facets import mesh_clean_coincident_facets
-    ### Create Combined Mesh
-        Create the combined mesh. Apply mesh_clean_coincident_facets()
-        to remove duplicate face ts.
+    Create Combined Mesh
+    Create the combined mesh. Apply mesh_clean_coincident_facets()
+    to remove duplicate face ts.
 
-        DD - 5/2026
+    DD - 5/2026
     """
     Pcomb = np.empty((0, 3))
     tcomb = np.empty((0, 3))
@@ -62,5 +61,4 @@ def mesh_combine_simple(Pcell, tcell, condinner, condouter, opts=None):
     #         )
     #     )
 
-    # size_t_after = t.shape[0]
     return P, t, normals, condin, condout, interface

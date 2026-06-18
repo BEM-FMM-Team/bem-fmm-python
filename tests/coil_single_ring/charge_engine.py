@@ -8,9 +8,8 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf4_surface_field_electric_plain import (
-    bemf4_surface_field_electric_plain,
-)
+from engines.charge.bemf4_surface_field_electric_plain import \
+    bemf4_surface_field_electric_plain
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
@@ -97,8 +96,10 @@ def charge_engine(
 
     ##  Check the residual of the integral equation
     solution_error = resvec[-1] / resvec[0]
-    print(f"""{conservation_law_error=}\n{solution_error=}""")
-
+    print(
+        f"""conservation_law_error={conservation_law_error:.3e}
+solution_error={solution_error:.3e}"""
+    )
     Ptot, Esec = bemf4_surface_field_electric_plain(
         c=c, center=center, area=area, prec=prec
     )

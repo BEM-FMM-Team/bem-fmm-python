@@ -26,16 +26,10 @@ ASSETS = Path(__file__).resolve().parent / "assets"
 def coil_setup():
     ## Coil Parameters
     # Define dIdt (for electric field)
-    dIdt = 9.4e7
-    #   Amperes/sec (2*pi*I0/period), for electric field
+    dIdt = 9.4e7  #   Amperes/sec (2*pi*I0/period), for electric field
 
     # Define I0 (for magnetic field)
-    I0 = 5e3
-    #   Amperes, for magnetic field
-
-    # Define field margin (for plotting)
-    margin = 0.80
-    #   Only for fields plotting
+    I0 = 5e3  #   Amperes, for magnetic field
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
@@ -101,30 +95,7 @@ def coil_setup():
         pointsline,
         dIdt,
         I0,
-        margin,
         strcoil,
         CoilP,
         Coilt,
     )
-
-
-# ## Find nearest intersections of the coil centerline w tissues
-# #   Ray parameters (in mm here)
-# orig = 1e3*[MoveX MoveY MoveZ];     #   ray origin
-# dir  = dirline;     #   ray direction
-# dist = 10000;        #   ray length (finite segment, in mm here)
-#
-# intersections_to_find = tissue;
-#
-# for m = 1:length(intersections_to_find)
-#     k = find(strcmp(intersections_to_find{m}, tissue));
-#     disp(intersections_to_find{m});
-#     S = load(name{k});
-#
-#     d = meshsegtrintersection(orig, dir, dist, S.P, S.t);
-#     IntersectionPoint = min(d(d>0))
-#     if ~isempty(IntersectionPoint)
-#         Position = orig + dir*IntersectionPoint
-#     end
-#     sprintf(newline);
-# end

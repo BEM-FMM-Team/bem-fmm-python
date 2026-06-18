@@ -53,6 +53,23 @@ class EfieldSlice:
     cfg: dict
 
 
+def compute_efield_overlay_worker(
+    P, t, centers, areas, normals, c, plane, val, interface, tissue_list
+):
+    result=compute_efield_overlay(
+        P=P,
+        t=t,
+        centers=centers,
+        areas=areas,
+        normals=normals,
+        c=c,
+        plane=plane,
+        val=val,
+        interface=interface,
+    )
+    plot_efield_overlay(result, tissue_list)
+
+
 def compute_efield_overlay(
     P: np.ndarray,
     t: np.ndarray,
@@ -70,8 +87,10 @@ def compute_efield_overlay(
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
-    from engines.mri.bemf5_volume_field_electric import bemf5_volume_field_electric
-    from engines.mri.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
+    from engines.mri.bemf5_volume_field_electric import \
+        bemf5_volume_field_electric
+    from engines.mri.meshplaneint_axis_nonmanifold import \
+        meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
@@ -150,8 +169,8 @@ def compute_efield_overlay(
 
 def plot_efield_overlay(
     result: EfieldSlice,
-    levels: int = 100,
     tissue_list: list | None = None,
+    levels: int = 100,
     unit_convert: float = 1e-3,
 ) -> tuple[plt.Figure, plt.Axes]:
     cfg = result.cfg
