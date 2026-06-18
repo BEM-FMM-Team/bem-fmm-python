@@ -1,18 +1,4 @@
-import multiprocessing
-import os
-import sys
-from multiprocessing import Process
-from pathlib import Path
-
-import numpy as np
-
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-
-print(f"Setup environment {root_dir}")
-
 """
-### Wrapper Script
 This wrapper script will load the head model,
 build the coil geometry,
 compute the impressed field due to current flowing through the coil,
@@ -24,38 +10,41 @@ DD, DT - 5/2026
 SP 6/2026
 """
 
+import sys
+from multiprocessing import Process
+from pathlib import Path
+
+from scipy.sparse import csr_matrix
+
+root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
+sys.path.insert(0, str(root_dir))
 
 from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
-from scipy.sparse import csr_matrix
 
 from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
 from engines.plot.residual import plot_residual
 
 if __name__ == "__main__":
-    # INFO comments with 'matches are temporarily put for inspection purposes
-    # they are for debugging and comparing with matlab values in its own debugger
-    # shape/size, the first 3, last 3 and a random midpoint
-
-    # Load model
+    ## Load model
     (
-        P,  # matches
-        t,  # matches
-        normals,  # matches
-        Center,  # matches
-        Area,  # matches
-        contrast,  # matches
-        condinner,  # matches
-        condin,  # matches
-        condouter,  # matches
-        condout,  # matches
-        interface,  # matches
-        tissues,  # matches, irrelevant
+        P,
+        t,
+        normals,
+        Center,
+        Area,
+        contrast,
+        condinner,
+        condin,
+        condouter,
+        condout,
+        interface,
+        tissues,
     ) = load_model()
 
-    # Neighbor integrals
+    ## Neighbor integrals
     # INFO sparse matrices are hard to debug visually
     # PC, EC = setup_integrals(
     #     P=P,
@@ -65,11 +54,11 @@ if __name__ == "__main__":
     #     Center=Center,
     #     contrast=contrast,
     # )
-    # """
+    #
     # ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
     # PC = ECPC["PC"].T
     # EC = ECPC["EC"].T
-    # """
+    #
     n = t.shape[0]
     PC = csr_matrix((n, n))
     EC = csr_matrix((n, n))
@@ -77,13 +66,12 @@ if __name__ == "__main__":
     # 2. Setup Coil
     # -- Load coil geometry
     (
-        pointsline,  # custom
-        dIdt,  # const
-        I0,  # matches
-        margin,  # const
-        strcoil,  # matches TODO QUERY Ewire -1?
-        CoilP,  # matches
-        Coilt,  # matches, indexing -1
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
     ) = coil_setup()
 
     obs_start = pointsline["start"]
@@ -100,15 +88,7 @@ if __name__ == "__main__":
 
     single_p = Process(
         target=plot_single_coil_worker,
-        args=(
-            P,
-            plot_t,
-            "Single Ring Coil",
-            CoilP,
-            Coilt,
-            obs_start,
-            obs_end,
-        ),
+        args=(P, plot_t, "Single Ring Coil", CoilP, Coilt, obs_start, obs_end),
     )
     single_p.start()
 
@@ -122,7 +102,6 @@ if __name__ == "__main__":
         t=t,
         normals=normals,
         dIdt=dIdt,
-        mu0=mu0,
         strcoil=strcoil,
         contrast=contrast,
     )
@@ -144,8 +123,9 @@ if __name__ == "__main__":
 
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
-    # viewax = np.array([160, 20])
+
     # fmt: off
+    eps0 = 8.85418782e-12
     plots = [
         ("Charge Solution on Surface: ",                "C/m²", eps0 * c[plot_t_idx]),
         ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
@@ -172,7 +152,6 @@ if __name__ == "__main__":
 
     for p in plots_p:
         p.start()
-
     for p in plots_p:
         p.join()
     res_plot_p.join()

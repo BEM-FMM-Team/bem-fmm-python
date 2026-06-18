@@ -1,16 +1,4 @@
-import sys
-from multiprocessing import Process
-from pathlib import Path
-
-from scipy.sparse import csr_matrix
-
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-
-print(f"Setup environment {root_dir}")
-
 """
-### Wrapper Script
 This wrapper script will load the head model,
 build the coil geometry,
 compute the impressed field due to current flowing through the coil,
@@ -22,46 +10,51 @@ DD, DT - 5/2026
 SP 6/2026
 """
 
+import sys
+from multiprocessing import Process
+from pathlib import Path
+
+from scipy.sparse import csr_matrix
+
+root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
+sys.path.insert(0, str(root_dir))
+
 test_dir = Path(__file__).resolve().parent.resolve().parent
 coil_single_ring_dir = test_dir / "coil_single_ring"
 sys.path.insert(0, str(coil_single_ring_dir))
 
 from charge_engine import charge_engine
 from coil_setup import coil_setup
-from compute_efield_overlay import compute_efield_overlay, plot_efield_overlay
+from compute_efield_overlay import compute_efield_overlay_worker
 from impressed_field import impressed_field
 from load_model import load_model
 
 ASSETS = (coil_single_ring_dir / "assets").resolve()
 
 if __name__ == "__main__":
-    # INFO comments with 'matches are temporarily put for inspection purposes
-    # they are for debugging and comparing with matlab values in its own debugger
-    # shape/size, the first 3, last 3 and a random midpoint
-
-    # Load model
+    ## Load model
     (
-        P,  # matches
-        t,  # matches
-        normals,  # matches
-        Center,  # matches
-        areas,  # matches
-        contrast,  # matches
-        condinner,  # matches
-        condin,  # matches
-        condouter,  # matches
-        condout,  # matches
-        interface,  # matches
-        tissues,  # matches, irrelevant
+        P,
+        t,
+        normals,
+        Center,
+        Area,
+        contrast,
+        condinner,
+        condin,
+        condouter,
+        condout,
+        interface,
+        tissues,
     ) = load_model()
 
-    # Neighbor integrals
+    ## Neighbor integrals
     # INFO sparse matrices are hard to debug visually
     # PC, EC = setup_integrals(
     #     P=P,
     #     t=t,
     #     normals=normals,
-    #     area=areas,
+    #     Area=Area,
     #     Center=Center,
     #     contrast=contrast,
     # )
@@ -77,13 +70,12 @@ if __name__ == "__main__":
     # 2. Setup Coil
     # -- Load coil geometry
     (
-        pointsline,  # custom
-        dIdt,  # const
-        I0,  # matches
-        margin,  # const
-        strcoil,  # matches TODO QUERY Ewire -1?
-        CoilP,  # matches
-        Coilt,  # matches, indexing -1
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
     ) = coil_setup()
 
     obs_start = pointsline["start"]
@@ -115,7 +107,7 @@ if __name__ == "__main__":
     # 4. Charge Solution
     c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec = charge_engine(
         center=Center,
-        area=areas,
+        area=Area,
         contrast=contrast,
         normals=normals,
         EC=EC,
@@ -125,53 +117,29 @@ if __name__ == "__main__":
         Epri=Epri,
     )
 
-    unit_convert = 1e-3
+    unit_convert = 1e-3  # mm
     X = -37.4 * unit_convert
     Y = 20 * unit_convert
     Z = 20 * unit_convert
 
     tissue_list = list(tissue_list)
 
-    # NOTE atp i think each compuation can acutally be multiprocessed
-    result = compute_efield_overlay(
-        P=P,
-        t=t,
-        centers=Center,
-        areas=areas,
-        normals=normals,
-        c=c,
-        plane="XY",
-        val=Z,
-        interface=interface,
+    p1 = Process(
+        target=compute_efield_overlay_worker,
+        args=(P, t, Center, Area, normals, c, "XY", Z, interface, tissue_list),
     )
-    Process(
-        target=lambda: plot_efield_overlay(result=result, tissue_list=tissue_list)
-    ).start()
-    result = compute_efield_overlay(
-        P=P,
-        t=t,
-        centers=Center,
-        areas=areas,
-        normals=normals,
-        c=c,
-        plane="XZ",
-        val=Y,
-        interface=interface,
+    p2 = Process(
+        target=compute_efield_overlay_worker,
+        args=(P, t, Center, Area, normals, c, "XZ", Y, interface, tissue_list),
     )
-    Process(
-        target=lambda: plot_efield_overlay(result=result, tissue_list=tissue_list)
-    ).start()
-    result = compute_efield_overlay(
-        P=P,
-        t=t,
-        centers=Center,
-        areas=areas,
-        normals=normals,
-        c=c,
-        plane="YZ",
-        val=X,
-        interface=interface,
+    p3 = Process(
+        target=compute_efield_overlay_worker,
+        args=(P, t, Center, Area, normals, c, "YZ", X, interface, tissue_list),
     )
-    Process(
-        target=lambda: plot_efield_overlay(result=result, tissue_list=tissue_list)
-    ).start()
+
+    p1.start()
+    p2.start()
+    p3.start()
+    p1.join()
+    p2.join()
+    p3.join()

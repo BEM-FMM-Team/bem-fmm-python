@@ -125,8 +125,8 @@ def load_model():
 
     # pprint(tissues)
 
-    condinner = np.transpose(np.array([tissues.ConductivityInside]))
-    condouter = np.transpose(np.array([tissues.ConductivityOutside]))
+    condinner = np.array([tissues.ConductivityInside]).T
+    condouter = np.array([tissues.ConductivityOutside]).T
     unit_convert = 0.001
 
     ## Load stls and build into CombinedMesh

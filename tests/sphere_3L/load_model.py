@@ -1,15 +1,10 @@
 import sys
-from pathlib import Path
-
-sys.path.insert(
-    1, "../.."
-)  # INFO temporary path loading until we can talk about structure
-
 
 import numpy as np
-from scipy.io import loadmat
+from vedo import Sphere
 
-# TODO make this more elegant
+sys.path.insert(1, "../..")
+
 from engines.lib import timeit
 from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
@@ -17,7 +12,7 @@ from engines.mesh.mesh_tricenter import mesh_tricenter
 
 
 @timeit
-def load_model(path: str):
+def load_model():
     """
     Load BEM Model
     Load the desired BEM model.
@@ -29,12 +24,10 @@ def load_model(path: str):
 
     DD - 5/2026
     """
-
-    S = loadmat(path)
-    S["t"] = (S["t"] - 1).astype(int)
-
-    # mesh = trimesh.Trimesh(vertices=S["P"], faces=S["t"], process=False)
-    # mesh.show()
+    mesh = Sphere(res=30)
+    SP = mesh.vertices
+    St = np.array(mesh.cells)
+    print(f"Generated with vertices={SP.shape[0]}, indices={St.shape[0]}")
 
     ## Shell Parameters
     # Set the shell radii and layer conductivities
@@ -56,15 +49,12 @@ def load_model(path: str):
     # Build the shells for each radii. Set into cells to combine later.
     for m, radius in enumerate(R):
         # Vertices
-        Pcell.append(radius * S["P"])
-        tcell.append(S["t"])
+        Pcell.append(radius * SP)
+        tcell.append(St)
 
     P, t, normals, condin, condout, interface = mesh_combine_simple(
         Pcell, tcell, condinner, condouter
     )
-
-    # mesh = trimesh.Trimesh(vertices=P, faces=t, process=False)
-    # mesh.show()
 
     # Compute mesh data
     Center = mesh_tricenter(P, t)

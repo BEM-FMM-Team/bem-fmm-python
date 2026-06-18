@@ -12,10 +12,8 @@ from constants import eps0
 from load_model import load_model
 from scipy.sparse import csr_matrix
 
-from engines.plot.patch import patch, plot_worker
+from engines.plot.patch import plot_worker
 from engines.plot.residual import plot_residual
-
-CSD = Path(__file__).resolve().parent
 
 if __name__ == "__main__":
     ## 1. Setup Model
@@ -23,7 +21,7 @@ if __name__ == "__main__":
     # -- Load model
     # TODO should be a dataclass object
     P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename = (
-        load_model(CSD / "meshsphere3.mat")
+        load_model()
     )
 
     # Neighbor integrals # INFO from old code

@@ -8,16 +8,13 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf3_inc_field_electric_constant import (
-    bemf3_inc_field_electric_constant,
-)
-from engines.charge.bemf4_surface_field_electric_accurate import (
-    bemf4_surface_field_electric_accurate,
-)
+from engines.charge.bemf3_inc_field_electric_constant import \
+    bemf3_inc_field_electric_constant
+from engines.charge.bemf4_surface_field_electric_accurate import \
+    bemf4_surface_field_electric_accurate
 from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
-from engines.charge.bemf4_surface_field_potential_accurate import (
-    bemf4_surface_field_potential_accurate,
-)
+from engines.charge.bemf4_surface_field_potential_accurate import \
+    bemf4_surface_field_potential_accurate
 from engines.fgmres import fgmres
 from engines.lib import timeit
 
@@ -33,11 +30,10 @@ def charge_engine(
     condin,
     #  Parameters of the iterative solution
     iter=50,
-    max_iter=1,
-    relres=1e-6,  # Maximum possible number of iterations in the solution
-    prec=1e-2,  # Minimum acceptable relative residual
-    weight=1 / 2,  # FMM precision
-    # Current conservation law in the weak form
+    max_iters=1,
+    relres=1e-6,
+    prec=1e-2,
+    weight=1 / 2,
 ):
     polarization = [1, 0, 0]
     Epri, Ppri = bemf3_inc_field_electric_constant(center, polarization)
@@ -56,7 +52,7 @@ def charge_engine(
         prec=prec,
     )
 
-    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=1, x0=b)
+    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=max_iters, x0=b)
 
     #   Find surface electric potential
     Padd = bemf4_surface_field_potential_accurate(c, center, area, PC)
