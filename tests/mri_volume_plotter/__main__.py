@@ -124,22 +124,32 @@ if __name__ == "__main__":
 
     tissue_list = list(tissue_list)
 
-    p1 = Process(
-        target=compute_efield_overlay_worker,
-        args=(P, t, Center, Area, normals, c, "XY", Z, interface, tissue_list),
+    compute_efield_overlay_worker(
+        P, t, Center, Area, normals, c, "XY", Z, interface, tissue_list
     )
-    p2 = Process(
-        target=compute_efield_overlay_worker,
-        args=(P, t, Center, Area, normals, c, "XZ", Y, interface, tissue_list),
+    compute_efield_overlay_worker(
+        P, t, Center, Area, normals, c, "XZ", Y, interface, tissue_list
     )
-    p3 = Process(
-        target=compute_efield_overlay_worker,
-        args=(P, t, Center, Area, normals, c, "YZ", X, interface, tissue_list),
+    compute_efield_overlay_worker(
+        P, t, Center, Area, normals, c, "YZ", X, interface, tissue_list
     )
 
-    p1.start()
-    p2.start()
-    p3.start()
-    p1.join()
-    p2.join()
-    p3.join()
+    # p1 = Process(
+    #     target=compute_efield_overlay_worker,
+    #     args=(P, t, Center, Area, normals, c, "XY", Z, interface, tissue_list),
+    # )
+    # p2 = Process(
+    #     target=compute_efield_overlay_worker,
+    #     args=(P, t, Center, Area, normals, c, "XZ", Y, interface, tissue_list),
+    # )
+    # p3 = Process(
+    #     target=compute_efield_overlay_worker,
+    #     args=(P, t, Center, Area, normals, c, "YZ", X, interface, tissue_list),
+    # )
+    #
+    # p1.start()
+    # p2.start()
+    # p3.start()
+    # p1.join()
+    # p2.join()
+    # p3.join()

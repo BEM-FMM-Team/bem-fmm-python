@@ -11,22 +11,12 @@ Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
 Run the following:
 
-```batch
-pip install -r requirements.txt
-```
-
-### Windows
 We recompile and ship with fmm3dpy with openmp and other optimizations for a 3~4x speedup.
-```bash
-pip install .\wheels\fmm3dpy-2.1.0-cp313-cp313-win_amd64.whl --force-reinstall
-```
-
-### Linux
 
 ```bash
-pip install ./wheels/fmm3dpy-2.1.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl --force-reinstall
+pip install -r requirements.txt
+pip install --no-index --find-links wheels --no-deps fmm3dpy --force-reinstall
 ```
-
 
 ## Tests
 

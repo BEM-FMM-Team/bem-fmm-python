@@ -105,7 +105,6 @@ def compute_efield_overlay(
     if not isinstance(INNER_IDX, (list, tuple, np.ndarray)):
         INNER_IDX = [INNER_IDX] if INNER_IDX is not None else [0]
 
-    t0 = time.perf_counter()
     u = np.linspace(P[:, a0].min(), P[:, a0].max(), Ms)
     v = np.linspace(P[:, a1].min(), P[:, a1].max(), Ms)
     G0, G1 = np.meshgrid(u, v)
@@ -116,7 +115,6 @@ def compute_efield_overlay(
     points_obs[:, fa] = val
 
     planeABCD = np.array([*cfg["plane_normal"], -val])
-    print(f"Grid setup: {time.perf_counter() - t0:.3f}s")
 
     t0 = time.perf_counter()
     Etotal = bemf5_volume_field_electric(
