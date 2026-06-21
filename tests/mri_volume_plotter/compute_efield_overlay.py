@@ -56,7 +56,7 @@ class EfieldSlice:
 def compute_efield_overlay_worker(
     P, t, centers, areas, normals, c, plane, val, interface, tissue_list
 ):
-    result=compute_efield_overlay(
+    result = compute_efield_overlay(
         P=P,
         t=t,
         centers=centers,
@@ -87,10 +87,8 @@ def compute_efield_overlay(
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
-    from engines.mri.bemf5_volume_field_electric import \
-        bemf5_volume_field_electric
-    from engines.mri.meshplaneint_axis_nonmanifold import \
-        meshplaneint_axis_nonmanifold
+    from engines.mri.bemf5_volume_field_electric import bemf5_volume_field_electric
+    from engines.mri.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
@@ -128,25 +126,23 @@ def compute_efield_overlay(
         P, t, axis=cfg["meshplaneint_axis"], val=val, tol=1e-5, compTri=interface[:, 1]
     )
     points_2d = Pi[:, pi_cols]
-    print(f"Mesh plane intersect: {time.perf_counter() - t0:.3f}s")
+    print(
+        f"Mesh plane intersect: {time.perf_counter() - t0:.3f}s; NOTE PENDING inspection"
+    )
 
-    t0 = time.perf_counter()
     idx_mask = np.zeros(len(ci), dtype=bool)
     for inner_idx in INNER_IDX:
         idx_mask |= ci == inner_idx
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
-    print(f"Ray-cast mask: {time.perf_counter() - t0:.3f}s")
 
-    t0 = time.perf_counter()
     E_plot = E_mag.copy()
     E_plot[~mask] = np.nan
     templ, th1l, th2l, scale = _log_modulus(E_plot[mask], th1, th2)
     E_lm = np.full(Ms**2, np.nan)
     E_lm[mask] = templ
     E_grid = E_lm.reshape(Ms, Ms)
-    print(f"Log-modulus:          {time.perf_counter() - t0:.3f}s")
 
     return EfieldSlice(
         E_mag=E_mag,
