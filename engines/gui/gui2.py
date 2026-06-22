@@ -41,18 +41,22 @@ def create_gui(
     ttk.Label(root, text="X").grid(row=2, column=0)
     x_entry = ttk.Entry(root)
     x_entry.grid(row=2, column=1)
+    x_entry.insert(0, "42e-3")
 
     ttk.Label(root, text="Y").grid(row=3, column=0)
     y_entry = ttk.Entry(root)
     y_entry.grid(row=3, column=1)
+    y_entry.insert(0, "0")
 
     ttk.Label(root, text="Z").grid(row=4, column=0)
     z_entry = ttk.Entry(root)
     z_entry.grid(row=4, column=1)
+    z_entry.insert(0, "79.5e-3")
 
     ttk.Label(root, text="current").grid(row=5, column=0)
     dIdt_entry = ttk.Entry(root)
     dIdt_entry.grid(row=5, column=1)
+    dIdt_entry.insert(0,"9.4e7")
 
     # rotation flag
     auto_var = tk.BooleanVar(value=True)
