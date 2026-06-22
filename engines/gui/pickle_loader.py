@@ -8,7 +8,7 @@ from .coil import Coil
 
 def pickle_loader(filename):
     with open(filename, "rb") as f:
-        data = pickle.load(f)[0]
+        data: Coil = pickle.load(f)[0]
     strcoil = StrCoil()
     strcoil.Pwire = data.Pwire
     strcoil.Ewire = data.Ewire

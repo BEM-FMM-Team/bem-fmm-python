@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
+
 import numpy as np
+
 from engines.gui.quat_to_xyz import quat_to_xyz
 
 
