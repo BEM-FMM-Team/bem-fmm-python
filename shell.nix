@@ -3,7 +3,6 @@
     stdenv.cc.cc.lib
     zlib
     libGL
-    glib.out
     libx11
     freeglut
     libGLU
@@ -20,13 +19,14 @@ in
         pkgs.basedpyright
         pkgs.pylint
 
-        pkgs.python313Packages.matplotlib
         (pkgs.python313.withPackages (p:
           with p; [
             napari
-            cProfile
             requests
+
             pyqt6
+            pyqt5
+
             debugpy
             ipython
             (matplotlib.override {
@@ -35,9 +35,12 @@ in
           ]))
       ];
 
-    LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libs}:$LD_LIBRARY_PATH";
-
-    shellHook =
+    shellHook = let
+      q5 = with pkgs.qt5; "${qtbase}/${qtbase.qtPluginPrefix}:";
+      q6 = with pkgs.qt6; "${qtbase}/${qtbase.qtPluginPrefix}";
+      q = q5 + q6;
+      l = pkgs.lib.makeLibraryPath libs;
+    in
       /*
       bash
       */
@@ -45,10 +48,15 @@ in
         # export MKL_NUM_THREADS=$(nproc)
         # export OMP_NUM_THREADS=$(nproc)
         export PYTHONPATH="$(pwd):$PYTHONPATH"
+
+        export LD_LIBRARY_PATH="${l}:$LD_LIBRARY_PATH";
+        export QT_PLUGIN_PATH="${q}:$QT_PLUGIN_PATH";
+
         if [ ! -d venv ]; then
           python -m venv venv
           source venv/bin/activate
           pip install -r requirements.txt
+          pip install --no-index --find-links wheels --no-deps fmm3dpy --force-reinstall
         else
           source venv/bin/activate
         fi
