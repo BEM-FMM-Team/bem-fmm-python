@@ -93,7 +93,7 @@ def build_tissue_struct(fname: str) -> TissueStruct:
         path = ASSETS / fname
         if not path.is_file():  # or ("wm" not in str(path)):  # TODO remove second part
             to_pop.append(i)
-            warnings.warn(
+            print(
                 f"Warning: Tissue file '{fname}' does not exist.\nRemoving tissue '{tissues.Tissue[i]}' from tissue list."
             )
 
