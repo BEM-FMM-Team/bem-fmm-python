@@ -20,7 +20,7 @@ print(f"Setup environment {root_dir}")
 from load_model import load_model
 from setup_dipoles import setup_dipoles
 
-from engines.plot.patch import patch
+from engines.plot import patch
 
 if __name__ == "__main__":
     # Load model

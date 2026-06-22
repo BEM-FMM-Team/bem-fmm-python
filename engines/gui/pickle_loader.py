@@ -1,7 +1,9 @@
 import pickle
-from engines.my_types import StrCoil
-from coil import Coil
+
 import numpy as np
+
+from ..my_types import StrCoil
+from .coil import Coil
 
 
 def pickle_loader(filename):

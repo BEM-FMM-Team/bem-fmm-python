@@ -72,4 +72,4 @@ cache = memory.cache
 # cache = timeit
 
 
-io = False
+io = True

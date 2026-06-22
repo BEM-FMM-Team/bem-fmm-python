@@ -1,6 +1,6 @@
 import numpy as np
 
-from surface_field_electric_accurate import surface_field_electric_accurate
+from .surface_field_electric_accurate import surface_field_electric_accurate
 
 
 def electrode_current(c, Center, Area, normals, EC, prec, ElectrodeIndexes, condin):
