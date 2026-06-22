@@ -67,6 +67,9 @@ def timeit(fn):
     return ret
 
 
-memory = Memory(Path(__file__).resolve().parent.resolve().parent / "__pycache__/joblib")
+memory = Memory(Path(__file__).resolve().parent.resolve().parent / "__compute_cache__")
 cache = memory.cache
 # cache = timeit
+
+
+io = False

@@ -24,6 +24,7 @@ in
         (pkgs.python313.withPackages (p:
           with p; [
             napari
+            cProfile
             requests
             pyqt6
             debugpy

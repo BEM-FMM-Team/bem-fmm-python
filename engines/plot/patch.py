@@ -6,13 +6,17 @@ from vedo import Latex
 
 
 def plot_worker(P, plot_t, p):
-    patch(
+    _p = patch(
         vertices=P,
         faces=plot_t,
         title=p[0],
         cmap_label=p[1],
         cdata=p[2],
-    ).show()
+    )
+    from ..lib import io
+
+    if io:
+        _p.show()
 
 
 def plot_coil_worker(
