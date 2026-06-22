@@ -29,6 +29,8 @@ from compute_efield_overlay import compute_efield_overlay_worker
 from impressed_field import impressed_field
 from load_model import load_model
 
+from engines.gui.pickle_loader import pickle_loader
+
 ASSETS = (coil_single_ring_dir / "assets").resolve()
 
 if __name__ == "__main__":
@@ -69,6 +71,10 @@ if __name__ == "__main__":
 
     # 2. Setup Coil
     # -- Load coil geometry
+    coil_path = None
+    if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():
+        coil_path = sys.argv[1]
+
     (
         pointsline,
         dIdt,
@@ -76,7 +82,9 @@ if __name__ == "__main__":
         strcoil,
         CoilP,
         Coilt,
-    ) = coil_setup()
+    ) = (
+        coil_setup() if coil_path is None else pickle_loader(coil_path)
+    )
 
     obs_start = pointsline["start"]
     obs_end = pointsline["end"]
