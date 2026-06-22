@@ -4,4 +4,4 @@ venv
 tags
 # PythonVersion01
 
-__pycache__
+**/__pycache__
