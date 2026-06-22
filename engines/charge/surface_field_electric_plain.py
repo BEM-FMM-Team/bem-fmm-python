@@ -8,7 +8,7 @@ def surface_field_electric_plain(
     c: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
     center: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
     area: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
-    prec,
+    prec: float,
 ):
     """
     Computes potential/continuous electric field on a surface facet due to

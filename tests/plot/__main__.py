@@ -9,6 +9,7 @@ SP 6/2026
 
 import sys
 from pathlib import Path
+
 import numpy as np
 
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
@@ -16,10 +17,10 @@ sys.path.insert(0, str(root_dir))
 
 print(f"Setup environment {root_dir}")
 
-from engines.plot.patch import patch
-
 from load_model import load_model
 from setup_dipoles import setup_dipoles
+
+from engines.plot.patch import patch
 
 if __name__ == "__main__":
     # Load model
@@ -66,11 +67,15 @@ if __name__ == "__main__":
 
     viewax = np.array([-120, 20])  # TODO embed
 
-    patch(
+    _p = patch(
         vertices=P,
         faces=plot_t,
         cdata=plot_field,
         edge_color="none",
         title=rf"Primary Field Eⁱ on Surface: {tissuename[0]}",
         cmap_label="A/m²",
-    ).show()
+    )
+    from engines.lib import io
+
+    if io:
+        _p.show()

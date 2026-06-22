@@ -1,321 +1,220 @@
+from typing import Literal
+
 import numpy as np
 
 
-def meshplaneint_axis_nonmanifold(P, t, axis, val, tol=None, compTri=None, opts=None):
-    # MESHPLANEINT_AXIS_NONMANIFOLD  Intersect a (possibly non-manifold) triangle mesh with plane:
-    #   P(:,axis) = val   (axis = 1 -> x=val (YZ-plane), 2 -> y=val (XZ-plane), 3 -> z=val (XY-plane))
-    #
-    # Inputs:
-    #   P        (Np x 3) vertices
-    #   t        (Nt x 3) triangles (1-based indices)
-    #   axis     1|2|3    plane axis
-    #   val      scalar   plane coordinate value
-    #   tol      scalar   tolerance for "on-plane" and point hashing (e.g., 1e-9 ... 1e-6)
-    #   compTri  (optional) (Nt x 1) compartment label per triangle
-    #   opts     (optional) struct with fields:
-    #              .shiftVal      (true/false) shift plane to avoid vertices on plane (default true)
-    #              .maxShiftIters (default 20)
-    #              .degenerateMode 'first2' (default) | 'skip'  (when >2 intersection pts)
-    #
-    # Outputs:
-    #   Pi       (Ni x 3) unique intersection points
-    #   edgesI   (Ne x 2) intersection segments as indices into Pi
-    #   ti       (Ne x 1) triangle index (row of t) that produced each segment
-    #   ci       (Ne x 1) compartment label for each segment (empty if compTri not provided)
-    #   flag     0 if no intersection segments; 1 otherwise
-    #   valOut   final plane value used (possibly shifted)
-    #
-    # Notes:
-    #   - Generic case: each intersected triangle contributes one segment.
-    #   - Robust to non-manifold connectivity (no reliance on edge-to-two-triangle adjacency).
-    #   - Coplanar edge/triangle cases are handled conservatively (configurable).
+def meshplaneint_axis_nonmanifold(
+    P: np.ndarray,
+    t: np.ndarray,
+    axis: Literal[0] | Literal[1] | Literal[2],
+    val: float,
+    tol: float | None = 1e-9,
+    compTri: np.ndarray | None = None,
+    opts: dict | None = None,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray | None, bool, float]:
+    """
+    Intersect a (possibly non-manifold) triangle mesh with an axis-aligned plane
+    P[:, axis-1] = val   (axis 1->x, 2->y, 3->z).
 
-    # ---- defaults / validation
-    if tol is None or len(str(tol)) == 0:
-        tol = 1e-9
-    if compTri is None:
-        compTri = []
+    Inputs
+    ------
+    P       : (Np, 3) vertices
+    t       : (Nt, 3) triangles, 0-based indices
+    axis    : 1, 2, or 3
+    val     : plane coordinate value
+    tol     : point-uniqueness tolerance (default 1e-9)
+    compTri : (Nt,) compartment label per triangle
+    opts    : dict with optional keys
+                shiftVal       bool  (default True)
+                maxShiftIters  int   (default 20)
+                degenerateMode str   'first2' | 'skip' (default 'first2')
+
+    Outputs
+    -------
+    Pi      : (Ni, 3) unique intersection points
+    edgesI  : (Ne, 2) segment endpoint indices into Pi
+    ti      : (Ne,)   source triangle index per segment
+    ci      : (Ne,)   compartment label per segment, or None
+    flag    : True if any segments were found
+    valOut  : final plane value used (may be shifted)
+    """
     if opts is None:
         opts = {}
-    if "shiftVal" not in opts:
-        opts["shiftVal"] = True
-    if "maxShiftIters" not in opts:
-        opts["maxShiftIters"] = 20
-    if "degenerateMode" not in opts:
-        opts["degenerateMode"] = "first2"
-    if axis not in [1, 2, 3]:
-        raise ValueError("axis must be 1, 2, or 3.")
-    if np.ndim(val) != 0:
+    opts.setdefault("shiftVal", True)
+    opts.setdefault("maxShiftIters", 20)
+    opts.setdefault("degenerateMode", "first2")
+
+    if axis not in [0, 1, 2]:
+        raise ValueError("axis must be 0, 1, or 2.")
+    if not np.isscalar(val):
         raise ValueError("val must be a scalar.")
+
     Nt = t.shape[0]
-    haveComp = compTri is not None and len(compTri) > 0
-    if haveComp and len(compTri) != Nt:
-        raise ValueError("compTri must be Nt x 1, where Nt = size(t,1).")
+    ax = axis
+    haveComp = compTri is not None and len(compTri) == Nt
+    degenerate_skip = opts["degenerateMode"].lower() == "skip"
 
-    # ---- optional: shift plane to avoid vertices on plane (within tol)
-    valOut = val
-
-    if opts.get("shiftVal", True):
-        for k in range(opts.get("maxShiftIters", 20)):
-            if np.any(np.abs(P[:, axis - 1] - valOut) <= tol):
-                valOut = valOut + tol
+    # Shift plane away from on-plane vertices
+    valOut = float(val)
+    if opts["shiftVal"]:
+        for _ in range(opts["maxShiftIters"]):
+            if np.any(np.abs(P[:, ax] - valOut) <= tol):
+                valOut += tol
             else:
                 break
 
-    # ---- outputs
-    Pi = np.zeros((0, 3), dtype=np.float64)
-    edgesI = np.zeros((0, 2), dtype=np.int64)
-    ti = np.zeros((0,), dtype=np.int64)
+    # Vectorised candidate filter — only keep triangles that straddle the plane
+    d_v = P[:, ax] - valOut  # (Np,)
+    d_t = d_v[t]  # (Nt, 3)
+    candidate_mask = ~(d_t.min(axis=1) > tol) & ~(d_t.max(axis=1) < -tol)
+    candidate_idx = np.where(candidate_mask)[0]
 
-    if haveComp:
-        ci = np.zeros((0,), dtype=np.int64)
-    else:
-        ci = None
+    # Split candidates into generic (no vertex on plane) and degenerate
+    on_plane_t = np.abs(d_t[candidate_idx]) <= tol  # (Ncand, 3)
+    is_generic = ~on_plane_t.any(axis=1)  # (Ncand,)
+    generic_idx = candidate_idx[is_generic]
+    degen_idx = candidate_idx[~is_generic]
 
-    flag = 0
-
-    # ---- tolerance-based point uniqueness via hashing
+    # --- Vectorised path for generic triangles (no vertex on plane) ---
+    # Exactly 2 of the 3 edges cross the plane per triangle.
+    Pi_list = []
+    edges_list = []
+    ti_list = []
+    ci_list = [] if haveComp else None
     pointMap = {}
+    n_pts = 0
 
-    def addPoint(pt):
-        nonlocal Pi, pointMap
-
-        q = np.round(pt / tol).astype(np.int64)
-
-        key = f"{q[0]}_{q[1]}_{q[2]}"
-
+    def add_point(pt: np.ndarray) -> int:
+        nonlocal n_pts
+        key = tuple(np.round(pt / tol).astype(np.int64).tolist())
         if key in pointMap:
-            idx = int(pointMap[key])
-        else:
-            idx = Pi.shape[0]
-            Pi = np.vstack([Pi, pt.reshape(1, 3)])
-            pointMap[key] = idx
+            return pointMap[key]
+        pointMap[key] = n_pts
+        Pi_list.append(pt.copy())
+        n_pts += 1
+        return n_pts - 1
 
-        return idx
+    if generic_idx.size > 0:
+        d0 = d_t[generic_idx, 0]
+        d1 = d_t[generic_idx, 1]
+        d2 = d_t[generic_idx, 2]
 
-    def triPlanePts(V):
-        # intersect triangle with plane V[:,axis] = valOut
-        d = V[:, axis - 1] - valOut
+        V0 = P[t[generic_idx, 0]]
+        V1 = P[t[generic_idx, 1]]
+        V2 = P[t[generic_idx, 2]]
 
-        # quick reject: all on one side
-        if np.all(d > tol) or np.all(d < -tol):
-            return np.zeros((0, 3), dtype=np.float64)
+        cross01 = d0 * d1 < 0
+        cross12 = d1 * d2 < 0
+        cross20 = d2 * d0 < 0
 
-        pts = np.zeros((0, 3), dtype=np.float64)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            a01 = d0 / (d0 - d1)
+            a12 = d1 / (d1 - d2)
+            a20 = d2 / (d2 - d0)
 
-        # add vertices lying on plane
-        onv = np.abs(d) <= tol
-        if np.any(onv):
-            pts = np.vstack([pts, V[onv, :]])
+        P01 = V0 + a01[:, None] * (V1 - V0)  # (Ng, 3)
+        P12 = V1 + a12[:, None] * (V2 - V1)
+        P20 = V2 + a20[:, None] * (V0 - V2)
 
-        # edges
-        edges = np.array([[0, 1], [1, 2], [2, 0]])
+        # Build a (Ng, 2, 3) array: pick the 2 crossing edge points per triangle
+        # Exactly one of the three cases (01+12), (01+20), (12+20) is true.
+        c_01_12 = (cross01 & cross12)[:, None]
+        c_01_20 = (cross01 & cross20)[:, None]
 
-        for ee in range(3):
-            i1, i2 = edges[ee]
+        pA = np.where(c_01_12, P01, np.where(c_01_20, P01, P12))  # (Ng, 3)
+        pB = np.where(c_01_12, P12, np.where(c_01_20, P20, P20))
+
+        # dedup all generic points at once using the tolerance grid
+        all_pts = np.vstack([pA, pB])  # (2*Ng, 3)
+        rounded = np.round(all_pts / tol).astype(np.int64)
+        keys_flat = [tuple(row) for row in rounded]
+
+        Ng = generic_idx.size
+        iA_arr = np.empty(Ng, dtype=np.int64)
+        iB_arr = np.empty(Ng, dtype=np.int64)
+
+        for k in range(Ng):
+            key_a = keys_flat[k]
+            if key_a not in pointMap:
+                pointMap[key_a] = n_pts
+                Pi_list.append(all_pts[k].copy())
+                n_pts += 1
+            iA_arr[k] = pointMap[key_a]
+
+            key_b = keys_flat[k + Ng]
+            if key_b not in pointMap:
+                pointMap[key_b] = n_pts
+                Pi_list.append(all_pts[k + Ng].copy())
+                n_pts += 1
+            iB_arr[k] = pointMap[key_b]
+
+        valid = iA_arr != iB_arr
+        if valid.any():
+            edges_list.extend(zip(iA_arr[valid].tolist(), iB_arr[valid].tolist()))
+            ti_list.extend(generic_idx[valid].tolist())
+            if haveComp:
+                ci_list.extend(compTri[generic_idx[valid]].tolist())
+
+    # --- fallback for degen triangles (vertex on plane) ---
+    _edge_pairs = ((0, 1), (1, 2), (2, 0))
+
+    for kTri in degen_idx:
+        V = P[t[kTri]]
+        d = d_t[kTri]
+
+        pts = []
+        on = np.abs(d) <= tol
+        for i in range(3):
+            if on[i]:
+                pts.append(V[i])
+
+        for i1, i2 in _edge_pairs:
             d1, d2 = d[i1], d[i2]
-
-            # coplanar edge
-            if abs(d1) <= tol and abs(d2) <= tol:
-                continue
-
-            # endpoint on plane
             if abs(d1) <= tol or abs(d2) <= tol:
                 continue
-
-            # proper crossing
-            if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0):
+            if (d1 > 0) != (d2 > 0):
                 a = d1 / (d1 - d2)
-                Pint = V[i1, :] + a * (V[i2, :] - V[i1, :])
-                pts = np.vstack([pts, Pint.reshape(1, 3)])
+                pts.append(V[i1] + a * (V[i2] - V[i1]))
 
-        # deduplicate within triangle
-        if pts.shape[0] > 2:
-            qq = np.round(pts / tol).astype(np.int64)
-            _, ia = np.unique(qq, axis=0, return_index=True)
-            pts = pts[np.sort(ia)]
-
-        return pts
-
-    # ---- main loop over triangles
-
-    for kTri in range(Nt):
-
-        V = P[t[kTri, :], :]
-        pts = triPlanePts(V)
-
-        if pts.shape[0] < 2:
+        if len(pts) < 2:
             continue
 
-        if pts.shape[0] > 2:
-            if opts.get("degenerateMode", "first2").lower() == "skip":
+        if len(pts) > 2:
+            arr = np.array(pts)
+            qq = np.round(arr / tol).astype(np.int64)
+            _, ia = np.unique(qq, axis=0, return_index=True)
+            pts = [arr[i] for i in np.sort(ia)]
+
+        if len(pts) < 2:
+            continue
+        if len(pts) > 2:
+            if degenerate_skip:
                 continue
-            # default: take first 2 points
+            pts = pts[:2]
 
-        p1 = pts[0, :]
-        p2 = pts[1, :]
-
-        iA = addPoint(p1)
-        iB = addPoint(p2)
+        iA = add_point(np.asarray(pts[0], dtype=np.float64))
+        iB = add_point(np.asarray(pts[1], dtype=np.float64))
 
         if iA != iB:
-            edgesI = np.vstack([edgesI, np.array([iA, iB], dtype=np.int64)])
-            ti = np.append(ti, kTri)
-
+            edges_list.append((iA, iB))
+            ti_list.append(int(kTri))
             if haveComp:
-                ci = np.append(ci, compTri[kTri])
+                ci_list.append(compTri[kTri])
 
-    flag = edgesI.shape[0] > 0
+    # assemble outputs from lists
+    Pi = np.array(Pi_list) if Pi_list else np.zeros((0, 3), dtype=np.float64)
+    edgesI = (
+        np.array(edges_list, dtype=np.int64)
+        if edges_list
+        else np.zeros((0, 2), dtype=np.int64)
+    )
+    ti_out = (
+        np.array(ti_list, dtype=np.int64) if ti_list else np.zeros((0,), dtype=np.int64)
+    )
 
-    return Pi, edgesI, ti, ci, flag, valOut
+    if haveComp:
+        ci_out = np.array(ci_list) if ci_list else np.zeros((0,), dtype=np.float64)
+    else:
+        ci_out = None
 
-
-#
-#
-# def meshplaneint_axis_nonmanifold(P, t, axis, val, tol=1e-5, compTri=None, opts=None):
-#     """
-#     Intersect a triangle mesh with an axis-aligned plane.
-#
-#     axis: 1=x-plane (YZ), 2=y-plane (XZ), 3=z-plane (XY)
-#     val: coordinate value of plane
-#
-#     Returns: Pi, edgesI, ti, ci
-#     """
-#
-#     if opts is None:
-#         opts = {}
-#
-#     opts.setdefault('shiftVal', True)
-#     opts.setdefault('maxShiftIters', 20)
-#     opts.setdefault('degenerateMode', 'first2')
-#
-#     if axis not in [1, 2, 3]:
-#         raise ValueError('axis must be 1, 2, or 3')
-#
-#     axis_idx = axis - 1  # Convert to 0-based index
-#
-#     Nt = t.shape[0]
-#     haveComp = compTri is not None
-#
-#     if haveComp and len(compTri) != Nt:
-#         raise ValueError('compTri must have length Nt')
-#
-#     # Optional: shift plane to avoid vertices exactly on it
-#     valOut = val
-#     if opts['shiftVal']:
-#         for _ in range(opts['maxShiftIters']):
-#             if np.any(np.abs(P[:, axis_idx] - valOut) <= tol):
-#                 valOut = valOut + tol
-#             else:
-#                 break
-#
-#     # Output arrays
-#     Pi = []
-#     edgesI = []
-#     ti = []
-#     ci = [] if haveComp else None
-#
-#     # Hash map for point deduplication
-#     point_map = {}
-#
-#     def add_point(pt):
-#         """Add point to Pi with deduplication."""
-#         # Quantize and hash
-#         q = np.round(pt / tol).astype(int)
-#         key = tuple(q)
-#
-#         if key in point_map:
-#             return point_map[key]
-#         else:
-#             idx = len(Pi)
-#             Pi.append(pt.copy())
-#             point_map[key] = idx
-#             return idx
-#
-#     def tri_plane_pts(V):
-#         """Find intersection points of triangle V with plane."""
-#         d = V[:, axis_idx] - valOut
-#
-#         # Quick reject: all on one side
-#         if np.all(d > tol) or np.all(d < -tol):
-#             return np.array([]).reshape(0, 3)
-#
-#         pts = []
-#
-#         # Add vertices on plane
-#         onv = np.abs(d) <= tol
-#         if np.any(onv):
-#             pts.extend(V[onv, :])
-#
-#         # Check edges
-#         edges = [[0, 1], [1, 2], [2, 0]]
-#         for i1, i2 in edges:
-#             d1, d2 = d[i1], d[i2]
-#
-#             # Coplanar edge: skip
-#             if np.abs(d1) <= tol and np.abs(d2) <= tol:
-#                 continue
-#
-#             # One endpoint on plane: already added
-#             if np.abs(d1) <= tol or np.abs(d2) <= tol:
-#                 continue
-#
-#             # Proper crossing
-#             if (d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0):
-#                 a = d1 / (d1 - d2)
-#                 Pint = V[i1, :] + a * (V[i2, :] - V[i1, :])
-#                 pts.append(Pint)
-#
-#         # Deduplicate
-#         if len(pts) > 2:
-#             pts = np.array(pts)
-#             qq = np.round(pts / tol).astype(int)
-#             # Simple deduplication
-#             unique_idx = []
-#             seen = set()
-#             for i, row in enumerate(qq):
-#                 key = tuple(row)
-#                 if key not in seen:
-#                     unique_idx.append(i)
-#                     seen.add(key)
-#             pts = pts[unique_idx, :]
-#         elif len(pts) > 0:
-#             pts = np.array(pts)
-#         else:
-#             pts = np.array([]).reshape(0, 3)
-#
-#         return pts
-#
-#     # Main loop over triangles
-#     for kTri in range(Nt):
-#         V = P[t[kTri, :], :]  # 3x3 vertices of triangle
-#         pts = tri_plane_pts(V)
-#
-#         if len(pts) < 2:
-#             continue
-#
-#         if len(pts) > 2:
-#             if opts['degenerateMode'] == 'skip':
-#                 continue
-#             # else 'first2': use first two points
-#
-#         p1 = pts[0, :]
-#         p2 = pts[1, :]
-#
-#         iA = add_point(p1)
-#         iB = add_point(p2)
-#
-#         if iA != iB:
-#             edgesI.append([iA, iB])
-#             ti.append(kTri)
-#             if haveComp:
-#                 ci.append(int(compTri[kTri]))
-#
-#     # Convert to numpy arrays
-#     Pi = np.array(Pi) if Pi else np.array([]).reshape(0, 3)
-#     edgesI = np.array(edgesI, dtype=int) if edgesI else np.array([]).reshape(0, 2)
-#     ti = np.array(ti, dtype=int) if ti else np.array([], dtype=int)
-#     ci = np.array(ci, dtype=int) if haveComp and ci else (np.array([], dtype=int) if haveComp else None)
-#
-#     return Pi, edgesI, ti, ci
-#
+    return Pi, edgesI, ti_out, ci_out, bool(edgesI.shape[0] > 0), valOut

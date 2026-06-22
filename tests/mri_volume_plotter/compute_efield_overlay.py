@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 
 _PLANE_CONFIG = {
     "XY": dict(
-        meshplaneint_axis=3,
+        meshplaneint_axis=2,
         plane_normal=[0.0, 0.0, 1.0],
         grid_axes=(0, 1),
         fixed_axis=2,
@@ -16,7 +16,7 @@ _PLANE_CONFIG = {
         ylabel="y, mm",
     ),
     "XZ": dict(
-        meshplaneint_axis=2,
+        meshplaneint_axis=1,
         plane_normal=[0.0, 1.0, 0.0],
         grid_axes=(0, 2),
         fixed_axis=1,
@@ -25,7 +25,7 @@ _PLANE_CONFIG = {
         ylabel="z, mm",
     ),
     "YZ": dict(
-        meshplaneint_axis=1,
+        meshplaneint_axis=0,
         plane_normal=[1.0, 0.0, 0.0],
         grid_axes=(1, 2),
         fixed_axis=0,
@@ -88,7 +88,8 @@ def compute_efield_overlay(
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
     from engines.charge.volume_field_electric import volume_field_electric
-    from engines.mesh.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
+    from engines.mesh.meshplaneint_axis_nonmanifold import \
+        meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
@@ -121,14 +122,10 @@ def compute_efield_overlay(
     E_mag = np.linalg.norm(Etotal, axis=1)
     print(f"E-field computation: {time.perf_counter() - t0:.3f}s")
 
-    t0 = time.perf_counter()
     Pi, edges, _, ci, _, _ = meshplaneint_axis_nonmanifold(
         P, t, axis=cfg["meshplaneint_axis"], val=val, tol=1e-5, compTri=interface[:, 1]
     )
     points_2d = Pi[:, pi_cols]
-    print(
-        f"Mesh plane intersect: {time.perf_counter() - t0:.3f}s; NOTE PENDING inspection"
-    )
 
     idx_mask = np.zeros(len(ci), dtype=bool)
     for inner_idx in INNER_IDX:
