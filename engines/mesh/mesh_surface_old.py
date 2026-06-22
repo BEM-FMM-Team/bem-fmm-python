@@ -25,7 +25,7 @@ def meshsurface(Pcenter, a, b, M, flag):
     Closed = np.linalg.norm(Pcenter[0, :] - Pcenter[-1, :]) < 1024 * np.finfo(float).eps
     PathVector = Pcenter[1:, :] - Pcenter[:-1, :]
     ##   Add nodes/triangles for conductor side surface
-    t = np.empty((0, 3), dtype=int)
+    t = np.empty((0, 3))
     for m in range(Nodes - 1):
         if m == 0:  # bottom only
             UnitPathVector = PathVector[0, :] + Closed * PathVector[-1, :]
@@ -49,10 +49,10 @@ def meshsurface(Pcenter, a, b, M, flag):
             ptop = ptop + Pcenter[m + 1, :]
             P = np.vstack((P, ptop))
         #   Local connectivity: bottom to top
-        t1 = np.zeros((NE, 3), dtype=int)
+        t1 = np.zeros((NE, 3))
         t1[:, 0:2] = e  #   Lower nodes
         t1[:, 2] = e[:, 0] + NE  #   Upper nodes
-        t2 = np.zeros((NE, 3), dtype=int)
+        t2 = np.zeros((NE, 3))
         t2[:, 1] = e[:, 0] + NE
         t2[:, 0] = e[:, 1] + NE
         t2[:, 2] = e[:, 1]
@@ -87,5 +87,5 @@ def meshsurface(Pcenter, a, b, M, flag):
         #   Condition the final surface mesh
         P = np.vstack((P, p2[NE:, :]))
         t = np.vstack((t, tcapend))
-    P, t, _ = mesh_fix(P, t)
+    P, t = mesh_fix(P, t)
     return P, t

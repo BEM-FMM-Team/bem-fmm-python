@@ -1,22 +1,20 @@
 import numpy as np
+from engines.mesh.simpvol import simpvol
 
 
-def mesh_fix(
-    p: np.ndarray | None,
-    t: np.ndarray | None,
-    ptol: np.float64 = 1024 * 2.220446049250313e-16,  # np.finfo(float).eps
-):
-    """
-    MESHFIX  Remove duplicated/unused nodes and fix element orientation.
-        [P,T]=MESHFIX(P,T)
-        Copyright (C) 2004-2012 Per-Olof Persson. (See DISTMESH/FIXMESH)
-        Used with permission
-    """
+def mesh_fix(p, t, ptol=None):
+    # MESHFIX  Remove duplicated/unused nodes and fix element orientation.
+    #   [P,T]=MESHFIX(P,T)
+    #   Copyright (C) 2004-2012 Per-Olof Persson. (See DISTMESH/FIXMESH)
+    #   Used with permission
+    if ptol is None:
+        ptol = 1024 * np.finfo(float).eps
+
     if t is not None and (p.size == 0 or t.size == 0):
         pix = np.arange(len(p))
         return p, t, pix
 
-    snap = np.max(np.max(p, 0) - np.min(p, 0), np.int64(0)) * ptol
+    snap = np.max(np.max(p, axis=0) - np.min(p, axis=0), axis=0) * ptol
     _, ix, jx = np.unique(
         np.round(p / snap) * snap, axis=0, return_index=True, return_inverse=True
     )
@@ -30,8 +28,8 @@ def mesh_fix(
         p = p[pix, :]
         pix = ix[pix]
 
-        # if t.shape[1] == p.shape[1] + 1:
-        #    flip = simpvol(p, t) < 0
-        #    t[flip, 0], t[flip, 1] = t[flip, 1], t[flip, 0].copy()
+        if t.shape[1] == p.shape[1] + 1:
+            flip = simpvol(p, t) < 0
+            t[flip, 0], t[flip, 1] = t[flip, 1], t[flip, 0].copy()
 
     return p, t, pix

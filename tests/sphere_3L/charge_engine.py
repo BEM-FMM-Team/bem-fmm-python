@@ -8,13 +8,14 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.inc_field_electric_constant import \
-    inc_field_electric_constant
-from engines.charge.surface_field_electric_accurate import \
-    surface_field_electric_accurate
+from engines.charge.inc_field_electric_constant import inc_field_electric_constant
+from engines.charge.surface_field_electric_accurate import (
+    surface_field_electric_accurate,
+)
 from engines.charge.surface_field_lhs import surface_field_lhs
-from engines.charge.surface_field_potential_accurate import \
-    surface_field_potential_accurate
+from engines.charge.surface_field_potential_accurate import (
+    surface_field_potential_accurate,
+)
 from engines.fgmres import fgmres
 from engines.lib import timeit
 

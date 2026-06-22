@@ -8,8 +8,7 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.surface_field_electric_plain import \
-    surface_field_electric_plain
+from engines.charge.surface_field_electric_plain import surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
@@ -68,7 +67,7 @@ def charge_engine(
     Epri,
     b,
     #  Parameters of the iterative solution
-    iter=50,
+    iter=5,
     maxiter=1,
     relres=1e-3,  # 1e-6
     iter_prec=1e-3,  # for residual solution

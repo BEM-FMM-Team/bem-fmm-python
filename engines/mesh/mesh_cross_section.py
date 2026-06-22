@@ -1,8 +1,8 @@
 import numpy as np
-from mesh_rotate2 import mesh_rotate2
+from engines.mesh.mesh_rotate2 import mesh_rotate2
 
 
-def meshcross_section(a, b, normal, M, flag):
+def mesh_cross_section(a, b, normal, M, flag):
     #   Creates a structured edge grid P, e for a perimeter
     #   of a base ellipse (flag = 1) or rectangle (flag = 2) with
     #   - major axis/side a (say long one; always in the z direction);
