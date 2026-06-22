@@ -18,13 +18,23 @@ pip install -r requirements.txt
 pip install --no-index --find-links wheels --no-deps fmm3dpy --force-reinstall
 ```
 
+## Generating and using a coil
+
+```bash
+python tests\gui\gui_wrapper.py # coil config is emiited to tests\gui\coil_config.pkl (probably going to make a file dialogue)
+
+python tests\coil_single_ring tests\gui\coil_config.pkl # runs the single ring with the coil
+# charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed
+python tests\mri_volume_plotter tests\gui\coil_config.pkl # runs the slice
+```
+
 ## Tests
 
 ### Windows
 ```bash
 python .\tests\plot
 python .\tests\sphere_3L
-python .\tests\coil_single_ring # delete __pycache__ to reset computation
+python .\tests\coil_single_ring # delete ./__compute_cache__/ to reset computation
 ```
 
 #### Possible errors

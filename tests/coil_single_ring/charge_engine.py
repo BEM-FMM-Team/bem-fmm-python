@@ -67,7 +67,7 @@ def charge_engine(
     Epri,
     b,
     #  Parameters of the iterative solution
-    iter=5,
+    iter=20,  # 50 NOTE does not converge for assests in repo
     maxiter=1,
     relres=1e-3,  # 1e-6
     iter_prec=1e-3,  # for residual solution
