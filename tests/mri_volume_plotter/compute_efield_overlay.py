@@ -87,8 +87,8 @@ def compute_efield_overlay(
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
-    from engines.mri.bemf5_volume_field_electric import bemf5_volume_field_electric
-    from engines.mri.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
+    from engines.charge.volume_field_electric import volume_field_electric
+    from engines.mesh.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
@@ -115,7 +115,7 @@ def compute_efield_overlay(
     planeABCD = np.array([*cfg["plane_normal"], -val])
 
     t0 = time.perf_counter()
-    Etotal = bemf5_volume_field_electric(
+    Etotal = volume_field_electric(
         points_obs, c, P, t, centers, areas, normals, R, prec, planeABCD
     )
     E_mag = np.linalg.norm(Etotal, axis=1)

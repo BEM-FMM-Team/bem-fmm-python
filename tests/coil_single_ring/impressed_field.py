@@ -12,7 +12,7 @@ from typing import Literal
 
 import numpy as np
 
-from engines.charge.bemf3_inc_field_electric import bemf3_inc_field_electric
+from engines.charge.inc_field_electric import inc_field_electric
 from engines.lib import cache, timeit
 from engines.my_types import StrCoil
 
@@ -28,7 +28,7 @@ def impressed_field(
     strcoil: StrCoil = None,
     contrast=None,
 ):
-    EpriP = bemf3_inc_field_electric(strcoil, P, dIdt, mu0)
+    EpriP = inc_field_electric(strcoil, P, dIdt, mu0)
     Epri = 1 / 3 * (EpriP[t[:, 0], :] + EpriP[t[:, 1], :] + EpriP[t[:, 2], :])
     b = 2 * contrast * np.sum((normals * Epri), 1)
 

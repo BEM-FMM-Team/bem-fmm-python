@@ -18,7 +18,7 @@ from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
 from engines.my_types import StrCoil
 
-ASSETS = Path(__file__).resolve().parent / "assets"
+ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 
 
 @timeit

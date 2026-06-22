@@ -20,25 +20,17 @@ from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_normals import mesh_normals
 from engines.mesh.mesh_tricenter import mesh_tricenter
 
-CSD = Path(__file__).resolve().parent
+ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 
 
 @timeit
 def load_model():
-    mesh = vedo.Mesh(CSD / "bone.stl")
+    mesh = vedo.Mesh(ASSETS / "plot_skull.stl")
     # mesh.subdivide(3)
     P = mesh.vertices
     t = np.array(mesh.cells)
     if t.shape[1] != 3:
         raise RuntimeError("use vedo to load stl")
-
-    """
-    # WARN results are a bit strange, using vedo's mesh subdivide
-    markTri = np.full((t.shape[0], 1), True)
-    P, t, ref = meshref_pulse_14(P, t, markTri)
-    """
-
-    # mesh.show()
 
     ## Shell Parameters
     # Set the shell radii and layer conductivities

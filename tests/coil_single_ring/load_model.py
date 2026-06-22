@@ -25,7 +25,7 @@ from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter
 
-ASSETS = Path(__file__).resolve().parent / "assets"
+ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 
 
 class _TissueStruct:

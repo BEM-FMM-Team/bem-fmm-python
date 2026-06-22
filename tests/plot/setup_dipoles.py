@@ -1,7 +1,7 @@
 import numpy as np
 
-from engines.charge.bemf3_inc_field_gauss_selective_dipoles import (
-    bemf3_inc_field_gauss_selective_dipoles,
+from engines.charge.inc_field_gauss_selective_dipoles import (
+    inc_field_gauss_selective_dipoles,
 )
 from engines.lib import timeit
 
@@ -63,7 +63,7 @@ def setup_dipoles(
     gaussRadius = 2 * R
     dipoleClusterCenter = np.mean(Ctr, axis=0)
 
-    Epri, Ppri = bemf3_inc_field_gauss_selective_dipoles(
+    Epri, Ppri = inc_field_gauss_selective_dipoles(
         strdipolePplus=strdipolePplus,
         strdipolePminus=strdipolePminus,
         strdipolesig=strdipolesig,

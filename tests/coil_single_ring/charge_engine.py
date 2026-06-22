@@ -8,10 +8,10 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.bemf4_surface_field_electric_plain import (
-    bemf4_surface_field_electric_plain,
+from engines.charge.surface_field_electric_plain import (
+    surface_field_electric_plain,
 )
-from engines.charge.bemf4_surface_field_lhs import bemf4_surface_field_lhs
+from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
 
@@ -41,7 +41,7 @@ def iterative_solution(
      n(r)
 
     """
-    MATVEC = lambda c: bemf4_surface_field_lhs(
+    MATVEC = lambda c: surface_field_lhs(
         c=c,
         center=center,
         area=area,
@@ -101,9 +101,7 @@ def charge_engine(
         f"""conservation_law_error={conservation_law_error:.3e}
 solution_error={solution_error:.3e}"""
     )
-    Ptot, Esec = bemf4_surface_field_electric_plain(
-        c=c, center=center, area=area, prec=prec
-    )
+    Ptot, Esec = surface_field_electric_plain(c=c, center=center, area=area, prec=prec)
     En = np.sum(normals * (Epri + Esec), 1).reshape((-1, 1))
 
     # Normal E-Field Just Inside and Outside
