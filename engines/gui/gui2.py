@@ -56,7 +56,7 @@ def create_gui(
     ttk.Label(root, text="current").grid(row=5, column=0)
     dIdt_entry = ttk.Entry(root)
     dIdt_entry.grid(row=5, column=1)
-    dIdt_entry.insert(0,"9.4e7")
+    dIdt_entry.insert(0, "9.4e7")
 
     # rotation flag
     auto_var = tk.BooleanVar(value=True)
