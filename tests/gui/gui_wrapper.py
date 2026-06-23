@@ -15,13 +15,15 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-from engines.gui.gui2 import create_gui
-from engines.gui.load_coil_from_func import load_coil_from_func
 from engines.gui.transformer import transformer
+from engines.gui.gui2 import create_gui
+from engines.mesh.mesh_tricenter import mesh_tricenter
+from engines.mesh.mesh_normals import mesh_normals
 from engines.gui.vector_to_quat import vector_to_quat
 from engines.gui.xyz_to_quat import xyz_to_quat
-from engines.mesh.mesh_normals import mesh_normals
-from engines.mesh.mesh_tricenter import mesh_tricenter
+from engines.gui.load_coil_from_func import load_coil_from_func
+from engines.gui.quat_multiply import quat_multiply
+from engines.gui.axis_angle_to_quat import axis_angle_to_quat
 
 
 def input_wrapper(head, coil_names):
@@ -147,6 +149,17 @@ def input_wrapper(head, coil_names):
         coils[id].dIdt = dIdt
         return
 
+    # rotate coil around normal vector
+    def apply_twist_wrapper(id, twist, base_rot):
+        coil = coils[id]
+        q_twist = axis_angle_to_quat(np.array([0, 0, 1]), np.deg2rad(twist))
+        q_final = quat_multiply(base_rot, q_twist)
+        transformer(coil, coil.com, q_final)
+
+        actor = coil_actors[id]
+        actor.points = coil.cad_P
+        return
+
     # delete coil
     def wrapper_delete_coil(id):
         undo_queue.append([1, [coils[id].clone()]])
@@ -270,21 +283,21 @@ def input_wrapper(head, coil_names):
 
     # gui
     root = create_gui(
-        coil_names,
-        wrapper_add_coil,
-        wrapper_get_coil,
-        wrapper_get_coils,
-        wrapper_edit_coil_com,
-        wrapper_edit_coil_rot,
-        wrapper_edit_coil_cur,
-        wrapper_delete_coil,
-        save_coil_config,
-        show_world_axes,
-        remove_world_axes,
-        auto_orient,
-        save_last_coil,
-        undo_operation,
-    )
+        coil_names, 
+        wrapper_add_coil, 
+        wrapper_get_coil, 
+        wrapper_get_coils, 
+        wrapper_edit_coil_com, 
+        wrapper_edit_coil_rot, 
+        wrapper_edit_coil_cur, 
+        wrapper_delete_coil, 
+        save_coil_config, 
+        show_world_axes, 
+        remove_world_axes, 
+        auto_orient, 
+        apply_twist_wrapper, 
+        save_last_coil, 
+        undo_operation)
 
     def tick():
         plt.render()
