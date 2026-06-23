@@ -1,76 +1,57 @@
 import tkinter as tk
 from tkinter import ttk
-
 import numpy as np
-
 from engines.gui.quat_to_xyz import quat_to_xyz
 
 
-def create_gui(
-    coil_names,
-    new_coil,
-    get_coil,
-    get_coils,
-    edit_coil_com,
-    edit_coil_rot,
-    edit_coil_cur,
-    delete_coil,
-    save_coil_config,
-    add_axes,
-    remove_axes,
-    auto_orient,
-    save_last_coil,
-    undo_operation,
-):
-    # creates a tk GUI that conducts arbitrary call back functions
+def create_gui(coil_names, new_coil, get_coil, get_coils, edit_coil_com, edit_coil_rot, edit_coil_cur, delete_coil, save_coil_config, add_axes, remove_axes, auto_orient, apply_twist, save_last_coil, undo_operation):
+    #creates a tk GUI that conducts arbitrary call back functions
     root = tk.Tk()
     root.title("Coil Placement")
 
-    # new coils
-    ttk.Label(root, text="New Coil:").grid(row=0, column=0, padx=5, pady=5)
+    #new coils
+    ttk.Label(root,text="New Coil:").grid(row=0,column=0,padx=5,pady=5)
 
-    # type
-    ttk.Label(root, text="Coil Type").grid(row=1, column=0, padx=5, pady=5)
+    #type
+    ttk.Label(root,text="Coil Type").grid(row=1,column=0,padx=5,pady=5)
     coil_var = tk.StringVar(value=coil_names[0])
     coil_dropdown = ttk.Combobox(
-        root, textvariable=coil_var, values=coil_names, state="readonly"
+        root,
+        textvariable=coil_var,
+        values=coil_names,
+        state="readonly"
     )
     coil_dropdown.grid(row=1, column=1, padx=5, pady=5)
 
-    # coordinates
+    #coordinates
     ttk.Label(root, text="X").grid(row=2, column=0)
     x_entry = ttk.Entry(root)
     x_entry.grid(row=2, column=1)
-    x_entry.insert(0, "42e-3")
 
     ttk.Label(root, text="Y").grid(row=3, column=0)
     y_entry = ttk.Entry(root)
     y_entry.grid(row=3, column=1)
-    y_entry.insert(0, "0")
 
     ttk.Label(root, text="Z").grid(row=4, column=0)
     z_entry = ttk.Entry(root)
     z_entry.grid(row=4, column=1)
-    z_entry.insert(0, "79.5e-3")
 
     ttk.Label(root, text="current").grid(row=5, column=0)
     dIdt_entry = ttk.Entry(root)
     dIdt_entry.grid(row=5, column=1)
-    dIdt_entry.insert(0, "9.4e7")
 
-    # rotation flag
+    #rotation flag
     auto_var = tk.BooleanVar(value=True)
-    ttk.Checkbutton(root, text="Auto Orient", variable=auto_var).grid(row=2, column=2)
+    ttk.Checkbutton(root,text="Auto Orient",variable=auto_var).grid(row=2, column=2)
 
-    # selecting coils
-    ttk.Label(root, text="Select Coil").grid(row=7, column=0, padx=5, pady=5)
+    #selecting coils
+    ttk.Label(root,text="Select Coil").grid(row=7,column=0,padx=5,pady=5)
     coil_listbox = tk.Listbox(root)
-    coil_listbox.grid(row=7, column=0, padx=5, pady=5)
+    coil_listbox.grid(row=7,column=0,padx=5,pady=5)
 
     next_coil_id = 0
-
+    
     gui_ids = []
-
     def add_coil():
         nonlocal next_coil_id
 
@@ -82,7 +63,7 @@ def create_gui(
         auto = auto_var.get()
         i = float(dIdt_entry.get())
 
-        new_coil(coil_type, np.array([x, y, z]), auto, i)
+        new_coil(coil_type,np.array([x, y, z]),auto,i)
         coils = get_coils()
         coil_listbox.delete(0, tk.END)
         gui_ids.clear()
@@ -91,12 +72,12 @@ def create_gui(
             coil_listbox.insert(tk.END, coil.name)
             gui_ids.append(coil.id)
 
-    # add coil
-    add_button1 = ttk.Button(root, text="Add Coil", command=add_coil)
+    #add coil
+    add_button1 = ttk.Button(root,text="Add Coil",command=add_coil)
     add_button1.grid(row=3, column=2, columnspan=2, pady=10)
 
-    # coil editing
-    ttk.Label(root, text="Coil Editing:").grid(row=6, column=0, padx=5, pady=5)
+    #coil editing
+    ttk.Label(root,text="Coil Editing:").grid(row=6,column=0,padx=5,pady=5)
 
     #editing coils
     def edit_selected_coil():
@@ -242,10 +223,12 @@ def create_gui(
 
         return
 
-    add_button2 = ttk.Button(root, text="Edit Coil", command=edit_selected_coil)
+
+
+    add_button2 = ttk.Button(root,text="Edit Coil",command=edit_selected_coil)
     add_button2.grid(row=7, column=1, columnspan=2, pady=10)
 
-    # deleteing coils
+    #deleteing coils
 
     def delete_selected_coil():
         nonlocal gui_ids
@@ -255,15 +238,15 @@ def create_gui(
         idx = selection[0]
         delete_coil(gui_ids[idx])
         coil_listbox.delete(idx)
-        del gui_ids[idx]
+        del gui_ids[idx]  
 
-    add_button3 = ttk.Button(root, text="Delete Coil", command=delete_selected_coil)
+    add_button3 = ttk.Button(root,text="Delete Coil",command=delete_selected_coil)
     add_button3.grid(row=7, column=2, columnspan=2, pady=10)
 
-    # computing Efield
-    ttk.Label(root, text="Electric Field:").grid(row=8, column=0, padx=5, pady=5)
+    #computing Efield
+    ttk.Label(root,text="Electric Field:").grid(row=8,column=0,padx=5,pady=5)
 
-    add_button4 = ttk.Button(root, text="save", command=save_coil_config)
+    add_button4 = ttk.Button(root,text="save",command=save_coil_config)
     add_button4.grid(row=9, column=0, columnspan=2, pady=10)
 
     def undo():
@@ -275,14 +258,13 @@ def create_gui(
         for coil in coils.values():
             coil_listbox.insert(tk.END, coil.name)
             gui_ids.append(coil.id)
-
+        
         return
-
-    add_button5 = ttk.Button(root, text="Undo", command=undo)
+    
+    add_button5 = ttk.Button(root,text="Undo",command=undo)
     add_button5.grid(row=9, column=1, columnspan=2, pady=10)
 
     return root
-
 
 # def test_return(coil_type=None, xyz=None, a=None):
 #     print(coil_type)
