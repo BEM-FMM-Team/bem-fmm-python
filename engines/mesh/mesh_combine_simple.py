@@ -8,57 +8,43 @@ from .mesh_reorient import mesh_reorient
 def mesh_combine_simple(Pcell, tcell, condinner, condouter, opts=None):
     """
     Create Combined Mesh
-    Create the combined mesh. Apply mesh_clean_coincident_facets()
-    to remove duplicate face ts.
 
-    DD - 5/2026
+    SP 2026
     """
-    Pcomb = np.empty((0, 3))
-    tcomb = np.empty((0, 3))
-    ncomb = np.empty((0, 3))
-    interface = np.empty((0,))
-    condin = np.empty((0,))
-    condout = np.empty((0,))
+
+    Plist = []
+    tlist = []
+    nlist = []
+    interface_list = []
+    condin_list = []
+    condout_list = []
+
+    nrows = 0
+
     for i in range(len(tcell)):
-        # cell i mesh
         P = Pcell[i]
         t = tcell[i]
         normals = mesh_normals(P, t)
 
-        # fix individual mesh
         P, t, _ = mesh_fix(P, t)
         t = mesh_reorient(P, t, normals)
 
-        # store into combined mesh
-        tcomb = np.vstack([tcomb, t + Pcomb.shape[0]])
-        Pcomb = np.vstack([Pcomb, P])
-        ncomb = np.vstack([ncomb, normals])
-        interface = np.concatenate([interface, np.full(t.shape[0], i)])
-        condin = np.concatenate([condin, np.full(t.shape[0], condinner[i])])
-        condout = np.concatenate([condout, np.full(t.shape[0], condouter[i])])
+        Plist.append(P)
+        tlist.append(t + nrows)  # offset triangle indices
+        nlist.append(normals)
+        interface_list.append(np.full(t.shape[0], i))
+        condin_list.append(np.full(t.shape[0], condinner[i]))
+        condout_list.append(np.full(t.shape[0], condouter[i]))
 
-    # Rename mesh
-    P = Pcomb
-    t = tcomb.astype(int)
-    normals = ncomb
+        nrows += P.shape[0]
 
-    # Fix interfaces (will need to update later!!)
-    # Right now, assumes all interfaces are unique (onion shape)
-    # THIS WILL NEED TO BE UPDATED LATER!!
-    interface = np.vstack([interface, interface]).T  # INFO this works
+    P = np.vstack(Plist)
+    t = np.vstack(tlist).astype(int)
+    normals = np.vstack(nlist)
+    interface = np.concatenate(interface_list)
+    condin = np.concatenate(condin_list)
+    condout = np.concatenate(condout_list)
 
-    # %%% STEP 3: FIX MESH FACES
-    # %%% ----------------------
-    # % Repair the mesh faces in case of duplicate ts. (critical for non-nested topologies)
-    # % THIS WILL NEED TO BE UPDATED LATER!!
-
-    # size_t_before = t.shape[0]
-    # accuracy = 1e-6
-
-    # P, t, normals, centers, area, Indicator, condin, condout, contrast = (
-    #     mesh_clean_coincident_facets(
-    #         P, t, normals, centers, area, Indicator, condin, condout, contrast, accuracy
-    #         )
-    #     )
+    interface = np.column_stack([interface, interface])
 
     return P, t, normals, condin, condout, interface

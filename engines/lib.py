@@ -45,14 +45,13 @@ internal_timer = 0
 def tic():
     global internal_timer
     internal_timer = perf_counter()
-    print(f"Timer start")  # could add a fancy spinner
     pass
 
 
-def toc():
+def toc(inf):
     global internal_timer
     time_taken = perf_counter() - internal_timer
-    print(f"Time taken: {time_taken}")
+    print(f"{inf}: Time taken: {time_taken}")
     pass
 
 

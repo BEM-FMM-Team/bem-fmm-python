@@ -15,12 +15,13 @@ import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from pprint import pprint
+from sys import exit
 from typing import Literal
 
 import numpy as np
 import vedo
 
-from engines.lib import cache, timeit
+from engines.lib import cache, tic, timeit, toc
 from engines.mesh.mesh_areas import mesh_areas
 from engines.mesh.mesh_combine_simple import mesh_combine_simple
 from engines.mesh.mesh_tricenter import mesh_tricenter
