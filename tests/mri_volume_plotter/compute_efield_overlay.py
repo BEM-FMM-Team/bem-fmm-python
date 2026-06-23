@@ -1,5 +1,6 @@
 import time
 from dataclasses import dataclass
+from multiprocessing import Process
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -67,7 +68,7 @@ def compute_efield_overlay_worker(
         val=val,
         interface=interface,
     )
-    plot_efield_overlay(result, tissue_list)
+    Process(target=plot_efield_overlay, args=(result, tissue_list)).start()
 
 
 def compute_efield_overlay(
@@ -88,7 +89,8 @@ def compute_efield_overlay(
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
     from engines.charge.volume_field_electric import volume_field_electric
-    from engines.mesh.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
+    from engines.mesh.meshplaneint_axis_nonmanifold import \
+        meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
