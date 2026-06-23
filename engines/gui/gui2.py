@@ -98,7 +98,7 @@ def create_gui(
     # coil editing
     ttk.Label(root, text="Coil Editing:").grid(row=6, column=0, padx=5, pady=5)
 
-    # editing coils
+    #editing coils
     def edit_selected_coil():
         selection = coil_listbox.curselection()
         if not selection:
@@ -112,7 +112,6 @@ def create_gui(
 
         editor = tk.Toplevel(root)
         editor.title(f"Edit Coil {id}")
-
         def on_close():
             remove_axes()
             editor.destroy()
@@ -122,104 +121,62 @@ def create_gui(
         x_var = tk.DoubleVar(value=coil.com[0])
         y_var = tk.DoubleVar(value=coil.com[1])
         z_var = tk.DoubleVar(value=coil.com[2])
-
+    
         rx_var = tk.DoubleVar(value=quat_to_xyz(coil)[0])
         ry_var = tk.DoubleVar(value=quat_to_xyz(coil)[1])
         rz_var = tk.DoubleVar(value=quat_to_xyz(coil)[2])
 
         i_var = tk.DoubleVar(value=coil.dIdt)
 
-        # position
+        #position
+        
+        ttk.Label(editor,text="Position").grid(row=0,column=0,padx=5,pady=5)
 
-        ttk.Label(editor, text="Position").grid(row=0, column=0, padx=5, pady=5)
-
-        ttk.Label(editor, text="X").grid(row=1, column=0, padx=5, pady=5)
-        x1 = tk.Scale(
-            editor,
-            from_=-0.15,
-            to=0.15,
-            resolution=0.0001,
-            orient="horizontal",
-            variable=x_var,
-        )
-        x = ttk.Entry(editor, textvariable=x_var)
+        ttk.Label(editor,text="X").grid(row=1,column=0,padx=5,pady=5)
+        x1 = tk.Scale(editor,from_=-.15,to=.15,resolution=.0001,orient="horizontal",variable=x_var)
+        x = ttk.Entry(editor,textvariable=x_var)
         x.grid(row=1, column=1, columnspan=2, pady=10)
         x1.grid(row=1, column=3, columnspan=2, pady=10)
 
-        ttk.Label(editor, text="Y").grid(row=2, column=0, padx=5, pady=5)
-        y1 = tk.Scale(
-            editor,
-            from_=-0.15,
-            to=0.15,
-            resolution=0.0001,
-            orient="horizontal",
-            variable=y_var,
-        )
-        y = ttk.Entry(editor, textvariable=y_var)
+        ttk.Label(editor,text="Y").grid(row=2,column=0,padx=5,pady=5)
+        y1 = tk.Scale(editor,from_=-.15,to=.15,resolution=.0001,orient="horizontal",variable=y_var)
+        y = ttk.Entry(editor,textvariable=y_var)
         y.grid(row=2, column=1, columnspan=2, pady=10)
         y1.grid(row=2, column=3, columnspan=2, pady=10)
 
-        ttk.Label(editor, text="Z").grid(row=3, column=0, padx=5, pady=5)
-        z1 = tk.Scale(
-            editor,
-            from_=-0.15,
-            to=0.15,
-            resolution=0.0001,
-            orient="horizontal",
-            variable=z_var,
-        )
-        z = ttk.Entry(editor, textvariable=z_var)
+        ttk.Label(editor,text="Z").grid(row=3,column=0,padx=5,pady=5)
+        z1 = tk.Scale(editor,from_=-.15,to=.15,resolution=.0001,orient="horizontal",variable=z_var)
+        z = ttk.Entry(editor,textvariable=z_var)
         z.grid(row=3, column=1, columnspan=2, pady=10)
         z1.grid(row=3, column=3, columnspan=2, pady=10)
 
-        # orientation
+        #orientation
 
-        ttk.Label(editor, text="rX").grid(row=4, column=0, padx=5, pady=5)
-        rx1 = tk.Scale(
-            editor,
-            from_=-180.0,
-            to=180.0,
-            resolution=0.001,
-            orient="horizontal",
-            variable=rx_var,
-        )
-        rx2 = ttk.Entry(editor, textvariable=rx_var)
+        ttk.Label(editor,text="rX").grid(row=4,column=0,padx=5,pady=5)
+        rx1 = tk.Scale(editor,from_=-180.0,to=180.0,resolution=.001,orient="horizontal",variable=rx_var)
+        rx2 = ttk.Entry(editor,textvariable=rx_var)
         rx1.grid(row=4, column=1, columnspan=2, pady=10)
         rx2.grid(row=4, column=3, columnspan=2, pady=10)
 
-        ttk.Label(editor, text="rY").grid(row=5, column=0, padx=5, pady=5)
-        ry1 = tk.Scale(
-            editor,
-            from_=-180,
-            to=180,
-            resolution=0.001,
-            orient="horizontal",
-            variable=ry_var,
-        )
-        ry2 = ttk.Entry(editor, textvariable=ry_var)
+        ttk.Label(editor,text="rY").grid(row=5,column=0,padx=5,pady=5)
+        ry1 = tk.Scale(editor,from_=-180,to=180,resolution=.001,orient="horizontal",variable=ry_var)
+        ry2 = ttk.Entry(editor,textvariable=ry_var)
         ry1.grid(row=5, column=1, columnspan=2, pady=10)
         ry2.grid(row=5, column=3, columnspan=2, pady=10)
 
-        ttk.Label(editor, text="rZ").grid(row=6, column=0, padx=5, pady=5)
-        rz1 = tk.Scale(
-            editor,
-            from_=-180,
-            to=180,
-            resolution=0.001,
-            orient="horizontal",
-            variable=rz_var,
-        )
-        rz2 = ttk.Entry(editor, textvariable=rz_var)
+        ttk.Label(editor,text="rZ").grid(row=6,column=0,padx=5,pady=5)
+        rz1 = tk.Scale(editor,from_=-180,to=180,resolution=.001,orient="horizontal",variable=rz_var)
+        rz2 = ttk.Entry(editor,textvariable=rz_var)
         rz1.grid(row=6, column=1, columnspan=2, pady=10)
         rz2.grid(row=6, column=3, columnspan=2, pady=10)
 
-        # current
+        #current
 
-        ttk.Label(editor, text="dIdt").grid(row=7, column=0, padx=5, pady=5)
-        dIdt = ttk.Entry(editor, textvariable=i_var)
+        ttk.Label(editor,text="dIdt").grid(row=7,column=0,padx=5,pady=5)
+        dIdt = ttk.Entry(editor,textvariable=i_var)
         dIdt.grid(row=7, column=2, columnspan=2, pady=10)
 
-        # auto_orient
+        #auto_orient
         def auto_orient_id():
             auto_orient(id)
             new_rot = quat_to_xyz(coil)
@@ -228,50 +185,58 @@ def create_gui(
             rz_var.set(new_rot[2])
             return
 
-        auto_orient_button = ttk.Button(
-            editor, text="Auto Orient", command=auto_orient_id
-        )
+        auto_orient_button = ttk.Button(editor,text="Auto Orient",command=auto_orient_id)
         auto_orient_button.grid(row=8, column=0, columnspan=2, pady=10)
 
-        x_var.trace_add(
-            "write",
-            lambda *args: edit_coil_com(
-                id, np.array([x_var.get(), y_var.get(), z_var.get()])
-            ),
-        )
-        y_var.trace_add(
-            "write",
-            lambda *args: edit_coil_com(
-                id, np.array([x_var.get(), y_var.get(), z_var.get()])
-            ),
-        )
-        z_var.trace_add(
-            "write",
-            lambda *args: edit_coil_com(
-                id, np.array([x_var.get(), y_var.get(), z_var.get()])
-            ),
-        )
 
-        rx_var.trace_add(
-            "write",
-            lambda *args: edit_coil_rot(
-                id, np.array([rx_var.get(), ry_var.get(), rz_var.get()])
-            ),
-        )
-        ry_var.trace_add(
-            "write",
-            lambda *args: edit_coil_rot(
-                id, np.array([rx_var.get(), ry_var.get(), rz_var.get()])
-            ),
-        )
-        rz_var.trace_add(
-            "write",
-            lambda *args: edit_coil_rot(
-                id, np.array([rx_var.get(), ry_var.get(), rz_var.get()])
-            ),
-        )
+        x_var.trace_add("write", lambda *args:edit_coil_com(id, np.array([x_var.get(), y_var.get(), z_var.get()])))
+        y_var.trace_add("write", lambda *args:edit_coil_com(id, np.array([x_var.get(), y_var.get(), z_var.get()])))
+        z_var.trace_add("write", lambda *args:edit_coil_com(id, np.array([x_var.get(), y_var.get(), z_var.get()])))
 
-        i_var.trace_add("write", lambda *args: edit_coil_cur(id, i_var.get()))
+        base_rot = get_coil(id).rot
+        twist = tk.DoubleVar(value=0.0)
+
+        updating_rot = False
+        updating_twist = False
+
+        def edit_coil_rot_gui(new_rot):
+            nonlocal base_rot
+            nonlocal updating_rot
+            if updating_twist:
+                return
+            updating_rot = True
+            edit_coil_rot(id, new_rot)
+            base_rot = get_coil(id).rot
+            twist.set(0)
+            updating_rot = False
+            return
+        
+        rx_var.trace_add("write", lambda *args:edit_coil_rot_gui(np.array([rx_var.get(), ry_var.get(), rz_var.get()])))
+        ry_var.trace_add("write", lambda *args:edit_coil_rot_gui(np.array([rx_var.get(), ry_var.get(), rz_var.get()])))
+        rz_var.trace_add("write", lambda *args:edit_coil_rot_gui(np.array([rx_var.get(), ry_var.get(), rz_var.get()])))
+
+        i_var.trace_add("write", lambda *args:edit_coil_cur(id, i_var.get()))
+
+        def apply_twist_gui(twist, base_rot):
+            nonlocal updating_twist
+            if updating_rot:
+                return
+            updating_twist = True
+            apply_twist(id, twist, base_rot)
+            new_rot = quat_to_xyz(coil)
+            rx_var.set(round(new_rot[0], 3))
+            ry_var.set(round(new_rot[1], 3))
+            rz_var.set(round(new_rot[2], 3))
+            updating_twist = False
+            return
+
+        ttk.Label(editor,text="twist").grid(row=9,column=0,padx=5,pady=5)
+        twist_bar = tk.Scale(editor,from_=-180,to=180,resolution=.001,orient="horizontal",variable=twist)
+        twist_entry = ttk.Entry(editor,textvariable=twist)
+        twist_bar.grid(row=9, column=1, columnspan=2, pady=10)
+        twist_entry.grid(row=9, column=3, columnspan=2, pady=10)
+
+        twist.trace_add("write", lambda *args:apply_twist_gui(twist.get(), base_rot))
 
         editor.mainloop()
 

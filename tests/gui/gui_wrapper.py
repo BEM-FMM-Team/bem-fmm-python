@@ -147,6 +147,17 @@ def input_wrapper(head, coil_names):
         coils[id].dIdt = dIdt
         return
 
+    # rotate coil around normal vector
+    def apply_twist_wrapper(id, twist, base_rot):
+        coil = coils[id]
+        q_twist = axis_angle_to_quat(np.array([0, 0, 1]), np.deg2rad(twist))
+        q_final = quat_multiply(base_rot, q_twist)
+        transformer(coil, coil.com, q_final)
+
+        actor = coil_actors[id]
+        actor.points = coil.cad_P
+        return
+
     # delete coil
     def wrapper_delete_coil(id):
         undo_queue.append([1, [coils[id].clone()]])
