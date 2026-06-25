@@ -6,12 +6,14 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
+from scipy.sparse import csr_array
 import numpy as np
 
 from engines.charge.surface_field_electric_plain import surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
+from engines.my_types import Nx1, Nx3
 
 
 @cache
@@ -50,22 +52,22 @@ def iterative_solution(
         prec=prec,
     )
     c, its, resvec = fgmres(
-        MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=8 * b
+        MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=b
     )
     return resvec, c, its
 
 
 @cache
 def charge_engine(
-    center: np.ndarray,
-    area,
-    contrast,
-    normals,
-    EC,
-    condin,
-    condout,
-    Epri,
-    b,
+    center: Nx3,
+    area: Nx1,
+    contrast: Nx1,
+    normals: Nx3,
+    EC: csr_array,
+    condin: Nx1,
+    condout: Nx1,
+    Epri: Nx1,
+    b: Nx1,
     #  Parameters of the iterative solution
     iter=20,  # 50 NOTE does not converge for assests in repo
     maxiter=1,
@@ -75,17 +77,17 @@ def charge_engine(
     weight=1 / 2,
 ):
     resvec, c, its = iterative_solution(
-        center=center,
-        area=area,
-        contrast=contrast,
-        normals=normals,
-        weight=weight,
+        center=center, # correct
+        area=area, # correct
+        contrast=contrast, # correct
+        normals=normals, # correct
+        weight=weight, # correct
         EC=EC,
         prec=iter_prec,
         maxiter=maxiter,
         iter=iter,
         relres=relres,
-        b=b,
+        b=b, # correct
     )
     c = c.reshape((-1, 1))
 
@@ -110,7 +112,8 @@ solution_error={solution_error:.3e}"""
     Jn_out = En_out * condout.reshape(-1, 1)
 
     print(
-        f"Current conservation law:\nNorm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * area))}"
+        f"""Current conservation law:
+Norm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * area))}"""
     )
 
     return c, Ptot, En, En_in, En_out, Jn_in, Jn_out, resvec

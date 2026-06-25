@@ -7,9 +7,10 @@ from numpy import dtype, float32, float64, ndarray, uint32
 DType = TypeVar("DType", bound=np.generic)
 
 L1 = Literal[1]
+L2 = Literal[2]
 L3 = Literal[3]
-N = Literal["N"]
-M = Literal["M"]
+N = Annotated[Literal["N"], "indices"]
+M = Annotated[Literal["M"], "vertices"]
 
 
 f32 = dtype[float32]
@@ -35,15 +36,17 @@ NArray = Annotated[
     "(N,) or (N, 1) will be reshaped",
 ]
 
+Nx1 = ndarray[tuple[N, L1], f64]
+Nx3 = ndarray[tuple[N, L3], f64]
+Nx3i = ndarray[tuple[N, L3], u32]
 
-# from coil.mat
+Mx1 = ndarray[tuple[M, L1], f64]
+Mx3 = ndarray[tuple[M, L3], f64]
+
 # make the math look more elegant
 @dataclass
 class StrCoil:
-    Pwire: np.ndarray[tuple[N, Literal[3]]] = None
-    Ewire: np.ndarray[tuple[N, Literal[2]]] = None
-    Swire: np.ndarray[tuple[N, Literal[1]]] = None
+    Pwire: Nx3 = None
+    Ewire: np.ndarray[tuple[N, L2]] = None
+    Swire: Nx1 = None
 
-
-Nx1 = ndarray[tuple[N, L1], f64]
-Nx3 = ndarray[tuple[N, L3], f64]

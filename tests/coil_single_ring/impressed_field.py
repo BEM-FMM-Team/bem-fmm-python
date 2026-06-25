@@ -14,22 +14,19 @@ import numpy as np
 
 from engines.charge.inc_field_electric import inc_field_electric
 from engines.lib import cache, timeit
-from engines.my_types import StrCoil
+from engines.my_types import StrCoil, Nx3, Mx3, Nx3i
 
 
 @timeit
-@cache
 def impressed_field(
-    P=None,
-    t=None,
-    normals=None,
-    dIdt=None,
-    mu0=1.25663706e-06,
+    P: Mx3=None,
+    t: Nx3i =None,
+    normals: Nx3=None,
+    dIdt: float=None,
     strcoil: StrCoil = None,
-    contrast=None,
+    contrast: Nx3=None,
 ):
-    EpriP = inc_field_electric(strcoil, P, dIdt, mu0)
+    EpriP = inc_field_electric(strcoil, P, dIdt)
     Epri = 1 / 3 * (EpriP[t[:, 0], :] + EpriP[t[:, 1], :] + EpriP[t[:, 2], :])
     b = 2 * contrast * np.sum((normals * Epri), 1)
-
     return EpriP, Epri, b

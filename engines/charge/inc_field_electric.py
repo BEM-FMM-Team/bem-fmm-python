@@ -2,9 +2,9 @@ import numpy as np
 from fmm3dpy import lfmm3d
 
 from ..my_types import StrCoil
+from engines.constants import mu0
 
-
-def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu0=None):
+def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None):
     """
     Computes electric field from the coil via the FMM  in terms of the pseudo electric potential evaluated for segment centers
 
@@ -36,12 +36,6 @@ def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None, mu0=None
     charges[0, :] = PseudoQx
     charges[1, :] = PseudoQy
     charges[2, :] = PseudoQz
-    # INFO i think this should work but ...
-    # i could vectorise this, but im not sure if the intent is the same
-    # charges = np.vstack([PseudoQx, PseudoQy, PseudoQz])
-    # or if (n, 3)
-    # charges = np.hstack([PseudoQx, PseudoQy, PseudoQz])
-    # not sure if i should still to transpose
 
     U = lfmm3d(
         eps=prec, sources=sources, charges=charges, targets=targ, pgt=pgt, nd=nd
