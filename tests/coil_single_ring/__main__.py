@@ -92,16 +92,21 @@ if __name__ == "__main__":
 
     ## Neighbor integrals
     # INFO sparse matrices are hard to debug visually
-    EC = setup_integrals(
-        P=P,
-        t=t,
-        normals=normals,
-        Area=Area,
-        Center=Center,
-        contrast=contrast,
-    )
-    # plot_coo_matrix(EC)
-    # sys.exit(0)
+    #EC = setup_integrals(
+    #    P=P,
+    #    t=t,
+    #    normals=normals,
+    #    Area=Area,
+    #    Center=Center,
+    #    contrast=contrast,
+    #)
+
+    #EC = loadmat("/home/shawn/wpi/brainlab/artifacts/ECPC.mat")["EC"]
+    
+    EC = csr_matrix((t.shape[0], t.shape[0]))
+
+    #plot_coo_matrix(EC)
+    #sys.exit(0)
 
     coil_path = None
     if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():

@@ -25,7 +25,7 @@ def surface_field_lhs(
     """
     _, E0 = surface_field_electric_plain(  # integral part \int rho/2pi x-y/|x-y|^3 dy
         c=c, center=center, area=area, prec=prec
-    )  #   Plain FMM result
+    )  #   Plain FMM result      # DEBUG seems fine
     correction = EC.dot(c) * contrast  # Correction of plain FMM result
 
     # This is weight correction (optional)
@@ -43,4 +43,4 @@ def surface_field_lhs(
     )  # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
     LHS = c - dominant_part - not_dominant_center_point + weight_correction
 
-    return LHS
+    return LHS # DEBUG seems perfect
