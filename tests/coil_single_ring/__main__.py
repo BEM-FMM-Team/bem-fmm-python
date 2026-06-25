@@ -81,11 +81,6 @@ if __name__ == "__main__":
     ax = plot_coo_matrix(EC)
     ax.figure.show()
 
-    ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
-    EC_imp = ECPC["EC"].T
-    ax = plot_coo_matrix(EC_imp)
-    ax.figure.show()
-
     n = t.shape[0]
     EC = csr_matrix((n, n))
 
