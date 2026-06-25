@@ -51,14 +51,4 @@ def setup_integrals(
         numThreads=numThreads,
     )
 
-    ##  Normalize sparse matrix EC by variable contrast
-    N = Center.shape[0]
-    ii = ineighborE
-    jj = np.tile(np.arange(N), (RnumberE, 1))
-    CO = coo_matrix(
-        (contrast[ii].ravel(order="F"), (ii.ravel(order="F"), jj.ravel(order="F"))),
-        shape=(N, N),
-    ).tocsr()
-    EC = CO.multiply(EC)
-
     return EC

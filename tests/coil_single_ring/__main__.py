@@ -79,13 +79,7 @@ if __name__ == "__main__":
         contrast=contrast,
     )
     ax = plot_coo_matrix(EC)
-    ax.figure.show()
-
-    # n = t.shape[0]
-    # EC = csr_matrix((n, n))
-
-    # 2. Setup Coil
-    # -- Load coil geometry
+    ax.figure.savefig("EC_plot.png")
 
     coil_path = None
     if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():

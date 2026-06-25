@@ -65,7 +65,7 @@ def _fused_kernel(
                 # coincident centers that are not the self term
                 integralc[r, n] = 0
             else:
-                inv_d3 = An / (d2 * d2**0.5)
+                inv_d3 = An / (d2 * d2**0.5)  # |d3|^3
                 integralc[r, n] = (
                     (-dx * inv_d3) * normals[nb_i, 0]
                     + (-dy * inv_d3) * normals[nb_i, 1]

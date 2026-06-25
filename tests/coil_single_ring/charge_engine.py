@@ -46,7 +46,7 @@ def iterative_solution(
         contrast=contrast,
         normals=normals,
         weight=weight,
-        EC=EC.tocsr(),
+        EC=EC,
         prec=prec,
     )
     c, its, resvec = fgmres(

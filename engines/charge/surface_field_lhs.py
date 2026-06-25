@@ -28,7 +28,7 @@ def surface_field_lhs(
     _, E0 = surface_field_electric_plain(  # integral part \int rho/2pi x-y/|x-y|^3 dy
         c=c, center=center, area=area, prec=prec
     )  #   Plain FMM result
-    correction = EC.dot(c) * (contrast)  #   Correction of plain FMM result
+    correction = EC.dot(c) * contrast  # Correction of plain FMM result
 
     # This is weight correction (optional)
     weight_correction = weight * (
