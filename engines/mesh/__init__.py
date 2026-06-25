@@ -12,7 +12,6 @@ from .mesh_laplace_normals import mesh_laplace_normals
 
 # from .mesh_midsurface import mesh_midsurface
 from .mesh_neighborints_En import mesh_neighborints_En
-from .mesh_neighborints_Pn import mesh_neighborints_Pn
 from .mesh_normals import mesh_normals
 from .mesh_refiner import mesh_refiner
 from .mesh_refiner_light import mesh_refiner_light

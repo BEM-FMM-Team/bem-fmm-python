@@ -89,8 +89,7 @@ def compute_efield_overlay(
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
     from engines.charge.volume_field_electric import volume_field_electric
-    from engines.mesh.meshplaneint_axis_nonmanifold import \
-        meshplaneint_axis_nonmanifold
+    from engines.mesh.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(
