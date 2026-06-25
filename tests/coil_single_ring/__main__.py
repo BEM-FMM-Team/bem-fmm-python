@@ -81,12 +81,8 @@ if __name__ == "__main__":
     ax = plot_coo_matrix(EC)
     ax.figure.show()
 
-    n = t.shape[0]
-    EC = csr_matrix((n, n))
-
-    # ECPC = loadmat(Path(__file__).resolve().parent / "../../../artifacts/ECPC.mat")
-    # PC = ECPC["PC"].T
-    # EC = ECPC["EC"].T
+    # n = t.shape[0]
+    # EC = csr_matrix((n, n))
 
     # 2. Setup Coil
     # -- Load coil geometry
