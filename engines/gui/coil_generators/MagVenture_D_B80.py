@@ -1,5 +1,5 @@
 import numpy as np
-from engines.gui.mesh_surface import meshsurface
+from engines.gui.mesh_surface import mesh_surface
 from engines.gui.meshwire import meshwire
 from vedo import Mesh, Plotter
 
@@ -17,7 +17,7 @@ def MagVenture_D_B80(a0, b0, a, b, M, flag, sk):
 
     Pcenter = np.column_stack([x, y, np.full_like(x, -a / 2)])
     Pwire1, Ewire1, Swire1 = meshwire(Pcenter, a, b, M, flag, sk)
-    P1, t1 = meshsurface(Pcenter, a, b, M, flag)
+    P1, t1 = mesh_surface(Pcenter, a, b, M, flag)
     tind1 = np.ones((t1.shape[0], 1), dtype=int)
 
     # second
@@ -42,7 +42,7 @@ def MagVenture_D_B80(a0, b0, a, b, M, flag, sk):
 
     Pcenter = np.column_stack([x, -y, np.full_like(x, a / 2)])
     Pwire2, Ewire2, Swire2 = meshwire(Pcenter, a, b, M, flag, sk)
-    P2, t2 = meshsurface(Pcenter, a, b, M, flag)
+    P2, t2 = mesh_surface(Pcenter, a, b, M, flag)
     tind2 = 2 * np.ones((t2.shape[0], 1), dtype=int)
 
     # combine

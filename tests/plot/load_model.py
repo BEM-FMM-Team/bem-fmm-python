@@ -16,9 +16,7 @@ import numpy as np
 import vedo
 
 from engines.lib import timeit
-from engines.mesh.mesh_areas import mesh_areas
-from engines.mesh.mesh_normals import mesh_normals
-from engines.mesh.mesh_tricenter import mesh_tricenter
+from engines.mesh import mesh_areas, mesh_normals, mesh_tricenter
 
 ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 

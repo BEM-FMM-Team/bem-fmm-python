@@ -1,8 +1,8 @@
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
 from mesh_class import Mesh
-from mesh_normals import mesh_normals
-from mesh_tricenter import mesh_tricenter
+from sklearn.neighbors import NearestNeighbors
+
+from . import mesh_normals, mesh_tricenter
 
 
 def mesh_surfcreator(TRS, TRI):

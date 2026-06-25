@@ -2,17 +2,19 @@ from dataclasses import dataclass
 from typing import Annotated, Literal, TypeVar
 
 import numpy as np
+from numpy import dtype, float32, float64, ndarray, uint32
 
 DType = TypeVar("DType", bound=np.generic)
 
+L1 = Literal[1]
 L3 = Literal[3]
 N = Literal["N"]
 M = Literal["M"]
 
-f32 = np.dtype[np.float32]
-f64 = np.dtype[np.float64]
-u32 = np.dtype[np.uint32]
-u64 = np.dtype[np.uint64]
+
+f32 = dtype[float32]
+f64 = dtype[float64]
+u32 = dtype[uint32]
 floating = np.dtype[np.floating]
 
 vec2f32 = tuple[f32, f32]
@@ -41,3 +43,7 @@ class StrCoil:
     Pwire: np.ndarray[tuple[N, Literal[3]]] = None
     Ewire: np.ndarray[tuple[N, Literal[2]]] = None
     Swire: np.ndarray[tuple[N, Literal[1]]] = None
+
+
+Nx1 = ndarray[tuple[N, L1], f64]
+Nx3 = ndarray[tuple[N, L3], f64]

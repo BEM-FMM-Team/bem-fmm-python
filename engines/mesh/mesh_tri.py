@@ -21,14 +21,9 @@ def mesh_tri(arg1, arg2=None):
     equally subdivided. This gives the desired barycentric points.
       Copyright SNM 2002-2020
     """
-    # nargs is 0
-    if arg1 is None:
-        raise ValueError("Requires at least 1 input")
-    # nargs is 1
-    elif arg2 is None:
-        M = int(
-            arg1
-        )  #   Barycentric triangle subdivision - coefficients for vertexes only
+    if arg2 is None:
+        M = int(arg1)
+        #   Barycentric triangle subdivision - coefficients for vertexes only
         #   M - subdivision order (number of subtriangles is M*M)
 
         # Handle tiny M (degenerate)
@@ -89,7 +84,6 @@ def mesh_tri(arg1, arg2=None):
             # Trim unused preallocated columns and compute uniform weights
             coeff = coeff[:, :k]
             weights = np.ones(coeff.shape[1]) / coeff.shape[1]
-    # nargs is 2
     else:
         #   Gaussian quadrature formulae
         #   arg - number of integration points

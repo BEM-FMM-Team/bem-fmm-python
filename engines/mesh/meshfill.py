@@ -1,6 +1,7 @@
 import numpy as np
-from engines.mesh.mesh_tricenter import mesh_tricenter
 from scipy.spatial import Delaunay
+
+from .mesh_tricenter import mesh_tricenter
 
 
 def meshfill(p, normal):

@@ -1,10 +1,10 @@
 import numpy as np
 
-# WARN may be inaccurate
-
-from engines.mesh.mesh_tri import mesh_tri
+from engines.mesh import mesh_tri
 
 from .surface_field_electric_plain import surface_field_electric_plain
+
+# WARN may be inaccurate
 
 
 def surface_field_electric_subdiv(

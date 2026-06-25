@@ -1,7 +1,7 @@
 import numpy as np
 from engines.mesh.mesh_rotate2 import mesh_rotate2
 from engines.mesh.meshwire import meshwire
-from engines.mesh.mesh_surface import meshsurface
+from engines.mesh.mesh_surface import mesh_surface
 from vedo import Mesh, Plotter
 
 
@@ -21,7 +21,7 @@ def MagVenture_C_B60(a0, b0, height, thickness, M, flag, sk):
     y = P[:, 1]
     Pcenter = np.column_stack([x, y, np.full_like(x, height / 2)])
     Pwire, Ewire, Swire = meshwire(Pcenter, height, thickness, M, flag, sk)
-    Pcad, t = meshsurface(Pcenter, height, thickness, M, flag)
+    Pcad, t = mesh_surface(Pcenter, height, thickness, M, flag)
     nwire = Pwire.shape[0]
     Ewire2 = Ewire + nwire
     Pwire2 = Pwire.copy()

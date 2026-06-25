@@ -1,5 +1,6 @@
 import numpy as np
-from engines.mesh.mesh_rotate2 import mesh_rotate2
+
+from .mesh_rotate2 import mesh_rotate2
 
 
 def mesh_cross_section(a, b, normal, M, flag):

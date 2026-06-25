@@ -1,6 +1,7 @@
 import numpy as np
-from mesh_fix import mesh_fix
 from sklearn.neighbors import NearestNeighbors
+
+from . import mesh_fix
 
 
 def mesh_clean_coincident_facets(

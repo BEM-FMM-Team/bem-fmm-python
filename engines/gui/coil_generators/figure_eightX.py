@@ -1,6 +1,6 @@
 import numpy as np
 from engines.mesh.meshwire import meshwire
-from engines.mesh.mesh_surface import meshsurface
+from engines.mesh.mesh_surface import mesh_surface
 from vedo import Mesh, Plotter
 
 
@@ -24,11 +24,11 @@ def figure_eightX(a0, b0, z_scale, z_shift, height, thickness, M, flag, sk):
 
     Pcenter1 = np.column_stack([X1, Y1, Z1])
     Pwire1, Ewire1, Swire1 = meshwire(Pcenter1, height, thickness, M, flag, sk)
-    P1, t1 = meshsurface(Pcenter1, height, thickness, M, flag)
+    P1, t1 = mesh_surface(Pcenter1, height, thickness, M, flag)
 
     Pcenter2 = np.column_stack([X2, Y2, Z2])
     Pwire2, Ewire2, Swire2 = meshwire(Pcenter2, height, thickness, M, flag, sk)
-    P2, t2 = meshsurface(Pcenter2, height, thickness, M, flag)
+    P2, t2 = mesh_surface(Pcenter2, height, thickness, M, flag)
 
     Pwire = np.vstack([Pwire1, Pwire2])
 

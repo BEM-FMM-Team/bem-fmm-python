@@ -1,5 +1,5 @@
 import numpy as np
-from engines.mesh.mesh_surface import meshsurface
+from engines.mesh.mesh_surface import mesh_surface
 from engines.mesh.meshwire import meshwire
 from vedo import Mesh, Plotter
 
@@ -13,7 +13,7 @@ def MagVenture_Cool_B35(turns, a0, a, b, M, flag, sk):
 
     Pcenter = np.column_stack([x, y, np.full_like(x, a / 2)])
     Pwire, Ewire, Swire = meshwire(Pcenter, a, b, M, flag, sk)
-    P, t = meshsurface(Pcenter, a, b, M, flag)
+    P, t = mesh_surface(Pcenter, a, b, M, flag)
     tind = np.ones(t.shape[0])
 
     Swire = np.vstack((Swire, Swire))

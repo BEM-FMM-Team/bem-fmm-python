@@ -6,9 +6,7 @@ from vedo import Sphere
 sys.path.insert(1, "../..")
 
 from engines.lib import timeit
-from engines.mesh.mesh_areas import mesh_areas
-from engines.mesh.mesh_combine_simple import mesh_combine_simple
-from engines.mesh.mesh_tricenter import mesh_tricenter
+from engines.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
 
 
 @timeit

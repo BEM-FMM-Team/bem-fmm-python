@@ -82,6 +82,7 @@ if __name__ == "__main__":
         strcoil,
         CoilP,
         Coilt,
+        xyz,
     ) = (
         coil_setup() if coil_path is None else pickle_loader(coil_path)
     )
@@ -129,6 +130,10 @@ if __name__ == "__main__":
     X = -37.4 * unit_convert
     Y = 20 * unit_convert
     Z = 20 * unit_convert
+
+    X = xyz[0]
+    Y = xyz[1]
+    Z = xyz[2]
 
     tissue_list = list(tissue_list)
 

@@ -1,7 +1,7 @@
 import numpy as np
-from meshwire import meshwire
-from engines.mesh.mesh_surface import meshsurface
-from engines.mesh.mesh_fix import mesh_fix
+
+from .mesh_fix import mesh_fix
+from .meshwire import meshwire
 
 
 def meshcoil(x0, y0, z0, M, N, a, b, flag, sk):
@@ -42,7 +42,7 @@ def meshcoil(x0, y0, z0, M, N, a, b, flag, sk):
         y = y0[m] * np.sin(theta)
         Pcenter = np.column_stack([x, y, np.full_like(x, z0[m])])
         W_Pwire, W_Ewire, W_Swire = meshwire(Pcenter, a, b, M, flag, sk)
-        P1, t1 = meshsurface(Pcenter, a, b, M, flag)
+        P1, t1 = mesh_surface(Pcenter, a, b, M, flag)
         Ewire = np.vstack([Ewire, W_Ewire + Pwire.shape[0]])
         Pwire = np.vstack([Pwire, W_Pwire])
         Swire = np.vstack([Swire, W_Swire])

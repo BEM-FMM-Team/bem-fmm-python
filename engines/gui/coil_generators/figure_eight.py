@@ -1,6 +1,6 @@
 import numpy as np
 from engines.mesh.meshwire import meshwire
-from engines.mesh.mesh_surface import meshsurface
+from engines.mesh.mesh_surface import mesh_surface
 from vedo import Mesh, Plotter
 
 
@@ -17,7 +17,7 @@ def figure_eight(a0, b0, diameter, M, flag, sk):
 
     Pcenter = np.column_stack([x, y, np.full_like(x, diameter / 2)])
     Pwire, Ewire, Swire = meshwire(Pcenter, diameter, diameter, M, flag, sk)
-    P, t = meshsurface(Pcenter, diameter, diameter, M, flag)
+    P, t = mesh_surface(Pcenter, diameter, diameter, M, flag)
     tind = np.ones((t.shape[0], 1), dtype=int)
     coil = {}
     coil["Pwire"] = Pwire

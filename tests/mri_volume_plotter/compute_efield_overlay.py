@@ -269,7 +269,7 @@ def _ray_cast_inside(
 def _log_modulus(
     temp: np.ndarray, th1: float, th2: float, factor: float = 0.01
 ) -> tuple[np.ndarray, float, float, float]:
-    """John & Draper (1980) log-modulus transform"""
+    """John and Draper (1980) log-modulus transform"""
     temp = np.clip(temp, th2, th1)
     scale = factor * float(np.nanmax(np.abs(temp)))
     if scale == 0:

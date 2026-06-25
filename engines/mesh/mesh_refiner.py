@@ -1,5 +1,6 @@
 import numpy as np
-from mesh_fix import mesh_fix
+
+from .mesh_fix import mesh_fix
 
 
 def mesh_refiner(P, t, normals, c):

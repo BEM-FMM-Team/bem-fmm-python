@@ -17,4 +17,4 @@ def pickle_loader(filename):
         start=np.array(data.centerline[0]),
         end=np.array(data.centerline[1]),
     )
-    return pointsline, data.dIdt, 5e3, strcoil, data.cad_P, data.t
+    return pointsline, data.dIdt, 5e3, strcoil, data.cad_P, data.t, data.com

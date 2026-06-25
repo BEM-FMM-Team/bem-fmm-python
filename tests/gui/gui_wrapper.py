@@ -1,4 +1,3 @@
-import os
 import pickle
 import sys
 from pathlib import Path
@@ -15,15 +14,14 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-from engines.gui.transformer import transformer
+from engines.gui.axis_angle_to_quat import axis_angle_to_quat
 from engines.gui.gui2 import create_gui
-from engines.mesh.mesh_tricenter import mesh_tricenter
-from engines.mesh.mesh_normals import mesh_normals
-from engines.gui.vector_to_quat import vector_to_quat
-from engines.gui.xyz_to_quat import xyz_to_quat
 from engines.gui.load_coil_from_func import load_coil_from_func
 from engines.gui.quat_multiply import quat_multiply
-from engines.gui.axis_angle_to_quat import axis_angle_to_quat
+from engines.gui.transformer import transformer
+from engines.gui.vector_to_quat import vector_to_quat
+from engines.gui.xyz_to_quat import xyz_to_quat
+from engines.mesh import mesh_normals, mesh_tricenter
 
 
 def input_wrapper(head, coil_names):
@@ -283,21 +281,22 @@ def input_wrapper(head, coil_names):
 
     # gui
     root = create_gui(
-        coil_names, 
-        wrapper_add_coil, 
-        wrapper_get_coil, 
-        wrapper_get_coils, 
-        wrapper_edit_coil_com, 
-        wrapper_edit_coil_rot, 
-        wrapper_edit_coil_cur, 
-        wrapper_delete_coil, 
-        save_coil_config, 
-        show_world_axes, 
-        remove_world_axes, 
-        auto_orient, 
-        apply_twist_wrapper, 
-        save_last_coil, 
-        undo_operation)
+        coil_names,
+        wrapper_add_coil,
+        wrapper_get_coil,
+        wrapper_get_coils,
+        wrapper_edit_coil_com,
+        wrapper_edit_coil_rot,
+        wrapper_edit_coil_cur,
+        wrapper_delete_coil,
+        save_coil_config,
+        show_world_axes,
+        remove_world_axes,
+        auto_orient,
+        apply_twist_wrapper,
+        save_last_coil,
+        undo_operation,
+    )
 
     def tick():
         plt.render()

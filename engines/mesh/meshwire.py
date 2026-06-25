@@ -1,11 +1,12 @@
 import numpy as np
-from engines.gui.mesh_cross_section import meshcross_section
-from engines.mesh.mesh_connee import mesh_connee
-from engines.mesh.mesh_areas import mesh_areas
-from engines.mesh.mesh_tricenter import mesh_tricenter
-from engines.mesh.mesh_rotate2 import mesh_rotate2
-from engines.mesh.meshfill import meshfill
-from engines.mesh.meshconnet import meshconnet
+
+from ..gui.mesh_cross_section import meshcross_section
+from .mesh_areas import mesh_areas
+from .mesh_connee import mesh_connee
+from .mesh_rotate2 import mesh_rotate2
+from .mesh_tricenter import mesh_tricenter
+from .meshconnet import meshconnet
+from .meshfill import meshfill
 
 
 def meshwire(Pcenter, a, b, M, flag, sk):

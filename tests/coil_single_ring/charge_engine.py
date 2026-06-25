@@ -8,7 +8,8 @@ Copyright SNM/WAW 2017-2020
 
 import numpy as np
 
-from engines.charge.surface_field_electric_plain import surface_field_electric_plain
+from engines.charge.surface_field_electric_plain import \
+    surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache
@@ -46,7 +47,7 @@ def iterative_solution(
         contrast=contrast,
         normals=normals,
         weight=weight,
-        EC=EC,
+        EC=EC.tocsr(),
         prec=prec,
     )
     c, its, resvec = fgmres(

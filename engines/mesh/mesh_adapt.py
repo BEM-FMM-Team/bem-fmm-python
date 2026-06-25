@@ -1,8 +1,9 @@
 import numpy as np
-from mesh_fix import mesh_fix
-from mesh_refiner import mesh_refiner
-from mesh_areas import mesh_areas
-from mesh_class import Mesh
+
+from .mesh_areas import mesh_areas
+from .mesh_class import Mesh
+from .mesh_fix import mesh_fix
+from .mesh_refiner import mesh_refiner
 
 
 def mesh_adapt(c, P, t, normals, Area, Indicator, tissue, refinement):

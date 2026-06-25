@@ -1,8 +1,8 @@
 import numpy as np
-from mesh_fix import mesh_fix
 from checked.mesh_areas import mesh_areas
-from mesh_refiner import mesh_refiner
 from mesh_class import Mesh
+from mesh_fix import mesh_fix
+from mesh_refiner import mesh_refiner
 
 
 ##NOTE: tissue_ignore must be a boolean array

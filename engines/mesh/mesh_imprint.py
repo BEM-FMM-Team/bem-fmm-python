@@ -1,9 +1,6 @@
 import numpy as np
-from mesh_connee import mesh_connee
-from checked.mesh_areas import mesh_areas
-from mesh_fix import mesh_fix
-from mesh_tricenter import mesh_tricenter
-from mesh_reorient2 import mesh_reorient
+
+from . import mesh_areas, mesh_connee, mesh_fix, mesh_reorient, mesh_tricenter
 
 
 def mesh_imprint(P, t, normals, ElecNum, ElecPos, ElecRad):

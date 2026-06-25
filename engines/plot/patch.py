@@ -2,7 +2,6 @@ from typing import Annotated
 
 import numpy as np
 import vedo
-from vedo import Latex
 
 
 def plot_worker(P, plot_t, p):

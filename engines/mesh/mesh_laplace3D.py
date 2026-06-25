@@ -37,12 +37,9 @@ def mesh_laplace3D(P, t, alpha):
     return Pnew
 
 
-P = np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], dtype=float)
-
-t = np.array([[0, 1, 2], [0, 2, 3]])
-
-alpha = 0.5
-
-Pnew = mesh_laplace3D(P, t, alpha)
-
-print(Pnew)
+if __name__ == "__main__":
+    P = np.array([[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]], dtype=float)
+    t = np.array([[0, 1, 2], [0, 2, 3]])
+    alpha = 0.5
+    Pnew = mesh_laplace3D(P, t, alpha)
+    print(Pnew)

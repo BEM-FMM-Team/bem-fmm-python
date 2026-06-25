@@ -1,20 +1,22 @@
-from typing import Any
+from typing import Literal
 
 import numpy as np
-from numpy import dtype, float64, ndarray
+from scipy.sparse import coo_matrix
+
+from engines.my_types import Nx1, Nx3
 
 from .surface_field_electric_plain import surface_field_electric_plain
 
 
 def surface_field_lhs(
-    c: ndarray[tuple[Any, ...], dtype[float64]],
-    center: ndarray[tuple[Any, ...], dtype[float64]],
-    area: ndarray[tuple[Any, ...], dtype[float64]],
-    contrast,
-    normals,
-    weight: np.float64,
-    EC,
-    prec: np.float64,
+    c: Nx1,
+    center: Nx3,
+    area: Nx3,
+    contrast: Nx1,
+    normals: Nx3,
+    weight: float,
+    EC: coo_matrix,
+    prec: float,
 ):
     """
     Computes the left hand side of the charge equation for surface charges
@@ -26,7 +28,7 @@ def surface_field_lhs(
     _, E0 = surface_field_electric_plain(  # integral part \int rho/2pi x-y/|x-y|^3 dy
         c=c, center=center, area=area, prec=prec
     )  #   Plain FMM result
-    correction = (EC @ c) * contrast  #   Correction of plain FMM result
+    correction = EC.dot(c) * (contrast)  #   Correction of plain FMM result
 
     # This is weight correction (optional)
     weight_correction = weight * (

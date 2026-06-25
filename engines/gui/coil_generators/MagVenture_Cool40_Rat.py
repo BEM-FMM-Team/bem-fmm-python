@@ -1,6 +1,6 @@
 import numpy as np
 from engines.gui.meshwire import meshwire
-from engines.gui.mesh_surface import meshsurface
+from engines.gui.mesh_surface import mesh_surface
 from vedo import Plotter, Mesh
 
 
@@ -36,7 +36,7 @@ def MagVenture_Cool40_Rat(a, b, M, flag, sk):
 
         Pcenter = np.column_stack([x, y, z])
         Pwiretemp, Ewiretemp, Swiretemp = meshwire(Pcenter, a, b, M, flag, sk)
-        Ptemp, ttemp = meshsurface(Pcenter, a, b, M, flag)
+        Ptemp, ttemp = mesh_surface(Pcenter, a, b, M, flag)
         wire_offset = sum(arr.shape[0] for arr in Pwire_list)
 
         Ewiretemp = Ewiretemp + wire_offset

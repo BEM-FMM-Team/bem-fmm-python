@@ -1,10 +1,11 @@
 import numpy as np
-from engines.mesh.mesh_cross_section import mesh_cross_section
-from engines.mesh.meshfill import meshfill
-from engines.mesh.mesh_fix import mesh_fix
+
+from .mesh_cross_section import mesh_cross_section
+from .mesh_fix import mesh_fix
+from .meshfill import meshfill
 
 
-def meshsurface(Pcenter, a, b, M, flag):
+def mesh_surface(Pcenter, a, b, M, flag):
     #   Outputs a 2-manifold P, t mesh for a single arbitrarily
     #   bent conductor. The conductor could be either open or closed. In the
     #   last case, the start point and the end point must coincide.

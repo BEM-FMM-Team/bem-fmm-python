@@ -98,4 +98,5 @@ def coil_setup():
         strcoil,
         CoilP,
         Coilt,
+        np.array([MoveX, MoveY, MoveZ]),
     )

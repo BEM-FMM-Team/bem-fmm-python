@@ -1,10 +1,10 @@
 ####NOTE: this code will not work as is, and must use a library (like trimesh) or a seperate programmed function to read from the provided stl files
 
 import numpy as np
-from sklearn.neighbors import NearestNeighbors
+from mesh_class import Mesh
 from mesh_normals import mesh_normals
 from mesh_tricenter import mesh_tricenter
-from mesh_class import Mesh
+from sklearn.neighbors import NearestNeighbors
 
 ### Create Midsurface
 # Create midsurface between two meshes TRS and TRI.
