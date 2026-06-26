@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def coil_load_gui(coil_type):
+def coil_load_gui(coil_type, window_cord):
     COIL_PARAMS = {
         "ring": {
             "radius": {"type": float, "default": 0.02},
@@ -39,12 +39,58 @@ def coil_load_gui(coil_type):
             "flag": {"type": int, "default": 2},
             "sk": {"type": int, "default": 0},
         },
+        "MagVenture_C_B60": {
+            "a0": {"type": float, "default": 0.017},
+            "b0": {"type": float, "default": 0.0006},
+            "height": {"type": float, "default": 3.6e-3},
+            "thickness": {"type": float, "default": 2.61e-3},
+            "M": {"type": int, "default": 20},
+            "flag": {"type": int, "default": 2},
+            "sk": {"type": int, "default": 1},
+        },
+        "MagVenture_Cool40_Rat": {
+            "a": {"type": float, "default": 3e-3},
+            "b": {"type": float, "default": .5e-3},
+            "M": {"type": int, "default": 20},
+            "flag": {"type": int, "default": 2},
+            "sk": {"type": int, "default": 1},
+        },
+        "MagVenture_D_B80": {
+            "a0": {"type": float, "default": 0.024},
+            "b0": {"type": float, "default": 0.00061},
+            "a": {"type": float, "default": 6e-3},
+            "b": {"type": float, "default": 2e-3},
+            "M": {"type": int, "default": 20},
+            "flag": {"type": int, "default": 2},
+            "sk": {"type": int, "default": 1},
+        },
+        "MagVenture_MRiB91": {
+            "height": {"type": float, "default": 3.5e-3},
+            "thickness": {"type": float, "default": 2.2e-3},
+            "M": {"type": int, "default": 32},
+            "N": {"type": int, "default": 128},
+            "flag": {"type": int, "default": 2},
+            "sk": {"type": int, "default": 1},
+        },
+        "MagVenture_TMSMEG": {
+            "a": {"type": float, "default": .0015},
+            "M": {"type": int, "default": 16},
+            "N": {"type": int, "default": 64},
+            "flag": {"type": int, "default": 1},
+            "sk": {"type": int, "default": 1},
+        },
     }
     params = COIL_PARAMS[coil_type]
     entries = {}
     row = 0
     editor = tk.Toplevel()
+
+    editor.geometry(
+        f"+{window_cord[0]}+{window_cord[1]}"
+    )
+
     editor.title("Ring Parameters")
+
     result = None
 
     def submit():
