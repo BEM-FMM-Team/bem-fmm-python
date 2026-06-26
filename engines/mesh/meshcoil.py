@@ -2,6 +2,7 @@ import numpy as np
 
 from .mesh_fix import mesh_fix
 from .meshwire import meshwire
+from .mesh_surface import mesh_surface
 
 
 def meshcoil(x0, y0, z0, M, N, a, b, flag, sk):

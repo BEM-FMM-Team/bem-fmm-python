@@ -1,5 +1,5 @@
 import numpy as np
-from engines.gui.meshcoil import meshcoil
+from engines.mesh.meshcoil import meshcoil
 from vedo import Mesh, Plotter
 
 

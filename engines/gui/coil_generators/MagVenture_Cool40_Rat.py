@@ -1,6 +1,6 @@
 import numpy as np
-from engines.gui.meshwire import meshwire
-from engines.gui.mesh_surface import mesh_surface
+from engines.mesh.meshwire import meshwire
+from engines.mesh.mesh_surface import mesh_surface
 from vedo import Plotter, Mesh
 
 
