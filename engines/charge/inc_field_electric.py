@@ -1,8 +1,10 @@
 import numpy as np
 from fmm3dpy import lfmm3d
 
-from ..my_types import StrCoil
 from engines.constants import mu0
+
+from ..my_types import StrCoil
+
 
 def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None):
     """

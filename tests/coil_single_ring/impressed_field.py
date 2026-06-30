@@ -19,12 +19,12 @@ from engines.my_types import StrCoil, Nx3, Mx3, Nx3i
 
 @timeit
 def impressed_field(
-    P: Mx3=None,
-    t: Nx3i =None,
-    normals: Nx3=None,
-    dIdt: float=None,
+    P: Mx3 = None,
+    t: Nx3i = None,
+    normals: Nx3 = None,
+    dIdt: float = None,
     strcoil: StrCoil = None,
-    contrast: Nx3=None,
+    contrast: Nx3 = None,
 ):
     EpriP = inc_field_electric(strcoil, P, dIdt)
     Epri = 1 / 3 * (EpriP[t[:, 0], :] + EpriP[t[:, 1], :] + EpriP[t[:, 2], :])

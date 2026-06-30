@@ -18,6 +18,7 @@ in
         pkgs.ruff
         pkgs.basedpyright
         pkgs.pylint
+        pkgs.sphinx
 
         (pkgs.python313.withPackages (p:
           with p; [
@@ -55,8 +56,7 @@ in
         if [ ! -d venv ]; then
           python -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
-          pip install --no-index --find-links wheels --no-deps fmm3dpy --force-reinstall
+          pip install -e .
         else
           source venv/bin/activate
         fi

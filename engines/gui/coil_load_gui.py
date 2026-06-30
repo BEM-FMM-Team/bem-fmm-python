@@ -50,7 +50,7 @@ def coil_load_gui(coil_type, window_cord):
         },
         "MagVenture_Cool40_Rat": {
             "a": {"type": float, "default": 3e-3},
-            "b": {"type": float, "default": .5e-3},
+            "b": {"type": float, "default": 0.5e-3},
             "M": {"type": int, "default": 20},
             "flag": {"type": int, "default": 2},
             "sk": {"type": int, "default": 1},
@@ -73,7 +73,7 @@ def coil_load_gui(coil_type, window_cord):
             "sk": {"type": int, "default": 1},
         },
         "MagVenture_TMSMEG": {
-            "a": {"type": float, "default": .0015},
+            "a": {"type": float, "default": 0.0015},
             "M": {"type": int, "default": 16},
             "N": {"type": int, "default": 64},
             "flag": {"type": int, "default": 1},
@@ -85,9 +85,7 @@ def coil_load_gui(coil_type, window_cord):
     row = 0
     editor = tk.Toplevel()
 
-    editor.geometry(
-        f"+{window_cord[0]}+{window_cord[1]}"
-    )
+    editor.geometry(f"+{window_cord[0]}+{window_cord[1]}")
 
     editor.title("Ring Parameters")
 

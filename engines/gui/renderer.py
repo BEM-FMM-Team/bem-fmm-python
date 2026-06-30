@@ -2,6 +2,7 @@ import numpy as np
 
 from vedo import Line, Mesh, Plotter, Text3D, Axes
 
+
 class Renderer:
     def __init__(self, head=None):
         self.plt = Plotter()
@@ -16,14 +17,14 @@ class Renderer:
             xtitle="X (mm)",
             ytitle="Y (mm)",
             ztitle="Z (mm)",
-            xrange=[-.1,.1],
-            yrange=[-.1,.1],
-            zrange=[-.1,.1],
+            xrange=[-0.1, 0.1],
+            yrange=[-0.1, 0.1],
+            zrange=[-0.1, 0.1],
             x_values_and_labels=list(zip(ticks_m, ticks_mm)),
             y_values_and_labels=list(zip(ticks_m, ticks_mm)),
             z_values_and_labels=list(zip(ticks_m, ticks_mm)),
         )
-        
+
         self.plt.add(axes)
 
         self.head = head
@@ -51,7 +52,7 @@ class Renderer:
         self.plt.add(coil_actor)
         self.plt.add(centerline_actor)
         return
-    
+
     def edit_coil_actor(self, coil):
         coil_actor = self.coil_actors[coil.id]
         coil_actor.points = coil.cad_P
@@ -59,11 +60,11 @@ class Renderer:
         centerline_actor = self.centerline_actors[coil.id]
         centerline_actor.points = coil.centerline
         return
-    
+
     def remove_coil_actors(self, id):
         coil_actor = self.coil_actors.pop(id, None)
         centerline_actor = self.centerline_actors.pop(id, None)
-        
+
         self.plt.remove(coil_actor)
         self.plt.remove(centerline_actor)
         return
@@ -103,7 +104,7 @@ class Renderer:
             self.plt.remove(actor)
         self.edit_axes_actors = []
         return
-    
+
     def render_plot(self):
         self.plt.render()
         return

@@ -2,8 +2,31 @@
 venv
 
 tags
-# PythonVersion01
 
 **/__pycache__
 
 __compute_cache__
+
+docs/_build/
+docs/_doctrees/
+docs/api/
+
+.DS_Store
+Thumbs.db
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+.venv/
+venv/
+env/

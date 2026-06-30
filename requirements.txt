@@ -1,7 +1,0 @@
-numpy
-vedo
-scipy
-matplotlib
-joblib
-numba
-scikit-learn

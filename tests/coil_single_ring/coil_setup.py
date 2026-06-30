@@ -53,7 +53,9 @@ def coil_setup():
     Ny = 0.0
     Nz = 1.0
     #   Transformation 2: New coil centerline direction
-    MoveX = +42e-3; MoveY = 0; MoveZ = 79.5e-3;
+    MoveX = +42e-3
+    MoveY = 0
+    MoveZ = 79.5e-3
     #   Transformation 3: New coil position
 
     # Apply Transformation 1: rotation about coil centerline

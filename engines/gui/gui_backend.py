@@ -30,16 +30,23 @@ from engines.gui.renderer import Renderer
 contains backend information for a coil manager including information for charge engine computations
 """
 
+
 class Backend:
     def __init__(self, head=None):
         self.renderer = Renderer(head)
         self.coils = {}
         self.undo_queue = []
-        
+
         self.next_id = 0
 
-        self.normals = mesh_normals(np.asarray(self.renderer.head.vertices), np.asarray(self.renderer.head.cells))
-        self.centers = mesh_tricenter(np.asarray(self.renderer.head.vertices), np.asarray(self.renderer.head.cells))
+        self.normals = mesh_normals(
+            np.asarray(self.renderer.head.vertices),
+            np.asarray(self.renderer.head.cells),
+        )
+        self.centers = mesh_tricenter(
+            np.asarray(self.renderer.head.vertices),
+            np.asarray(self.renderer.head.cells),
+        )
         self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
 
         self.last_coil = None
@@ -64,7 +71,7 @@ class Backend:
 
         self.undo_queue.append([0, [new_coil.id]])
         return
-    
+
     def new_custom_coil(self, xyz, name, dIdt, auto_orient):
         print(name)
         print(type(name))
@@ -87,22 +94,22 @@ class Backend:
 
         self.undo_queue.append([0, [new_coil.id]])
         return
-    
+
     # get coil
-    def get_coil(self,id):
+    def get_coil(self, id):
         coil = self.coils[id]
         self.last_coil = coil.clone()
         return coil
-    
+
     # for undo
     def save_last_coil(self):
         self.undo_queue.append([2, [self.last_coil.id, self.last_coil.clone()]])
         return
-    
+
     # get all coils
     def get_coils(self):
         return self.coils
-    
+
     # move coil
     def edit_coil_com(self, id, xyz):
         coil = self.coils[id]
@@ -111,19 +118,19 @@ class Backend:
         self.renderer.edit_coil_actor(coil)
         self.renderer.show_world_axes(coil)
         return
-        
+
     # rotate coil
     def edit_coil_rot(self, id, rxryrz):
         coil = self.coils[id]
         transformer(coil, coil.com, xyz_to_quat(rxryrz))
         self.renderer.edit_coil_actor(coil)
         return
-    
+
     # edit current
     def edit_coil_cur(self, id, dIdt):
         self.coils[id].dIdt = dIdt
         return
-    
+
     # rotate coil around normal vector
     def apply_twist(self, id, twist, base_rot):
         coil = self.coils[id]
@@ -133,7 +140,7 @@ class Backend:
 
         self.renderer.edit_coil_actor(coil)
         return
-    
+
     # delete coil
     def delete_coil(self, id):
         self.undo_queue.append([1, [self.coils[id].clone()]])
@@ -141,7 +148,7 @@ class Backend:
 
         self.renderer.remove_coil_actors(id)
         return
-    
+
     #  prepare to pass coils
     def save_coil_config(self):
         save_path = BASE_DIR / "coil_config.pkl"
@@ -149,8 +156,7 @@ class Backend:
         with open(save_path, "wb") as f:
             pickle.dump(coil_list, f)
         return
-    
-    
+
     def auto_orient(self, id):
         coil = self.coils[id]
         distances, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
@@ -161,7 +167,7 @@ class Backend:
 
         self.renderer.edit_coil_actor(coil)
         return
-    
+
     def undo_operation(self):
         if len(self.undo_queue) == 0:
             return

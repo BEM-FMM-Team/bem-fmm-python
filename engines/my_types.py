@@ -43,10 +43,10 @@ Nx3i = ndarray[tuple[N, L3], u32]
 Mx1 = ndarray[tuple[M, L1], f64]
 Mx3 = ndarray[tuple[M, L3], f64]
 
+
 # make the math look more elegant
 @dataclass
 class StrCoil:
     Pwire: Nx3 = None
     Ewire: np.ndarray[tuple[N, L2]] = None
     Swire: Nx1 = None
-
