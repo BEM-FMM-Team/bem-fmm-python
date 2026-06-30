@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.sparse import coo_matrix
+from scipy.sparse import csr_matrix
 
 from engines.my_types import Nx1, Nx3
 
@@ -13,7 +13,7 @@ def surface_field_lhs(
     contrast: Nx1,
     normals: Nx3,
     weight: float,
-    EC: coo_matrix,
+    EC: csr_matrix,
     prec: float,
 ):
     """
@@ -22,6 +22,19 @@ def surface_field_lhs(
     exactly the left-hand side of the matrix equation Zc = b
 
     SP 2026
+
+    Args:
+        c: Nx1
+        center: Nx3
+        area: Nx3
+        contrast: Nx1
+        normals: Nx3
+        weight: float
+        EC: csr_matrix
+        prec: float
+
+    Returns:
+        Unknown
     """
     _, E0 = surface_field_electric_plain(  # integral part \int rho/2pi x-y/|x-y|^3 dy
         c=c, center=center, area=area, prec=prec
@@ -43,4 +56,4 @@ def surface_field_lhs(
     )  # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
     LHS = c - dominant_part - not_dominant_center_point + weight_correction
 
-    return LHS # DEBUG seems perfect
+    return LHS  # DEBUG seems perfect

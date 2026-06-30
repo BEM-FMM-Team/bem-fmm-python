@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bem-fmm-python"
+version = "0.1.0"
+description = "Charge based boundary element fast multipole method"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Shawn Pande", email = "spande@wpi.edu" },
+  { name = "Simon Hao", email = "shao1@wpi.edu" },
+
+  { name = "Guillermo Nunez Ponasso", email = "gcnunez@wpi.edu" },
+  { name = "Drumm Derek", email = "dadrumm@wpi.edu" },
+]
+# license = { text = "proprietary" }
+
+# [project.scripts]
+# plot = "tests:plot"
+
+dependencies = [
+    "numpy==2.4.4",
+    "vedo==2026.6.1",
+    "scipy==1.17.1",
+    "matplotlib",
+    "joblib==1.5.3",
+    "numba==0.65.1",
+    "scikit-learn==1.9.0",
+    "fmm3dpyfast"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4.0", "jupyter>=1.0.0", "sphinx"
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["engines*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"] # TODO have actual unit tests
+python_functions = ["test_*"]

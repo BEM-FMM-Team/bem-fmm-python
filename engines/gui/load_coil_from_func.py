@@ -11,6 +11,7 @@ from engines.gui.coil_generators.MagVenture_D_B80 import MagVenture_D_B80
 from engines.gui.coil_generators.MagVenture_MRiB91 import MagVenture_MRiB91
 from engines.gui.coil_generators.MagVenture_TMSMEG import MagVenture_TMSMEG
 
+
 def load_coil_from_func(type, window_cord):
     params = coil_load_gui(type, window_cord)
     if type == "ring":

@@ -51,9 +51,7 @@ def iterative_solution(
         EC=EC,
         prec=prec,
     )
-    c, its, resvec = fgmres(
-        MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=b
-    )
+    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=b)
     return resvec, c, its
 
 
@@ -77,17 +75,17 @@ def charge_engine(
     weight=1 / 2,
 ):
     resvec, c, its = iterative_solution(
-        center=center, # correct
-        area=area, # correct
-        contrast=contrast, # correct
-        normals=normals, # correct
-        weight=weight, # correct
+        center=center,  # correct
+        area=area,  # correct
+        contrast=contrast,  # correct
+        normals=normals,  # correct
+        weight=weight,  # correct
         EC=EC,
         prec=iter_prec,
         maxiter=maxiter,
         iter=iter,
         relres=relres,
-        b=b, # correct
+        b=b,  # correct
     )
     c = c.reshape((-1, 1))
 

@@ -2,21 +2,30 @@
 
 This repository is in a rapidly changing state.
 
+## Docs
+
+```bash
+python -m http.server -d docs\build\html # windows
+
+python -m http.server -d ./docs/build/html/
+```
+
 ## Setup
 
 Download the repo
-Install `python3.13`. __other versions will not work.__
+Install `python3.13`. __other versions may not work.__
 
 Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
 Run the following:
 
-We recompile and ship with fmm3dpy with openmp and other optimizations for a 3~4x speedup.
-
 ```bash
-pip install -r requirements.txt
-pip install --no-index --find-links wheels --no-deps fmm3dpy --force-reinstall
+pip install --index-url https://pandecode.github.io/FMM3D/simple/  --extra-index-url https://pypi.org/simple .
+# for development (you want to change the src code)
+pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
 ```
+
+We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls.
 
 ## Generating and using a coil
 
