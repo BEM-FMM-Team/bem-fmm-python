@@ -26,52 +26,15 @@ from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
-from scipy.sparse import coo_matrix
 from setup_integrals import setup_integrals
 
 from engines.gui.pickle_loader import pickle_loader
-from engines.plot.patch import plot_coil_worker, plot_single_coil_worker
-from engines.plot.residual import plot_residual
-
-
-def plot_coo_matrix(
-    m,
-    outpath="sp_plot.png",
-    target_dpi=1000,  # final output DPI
-    target_pixels=(8000, 8000),  # (width_px, height_px)
-    marker_size=1,
-    bgcolor="white",
-    marker_color="#0007BD",
-):
-    """
-    DO NOT TRY to view this with matplotlib, just save it
-    """
-    if not isinstance(m, coo_matrix):
-        m = coo_matrix(m)
-
-    width_in = target_pixels[0] / target_dpi
-    height_in = target_pixels[1] / target_dpi
-
-    fig = plt.figure(
-        figsize=(width_in, height_in), dpi=100
-    )  # base dpi for onscreen sizing
-    ax = fig.add_subplot(111, facecolor=bgcolor)
-
-    ax.plot(m.col, m.row, "s", color=marker_color, ms=marker_size, linestyle="None")
-
-    ax.set_xlim(0, m.shape[1])
-    ax.set_ylim(0, m.shape[0])
-    ax.set_aspect("equal")
-    ax.invert_yaxis()
-    ax.set_xticks([])
-    ax.set_yticks([])
-
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-
-    fig.savefig(outpath, dpi=target_dpi, bbox_inches="tight", pad_inches=0)
-    plt.close(fig)
-
+from engines.plot import (
+    plot_sparse,
+    plot_residual,
+    plot_coil_worker,
+    plot_single_coil_worker,
+)
 
 if __name__ == "__main__":
     ## Load model

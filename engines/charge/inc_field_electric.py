@@ -6,7 +6,7 @@ from engines.constants import mu0
 from ..my_types import StrCoil
 
 
-def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None):
+def inc_field_electric(strcoil: StrCoil, Points: np.ndarray, dIdt: float):
     """
     Computes electric field from the coil via the FMM  in terms of the pseudo electric potential evaluated for segment centers
 
@@ -16,8 +16,8 @@ def inc_field_electric(strcoil: StrCoil = None, Points=None, dIdt=None):
     """
     # Computes electric field from the coil via the FMM
 
-    P0 = strcoil.Pwire[strcoil.Ewire[:, 0] - 1, :]
-    P1 = strcoil.Pwire[strcoil.Ewire[:, 1] - 1, :]
+    P0 = strcoil.Pwire[strcoil.Ewire[:, 0], :]
+    P1 = strcoil.Pwire[strcoil.Ewire[:, 1], :]
     segvector = (P1 - P0) * np.tile(strcoil.Swire, (1, 3))
     segpoints = 0.5 * (P0 + P1)
     PseudoQx = segvector[:, 0]

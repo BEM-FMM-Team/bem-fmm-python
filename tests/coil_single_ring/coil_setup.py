@@ -35,7 +35,7 @@ def coil_setup():
     _strcoil = loadmat(ASSETS / "coil.mat")["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
-        Ewire=_strcoil["Ewire"][0][0],
+        Ewire=_strcoil["Ewire"][0][0] - 1,
         Swire=_strcoil["Swire"][0][0],
     )
 

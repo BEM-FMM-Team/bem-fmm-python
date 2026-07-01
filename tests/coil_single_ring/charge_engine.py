@@ -6,12 +6,15 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
-from scipy.sparse import csr_array
+import time
+
 import numpy as np
+from pyamg.krylov import fgmres
+from scipy.sparse import csr_array
+from scipy.sparse.linalg import LinearOperator
 
 from engines.charge.surface_field_electric_plain import surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
-from engines.fgmres import fgmres
 from engines.lib import cache
 from engines.my_types import Nx1, Nx3
 
@@ -41,6 +44,7 @@ def iterative_solution(
      n(r)
 
     """
+
     MATVEC = lambda c: surface_field_lhs(
         c=c,
         center=center,
@@ -51,8 +55,38 @@ def iterative_solution(
         EC=EC,
         prec=prec,
     )
-    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=b)
-    return resvec, c, its
+    A = LinearOperator(EC.shape, MATVEC)
+
+    resvec = []
+    t0 = time.perf_counter()
+    b_norm = np.linalg.norm(b)
+
+    def callback(xk):
+        r = b - A @ xk
+        locres = np.linalg.norm(r)
+        relres = locres / b_norm
+        resvec.append(locres)
+
+        elapsed = time.perf_counter() - t0
+        it = len(resvec)
+
+        print(
+            f"iter={it:2d}, "
+            f"relres={relres:.3e}, "
+            f"locres={locres:.3e}, "
+            f"time={elapsed:.1f}"
+        )
+
+    c, exitCode = fgmres(
+        A,
+        b,
+        x0=b,
+        tol=relres,
+        restart=iter,
+        maxiter=1,
+        callback=callback,
+    )
+    return c, exitCode, resvec
 
 
 @cache
@@ -74,7 +108,7 @@ def charge_engine(
     prec=1e-3,  # for normal field
     weight=1 / 2,
 ):
-    resvec, c, its = iterative_solution(
+    c, exitCode, resvec = iterative_solution(
         center=center,  # correct
         area=area,  # correct
         contrast=contrast,  # correct
