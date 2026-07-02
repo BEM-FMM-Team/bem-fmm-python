@@ -3,7 +3,7 @@ from fmm3dpy import lfmm3d
 
 from engines.constants import mu0
 
-from ..my_types import StrCoil, Mx3
+from ..my_types import Mx3, StrCoil
 
 
 def inc_field_electric(

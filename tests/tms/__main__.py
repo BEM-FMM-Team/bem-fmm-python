@@ -6,7 +6,6 @@ from pathlib import Path
 # import jax.numpy as jnp
 import numpy as np
 from scipy.io import loadmat
-
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import LinearOperator, gmres
@@ -22,6 +21,7 @@ ASSETS = (test_dir / "assets").resolve()
 from engines.charge import inc_field_electric
 from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
+from engines.lib import cache, io
 from engines.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
 
@@ -38,6 +38,7 @@ def setup_coil():
     pass
 
 
+@cache
 def charge_engine(
     P: Mx3,
     t: Nx3i,
@@ -79,12 +80,23 @@ def charge_engine(
         iter=iter,
         maxiter=1,
     )
-    plot_residual(resvec)
+
+    c = np.squeeze(c)
+    area = np.squeeze(area)
+
+    conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
+    solution_error = resvec[-1] / resvec[0]
+
+    print(f"{conservation_law_error=}\n" f"{solution_error=}")
+
+    return c, resvec
 
 
 def main():
-    # load_model()
-    mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
+    print("Sorry this version was for debugging")
+    sys.exit(0)
 
     P = mat["P"]
     t = mat["t"] - 1
@@ -101,7 +113,7 @@ def main():
     )
     dIdt = mat["dIdt"][0][0]
 
-    charge_engine(
+    c, resvec = charge_engine(
         P=P,
         t=t,
         normals=normals,
@@ -112,6 +124,9 @@ def main():
         strcoil=strcoil,
         dIdt=dIdt,
     )
+
+    if io:
+        plot_residual(resvec)
 
 
 if __name__ == "__main__":

@@ -14,23 +14,23 @@ def fgmres(
     maxiter: int,
     x0: np.ndarray | None = None,
 ):
-    return dbg_fgmres(
-        A=MATVEC,
-        b=b,
-        tol=relres,
-        restart=iter,
-        max_iters=maxiter,
-        x0=x0,
-    )
-    # return pyamg_fgmres(
-    #     MATVEC=MATVEC,
+    # return dbg_fgmres(
+    #     A=MATVEC,
     #     b=b,
-    #     n=n,
-    #     relres=relres,
-    #     iterations=iter,
-    #     maxiter=maxiter,
+    #     tol=relres,
+    #     restart=iter,
+    #     max_iters=maxiter,
     #     x0=x0,
     # )
+    return pyamg_fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        n=n,
+        relres=relres,
+        iterations=iter,
+        maxiter=maxiter,
+        x0=x0,
+    )
 
 
 def pyamg_fgmres(

@@ -49,7 +49,7 @@ def surface_field_lhs(
     )
 
     # Correction of plain FMM result
-    correction = EC @ c * contrast # NOTE TMS 2020 does not multiply constrast here
+    correction = EC @ c  # NOTE TMS 2020 does not multiply constrast here
 
     # This is weight correction (optional)
     weight_correction = weight * np.sum(c * area) / np.sum(area)
