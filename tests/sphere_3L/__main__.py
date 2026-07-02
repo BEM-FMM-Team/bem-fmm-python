@@ -15,7 +15,8 @@ from scipy.sparse import csr_matrix
 from engines.plot.patch import plot_worker
 from engines.plot.residual import plot_residual
 
-if __name__ == "__main__":
+
+def main():
     ## 1. Setup Model
 
     # -- Load model
@@ -67,3 +68,7 @@ if __name__ == "__main__":
     for p in plots_p:
         p.join()
     res_p.join()
+
+
+if __name__ == "__main__":
+    main()

@@ -34,7 +34,7 @@ def charge_engine(
     condin,
     #  Parameters of the iterative solution
     iter=50,
-    max_iters=1,
+    maxiter=1,
     relres=1e-6,
     prec=1e-2,
     weight=1 / 2,
@@ -83,7 +83,7 @@ def charge_engine(
         x0=b,
         tol=relres,
         restart=iter,
-        maxiter=1,
+        maxiter=maxiter,
         callback=callback,
     )
 

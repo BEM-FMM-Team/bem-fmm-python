@@ -108,7 +108,7 @@ def charge_engine(
     )
 
 
-if __name__ == "__main__":
+def main():
     # load_model()
     mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
 
@@ -138,3 +138,7 @@ if __name__ == "__main__":
         strcoil=strcoil,
         dIdt=dIdt,
     )
+
+
+if __name__ == "__main__":
+    main()

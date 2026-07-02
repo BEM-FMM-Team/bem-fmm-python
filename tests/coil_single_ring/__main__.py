@@ -30,13 +30,13 @@ from setup_integrals import setup_integrals
 
 from engines.gui.pickle_loader import pickle_loader
 from engines.plot import (
-    plot_sparse,
     plot_residual,
     plot_coil_worker,
     plot_single_coil_worker,
 )
 
-if __name__ == "__main__":
+
+def main():
     ## Load model
     (
         P,
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         strcoil,
         CoilP,
         Coilt,
-        _,
+        xyz,
     ) = (
         coil_setup() if coil_path is None else pickle_loader(coil_path)
     )
@@ -132,6 +132,54 @@ if __name__ == "__main__":
         Epri=Epri,
     )
 
+    tissue_list = list(tissue_list)
+
+    return (
+        P,
+        t,
+        Center,
+        Area,
+        normals,
+        c,
+        interface,
+        tissue_list,
+        single_p,
+        plot_t,
+        plot_t_idx,
+        CoilP,
+        Coilt,
+        Ptot,
+        En,
+        Jn_in,
+        resvec,
+        obs_start,
+        obs_end,
+        xyz,
+    )
+
+
+def plot(
+    P,
+    t,
+    Center,
+    Area,
+    normals,
+    c,
+    interface,
+    tissue_list,
+    single_p,
+    plot_t,
+    plot_t_idx,
+    CoilP,
+    Coilt,
+    Ptot,
+    En,
+    Jn_in,
+    resvec,
+    obs_start,
+    obs_end,
+    xyz,
+):
     res_plot_p = plot_residual(resvec)
 
     ## 5. Plot Fields
@@ -169,3 +217,50 @@ if __name__ == "__main__":
         p.join()
     res_plot_p.join()
     single_p.join()
+
+
+if __name__ == "__main__":
+    (
+        P,
+        t,
+        Center,
+        Area,
+        normals,
+        c,
+        interface,
+        tissue_list,
+        single_p,
+        plot_t,
+        plot_t_idx,
+        CoilP,
+        Coilt,
+        Ptot,
+        En,
+        Jn_in,
+        resvec,
+        obs_start,
+        obs_end,
+        xyz,
+    ) = main()
+    plot(
+        P,
+        t,
+        Center,
+        Area,
+        normals,
+        c,
+        interface,
+        tissue_list,
+        single_p,
+        plot_t,
+        plot_t_idx,
+        CoilP,
+        Coilt,
+        Ptot,
+        En,
+        Jn_in,
+        resvec,
+        obs_start,
+        obs_end,
+        xyz,
+    )
