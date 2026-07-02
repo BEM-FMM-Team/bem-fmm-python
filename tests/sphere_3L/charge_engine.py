@@ -6,7 +6,10 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
+import time
+
 import numpy as np
+from scipy.sparse.linalg import LinearOperator
 
 from engines.charge.inc_field_electric_constant import inc_field_electric_constant
 from engines.charge.surface_field_electric_accurate import (
@@ -31,7 +34,7 @@ def charge_engine(
     condin,
     #  Parameters of the iterative solution
     iter=50,
-    max_iters=1,
+    maxiter=1,
     relres=1e-6,
     prec=1e-2,
     weight=1 / 2,
@@ -52,8 +55,15 @@ def charge_engine(
         EC=EC,
         prec=prec,
     )
-
-    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=max_iters, x0=b)
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=None,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
+        maxiter=maxiter,
+    )
 
     #   Find surface electric potential
     Padd = surface_field_potential_accurate(c, center, area, PC)

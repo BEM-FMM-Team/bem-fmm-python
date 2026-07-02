@@ -21,6 +21,12 @@ floating = np.dtype[np.floating]
 vec2f32 = tuple[f32, f32]
 vec3f32 = tuple[f32, f32]
 
+vf64 = ndarray[tuple[int, int], f64]
+vf64_1 = ndarray[tuple[int], f64]
+
+vu32 = ndarray[tuple[int, int], u32]
+
+
 Vertices = Annotated[np.ndarray[tuple[N, L3], f32], "shape (N, 3), vertex coordinates"]
 VertexIndices = Annotated[
     np.ndarray[tuple[M, L3], u32], "shape (M, 3), triangle face indices"
@@ -36,17 +42,18 @@ NArray = Annotated[
     "(N,) or (N, 1) will be reshaped",
 ]
 
-Nx1 = ndarray[tuple[N, L1], f64]
-Nx3 = ndarray[tuple[N, L3], f64]
-Nx3i = ndarray[tuple[N, L3], u32]
+Nx1 = Annotated[vf64_1, "Nx1 indices"]
+Nx2 = Annotated[vf64, "Nx2 indices"]
+Nx3 = Annotated[vf64, "Nx3 indices"]
+Nx3i = Annotated[vu32, "Nx3i indices"]
 
-Mx1 = ndarray[tuple[M, L1], f64]
-Mx3 = ndarray[tuple[M, L3], f64]
+Mx1 = Annotated[vf64_1, "Mx1 vertices"]
+Mx3 = Annotated[vf64, "Mx3 vertices"]
 
 
 # make the math look more elegant
 @dataclass
 class StrCoil:
-    Pwire: Nx3 = None
-    Ewire: np.ndarray[tuple[N, L2]] = None
-    Swire: Nx1 = None
+    Pwire: Mx3
+    Ewire: Nx2
+    Swire: Nx1

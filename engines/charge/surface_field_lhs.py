@@ -14,7 +14,7 @@ def surface_field_lhs(
     normals: Nx3,
     weight: float,
     EC: csr_matrix,
-    prec: float,
+    prec: float = 1e-1,
 ):
     """
     Computes the left hand side of the charge equation for surface charges
@@ -36,24 +36,30 @@ def surface_field_lhs(
     Returns:
         Unknown
     """
-    _, E0 = surface_field_electric_plain(  # integral part \int rho/2pi x-y/|x-y|^3 dy
-        c=c, center=center, area=area, prec=prec
-    )  #   Plain FMM result      # DEBUG seems fine
-    correction = EC.dot(c) * contrast  # Correction of plain FMM result
+    c = np.squeeze(c)
+    area = np.squeeze(area)
+    contrast = np.squeeze(contrast)
+
+    # Plain FMM result
+    _, E0 = surface_field_electric_plain(
+        c=c,
+        center=center,
+        area=area,
+        prec=prec,
+    )
+
+    # Correction of plain FMM result
+    correction = EC @ c  # NOTE TMS 2020 does not multiply constrast here
 
     # This is weight correction (optional)
-    weight_correction = weight * (
-        np.sum(c.reshape((-1, 1)) * area.reshape((-1, 1))) / np.sum(area, 0)
-    )
+    weight_correction = weight * np.sum(c * area) / np.sum(area)
 
-    # This is not-dominant center-point FMM part
-    not_dominant_center_point = 2 * (
-        contrast * np.sum(normals * E0, 1)  # here we multiply by K(x)n(x)
-    )
+    # This is the not-dominant center-point FMM part
+    not_dominant_center_point = 2 * contrast * np.einsum("ij,ij->i", normals, E0)
 
-    dominant_part = (
-        2 * correction
-    )  # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
+    # This is the dominant (exact) matrix part and the "undo" terms for center-point FMM
+    dominant_part = 2 * correction
+
     LHS = c - dominant_part - not_dominant_center_point + weight_correction
 
-    return LHS  # DEBUG seems perfect
+    return LHS

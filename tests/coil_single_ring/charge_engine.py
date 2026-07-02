@@ -6,14 +6,17 @@ with accurate neighbor integration
 Copyright SNM/WAW 2017-2020
 """
 
-from scipy.sparse import csr_array
+import time
+
 import numpy as np
+from scipy.sparse import csr_array
+from scipy.sparse.linalg import LinearOperator
 
 from engines.charge.surface_field_electric_plain import surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
-from engines.fgmres import fgmres
 from engines.lib import cache
 from engines.my_types import Nx1, Nx3
+from engines.fgmres import fgmres
 
 
 @cache
@@ -51,8 +54,16 @@ def iterative_solution(
         EC=EC,
         prec=prec,
     )
-    c, its, resvec = fgmres(MATVEC, b, relres, restart=iter, max_iters=maxiter, x0=b)
-    return resvec, c, its
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=b * 8,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
+        maxiter=maxiter,
+    )
+    return c, its, resvec
 
 
 @cache
@@ -67,14 +78,14 @@ def charge_engine(
     Epri: Nx1,
     b: Nx1,
     #  Parameters of the iterative solution
-    iter=20,  # 50 NOTE does not converge for assests in repo
-    maxiter=1,
-    relres=1e-3,  # 1e-6
-    iter_prec=1e-3,  # for residual solution
-    prec=1e-3,  # for normal field
-    weight=1 / 2,
+    iter: int = 20,  # 50 NOTE does not converge for assests in repo
+    maxiter: int = 1,
+    relres: float = 1e-3,  # 1e-6
+    iter_prec: float = 1e-3,  # for residual solution
+    prec: float = 1e-3,  # for normal field
+    weight: float = 1 / 2,
 ):
-    resvec, c, its = iterative_solution(
+    c, exitCode, resvec = iterative_solution(
         center=center,  # correct
         area=area,  # correct
         contrast=contrast,  # correct
