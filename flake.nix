@@ -75,7 +75,7 @@
               ''
                 export LD_LIBRARY_PATH="${l}:$LD_LIBRARY_PATH";
                 export QT_PLUGIN_PATH="${q}:$QT_PLUGIN_PATH";
-                export PYTHONPATH="$(pwd)"
+                export PYTHONPATH="$(pwd):$PYTHONPATH"
 
                 if [ ! -d venv ]; then
                   python -m venv venv

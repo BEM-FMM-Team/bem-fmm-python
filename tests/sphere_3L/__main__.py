@@ -2,18 +2,18 @@ import sys
 from multiprocessing import Process
 from pathlib import Path
 
+from scipy.sparse import csr_matrix
+
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(root_dir))
 
 print(f"Setup environment {root_dir}")
 
 from charge_engine import charge_engine
-from constants import eps0
 from load_model import load_model
-from scipy.sparse import csr_matrix
 
-from engines.plot.patch import plot_worker
-from engines.plot.residual import plot_residual
+from engines.constants import eps0
+from engines.plot import plot_residual, plot_worker
 
 
 def main():

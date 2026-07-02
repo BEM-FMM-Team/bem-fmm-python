@@ -9,17 +9,16 @@ Copyright SNM/WAW 2017-2020
 import time
 
 import numpy as np
-from pyamg.krylov import fgmres
 from scipy.sparse.linalg import LinearOperator
 
-from engines.charge.inc_field_electric_constant import inc_field_electric_constant
-from engines.charge.surface_field_electric_accurate import (
-    surface_field_electric_accurate,
-)
+from engines.charge.inc_field_electric_constant import \
+    inc_field_electric_constant
+from engines.charge.surface_field_electric_accurate import \
+    surface_field_electric_accurate
 from engines.charge.surface_field_lhs import surface_field_lhs
-from engines.charge.surface_field_potential_accurate import (
-    surface_field_potential_accurate,
-)
+from engines.charge.surface_field_potential_accurate import \
+    surface_field_potential_accurate
+from engines.fgmres import fgmres
 from engines.lib import timeit
 
 
@@ -55,36 +54,14 @@ def charge_engine(
         EC=EC,
         prec=prec,
     )
-    A = LinearOperator(EC.shape, MATVEC)
-
-    resvec = []
-    t0 = time.perf_counter()
-    b_norm = np.linalg.norm(b)
-
-    def callback(xk):
-        r = b - A @ xk
-        locres = np.linalg.norm(r)
-        relres = locres / b_norm
-        resvec.append(locres)
-
-        elapsed = time.perf_counter() - t0
-        it = len(resvec)
-
-        print(
-            f"iter={it:2d}, "
-            f"relres={relres:.3e}, "
-            f"locres={locres:.3e}, "
-            f"time={elapsed:.1f}"
-        )
-
-    c, exitCode = fgmres(
-        A,
-        b,
-        x0=b,
-        tol=relres,
-        restart=iter,
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=None,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
         maxiter=maxiter,
-        callback=callback,
     )
 
     #   Find surface electric potential

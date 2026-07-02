@@ -1,3 +1,4 @@
+from engines.plot import plot_residual
 from scipy.sparse.linalg import LinearOperator
 import sys, time
 from pathlib import Path
@@ -23,8 +24,7 @@ ASSETS = (test_dir / "assets").resolve()
 
 from engines.charge import inc_field_electric
 
-# from engines.fgmres import fgmres
-from pyamg.krylov import fgmres
+from engines.fgmres import fgmres
 
 from engines.my_types import Mx3, Nx1, Nx3, StrCoil
 from engines.my_types import Nx3i
@@ -74,38 +74,8 @@ def charge_engine(
         EC=EC,
         prec=1e-1,
     )
-    A = LinearOperator((normals.shape[0], normals.shape[0]), MATVEC)
-
-    resvec: list[float] = []
-    t0 = time.perf_counter()
-    b_norm = np.linalg.norm(b)
-
-    def callback(xk):
-        r = b - A @ xk
-        locres = np.linalg.norm(r)
-        relres = locres / b_norm
-        # resvec.append(locres)
-
-        elapsed = time.perf_counter() - t0
-        it = len(resvec)
-
-        print(
-            f"iter={it:2d}, "
-            f"relres={relres:.3e}, "
-            f"locres={locres:.3e}, "
-            f"time={elapsed:.1f}"
-        )
-
-    c, exitCode = fgmres(
-        A,
-        b,
-        x0=8 * b,
-        tol=relres,
-        restart=iter,
-        maxiter=1,
-        callback=callback,
-        residuals=resvec,
-    )
+    c, its, resvec = fgmres(MATVEC, b, b * 8, normals.shape[0], relres, iter, 1)
+    plot_residual(resvec)
 
 
 def main():

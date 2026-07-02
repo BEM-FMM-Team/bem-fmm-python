@@ -29,11 +29,8 @@ from load_model import load_model
 from setup_integrals import setup_integrals
 
 from engines.gui.pickle_loader import pickle_loader
-from engines.plot import (
-    plot_residual,
-    plot_coil_worker,
-    plot_single_coil_worker,
-)
+from engines.plot import (plot_coil_worker, plot_residual,
+                          plot_single_coil_worker)
 
 
 def main():
