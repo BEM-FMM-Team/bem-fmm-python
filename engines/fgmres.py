@@ -1,3 +1,11 @@
+"""
+Provides a wrapper for fgmres to make the code cleaner
+
+It also sometimes makes sense to debug iteration loops so comment out the pygamg_fgmres call and replace it with dbg_fgmres when doing so
+
+For production, use pyamg will be faster
+"""
+
 import time
 from typing import Callable
 
@@ -42,9 +50,6 @@ def pyamg_fgmres(
     iterations: int,
     maxiter: int,
 ):
-    """
-    wrapper around pyamg's fgrmes, for prod, the other one is for debugging iteration loops
-    """
     A = LinearOperator((n, n), MATVEC)
 
     resvec: list[float] = []

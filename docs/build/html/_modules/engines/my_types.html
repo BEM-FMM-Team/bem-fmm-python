@@ -54,6 +54,12 @@
 <span class="n">vec2f32</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">f32</span><span class="p">,</span> <span class="n">f32</span><span class="p">]</span>
 <span class="n">vec3f32</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">f32</span><span class="p">,</span> <span class="n">f32</span><span class="p">]</span>
 
+<span class="n">vf64</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
+<span class="n">vf64_1</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
+
+<span class="n">vu32</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">u32</span><span class="p">]</span>
+
+
 <span class="n">Vertices</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">L3</span><span class="p">],</span> <span class="n">f32</span><span class="p">],</span> <span class="s2">&quot;shape (N, 3), vertex coordinates&quot;</span><span class="p">]</span>
 <span class="n">VertexIndices</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span>
     <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="n">L3</span><span class="p">],</span> <span class="n">u32</span><span class="p">],</span> <span class="s2">&quot;shape (M, 3), triangle face indices&quot;</span>
@@ -69,12 +75,13 @@
     <span class="s2">&quot;(N,) or (N, 1) will be reshaped&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">Nx1</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">L1</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
-<span class="n">Nx3</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">L3</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
-<span class="n">Nx3i</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">L3</span><span class="p">],</span> <span class="n">u32</span><span class="p">]</span>
+<span class="n">Nx1</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64_1</span><span class="p">,</span> <span class="s2">&quot;Nx1 indices&quot;</span><span class="p">]</span>
+<span class="n">Nx2</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64</span><span class="p">,</span> <span class="s2">&quot;Nx2 indices&quot;</span><span class="p">]</span>
+<span class="n">Nx3</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64</span><span class="p">,</span> <span class="s2">&quot;Nx3 indices&quot;</span><span class="p">]</span>
+<span class="n">Nx3i</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vu32</span><span class="p">,</span> <span class="s2">&quot;Nx3i indices&quot;</span><span class="p">]</span>
 
-<span class="n">Mx1</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="n">L1</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
-<span class="n">Mx3</span> <span class="o">=</span> <span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">M</span><span class="p">,</span> <span class="n">L3</span><span class="p">],</span> <span class="n">f64</span><span class="p">]</span>
+<span class="n">Mx1</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64_1</span><span class="p">,</span> <span class="s2">&quot;Mx1 vertices&quot;</span><span class="p">]</span>
+<span class="n">Mx3</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64</span><span class="p">,</span> <span class="s2">&quot;Mx3 vertices&quot;</span><span class="p">]</span>
 
 
 <span class="c1"># make the math look more elegant</span>
@@ -82,9 +89,9 @@
 <a class="viewcode-back" href="../../engines.html#engines.my_types.StrCoil">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">StrCoil</span><span class="p">:</span>
-    <span class="n">Pwire</span><span class="p">:</span> <span class="n">Nx3</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">Ewire</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">N</span><span class="p">,</span> <span class="n">L2</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">Swire</span><span class="p">:</span> <span class="n">Nx1</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">Pwire</span><span class="p">:</span> <span class="n">Mx3</span>
+    <span class="n">Ewire</span><span class="p">:</span> <span class="n">Nx2</span>
+    <span class="n">Swire</span><span class="p">:</span> <span class="n">Nx1</span></div>
 
 </pre></div>
 
