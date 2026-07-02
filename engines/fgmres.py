@@ -14,23 +14,23 @@ def fgmres(
     maxiter: int,
     x0: np.ndarray | None = None,
 ):
-    # return dbg_fgmres(
-    #     A=MATVEC,
-    #     b=b,
-    #     tol=relres,
-    #     restart=iter,
-    #     max_iters=maxiter,
-    #     x0=x0,
-    # )
-    return pyamg_fgmres(
-        MATVEC=MATVEC,
+    return dbg_fgmres(
+        A=MATVEC,
         b=b,
-        n=n,
-        relres=relres,
-        iter=iter,
-        maxiter=maxiter,
+        tol=relres,
+        restart=iter,
+        max_iters=maxiter,
         x0=x0,
     )
+    # return pyamg_fgmres(
+    #     MATVEC=MATVEC,
+    #     b=b,
+    #     n=n,
+    #     relres=relres,
+    #     iterations=iter,
+    #     maxiter=maxiter,
+    #     x0=x0,
+    # )
 
 
 def pyamg_fgmres(
@@ -39,7 +39,7 @@ def pyamg_fgmres(
     x0: np.ndarray,
     n: int,
     relres: float,
-    iter: int,
+    iterations: int,
     maxiter: int,
 ):
     """
@@ -55,10 +55,10 @@ def pyamg_fgmres(
         r = b - A @ xk
         locres = np.linalg.norm(r)
         relres = locres / b_norm
-        # resvec.append(locres)
+        resvec.append(locres)
 
         elapsed = time.perf_counter() - t0
-        it = len(resvec)
+        it = len(resvec) - 1
 
         print(
             f"iter={it:2d}, "
@@ -74,12 +74,12 @@ def pyamg_fgmres(
         b,
         x0=x0,
         tol=relres,
-        restart=iter,
+        restart=iterations,
         maxiter=maxiter,
         callback=callback,
         residuals=resvec,
     )
-    return x, iter, resvec
+    return x, iterations, resvec
 
 
 def dbg_fgmres(

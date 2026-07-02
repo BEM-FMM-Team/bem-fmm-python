@@ -1,18 +1,14 @@
-from engines.plot import plot_residual
-from scipy.sparse.linalg import LinearOperator
-import sys, time
+import sys
+import time
 from pathlib import Path
 
 # import jax
 # import jax.numpy as jnp
 import numpy as np
 from scipy.io import loadmat
-
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
-from scipy.sparse.linalg import gmres
-
-from engines.charge.surface_field_lhs import surface_field_lhs
+from scipy.sparse.linalg import LinearOperator, gmres
 
 BASE_DIR = Path(__file__).resolve().parent
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
@@ -23,11 +19,10 @@ test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
 from engines.charge import inc_field_electric
-
+from engines.charge.surface_field_lhs import surface_field_lhs
 from engines.fgmres import fgmres
-
-from engines.my_types import Mx3, Nx1, Nx3, StrCoil
-from engines.my_types import Nx3i
+from engines.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil
+from engines.plot import plot_residual
 
 
 def load_model():
@@ -74,7 +69,15 @@ def charge_engine(
         EC=EC,
         prec=1e-1,
     )
-    c, its, resvec = fgmres(MATVEC, b, b * 8, normals.shape[0], relres, iter, 1)
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=b * 8,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
+        maxiter=1,
+    )
     plot_residual(resvec)
 
 
