@@ -3,11 +3,13 @@ from typing import Any
 import numpy as np
 from fmm3dpy import lfmm3d
 
+from engines.my_types import Nx1, Nx3
+
 
 def surface_field_electric_plain(
-    c: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
-    center: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
-    area: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
+    c: Nx1,
+    center: Nx3,
+    area: Nx1,
     prec: float = 1e-1,
 ):
     """

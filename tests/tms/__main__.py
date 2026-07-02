@@ -55,7 +55,7 @@ def charge_engine(
     weight = 0.5
 
     # RHS
-    EincP: Mx3 = inc_field_electric(strcoil, P, dIdt)
+    EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec = 1e-1)
     Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
     b = 2 * contrast * np.sum((normals * Einc), 1)
 
@@ -98,7 +98,7 @@ def main():
         Ewire=strcoil["Ewire"][0][0] - 1,
         Swire=strcoil["Swire"][0][0],
     )
-    dIdt = mat["dIdt"]
+    dIdt = mat["dIdt"][0][0]
 
     charge_engine(
         P=P,
