@@ -3,10 +3,12 @@ from fmm3dpy import lfmm3d
 
 from engines.constants import mu0
 
-from ..my_types import StrCoil
+from ..my_types import StrCoil, Mx3
 
 
-def inc_field_electric(strcoil: StrCoil, Points: np.ndarray, dIdt: float, prec:float = 0.0001):
+def inc_field_electric(
+    strcoil: StrCoil, Points: Mx3, dIdt: float, prec: float = 0.0001
+):
     """
     Computes electric field from the coil via the FMM  in terms of the pseudo electric potential evaluated for segment centers
 

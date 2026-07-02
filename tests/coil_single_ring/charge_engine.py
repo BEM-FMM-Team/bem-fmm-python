@@ -54,7 +54,15 @@ def iterative_solution(
         EC=EC,
         prec=prec,
     )
-    c, its, resvec = fgmres(MATVEC=MATVEC, b=b,x0= b * 8, n=normals.shape[0], relres=relres, iter=iter, maxiter=maxiter)
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=b * 8,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
+        maxiter=maxiter,
+    )
     return c, its, resvec
 
 

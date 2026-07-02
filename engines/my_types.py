@@ -43,6 +43,7 @@ NArray = Annotated[
 ]
 
 Nx1 = Annotated[vf64_1, "Nx1 indices"]
+Nx2 = Annotated[vf64, "Nx2 indices"]
 Nx3 = Annotated[vf64, "Nx3 indices"]
 Nx3i = Annotated[vu32, "Nx3i indices"]
 
@@ -53,6 +54,6 @@ Mx3 = Annotated[vf64, "Mx3 vertices"]
 # make the math look more elegant
 @dataclass
 class StrCoil:
-    Pwire: Nx3 = None
-    Ewire: np.ndarray[tuple[N, L2]] = None
-    Swire: Nx1 = None
+    Pwire: Mx3
+    Ewire: Nx2
+    Swire: Nx1

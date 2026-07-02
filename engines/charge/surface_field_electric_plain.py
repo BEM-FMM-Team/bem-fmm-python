@@ -25,10 +25,20 @@ def surface_field_electric_plain(
     Only FMM (without correction)
     """
 
+    c = np.asarray(c).ravel()
+    area = np.asarray(area).ravel()
+
     pg = 2  # potential and field are evaluated
-    sources = center.T  # source/target points
-    charges = c.reshape(-1, 1) * area  # real charges
-    U = lfmm3d(eps=prec, sources=sources, charges=charges, pg=pg)  # FMM
+
+    sources = center.T  # source points
+    charges = c * area  # real charges
+
+    U = lfmm3d(
+        eps=prec,
+        sources=sources,
+        charges=charges,
+        pg=pg,
+    )
 
     P = U.pot.T
     E = -U.grad.T

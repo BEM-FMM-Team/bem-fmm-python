@@ -6,6 +6,7 @@ from pathlib import Path
 # import jax.numpy as jnp
 import numpy as np
 from scipy.io import loadmat
+
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import LinearOperator, gmres
@@ -55,7 +56,7 @@ def charge_engine(
     weight = 0.5
 
     # RHS
-    EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec = 1e-1)
+    EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
     Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
     b = 2 * contrast * np.sum((normals * Einc), 1)
 
