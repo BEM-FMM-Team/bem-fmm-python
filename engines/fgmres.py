@@ -60,7 +60,6 @@ def pyamg_fgmres(
         r = b - A @ xk
         locres = np.linalg.norm(r)
         relres = locres / b_norm
-        resvec.append(locres)
 
         elapsed = time.perf_counter() - t0
         it = len(resvec) - 1
