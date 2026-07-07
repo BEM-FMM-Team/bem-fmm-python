@@ -1,5 +1,5 @@
+import logging
 import sys
-import time
 from pathlib import Path
 
 # import jax
@@ -8,23 +8,22 @@ import numpy as np
 from scipy.io import loadmat
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
-from scipy.sparse.linalg import LinearOperator, gmres
 
-from engines.mesh import mesh_rotate1, mesh_rotate2
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
-BASE_DIR = Path(__file__).resolve().parent
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-print(f"Setup environment {root_dir}")
+CSD = Path(__file__).resolve().parent
+ROOT_DIR = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
+sys.path.insert(0, str(ROOT_DIR))
+print(f"Setup environment {ROOT_DIR}")
 
-test_dir = Path(__file__).resolve().parent.resolve().parent
-ASSETS = (test_dir / "assets").resolve()
+TEST_DIR = Path(__file__).resolve().parent.resolve().parent
+ASSETS = (TEST_DIR / "assets").resolve()
 
-from engines.charge import inc_field_electric
-from engines.charge.surface_field_lhs import surface_field_lhs
+from engines.charge import inc_field_electric, surface_field_lhs
 from engines.fgmres import fgmres
 from engines.lib import cache, io
-from engines.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil
+from engines.mesh import mesh_rotate1, mesh_rotate2
+from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
 
 
@@ -44,14 +43,14 @@ def setup_coil():
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    _strcoil = loadmat(BASE_DIR / "coil.mat")["strcoil"]
+    _strcoil = loadmat(CSD / "coil.mat")["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0] - 1,
         Swire=_strcoil["Swire"][0][0],
     )
 
-    coilCAD = loadmat(BASE_DIR / "coilCAD.mat")
+    coilCAD = loadmat(CSD / "coilCAD.mat")
     CoilP = coilCAD["P"]
     Coilt = coilCAD["t"] - 1
 
@@ -59,10 +58,8 @@ def setup_coil():
     # Define coil position: rotate and then tilt and move the entire coil as appropriate
     coilaxis = [0, 0, 1]  # Transformation 1: rotation axis
     theta = 0  # Transformation 1: angle to rotate about axis
-    Nx, Ny, Nz = 0.45, 0.0, 1.0
-    # Transformation 2: New coil centerline direction
-    Translation = np.array([42e-3, 0, 79.5e-3])
-    # Transformation 3: New coil position
+    Nx, Ny, Nz = 0.45, 0.0, 1.0  # Transformation 2: New coil centerline direction
+    Translation = np.array([42e-3, 0, 79.5e-3])  # Transformation 3: New coil position
 
     # Apply Transformation 1: rotation about coil centerline
     strcoil.Pwire = mesh_rotate2(strcoil.Pwire, coilaxis, theta)
@@ -82,10 +79,8 @@ def setup_coil():
     NxNyNz = np.array([Nx, Ny, Nz], dtype=float)
     dirline = -NxNyNz / np.linalg.norm(NxNyNz)
 
-    # start point (0 mm along line)
-    # end point (100 mm along line)
-    offline = 0.0
-    L = 100e-3
+    offline = 0.0  # start point (0 mm along line)
+    L = 100e-3  # end point (100 mm along line)
 
     pointsline = np.array(
         [
@@ -164,15 +159,6 @@ def main():
     # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
     print("Sorry this version was for debugging")
     sys.exit(0)
-    (
-        pointsline,
-        dIdt,
-        I0,
-        strcoil,
-        CoilP,
-        Coilt,
-        Translation,
-    ) = setup_coil()
 
     P = mat["P"]
     t = mat["t"] - 1
@@ -193,17 +179,29 @@ def main():
     # EC = neighbour_ints()
     EC = mat["EC"]
 
-    c, resvec = charge_engine(
-        P=P,
-        t=t,
-        normals=normals,
-        area=area,
-        center=center,
-        contrast=contrast,
-        EC=EC,
-        strcoil=strcoil,
-        dIdt=dIdt,
-    )
+    default_coil = setup_coil()
+    coils: list[FullCoil] = [default_coil]
+
+    for (
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
+        Translation,
+    ) in coils:  # maybe njit
+        c, resvec = charge_engine(
+            P=P,
+            t=t,
+            normals=normals,
+            area=area,
+            center=center,
+            contrast=contrast,
+            EC=EC,
+            strcoil=strcoil,
+            dIdt=dIdt,
+        )
 
     if io:
         plot_residual(resvec)
