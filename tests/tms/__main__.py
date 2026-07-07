@@ -10,6 +10,8 @@ from scipy.io import loadmat
 from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import LinearOperator, gmres
 
+from engines.mesh import mesh_rotate1, mesh_rotate2
+
 BASE_DIR = Path(__file__).resolve().parent
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(root_dir))
@@ -35,7 +37,72 @@ def neighbour_ints():
 
 
 def setup_coil():
-    pass
+    # Define dIdt (for electric field)
+    dIdt = 9.4e7  # Amperes/sec (2*pi*I0/period), for electric field
+    # Define I0 (for magnetic field)
+    I0 = 5e3  # Amperes, for magnetic field
+
+    ## Load Coil
+    # Load base coil data, define coil excitation/position, define coil array if necesary
+    _strcoil = loadmat(BASE_DIR / "coil.mat")["strcoil"]
+    strcoil = StrCoil(
+        Pwire=_strcoil["Pwire"][0][0],
+        Ewire=_strcoil["Ewire"][0][0] - 1,
+        Swire=_strcoil["Swire"][0][0],
+    )
+
+    coilCAD = loadmat(BASE_DIR / "coilCAD.mat")
+    CoilP = coilCAD["P"]
+    Coilt = coilCAD["t"] - 1
+
+    ## Coil Position
+    # Define coil position: rotate and then tilt and move the entire coil as appropriate
+    coilaxis = [0, 0, 1]  # Transformation 1: rotation axis
+    theta = 0  # Transformation 1: angle to rotate about axis
+    Nx, Ny, Nz = 0.45, 0.0, 1.0
+    # Transformation 2: New coil centerline direction
+    Translation = np.array([42e-3, 0, 79.5e-3])
+    # Transformation 3: New coil position
+
+    # Apply Transformation 1: rotation about coil centerline
+    strcoil.Pwire = mesh_rotate2(strcoil.Pwire, coilaxis, theta)
+    CoilP = mesh_rotate2(CoilP, coilaxis, theta)
+
+    # Apply Transformation 2: Tilt the coil axis with direction vector Nx, Ny, Nz as required
+    strcoil.Pwire = mesh_rotate1(strcoil.Pwire, Nx, Ny, Nz)
+    CoilP = mesh_rotate1(CoilP, Nx, Ny, Nz)
+
+    # Apply Transformation 3: Move the coil as required
+    strcoil.Pwire = strcoil.Pwire + Translation
+
+    CoilP = CoilP + Translation
+
+    ## Coil Observation Line
+    # direction of the coil axis
+    NxNyNz = np.array([Nx, Ny, Nz], dtype=float)
+    dirline = -NxNyNz / np.linalg.norm(NxNyNz)
+
+    # start point (0 mm along line)
+    # end point (100 mm along line)
+    offline = 0.0
+    L = 100e-3
+
+    pointsline = np.array(
+        [
+            dirline * offline + Translation,
+            dirline * (L + offline) + Translation,
+        ]
+    )
+
+    return (
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
+        Translation,
+    )
 
 
 @cache
@@ -87,7 +154,7 @@ def charge_engine(
     conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
     solution_error = resvec[-1] / resvec[0]
 
-    print(f"{conservation_law_error=}\n" f"{solution_error=}")
+    print(f"{conservation_law_error=}\n{solution_error=}")
 
     return c, resvec
 
@@ -97,6 +164,15 @@ def main():
     # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
     print("Sorry this version was for debugging")
     sys.exit(0)
+    (
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
+        Translation,
+    ) = setup_coil()
 
     P = mat["P"]
     t = mat["t"] - 1
@@ -104,14 +180,18 @@ def main():
     area = mat["Area"]
     center = mat["Center"]
     contrast = mat["contrast"].reshape(-1)
+
+    (
+        P,
+        t,
+        normals,
+        area,
+        center,
+        contrast,
+    ) = load_model()
+
+    # EC = neighbour_ints()
     EC = mat["EC"]
-    strcoil = mat["strcoil"]  # warn custom logic
-    strcoil = StrCoil(
-        Pwire=strcoil["Pwire"][0][0],
-        Ewire=strcoil["Ewire"][0][0] - 1,
-        Swire=strcoil["Swire"][0][0],
-    )
-    dIdt = mat["dIdt"][0][0]
 
     c, resvec = charge_engine(
         P=P,

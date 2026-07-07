@@ -29,7 +29,8 @@ from load_model import load_model
 from setup_integrals import setup_integrals
 
 from engines.gui.pickle_loader import pickle_loader
-from engines.plot import plot_coil_worker, plot_residual, plot_single_coil_worker
+from engines.plot import (plot_coil_worker, plot_residual,
+                          plot_single_coil_worker)
 
 
 def main():
@@ -83,8 +84,8 @@ def main():
         coil_setup() if coil_path is None else pickle_loader(coil_path)
     )
 
-    obs_start = pointsline["start"]
-    obs_end = pointsline["end"]
+    obs_start = pointsline[0]
+    obs_end = pointsline[-1]
 
     # -- Plot coil geometry on desired tissue
     tissue_to_plot = "wm"

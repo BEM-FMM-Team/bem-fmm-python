@@ -16,19 +16,19 @@ from scipy.io import loadmat
 from engines.lib import cache, timeit
 from engines.mesh.mesh_rotate1 import mesh_rotate1
 from engines.mesh.mesh_rotate2 import mesh_rotate2
-from engines.my_types import StrCoil
+from engines.my_types import FullCoil, StrCoil
 
 ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 
 
 @timeit
-def coil_setup():
+def coil_setup() -> FullCoil:
     ## Coil Parameters
     # Define dIdt (for electric field)
-    dIdt = 9.4e7  #   Amperes/sec (2*pi*I0/period), for electric field
+    dIdt = 9.4e7  # Amperes/sec (2*pi*I0/period), for electric field
 
     # Define I0 (for magnetic field)
-    I0 = 5e3  #   Amperes, for magnetic field
+    I0 = 5e3  # Amperes, for magnetic field
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
@@ -45,18 +45,16 @@ def coil_setup():
 
     ## Coil Position
     # Define coil position: rotate and then tilt and move the entire coil as appropriate
-    coilaxis = [0, 0, 2]
-    #   Transformation 1: rotation axis
+    coilaxis = [0, 0, 1]
+    # Transformation 1: rotation axis
     theta = 0
-    #   Transformation 1: angle to rotate about axis
-    Nx = +0.45
+    # Transformation 1: angle to rotate about axis
+    Nx = 0.45
     Ny = 0.0
     Nz = 1.0
-    #   Transformation 2: New coil centerline direction
-    MoveX = +42e-3
-    MoveY = 0
-    MoveZ = 79.5e-3
-    #   Transformation 3: New coil position
+    # Transformation 2: New coil centerline direction
+    Translation = np.array([42e-3, 0, 79.5e-3])
+    # Transformation 3: New coil position
 
     # Apply Transformation 1: rotation about coil centerline
     strcoil.Pwire = mesh_rotate2(strcoil.Pwire, coilaxis, theta)
@@ -67,13 +65,9 @@ def coil_setup():
     CoilP = mesh_rotate1(CoilP, Nx, Ny, Nz)
 
     # Apply Transformation 3: Move the coil as required
-    strcoil.Pwire[:, 0] = strcoil.Pwire[:, 0] + MoveX
-    strcoil.Pwire[:, 1] = strcoil.Pwire[:, 1] + MoveY
-    strcoil.Pwire[:, 2] = strcoil.Pwire[:, 2] + MoveZ
+    strcoil.Pwire = strcoil.Pwire + Translation
 
-    CoilP[:, 0] = CoilP[:, 0] + MoveX
-    CoilP[:, 1] = CoilP[:, 1] + MoveY
-    CoilP[:, 2] = CoilP[:, 2] + MoveZ
+    CoilP = CoilP + Translation
 
     ## Coil Observation Line
     # direction of the coil axis
@@ -85,9 +79,11 @@ def coil_setup():
     offline = 0.0
     L = 100e-3
 
-    pointsline = dict(
-        start=np.array([MoveX, MoveY, MoveZ]) + dirline * (0.0 + offline),
-        end=np.array([MoveX, MoveY, MoveZ]) + dirline * (L + offline),
+    pointsline = np.array(
+        [
+            dirline * offline + Translation,
+            dirline * (L + offline) + Translation,
+        ]
     )
 
     return (
@@ -97,5 +93,5 @@ def coil_setup():
         strcoil,
         CoilP,
         Coilt,
-        np.array([MoveX, MoveY, MoveZ]),
+        Translation,
     )

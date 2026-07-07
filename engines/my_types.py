@@ -50,6 +50,8 @@ Nx3i = Annotated[vu32, "Nx3i indices"]
 Mx1 = Annotated[vf64_1, "Mx1 vertices"]
 Mx3 = Annotated[vf64, "Mx3 vertices"]
 
+# TODO these *Coil types are a bit confusing
+
 
 # make the math look more elegant
 @dataclass
@@ -57,3 +59,19 @@ class StrCoil:
     Pwire: Mx3
     Ewire: Nx2
     Swire: Nx1
+
+
+FullCoil = tuple[
+    Annotated[
+        np.ndarray,
+        "points that form a centre line, can be a list of 2 R3 vectors",  # INFO maybe for bezier points in the future
+    ],
+    Annotated[float, "dIdt"],
+    Annotated[float, "I0"],
+    StrCoil,
+    Mx3,
+    Nx3i,
+    Annotated[np.ndarray, "Translation np.zeros(3)"],
+]
+
+CoilArray = list[FullCoil] | np.ndarray[[int], np.dtype[FullCoil]]
