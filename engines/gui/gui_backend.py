@@ -153,6 +153,10 @@ class Backend:
     def save_coil_config(self):
         save_path = BASE_DIR / "coil_config.pkl"
         coil_list = list(self.coils.values())
+        for coil in coil_list:
+            distance, index = self.nn.kneighbors(coil.com.reshape(1, -1))
+            coil.intersection_point = self.centers[index[0, 0]].copy()
+            print(coil.intersection_point)
         with open(save_path, "wb") as f:
             pickle.dump(coil_list, f)
         return
