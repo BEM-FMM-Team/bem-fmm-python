@@ -42,7 +42,7 @@ class Frontend:
         ttk.Label(self.root, text="Coil Type").grid(row=1, column=0, padx=5, pady=5)
         coil_var = tk.StringVar(value=self.coil_names[0])
         self.coil_dropdown = ttk.Combobox(
-            self.root, textvariable=coil_var, values=self.coil_names, state="readonly"
+            self.root, textvariable=coil_var.get(), values=self.coil_names, state="readonly"
         )
         self.coil_dropdown.grid(row=1, column=1, padx=5, pady=5)
 
@@ -50,18 +50,25 @@ class Frontend:
         ttk.Label(self.root, text="X (m)").grid(row=2, column=0)
         self.x_entry = ttk.Entry(self.root)
         self.x_entry.grid(row=2, column=1)
+        self.x_entry.insert(0, "0")
 
         ttk.Label(self.root, text="Y (m)").grid(row=3, column=0)
         self.y_entry = ttk.Entry(self.root)
         self.y_entry.grid(row=3, column=1)
+        self.y_entry.insert(0, "0")
 
         ttk.Label(self.root, text="Z (m)").grid(row=4, column=0)
         self.z_entry = ttk.Entry(self.root)
         self.z_entry.grid(row=4, column=1)
+        self.z_entry.insert(0, "0")
+
+        clear_button = ttk.Button(self.root,text="Clear",command=self.clear_gui)
+        clear_button.grid(row=4, column=2, columnspan=2, pady=10)
 
         ttk.Label(self.root, text="dIdt (amps/s)").grid(row=5, column=0)
         self.dIdt_entry = ttk.Entry(self.root)
         self.dIdt_entry.grid(row=5, column=1)
+        self.dIdt_entry.insert(0, "1e6")
 
         ttk.Label(self.root, text="Custom coil").grid(row=6, column=0, padx=5, pady=5)
         self.custom_coil = ttk.Entry(self.root)
@@ -437,6 +444,16 @@ class Frontend:
         cancel_button.grid(row=10, column=2, columnspan=2, pady=10)
 
         editor.mainloop()
+
+        return
+
+    def clear_gui(self):
+        self.coil_dropdown.set("")
+        self.x_entry.delete(0, tk.END)
+        self.y_entry.delete(0, tk.END)
+        self.z_entry.delete(0, tk.END)
+        self.dIdt_entry.delete(0, tk.END)
+        self.custom_coil.delete(0, tk.END)
 
         return
 

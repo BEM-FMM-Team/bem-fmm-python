@@ -8,13 +8,15 @@ from .coil import Coil
 
 def pickle_loader(filename):
     with open(filename, "rb") as f:
-        data: Coil = pickle.load(f)[0]
-    strcoil = StrCoil()
-    strcoil.Pwire = data.Pwire
-    strcoil.Ewire = data.Ewire
-    strcoil.Swire = data.Swire
-    pointsline = dict(
-        start=np.array(data.centerline[0]),
-        end=np.array(data.centerline[1]),
-    )
+        data: list = pickle.load(f)[0]
+
+    coil_array = []
+    for coil in data:
+        strcoil = StrCoil()
+        strcoil.Pwire = coil.Pwire
+        strcoil.Ewire = coil.Ewire
+        strcoil.Swire = coil.Swire
+        coil_array.append((coil.centerline, coil.dIdt, 5e3, strcoil, coil.cad_P, coil.t, coil.intersection_point))
+
+    return coil_array
     return pointsline, data.dIdt, 5e3, strcoil, data.cad_P, data.t, data.intersection_point
