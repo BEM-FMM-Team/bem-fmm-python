@@ -40,11 +40,11 @@ class Frontend:
 
         # type
         ttk.Label(self.root, text="Coil Type").grid(row=1, column=0, padx=5, pady=5)
-        coil_var = tk.StringVar(value=self.coil_names[0])
         self.coil_dropdown = ttk.Combobox(
-            self.root, textvariable=coil_var.get(), values=self.coil_names, state="readonly"
+            self.root, values=self.coil_names, state="readonly"
         )
         self.coil_dropdown.grid(row=1, column=1, padx=5, pady=5)
+        self.coil_dropdown.set(self.coil_names[0])
 
         # coordinates
         ttk.Label(self.root, text="X (m)").grid(row=2, column=0)
