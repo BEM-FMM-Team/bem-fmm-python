@@ -16,10 +16,5 @@ def pickle_loader(
     strcoil.Pwire = data.Pwire
     strcoil.Ewire = data.Ewire
     strcoil.Swire = data.Swire
-    pointsline = np.array(
-        [
-            np.array(data.centerline[0]),
-            np.array(data.centerline[1]),
-        ]
-    )
+    pointsline = np.array(data.centerline)
     return pointsline, data.dIdt, 5e3, strcoil, data.cad_P, data.t, data.com

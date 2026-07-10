@@ -1,6 +1,7 @@
 import logging
 import sys
 from pathlib import Path
+from sys import exit
 
 # import jax
 # import jax.numpy as jnp
@@ -9,7 +10,10 @@ from scipy.io import loadmat
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+from engines.mesh import mesh_combine_simple, mesh_normals, mesh_tricenter
+from engines.mesh.mesh_areas import mesh_areas
+
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 CSD = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
@@ -18,6 +22,8 @@ print(f"Setup environment {ROOT_DIR}")
 
 TEST_DIR = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (TEST_DIR / "assets").resolve()
+
+import vedo
 
 from engines.charge import inc_field_electric, surface_field_lhs
 from engines.fgmres import fgmres
@@ -28,11 +34,70 @@ from engines.plot import plot_residual
 
 
 def load_model():
-    pass
+    index_name = ASSETS / "tissue_index.txt"
+
+    shells: dict[str, tuple[float, str]] = {
+        "skin": (0.4650, "FreeSpace"),
+        "bone": (0.010, "skin"),
+        "csf": (1.654, "bone"),
+        "gm": (0.2750, "csf"),
+        "cerebellum": (0.126, "csf"),
+        "wm": (0.1260, "gm"),
+        "ventricles": (1.654, "wm"),
+    }
+
+    Pcell: list[np.ndarray] = []
+    tcell: list[np.ndarray] = []
+    condinner: list[float] = []
+    condouter: list[float] = []
+    for k, v in shells.items():
+        path = ASSETS / f"{k}.stl"
+        if not path.is_file():
+            raise RuntimeError(f"Failed to find file {path}")
+
+        mesh = vedo.Mesh(path)
+        Pcell.append(mesh.vertices * 1e-3)  # TODO units
+        tcell.append(np.array(mesh.cells))
+        condinner.append(v[0])
+        condouter.append(shells[v[1]][0] if v[1] != "FreeSpace" else 0.0)
+
+    P, t, normals, condin, condout, interface = mesh_combine_simple(
+        Pcell, tcell, condinner, condouter
+    )
+    area = mesh_areas(P, t)
+    center = mesh_tricenter(P, t)
+
+    contrast = (condin - condout) / (condin + condout)
+
+    return (
+        P,
+        t,
+        normals,
+        center,
+        area,
+        contrast,
+        condinner,
+        condin,
+        condouter,
+        condout,
+    )
+
+    # sys.path.append(str(TEST_DIR / "coil_single_ring"))
+    # # pyrefly: ignore [missing-import]
+    # from load_model import load_model
+    #
+    # return load_model(index_name)
 
 
-def neighbour_ints():
-    pass
+def neighbour_ints() -> csr_matrix:
+    mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
+
+    # print("Sorry this version was for debugging")
+    # exit(0)
+
+    EC = mat["EC"]
+    return EC
 
 
 def setup_coil():
@@ -89,6 +154,8 @@ def setup_coil():
         ]
     )
 
+    Intersection = np.arrays([0, 0, 0])
+
     return (
         pointsline,
         dIdt,
@@ -96,14 +163,12 @@ def setup_coil():
         strcoil,
         CoilP,
         Coilt,
-        Translation,
+        Intersection,
     )
 
 
 @cache
 def charge_engine(
-    P: Mx3,
-    t: Nx3i,
     normals: Nx3,
     area: Nx1,
     center: Nx3,
@@ -111,17 +176,11 @@ def charge_engine(
     # neighbour info
     EC: csr_matrix,
     # coil info
-    strcoil: StrCoil,
-    dIdt: float,
+    b: np.ndarray,
 ):
     iter = 30
     relres = 1e-6
     weight = 0.5
-
-    # RHS
-    EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
-    Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
-    b = 2 * contrast * np.sum((normals * Einc), 1)
 
     MATVEC = lambda c: surface_field_lhs(
         c.reshape((-1, 1)),
@@ -155,33 +214,28 @@ def charge_engine(
 
 
 def main():
-    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
-    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
-    print("Sorry this version was for debugging")
-    sys.exit(0)
-
-    P = mat["P"]
-    t = mat["t"] - 1
-    normals = mat["normals"]
-    area = mat["Area"]
-    center = mat["Center"]
-    contrast = mat["contrast"].reshape(-1)
-
     (
         P,
         t,
         normals,
-        area,
         center,
+        area,
         contrast,
+        #
+        condinner,
+        condin,
+        condouter,
+        condout,
+        # interface,
+        # tissues,
     ) = load_model()
 
-    # EC = neighbour_ints()
-    EC = mat["EC"]
+    EC = neighbour_ints()
 
     default_coil = setup_coil()
     coils: list[FullCoil] = [default_coil]
 
+    rhs: list[np.ndarray] = []
     for (
         pointsline,
         dIdt,
@@ -191,20 +245,35 @@ def main():
         Coilt,
         Translation,
     ) in coils:  # maybe njit
-        c, resvec = charge_engine(
-            P=P,
-            t=t,
-            normals=normals,
-            area=area,
-            center=center,
-            contrast=contrast,
-            EC=EC,
-            strcoil=strcoil,
-            dIdt=dIdt,
-        )
+        # RHS
+        EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
+        Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
+        b = 2 * contrast * np.sum((normals * Einc), 1)
+        rhs.append(b)
 
-    if io:
-        plot_residual(resvec)
+    b = sum(rhs)
+
+    c, resvec = charge_engine(
+        normals=normals,
+        area=area,
+        center=center,
+        contrast=contrast,
+        EC=EC,
+        b=b,
+    )
+
+    # c = (c*area + np.sum(c(tneighbor)*area(tneighbor), 2))./(area + np.sum(area(tneighbor), 2));
+
+    ##   Find and save surface fields
+    #   (i)     total normal E-field just inside/outside any model surface;
+    #   (ii)    secondary continuous E-field contribution for any model surface;
+    #   (iii)   secondary continuous electric potential for any model surface;
+    Eninside = condout / (condin - condout) * c
+    # since c is normalized by eps0
+    Enoutside = condin / (condin - condout) * c
+    # since c is normalized by eps0
+
+    plot_residual(resvec)
 
 
 if __name__ == "__main__":
