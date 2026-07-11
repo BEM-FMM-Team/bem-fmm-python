@@ -1,0 +1,26 @@
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "Cython",
+    "numpy"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+include-package-data = true
+
+[project]
+name = "neighbor_ints_en_bemfmm"
+authors = [
+    { name = "Guillermo Nunez Ponasso" },
+    { name = "Shawn Pande" },
+    { name = "Simon Hao" }
+]
+version = "1.0"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
