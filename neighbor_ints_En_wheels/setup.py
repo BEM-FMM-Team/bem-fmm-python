@@ -5,10 +5,6 @@ from pathlib import Path
 import sys
 from Cython.Build import cythonize
 
-
-print("SETUP.PY DIR =", os.path.abspath(os.path.dirname(__file__)))
-here = Path(__file__).resolve().parent
-
 if sys.platform == "win32":
     compile_args = ["/O2", "/openmp"]
     link_args = ["/openmp"]
@@ -19,11 +15,10 @@ else:
 ext = Extension(
     name="neighbor_ints_en_fmm",
     sources=[
-        here/"neighbor_ints_Enpyx.pyx",
-        here/"neighbor_ints_En.c",
+        "neighbor_ints_Enpyx.pyx",
+        "neighbor_ints_En.c",
     ],
-    include_dirs=[
-        str(here),    
+    include_dirs=[ 
         np.get_include()
     ],
     extra_compile_args=compile_args,
