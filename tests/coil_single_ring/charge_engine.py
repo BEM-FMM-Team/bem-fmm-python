@@ -14,9 +14,9 @@ from scipy.sparse.linalg import LinearOperator
 
 from engines.charge.surface_field_electric_plain import surface_field_electric_plain
 from engines.charge.surface_field_lhs import surface_field_lhs
+from engines.fgmres import fgmres
 from engines.lib import cache
 from engines.my_types import Nx1, Nx3
-from engines.fgmres import fgmres
 
 
 @cache

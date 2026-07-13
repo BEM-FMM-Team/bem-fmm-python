@@ -1,5 +1,6 @@
 import logging
 import sys
+from functools import reduce
 from pathlib import Path
 from sys import exit
 
@@ -7,9 +8,11 @@ from sys import exit
 # import jax.numpy as jnp
 import numpy as np
 from scipy.io import loadmat
+
 # from jax import jit, lax, random
 from scipy.sparse import csr_matrix
 
+from engines.charge import surface_field_electric_plain
 from engines.mesh import mesh_combine_simple, mesh_normals, mesh_tricenter
 from engines.mesh.mesh_areas import mesh_areas
 
@@ -80,6 +83,8 @@ def load_model():
         condin,
         condouter,
         condout,
+        interface,
+        shells,
     )
 
     # sys.path.append(str(TEST_DIR / "coil_single_ring"))
@@ -154,7 +159,7 @@ def setup_coil():
         ]
     )
 
-    Intersection = np.arrays([0, 0, 0])
+    Intersection = np.array([0, 0, 0])
 
     return (
         pointsline,
@@ -226,8 +231,8 @@ def main():
         condin,
         condouter,
         condout,
-        # interface,
-        # tissues,
+        interface,
+        shells,
     ) = load_model()
 
     EC = neighbour_ints()
@@ -235,7 +240,8 @@ def main():
     default_coil = setup_coil()
     coils: list[FullCoil] = [default_coil]
 
-    rhs: list[np.ndarray] = []
+    rhs_b: list[np.ndarray] = []
+    rhs_Einc: list[np.ndarray] = []
     for (
         pointsline,
         dIdt,
@@ -249,9 +255,13 @@ def main():
         EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
         Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
         b = 2 * contrast * np.sum((normals * Einc), 1)
-        rhs.append(b)
 
-    b = sum(rhs)
+        rhs_Einc.append(Einc)
+        rhs_b.append(b)
+
+    _sum = lambda l: reduce(lambda _a, _b: _a + _b, l)
+    b = _sum(rhs_b)
+    Einc = _sum(rhs_Einc)
 
     c, resvec = charge_engine(
         normals=normals,
@@ -261,8 +271,11 @@ def main():
         EC=EC,
         b=b,
     )
+    plot_residual(resvec)
 
-    # c = (c*area + np.sum(c(tneighbor)*area(tneighbor), 2))./(area + np.sum(area(tneighbor), 2));
+    # c = (c * area + np.sum(c[tneighbor] * area[tneighbor], 1)) / (
+    #     area + np.sum(area[tneighbor], 1)
+    # )
 
     ##   Find and save surface fields
     #   (i)     total normal E-field just inside/outside any model surface;
@@ -273,7 +286,30 @@ def main():
     Enoutside = condin / (condin - condout) * c
     # since c is normalized by eps0
 
-    plot_residual(resvec)
+    c = c.reshape((-1, 1))
+
+    Ptot, Esec = surface_field_electric_plain(c=c, center=center, area=area, prec=1e-3)
+    En = np.sum(normals * (Einc + Esec), 1).reshape((-1, 1))
+
+    # Normal E-Field Just Inside and Outside
+    half_c = (1 / 2) * c
+    En_in = En - half_c
+    En_out = En + half_c
+    Jn_in = En_in * condin.reshape(-1, 1)
+    Jn_out = En_out * condout.reshape(-1, 1)
+
+    print(
+        f"""Current conservation law:
+Norm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * area))}"""
+    )
+
+    tissue_to_plot = "wm"
+
+    plot_t_idx = interface[:, 0] == list(shells.keys()).index(tissue_to_plot)
+    plot_t = t[plot_t_idx]
+
+    # plane
+    xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
 
 
 if __name__ == "__main__":

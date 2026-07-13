@@ -19,8 +19,9 @@ ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
 
 print(f"Setup environment {root_dir}")
 
-from engines.charge.inc_field_gauss_selective_dipoles import \
-    inc_field_gauss_selective_dipoles
+from engines.charge.inc_field_gauss_selective_dipoles import (
+    inc_field_gauss_selective_dipoles,
+)
 from engines.lib import timeit
 from engines.mesh import mesh_areas, mesh_normals, mesh_tricenter
 from engines.plot import patch
