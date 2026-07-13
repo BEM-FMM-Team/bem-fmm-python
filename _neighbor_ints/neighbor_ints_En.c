@@ -386,48 +386,21 @@ void cythonFunction(const double *P, const size_t *t, const double *normal,
   const double *coeff, *weight;
   int *indexF;
 
+  // clang-format off
   switch (gauss) {
-  case 1:
-    coeff = COEFFS(1);
-    weight = WEIGHTS(1);
-    break;
-  case 3:
-    coeff = COEFFS(3);
-    weight = WEIGHTS(3);
-    break;
-  case 4:
-    coeff = COEFFS(4);
-    weight = WEIGHTS(4);
-    break;
-  case 6:
-    coeff = COEFFS(6);
-    weight = WEIGHTS(6);
-    break;
-  case 7:
-    coeff = COEFFS(7);
-    weight = WEIGHTS(7);
-    break;
-  case 9:
-    coeff = COEFFS(9);
-    weight = WEIGHTS(9);
-    break;
-  case 13:
-    coeff = COEFFS(13);
-    weight = WEIGHTS(13);
-    break;
-  case 25:
-    coeff = COEFFS(25);
-    weight = WEIGHTS(25);
-    break;
-  case 48:
-    coeff = COEFFS(48);
-    weight = WEIGHTS(48);
-    break;
-  default:
-    coeff = COEFFS(25);
-    weight = WEIGHTS(25);
-    break;
+    case 1: coeff = COEFFS(1); weight = WEIGHTS(1); break;
+    case 3: coeff = COEFFS(3); weight = WEIGHTS(3); break;
+    case 4: coeff = COEFFS(4); weight = WEIGHTS(4); break;
+    case 6: coeff = COEFFS(6); weight = WEIGHTS(6); break;
+    case 7: coeff = COEFFS(7); weight = WEIGHTS(7); break;
+    case 9: coeff = COEFFS(9); weight = WEIGHTS(9); break;
+    case 13: coeff = COEFFS(13); weight = WEIGHTS(13); break;
+    case 25: coeff = COEFFS(25); weight = WEIGHTS(25); break;
+    case 48: coeff = COEFFS(48); weight = WEIGHTS(48); break;
+    default: coeff = COEFFS(25); weight = WEIGHTS(25); break;
   }
+  // clang-format on
+
   // === main loop ===
   long n;
 #pragma omp parallel for schedule(static)

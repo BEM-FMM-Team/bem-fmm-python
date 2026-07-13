@@ -43,6 +43,8 @@
             packages =
               libs
               ++ (with pkgs; [
+                gdb
+
                 ruff
                 basedpyright
                 black
@@ -53,6 +55,7 @@
               ++ [
                 (pkgs.python313.withPackages (p:
                   with p; [
+                    uv
                     napari
                     requests
                     debugpy
@@ -78,15 +81,16 @@
                 export PYTHONPATH="$(pwd):$PYTHONPATH"
                 export QT_QPA_PLATFORM=xcb
 
-                if [ ! -d venv ]; then
+                if [ ! -d .venv ]; then
                   rm -rf build *.egg-info src/*.egg-info
                   find . -name "*.so" -delete
-                  python -m venv venv
-                  source venv/bin/activate
-                  pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
-                  pip install -e ".[dev]"
+                  # python -m venv venv
+                  uv venv
+                  source .venv/bin/activate
+                  uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
+                  uv pip install -e ".[dev]"
                 else
-                  source venv/bin/activate
+                  source .venv/bin/activate
                 fi
               '';
           };

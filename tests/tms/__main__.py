@@ -96,12 +96,11 @@ def neighbour_ints(
 ) -> csr_matrix:
     # print("Sorry this version was for debugging")
     # exit(0)
+    from engines.plot import plot_sparse
 
-    #mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
-    #from engines.plot import plot_sparse
-
+    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
     # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
-    #plot_sparse(mat["EC"], "matlab.png")
+    # plot_sparse(mat["EC"], "matlab.png")
 
     P_c = np.ascontiguousarray(P, dtype=np.float64)
     t_c = np.ascontiguousarray(t, dtype=np.uintp)
@@ -112,33 +111,28 @@ def neighbour_ints(
     area_c = np.ascontiguousarray(area, dtype=np.float64).ravel()
     normals_c = np.ascontiguousarray(normals, dtype=np.float64)
 
-    IE, IC = neighbor_ints_En(
+    EC: csr_matrix = neighbor_ints_En(
         P_c, t_c, normals_c, center_c, ineighborE_c, area_c, gauss
     )
+    # plot_sparse(EC, "python.png")
 
-    RnumberE = ineighborE.shape[1]
+    # Rnumber = ineighborE.shape[1]
+    # N = t.shape[0]
 
-    area_neighbor = area[ineighborE].squeeze()
-    area_self_broadcast = np.repeat(area, RnumberE, axis=1)
+    # ii = ineighborE.T.flatten(order="F")
+    # jj = np.repeat(np.arange(t.shape[0], dtype=np.uintp), Rnumber)
 
-    area_div = area_self_broadcast / area_neighbor
-
-    IE = IE * area_div
-    IC = IC * area_div
-
-    ii = ineighborE.ravel()
-    jj = np.tile(np.arange(t.shape[0]), RnumberE)
-
-    const = 1 / (4 * np.pi)
-    data = const * (-IC + IE).ravel(
-        "F"
-    )  # WARN or use .ravel('F') may not be easy to catch as heads are symmetrical
-    EC = coo_matrix((data, (ii, jj)), shape=(t.shape[0], t.shape[0])).tocsr()
-    CO = csr_matrix(((contrast.ravel()[ineighborE]).ravel(), (ii, jj)))
-    EC = CO.multiply(EC)
-
-    #plot_sparse(EC, "python.png")
-    #exit(0)
+    # data = contrast[ineighborE]
+    # CO = csr_matrix((data, (ii, jj)), shape=(N, N))
+    # EC = CO.multiply(EC)
+    #
+    # import matplotlib.pyplot as plt
+    #
+    # plt.plot(ii)
+    # plt.show()
+    #
+    # plot_sparse(EC, "python_co.png")
+    # exit(0)
 
     return EC
 
@@ -289,7 +283,7 @@ def main():
         center=center,
         area=area,
         ineighborE=ineighborE,
-        gauss=0,
+        gauss=25,
         contrast=contrast,
     )
 
