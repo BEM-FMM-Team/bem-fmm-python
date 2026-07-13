@@ -27,6 +27,15 @@ pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-
 
 We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls.
 
+## Faster setup
+
+```bash
+pip install uv
+uv venv
+.\.venv\Scripts\activate
+uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple .
+```
+
 ## Generating and using a coil
 
 ```bash
