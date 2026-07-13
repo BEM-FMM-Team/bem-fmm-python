@@ -1,5 +1,10 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = [
+    "setuptools",
+    "wheel",
+    "Cython",
+    "numpy",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -29,7 +34,8 @@ dependencies = [
     "numba==0.65.1",
     "scikit-learn==1.9.0",
     "pyamg==5.3.0",
-    "fmm3dpyfast"
+  #
+    "fmm3dpyfast",
 ]
 
 [project.optional-dependencies]
