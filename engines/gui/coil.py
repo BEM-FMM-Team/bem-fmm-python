@@ -30,6 +30,8 @@ class Coil:
 
         self.Epri = 0
 
+        self.intersection_point = ...
+
     def clone(self):
         import copy
 

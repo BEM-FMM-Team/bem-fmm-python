@@ -30,3 +30,9 @@ dist/
 .venv/
 venv/
 env/
+
+**/dist
+
+
+**/*.so
+**/*.dll

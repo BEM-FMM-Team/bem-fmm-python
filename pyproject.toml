@@ -1,5 +1,10 @@
 [build-system]
-requires = ["setuptools>=69", "wheel"]
+requires = [
+    "setuptools",
+    "wheel",
+    "Cython",
+    "numpy",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -31,7 +36,8 @@ dependencies = [
     "pyamg==5.3.0",
     "PyQt6==6.11.0",
     "PyQt6Ads==4.5.0",
-    "fmm3dpyfast"
+    #
+    "fmm3dpyfast",
 ]
 
 [project.optional-dependencies]
