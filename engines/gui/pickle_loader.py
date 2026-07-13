@@ -16,7 +16,25 @@ def pickle_loader(filename):
         strcoil.Pwire = coil.Pwire
         strcoil.Ewire = coil.Ewire
         strcoil.Swire = coil.Swire
-        coil_array.append((coil.centerline, coil.dIdt, 5e3, strcoil, coil.cad_P, coil.t, coil.intersection_point))
+        coil_array.append(
+            (
+                coil.centerline,
+                coil.dIdt,
+                5e3,
+                strcoil,
+                coil.cad_P,
+                coil.t,
+                coil.intersection_point,
+            )
+        )
 
     return coil_array
-    return pointsline, data.dIdt, 5e3, strcoil, data.cad_P, data.t, data.intersection_point
+    return (
+        pointsline,
+        data.dIdt,
+        5e3,
+        strcoil,
+        data.cad_P,
+        data.t,
+        data.intersection_point,
+    )

@@ -1,0 +1,4 @@
+include neighbor_ints_En.h
+include neighbor_ints_En.c
+include neighbor_ints_Enpyx.pyx
+include neighbor_ints_En.pxd

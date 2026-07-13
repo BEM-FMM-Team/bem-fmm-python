@@ -62,7 +62,7 @@ class Frontend:
         self.z_entry.grid(row=4, column=1)
         self.z_entry.insert(0, "0")
 
-        clear_button = ttk.Button(self.root,text="Clear",command=self.clear_gui)
+        clear_button = ttk.Button(self.root, text="Clear", command=self.clear_gui)
         clear_button.grid(row=4, column=2, columnspan=2, pady=10)
 
         ttk.Label(self.root, text="dIdt (amps/s)").grid(row=5, column=0)
