@@ -4,17 +4,10 @@ from functools import reduce
 from pathlib import Path
 from sys import exit
 
-# import jax
-# import jax.numpy as jnp
 import numpy as np
 from scipy.io import loadmat
-
-# from jax import jit, lax, random
-from scipy.sparse import csr_matrix
-
-from engines.charge import surface_field_electric_plain
-from engines.mesh import mesh_combine_simple, mesh_normals, mesh_tricenter
-from engines.mesh.mesh_areas import mesh_areas
+from scipy.sparse import coo_matrix, csr_matrix
+from sklearn.neighbors import NearestNeighbors
 
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
@@ -28,12 +21,15 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import inc_field_electric, surface_field_lhs
+from engines.charge import (inc_field_electric, surface_field_electric_plain,
+                            surface_field_lhs)
 from engines.fgmres import fgmres
 from engines.lib import cache, io
-from engines.mesh import mesh_rotate1, mesh_rotate2
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_normals,
+                          mesh_rotate1, mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
+from neighbor_ints import neighbor_ints_En
 
 
 def load_model():
@@ -87,21 +83,56 @@ def load_model():
         shells,
     )
 
-    # sys.path.append(str(TEST_DIR / "coil_single_ring"))
-    # # pyrefly: ignore [missing-import]
-    # from load_model import load_model
-    #
-    # return load_model(index_name)
 
-
-def neighbour_ints() -> csr_matrix:
-    mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
-    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
-
+def neighbour_ints(
+    P: Mx3,
+    t: Nx3i,
+    normals: Nx3,
+    center: Nx3,
+    area: Nx1,
+    ineighborE: np.ndarray,  # NxRnumberE
+    gauss: int,
+    contrast: Nx1,  # could be (N,) or (N,1)
+) -> csr_matrix:
     # print("Sorry this version was for debugging")
     # exit(0)
 
-    EC = mat["EC"]
+    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
+
+    P_c = np.ascontiguousarray(P, dtype=np.float64)
+    t_c = np.ascontiguousarray(t, dtype=np.uintp)
+    ineighborE_c = np.asfortranarray(
+        ineighborE.astype(dtype=np.uintp),  # NxRNumberE
+    )
+    center_c = np.ascontiguousarray(center, dtype=np.float64)
+    area_c = np.ascontiguousarray(area, dtype=np.float64).ravel()
+    normals_c = np.ascontiguousarray(normals, dtype=np.float64)
+
+    IE, IC = neighbor_ints_En(
+        P_c, t_c, normals_c, center_c, ineighborE_c, area_c, gauss
+    )
+
+    RnumberE = ineighborE.shape[1]
+
+    area_neighbor = area[ineighborE].squeeze()
+    area_self_broadcast = np.repeat(area, RnumberE, axis=1)
+
+    area_div = area_self_broadcast / area_neighbor
+
+    IE = IE * area_div
+    IC = IC * area_div
+
+    ii = ineighborE.ravel()
+    jj = np.tile(np.arange(t.shape[0]), RnumberE)
+
+    const = 1 / (4 * np.pi)
+    data = (
+        const * (-IC + IE).ravel()
+    )  # WARN or use .ravel('F') may not be easy to catch as heads are symmetrical
+    EC = coo_matrix((data, (ii, jj)), shape=(t.shape[0], t.shape[0])).tocsr()
+    CO = csr_matrix(((contrast.ravel()[ineighborE]).ravel(), (ii, jj)))
+    EC = CO.multiply(EC)
     return EC
 
 
@@ -213,7 +244,10 @@ def charge_engine(
     conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
     solution_error = resvec[-1] / resvec[0]
 
-    print(f"{conservation_law_error=}\n{solution_error=}")
+    print(
+        f"""conservation_law_error={conservation_law_error:.4e}
+solution_error={solution_error:.4e}"""
+    )
 
     return c, resvec
 
@@ -235,7 +269,22 @@ def main():
         shells,
     ) = load_model()
 
-    EC = neighbour_ints()
+    RnumberE = 4
+
+    knn = NearestNeighbors(n_neighbors=RnumberE, algorithm="auto")
+    knn.fit(center)
+    distances, ineighborE = knn.kneighbors(center)
+
+    EC = neighbour_ints(
+        P=P,
+        t=t,
+        normals=normals,
+        center=center,
+        area=area,
+        ineighborE=ineighborE,
+        gauss=0,
+        contrast=contrast,
+    )
 
     default_coil = setup_coil()
     coils: list[FullCoil] = [default_coil]
@@ -298,9 +347,10 @@ def main():
     Jn_in = En_in * condin.reshape(-1, 1)
     Jn_out = En_out * condout.reshape(-1, 1)
 
+    diff = np.linalg.norm(((Jn_in - Jn_out) * area))
     print(
         f"""Current conservation law:
-Norm difference of inner and outer current density: {np.linalg.norm(((Jn_in - Jn_out) * area))}"""
+        Norm difference of inner and outer current density: {diff:.3e}"""
     )
 
     tissue_to_plot = "wm"
