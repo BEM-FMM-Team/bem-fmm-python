@@ -65,7 +65,7 @@ class Frontend:
         clear_button = ttk.Button(self.root, text="Clear", command=self.clear_gui)
         clear_button.grid(row=4, column=2, columnspan=2, pady=10)
 
-        ttk.Label(self.root, text="dIdt (amps/s)").grid(row=5, column=0)
+        ttk.Label(self.root, text="dIdt (amps/ns)").grid(row=5, column=0)
         self.dIdt_entry = ttk.Entry(self.root)
         self.dIdt_entry.grid(row=5, column=1)
         self.dIdt_entry.insert(0, "1e6")
@@ -326,7 +326,7 @@ class Frontend:
 
         # current
 
-        ttk.Label(editor, text="dIdt (amps/s)").grid(row=7, column=0, padx=5, pady=5)
+        ttk.Label(editor, text="dIdt (amps/ns)").grid(row=7, column=0, padx=5, pady=5)
         dIdt = ttk.Entry(editor, textvariable=i_var)
         dIdt.grid(row=7, column=2, columnspan=2, pady=10)
 
