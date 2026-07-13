@@ -80,7 +80,7 @@ def main():
         Coilt,
         xyz,
     ) = (
-        coil_setup() if coil_path is None else pickle_loader(coil_path)
+        coil_setup() if coil_path is None else pickle_loader(coil_path)[0]
     )
 
     obs_start = pointsline["start"]
