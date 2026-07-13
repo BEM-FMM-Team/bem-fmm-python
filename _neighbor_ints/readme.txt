@@ -1,6 +1,8 @@
 # notes
 cython neighbor_ints_Enpyx.pyx # to generate the cython file during dev so the user does not need Cython
 
+In [1]: import neighbor_ints
+In [2]: neighbor_ints.neighbor_ints_En()
 
 
 To compile a wheel for your current system, make sure you have the modules "setuptools", "wheel", "Cython", and "numpy" pip installed in your environment (you can use the requirements.txt).
