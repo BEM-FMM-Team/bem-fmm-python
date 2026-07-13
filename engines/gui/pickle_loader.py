@@ -1,12 +1,15 @@
 import pickle
+from pathlib import Path
 
 import numpy as np
 
-from ..my_types import StrCoil
+from ..my_types import FullCoil, StrCoil
 from .coil import Coil
 
 
-def pickle_loader(filename):
+def pickle_loader(
+    filename: Path | str,
+) -> list[FullCoil]:
     with open(filename, "rb") as f:
         data: list = pickle.load(f)[0]
 
@@ -29,12 +32,3 @@ def pickle_loader(filename):
         )
 
     return coil_array
-    return (
-        pointsline,
-        data.dIdt,
-        5e3,
-        strcoil,
-        data.cad_P,
-        data.t,
-        data.intersection_point,
-    )

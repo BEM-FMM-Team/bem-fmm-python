@@ -305,7 +305,10 @@ def dbg_fgmres(
             if verb > 1:
                 elapsed = time.time() - t_gmres_start
                 print(
-                    f"iter={j+1}, relres={resid:.3e}, locres={err:.3e}, time={elapsed:.3g}"
+                    f"iter={j+1:2d}, "
+                    f"relres={resid:.3e}, "
+                    f"locres={err:.3e}, "
+                    f"time={elapsed:.1f}"
                 )
 
             if resid < tol_exit:

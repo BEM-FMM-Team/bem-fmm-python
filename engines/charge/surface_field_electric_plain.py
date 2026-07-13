@@ -23,8 +23,9 @@ def surface_field_electric_plain(
     FMM 2019
     Fields plus potentials of surface charges (potential not used)
     Only FMM (without correction)
-    """
 
+    SP 26
+    """
     c = np.asarray(c).ravel()
     area = np.asarray(area).ravel()
 

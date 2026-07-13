@@ -14,8 +14,10 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+import matplotlib.pyplot as plt
 import numpy as np
 import vedo
+from typing_extensions import Literal
 
 from engines.lib import cache
 from engines.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
@@ -92,30 +94,21 @@ def build_tissue_struct(fname: str) -> TissueStruct:
                 f"Warning: Tissue file '{fname}' does not exist.\nRemoving tissue '{tissues.Tissue[i]}' from tissue list."
             )
 
+    ids = np.delete(np.array(tissues.ID), to_pop)
+
     return TissueStruct(
-        ID=np.delete(np.array(tissues.ID), to_pop),
+        ID=ids,
         Tissue=np.delete(np.array(tissues.Tissue), to_pop),
         TissueOutside=np.delete(np.array(tissues.TissueOutside), to_pop),
         ConductivityInside=np.delete(np.array(tissues.ConductivityInside), to_pop),
         ConductivityOutside=np.delete(np.array(tissues.ConductivityOutside), to_pop),
-        Color=np.array(  # WARN hardcoding for now as it requires me to make a decision on colormaps, also this isnt used else where
-            [
-                [1, 0, 0],
-                [1, 0.5000, 0],
-                [1, 1, 0],
-                [0, 1, 0],
-                [0, 0, 1],
-                [1, 0, 0],
-                [1, 1, 0],
-            ]
-        ),
+        Color=plt.cm.prism(np.linspace(0, 1, max(ids.shape[0], 1))),
     )
 
 
 # @timeit
 @cache
-def load_model():
-    fname = "tissuelist_headreco.txt"
+def load_model(fname="tissuelist_headreco.txt"):
     tissues = build_tissue_struct(fname)
 
     # pprint(tissues)

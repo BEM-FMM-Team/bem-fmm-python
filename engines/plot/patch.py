@@ -12,10 +12,7 @@ def plot_worker(P, plot_t, p):
         cmap_label=p[1],
         cdata=p[2],
     )
-    from ..lib import io
-
-    if io:
-        _p.show()
+    _p.show()
 
 
 def plot_coil_worker(
@@ -80,27 +77,47 @@ def patch(
     vertices: np.ndarray,
     faces: np.ndarray,
     cdata: np.ndarray | None = None,
-    colormap: str = config["colormap"],
-    bg: str = config.get("bg", "white"),
-    bg2: str | None = config.get("bg2", None),
-    edge_color: str = config.get("edge_color", "none"),
+    # resolve from config at call-time
+    colormap: str | None = None,
+    bg: str | None = None,
+    bg2: str | None = None,
+    edge_color: str | None = None,
     title: str = "",
     title_font="VictorMono",
     title_size=1.5,
     cmap_label: str = "",
-    color: tuple[float, float, float] = None,
+    color: tuple[float, float, float] | None = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
     subdivide=False,  # subdivide and interpolate colordata
-    axes: dict | None = dict(
-        c=config["axes_c"],
-        xtitle="x",
-        ytitle="y",
-        ztitle="z",
-        zxgrid=True,
-        yzgrid=True,
-        number_of_divisions=10,
-    ),
+    axes: dict | None = None,
+    qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
+    config: dict | None = None,
 ) -> vedo.Mesh:
+    if config is None:
+        config = globals()["config"]
+
+    if colormap is None:
+        colormap = config["colormap"]
+    if bg is None:
+        bg = config.get("bg", "white")
+    if bg2 is None:
+        bg2 = config.get("bg2", None)
+    if edge_color is None:
+        edge_color = config.get("edge_color", "none")
+
+    if axes is None:
+        axes = dict(
+            c=config["axes_c"],
+            xtitle="x",
+            ytitle="y",
+            ztitle="z",
+            zxgrid=True,
+            yzgrid=True,
+            number_of_divisions=10,
+        )
+    else:
+        axes = dict(axes)
+
     mesh = vedo.Mesh([vertices, faces])
     if color is not None:
         mesh.color(color)
@@ -111,7 +128,7 @@ def patch(
     if bg2 is not None:
         plt_kw["bg2"] = bg2
 
-    plt = vedo.Plotter(**plt_kw)
+    plt = vedo.Plotter(**plt_kw, qt_widget=qt_widget)
     plt.add(vedo.Text2D(title, pos="top-center", s=title_size, font=title_font))
 
     plt.add(mesh)
