@@ -83,8 +83,8 @@ def main():
         coil_setup() if coil_path is None else pickle_loader(coil_path)[0]
     )
 
-    obs_start = pointsline["start"]
-    obs_end = pointsline["end"]
+    obs_start = pointsline[0]
+    obs_end = pointsline[-1]
 
     # -- Plot coil geometry on desired tissue
     tissue_to_plot = "wm"
