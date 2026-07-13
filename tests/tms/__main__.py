@@ -97,8 +97,11 @@ def neighbour_ints(
     # print("Sorry this version was for debugging")
     # exit(0)
 
-    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    #mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
+    #from engines.plot import plot_sparse
+
     # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
+    #plot_sparse(mat["EC"], "matlab.png")
 
     P_c = np.ascontiguousarray(P, dtype=np.float64)
     t_c = np.ascontiguousarray(t, dtype=np.uintp)
@@ -127,12 +130,16 @@ def neighbour_ints(
     jj = np.tile(np.arange(t.shape[0]), RnumberE)
 
     const = 1 / (4 * np.pi)
-    data = (
-        const * (-IC + IE).ravel()
+    data = const * (-IC + IE).ravel(
+        "F"
     )  # WARN or use .ravel('F') may not be easy to catch as heads are symmetrical
     EC = coo_matrix((data, (ii, jj)), shape=(t.shape[0], t.shape[0])).tocsr()
     CO = csr_matrix(((contrast.ravel()[ineighborE]).ravel(), (ii, jj)))
     EC = CO.multiply(EC)
+
+    #plot_sparse(EC, "python.png")
+    #exit(0)
+
     return EC
 
 
