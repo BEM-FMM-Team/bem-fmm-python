@@ -114,25 +114,17 @@ def neighbour_ints(
     EC: csr_matrix = neighbor_ints_En(
         P_c, t_c, normals_c, center_c, ineighborE_c, area_c, gauss
     )
-    # plot_sparse(EC, "python.png")
 
-    # Rnumber = ineighborE.shape[1]
-    # N = t.shape[0]
+    Rnumber = ineighborE.shape[1]
+    N = t.shape[0]
 
-    # ii = ineighborE.T.flatten(order="F")
-    # jj = np.repeat(np.arange(t.shape[0], dtype=np.uintp), Rnumber)
+    ii = ineighborE.T.flatten(order="F")
+    jj = np.repeat(np.arange(t.shape[0], dtype=np.uintp), Rnumber)
 
-    # data = contrast[ineighborE]
-    # CO = csr_matrix((data, (ii, jj)), shape=(N, N))
-    # EC = CO.multiply(EC)
-    #
-    # import matplotlib.pyplot as plt
-    #
-    # plt.plot(ii)
-    # plt.show()
-    #
-    # plot_sparse(EC, "python_co.png")
-    # exit(0)
+    data = contrast[ineighborE].T.flatten(order="F")
+
+    CO = csr_matrix((data, (ii, jj)), shape=(N, N))
+    EC = CO.multiply(EC)
 
     return EC
 
