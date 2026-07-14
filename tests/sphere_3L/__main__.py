@@ -4,19 +4,90 @@ from pathlib import Path
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from vedo import Sphere
+from vedo import Mesh, Sphere
+
+from engines.plot.slice import plot_slices
 
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(root_dir))
 
 print(f"Setup environment {root_dir}")
 
-from charge_engine import charge_engine
 
+from engines.charge import (
+    inc_field_electric_constant,
+    surface_field_electric_accurate,
+    surface_field_lhs,
+    surface_field_potential_accurate,
+)
 from engines.constants import eps0
+from engines.fgmres import fgmres
 from engines.lib import timeit
 from engines.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
 from engines.plot import plot_residual, plot_worker
+
+
+@timeit
+def charge_engine(
+    center: np.ndarray,
+    area,
+    contrast,
+    normals,
+    PC,
+    EC,
+    condin,
+    #  Parameters of the iterative solution
+    iter=50,
+    maxiter=1,
+    relres=1e-6,
+    prec=1e-2,
+    weight=1 / 2,
+):
+    """
+    This script computes the induced surface charge density for an
+    inhomogeneous multi-tissue object given the primary electric field,
+    with accurate neighbor integration
+
+    Copyright SNM/WAW 2017-2020
+    SP 26
+    """
+
+    polarization = [1, 0, 0]
+    Epri, Ppri = inc_field_electric_constant(center, polarization)
+
+    b = 2 * (contrast * np.sum(normals * Epri, axis=1))
+
+    #  Right-hand side of the BEM-FMM equation
+    MATVEC = lambda c: surface_field_lhs(
+        c=c,
+        center=center,
+        area=area,
+        contrast=contrast,
+        normals=normals,
+        weight=weight,
+        EC=EC,
+        prec=prec,
+    )
+    c, its, resvec = fgmres(
+        MATVEC=MATVEC,
+        b=b,
+        x0=None,
+        n=normals.shape[0],
+        relres=relres,
+        iter=iter,
+        maxiter=maxiter,
+    )
+
+    #   Find surface electric potential
+    Padd = surface_field_potential_accurate(c, center, area, PC)
+    Ptot = Ppri + Padd
+    #   Continuous total electric potential at interfaces
+
+    #   Find surface E-field and current density
+    En = surface_field_electric_accurate(c, center, area, normals, EC, prec)
+    J = -En * condin
+
+    return c, Ptot, Padd, En, J, resvec
 
 
 @timeit
@@ -42,7 +113,7 @@ def load_model():
     # Set the shell radii and layer conductivities
     # -- Set the shell radii [mm] (can maybe switch to layer thickness if desired.
     # Skin - Bone - Brain (GM - WM)
-    tissuename = ["Skin", "Bone", "GM", "WM"]
+    tissue_list = ["Skin", "Bone", "GM", "WM"]
 
     unit_convert = 1e-3  # from [mm] to [m] (ONLY IF MODEL IS IN [mm]!)
     R = unit_convert * np.array([42, 36, 28, 25])  # radii [mm] out to in
@@ -69,7 +140,18 @@ def load_model():
     Area = mesh_areas(P, t)
     contrast = (condin - condout) / (condin + condout)
 
-    return P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename
+    return (
+        P,
+        t,
+        Center,
+        Area,
+        contrast,
+        normals,
+        condin,
+        condout,
+        interface,
+        tissue_list,
+    )
 
 
 def main():
@@ -77,12 +159,11 @@ def main():
 
     # -- Load model
     # TODO should be a dataclass object
-    P, t, Center, Area, contrast, normals, condin, condout, interface, tissuename = (
+    P, t, Center, Area, contrast, normals, condin, condout, interface, tissue_list = (
         load_model()
     )
 
     # Neighbor integrals # INFO from old code
-    # bem2_setup_integrals;
 
     n = t.shape[0]
 
@@ -121,9 +202,20 @@ def main():
 
     for p in plots_p:
         p.start()
-    for p in plots_p:
-        p.join()
-    res_p.join()
+
+    xyz = [0.0, 0.0, 0.0]  # TODO inspect next function for zero div
+
+    plot_slices(
+        P,
+        t,
+        Center,
+        Area,
+        normals,
+        c,
+        interface,
+        tissue_list,
+        xyz,
+    )
 
 
 if __name__ == "__main__":

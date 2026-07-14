@@ -82,6 +82,10 @@ def main():
     # plot_t_idx = np.ones(t.shape[0]).astype(np.bool)
     plot_t = t[plot_t_idx]
 
+    from vedo import Mesh
+
+    xyz = Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
+
     single_p = Process(
         target=plot_single_coil_worker,
         args=(P, plot_t, "Single Ring Coil", CoilP, Coilt, obs_start, obs_end),

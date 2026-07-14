@@ -46,5 +46,3 @@ def plot_fields(
 
     for p in plots_p:
         p.start()
-    for p in plots_p:
-        p.join()

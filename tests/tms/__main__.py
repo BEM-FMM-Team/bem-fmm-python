@@ -3,6 +3,7 @@ import sys
 from functools import reduce
 from pathlib import Path
 from sys import exit
+from time import perf_counter
 
 import numpy as np
 from scipy.io import loadmat
@@ -24,23 +25,15 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from engines.charge import (inc_field_electric, surface_field_electric_plain,
+                            surface_field_lhs)
 from engines.fgmres import fgmres
 from engines.lib import cache, io
-from engines.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_normals,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_normals,
+                          mesh_rotate1, mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
+# pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
 
@@ -106,14 +99,6 @@ def neighbour_ints(
     gauss: int,
     contrast: Nx1,  # could be (N,) or (N,1)
 ) -> csr_matrix:
-    # print("Sorry this version was for debugging")
-    # exit(0)
-    from engines.plot import plot_sparse
-
-    # mat = loadmat("/home/shawn/wpi/brainlab/artifacts/mat.mat")
-    # mat = loadmat(r"C:\Users\spande\Downloads\mat.mat")
-    # plot_sparse(mat["EC"], "matlab.png")
-
     P_c = np.ascontiguousarray(P, dtype=np.float64)
     t_c = np.ascontiguousarray(t, dtype=np.uintp)
     ineighborE_c = np.asfortranarray(
@@ -281,6 +266,7 @@ def main():
     knn.fit(center)
     distances, ineighborE = knn.kneighbors(center)
 
+    start = perf_counter()
     EC = neighbour_ints(
         P=P,
         t=t,
@@ -291,6 +277,7 @@ def main():
         gauss=25,
         contrast=contrast,
     )
+    print(f"{RnumberE} Neighbors Intergrals: {perf_counter() - start:.3f}s")
 
     default_coil = setup_coil()
     coils: list[FullCoil] = [default_coil]
