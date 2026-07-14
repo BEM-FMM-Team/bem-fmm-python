@@ -58,19 +58,19 @@ def plot_single_coil_worker(
 
 
 # temporary for testing, not really useful at runtime since python default args are evaled once
-configs = [
+_PATCH_CONFIGS = [
     dict(colormap="jet", bg="white", axes_c="black"),
-    dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="white"),
+    dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="#ffffff"),
     dict(colormap="inferno", bg="#080808", axes_c="#ffffff"),
     dict(colormap="magma", bg="#05020a", bg2="#1a0510", axes_c="#888888"),
     dict(colormap="hot", bg="black", axes_c="white"),
     dict(colormap="turbo", bg="#111111", axes_c="#aaaaaa"),
-    dict(colormap="viridis", bg="white", edge_color="#e0e0e0", axes_c="black"),
-    dict(colormap="RdBu_r", bg="white", edge_color="#dddddd", axes_c="black"),
+    dict(colormap="viridis", bg="white", edge_color="#e0e0e0", axes_c="#000000"),
+    dict(colormap="RdBu_r", bg="white", edge_color="#dddddd", axes_c="#000000"),
     dict(colormap="bone", bg="black", axes_c="#555555"),
     dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
 ]
-config = configs[3]
+_PATCH_DEFAULT_CONFIG = _PATCH_CONFIGS[3]
 
 
 def patch(
@@ -88,13 +88,17 @@ def patch(
     cmap_label: str = "",
     color: tuple[float, float, float] | None = None,
     viewax: Annotated[tuple[float, float], "view(az, el)"] = (0, 90),
-    subdivide=False,  # subdivide and interpolate colordata
+    subdivide=False,  # subdivide and interpolate colordata, looks better
     axes: dict | None = None,
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
 ) -> vedo.Mesh:
+    """
+    Plot model with colormap data
+    Name comes from legacy matlab # TODO change
+    """
     if config is None:
-        config = globals()["config"]
+        config = globals()["_PATCH_DEFAULT_CONFIG"]
 
     if colormap is None:
         colormap = config["colormap"]

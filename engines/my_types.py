@@ -75,3 +75,20 @@ FullCoil = tuple[
 ]
 
 CoilArray = list[FullCoil] | np.ndarray[[int], np.dtype[FullCoil]]
+
+
+@dataclass
+class EfieldSlice:
+    E_mag: np.ndarray  # (Ms^2,) unmasked E-field magnitude
+    E_grid: np.ndarray  # (Ms, Ms) log-modulus values, NaN outside mask
+    mask: np.ndarray  # (Ms^2,) bool
+    u: np.ndarray  # (Ms,) horizontal axis coordinates
+    v: np.ndarray  # (Ms,) vertical axis coordinates
+    th1l: float  # transformed upper colour limit
+    th2l: float  # transformed lower colour limit
+    scale: float  # log-modulus scale factor (for inverse mapping)
+    points_2d: np.ndarray  # (K, 2) tissue boundary vertices
+    edges: np.ndarray  # (E, 2) tissue boundary edge indices
+    ci: np.ndarray  # (E,)   tissue label per edge
+    plane: str
+    cfg: dict

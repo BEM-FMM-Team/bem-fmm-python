@@ -30,9 +30,10 @@ We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup
 ## Faster setup
 
 ```bash
-pip install uv
-uv venv
+python -m pip install uv
+python -m uv venv
 .\.venv\Scripts\activate
+python -m pip install uv
 uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple .
 ```
 
@@ -50,6 +51,8 @@ python tests\mri_volume_plotter tests\gui\coil_config.pkl # runs the slice
 
 ### Windows
 ```bash
+python .\tests\tms
+
 python .\tests\plot
 python .\tests\sphere_3L
 python .\tests\coil_single_ring # delete ./__compute_cache__/ to reset computation
@@ -63,19 +66,4 @@ Something about `OpenGL Context` failed to be created or `libmesa` not found: th
 python3 tests/plot
 python3 tests/sphere_3L
 python3 tests/coil_single_ring
-```
-
-## Notes
-
-Python jit is going to become stable in a few, however we are experimenting with jax and numba.
-
-
-```bash
-set OMP_NUM_THREADS=%NUMBER_OF_PROCESSORS%
-set MKL_NUM_THREADS=%NUMBER_OF_PROCESSORS%
-```
-
-```bash
-export MKL_NUM_THREADS=$(nproc)
-export OMP_NUM_THREADS=$(nproc)
 ```

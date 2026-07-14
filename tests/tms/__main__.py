@@ -9,6 +9,9 @@ from scipy.io import loadmat
 from scipy.sparse import coo_matrix, csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
+from engines.plot.fields import plot_fields
+from engines.plot.slice import plot_slices
+
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 CSD = Path(__file__).resolve().parent
@@ -355,16 +358,41 @@ def main():
     diff = np.linalg.norm(((Jn_in - Jn_out) * area))
     print(
         f"""Current conservation law:
-        Norm difference of inner and outer current density: {diff:.3e}"""
+Norm difference of inner and outer current density: {diff:.3e}"""
     )
 
+    tissue_list = list(shells.keys())
     tissue_to_plot = "wm"
 
-    plot_t_idx = interface[:, 0] == list(shells.keys()).index(tissue_to_plot)
+    plot_t_idx = interface[:, 0] == tissue_list.index(tissue_to_plot)
     plot_t = t[plot_t_idx]
 
-    # plane
+    plot_fields(
+        P,
+        plot_t,
+        plot_t_idx,
+        c,
+        CoilP,
+        Coilt,
+        Ptot,
+        En,
+        Jn_in,
+        pointsline[0],
+        pointsline[1],
+    )
+
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
+    plot_slices(
+        P,
+        t,
+        center,
+        area,
+        normals,
+        c,
+        interface,
+        tissue_list,
+        xyz,
+    )
 
 
 if __name__ == "__main__":

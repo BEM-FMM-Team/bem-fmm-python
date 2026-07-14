@@ -26,10 +26,9 @@ from charge_engine import charge_engine
 from coil_setup import coil_setup
 from impressed_field import impressed_field
 from load_model import load_model
-from setup_integrals import setup_integrals
 
 from engines.gui.pickle_loader import pickle_loader
-from engines.plot import plot_coil_worker, plot_residual, plot_single_coil_worker
+from engines.plot import plot_residual, plot_single_coil_worker
 
 
 def main():
@@ -50,18 +49,6 @@ def main():
     ) = load_model()
 
     ## Neighbor integrals
-    # INFO sparse matrices are hard to debug visually
-    # EC = setup_integrals(
-    #    P=P,
-    #    t=t,
-    #    normals=normals,
-    #    Area=Area,
-    #    Center=Center,
-    #    contrast=contrast,
-    # )
-
-    # EC = loadmat("/home/shawn/wpi/brainlab/artifacts/ECPC.mat")["EC"]
-
     EC = csr_matrix((t.shape[0], t.shape[0]))
 
     # plot_coo_matrix(EC)
@@ -128,6 +115,8 @@ def main():
         Epri=Epri,
     )
 
+    res_plot_p = plot_residual(resvec)
+
     tissue_list = list(tissue_list)
 
     return (
@@ -139,7 +128,6 @@ def main():
         c,
         interface,
         tissue_list,
-        single_p,
         plot_t,
         plot_t_idx,
         CoilP,
@@ -147,73 +135,13 @@ def main():
         Ptot,
         En,
         Jn_in,
-        resvec,
         obs_start,
         obs_end,
         xyz,
     )
 
 
-def plot(
-    P,
-    t,
-    Center,
-    Area,
-    normals,
-    c,
-    interface,
-    tissue_list,
-    single_p,
-    plot_t,
-    plot_t_idx,
-    CoilP,
-    Coilt,
-    Ptot,
-    En,
-    Jn_in,
-    resvec,
-    obs_start,
-    obs_end,
-    xyz,
-):
-    res_plot_p = plot_residual(resvec)
-
-    ## 5. Plot Fields
-    # Compute and plot the fields of interest on desired tissue.
-
-    # fmt: off
-    eps0 = 8.85418782e-12
-    plots = [
-        ("Charge Solution on Surface: ",                "C/m²", eps0 * c[plot_t_idx]),
-        ("Potential on Surface: ",                      "V",     Ptot[plot_t_idx]),
-        ("Normal E-field (inner) on Surface: ",         "V/m",   En[plot_t_idx]),
-        ("Normal Current Density (inner) on Surface: ", "A/m²", Jn_in[plot_t_idx]),
-    ]
-    # fmt: on
-
-    plots_p = [
-        Process(
-            target=plot_coil_worker,
-            args=(
-                P,
-                plot_t,
-                p,
-                CoilP,
-                Coilt,
-                obs_start,
-                obs_end,
-            ),
-        )
-        for p in plots
-    ]
-
-    for p in plots_p:
-        p.start()
-    for p in plots_p:
-        p.join()
-    res_plot_p.join()
-    single_p.join()
-
+from engines.plot import plot_fields
 
 if __name__ == "__main__":
     (
@@ -225,7 +153,6 @@ if __name__ == "__main__":
         c,
         interface,
         tissue_list,
-        single_p,
         plot_t,
         plot_t_idx,
         CoilP,
@@ -233,12 +160,11 @@ if __name__ == "__main__":
         Ptot,
         En,
         Jn_in,
-        resvec,
         obs_start,
         obs_end,
         xyz,
     ) = main()
-    plot(
+    plot_fields(
         P,
         t,
         Center,
@@ -247,7 +173,6 @@ if __name__ == "__main__":
         c,
         interface,
         tissue_list,
-        single_p,
         plot_t,
         plot_t_idx,
         CoilP,
@@ -255,7 +180,6 @@ if __name__ == "__main__":
         Ptot,
         En,
         Jn_in,
-        resvec,
         obs_start,
         obs_end,
         xyz,

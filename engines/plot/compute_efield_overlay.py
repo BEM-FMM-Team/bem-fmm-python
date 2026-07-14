@@ -1,10 +1,13 @@
 import time
 from dataclasses import dataclass
 from multiprocessing import Process
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
+
+from engines.my_types import EfieldSlice
 
 _PLANE_CONFIG = {
     "XY": dict(
@@ -37,23 +40,6 @@ _PLANE_CONFIG = {
 }
 
 
-@dataclass
-class EfieldSlice:
-    E_mag: np.ndarray  # (Ms^2,) unmasked E-field magnitude
-    E_grid: np.ndarray  # (Ms, Ms) log-modulus values, NaN outside mask
-    mask: np.ndarray  # (Ms^2,) bool
-    u: np.ndarray  # (Ms,) horizontal axis coordinates
-    v: np.ndarray  # (Ms,) vertical axis coordinates
-    th1l: float  # transformed upper colour limit
-    th2l: float  # transformed lower colour limit
-    scale: float  # log-modulus scale factor (for inverse mapping)
-    points_2d: np.ndarray  # (K, 2) tissue boundary vertices
-    edges: np.ndarray  # (E, 2) tissue boundary edge indices
-    ci: np.ndarray  # (E,)   tissue label per edge
-    plane: str
-    cfg: dict
-
-
 def compute_efield_overlay_worker(
     P, t, centers, areas, normals, c, plane, val, interface, tissue_list
 ):
@@ -68,7 +54,9 @@ def compute_efield_overlay_worker(
         val=val,
         interface=interface,
     )
-    Process(target=plot_efield_overlay, args=(result, tissue_list)).start()
+    from engines.plot import plot_efield_slice
+
+    Process(target=plot_efield_slice, args=(result, tissue_list)).start()
 
 
 def compute_efield_overlay(
@@ -78,7 +66,7 @@ def compute_efield_overlay(
     areas: np.ndarray,
     normals: np.ndarray,
     c: np.ndarray,
-    plane: str,
+    plane: Literal["XY"] | Literal["XZ"] | Literal["YZ"],
     val: float,
     th1: float = 5,
     th2: float = 0,
@@ -156,78 +144,6 @@ def compute_efield_overlay(
         plane=plane,
         cfg=cfg,
     )
-
-
-def plot_efield_overlay(
-    result: EfieldSlice,
-    tissue_list: list | None = None,
-    levels: int = 100,
-    unit_convert: float = 1e-3,
-) -> tuple[plt.Figure, plt.Axes]:
-    cfg = result.cfg
-
-    fig, ax = plt.subplots(figsize=(14, 10))
-    fig.patch.set_facecolor("black")
-    ax.set_facecolor("black")
-
-    if np.any(np.isfinite(result.E_grid)):
-        cf = ax.contourf(
-            result.u,
-            result.v,
-            result.E_grid,
-            levels=np.linspace(result.th2l, result.th1l, levels),
-            cmap="jet",
-            extend="both",
-        )
-        cbar = plt.colorbar(cf, ax=ax)
-        cb_ticks = np.linspace(result.th2l, result.th1l, 11)
-        orig_vals = result.scale * np.sign(cb_ticks) * (10.0 ** np.abs(cb_ticks) - 1)
-        cbar.set_ticks(cb_ticks)
-        cbar.set_ticklabels([f"{v:.2g}" for v in orig_vals])
-        cbar.set_label("E-field [V/m]", color="white")
-        cbar.ax.tick_params(colors="white")
-        cbar.ax.yaxis.label.set_color("white")
-
-    n_tissues = len(tissue_list) if tissue_list else int(np.max(result.ci)) + 1
-    tissue_colors = plt.cm.prism(np.linspace(0, 1, max(n_tissues, 1)))
-
-    count = []
-    for m in np.unique(result.ci).astype(int):
-        if not np.any(result.ci == m):
-            continue
-        count.append(m)
-        col = tissue_colors[m % n_tissues]
-        for e in result.edges[result.ci == m]:
-            p1, p2 = result.points_2d[e[0]], result.points_2d[e[1]]
-            ax.plot([p1[0], p2[0]], [p1[1], p2[1]], color=col, linewidth=1.5)
-
-    ax.set_xlabel(cfg["xlabel"], color="white")
-    ax.set_ylabel(cfg["ylabel"], color="white")
-    ax.set_title(f"E-field (V/m) in the {result.plane} plane", color="white")
-    ax.set_aspect("equal")
-    ax.tick_params(colors="white")
-    for spine in ax.spines.values():
-        spine.set_color("white")
-
-    ax.set_xticks(ax.get_xticks())
-    ax.set_yticks(ax.get_yticks())
-
-    ax.set_xticklabels([f"{v / unit_convert:.1f}" for v in ax.get_xticks()])
-    ax.set_yticklabels([f"{v / unit_convert:.1f}" for v in ax.get_yticks()])
-
-    if tissue_list and count:
-        handles = [
-            Line2D([0], [0], color=tissue_colors[m % n_tissues], lw=2) for m in count
-        ]
-        labels = [tissue_list[m] if m < len(tissue_list) else str(m) for m in count]
-        leg = ax.legend(handles, labels, loc="upper right", fontsize=11)
-        leg.get_frame().set_facecolor("black")
-        leg.get_frame().set_edgecolor("white")
-        for txt in leg.get_texts():
-            txt.set_color("white")
-
-    plt.tight_layout()
-    plt.show()
 
 
 def _compact_vertices(P: np.ndarray, e: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
