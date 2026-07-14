@@ -21,12 +21,21 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (inc_field_electric, surface_field_electric_plain,
-                            surface_field_lhs)
+from engines.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from engines.fgmres import fgmres
 from engines.lib import cache, io
-from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_normals,
-                          mesh_rotate1, mesh_rotate2, mesh_tricenter)
+from engines.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_normals,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
 from neighbor_ints import neighbor_ints_En
@@ -115,6 +124,7 @@ def neighbour_ints(
         P_c, t_c, normals_c, center_c, ineighborE_c, area_c, gauss
     )
 
+    # Apply contrast
     Rnumber = ineighborE.shape[1]
     N = t.shape[0]
 
@@ -129,7 +139,7 @@ def neighbour_ints(
     return EC
 
 
-def setup_coil():
+def setup_coil() -> FullCoil:
     # Define dIdt (for electric field)
     dIdt = 9.4e7  # Amperes/sec (2*pi*I0/period), for electric field
     # Define I0 (for magnetic field)
@@ -301,9 +311,11 @@ def main():
         rhs_Einc.append(Einc)
         rhs_b.append(b)
 
+    # NOTE regular sum is strange
     _sum = lambda l: reduce(lambda _a, _b: _a + _b, l)
     b = _sum(rhs_b)
     Einc = _sum(rhs_Einc)
+    sum
 
     c, resvec = charge_engine(
         normals=normals,
