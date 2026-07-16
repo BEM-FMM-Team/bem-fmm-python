@@ -355,6 +355,10 @@ class Frontend:
             else:
                 self.backend.white_matter_finalize(distance, id)
                 auto_orient_id()
+                new_com = coil.com
+                x_var.set(round(new_com[0], 3))
+                y_var.set(round(new_com[1], 3))
+                z_var.set(round(new_com[2], 3))
             return
         
         white_matter_distance = tk.DoubleVar()
