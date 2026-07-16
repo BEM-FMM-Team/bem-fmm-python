@@ -14,12 +14,18 @@ ASSETS = (test_dir / "assets").resolve()
 
 from engines.gui.gui_frontend import Frontend
 
+head_models = {}
 
-skin_path = ASSETS / "skin.stl"
-head = Mesh(str(skin_path))
-head.vertices *= 1e-3
+for name in ["bone","cerebellum","csf","gm","plot_skull","skin","ventricles","wm",]:
+    path = ASSETS / f"{name}.stl"
+
+    mesh = Mesh(str(path))
+    mesh.vertices *= 1e-3
+
+    head_models[name] = mesh
+
 frontend = Frontend(
-    head,
+    head_models,
     [
         "ring",
         "figure_eight",

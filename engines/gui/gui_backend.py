@@ -25,27 +25,24 @@ from engines.gui.quat_multiply import quat_multiply
 from engines.gui.axis_angle_to_quat import axis_angle_to_quat
 from engines.gui.load_template import load_template
 from engines.gui.renderer import Renderer
-
 """
 contains backend information for a coil manager including information for charge engine computations
 """
-
-
 class Backend:
-    def __init__(self, head=None):
-        self.renderer = Renderer(head)
+    def __init__(self, head_models):
+        self.renderer = Renderer(head_models)
         self.coils = {}
         self.undo_queue = []
 
         self.next_id = 0
 
         self.normals = mesh_normals(
-            np.asarray(self.renderer.head.vertices),
-            np.asarray(self.renderer.head.cells),
+            np.asarray(self.renderer.head_models["skin"].vertices),
+            np.asarray(self.renderer.head_models["skin"].cells),
         )
         self.centers = mesh_tricenter(
-            np.asarray(self.renderer.head.vertices),
-            np.asarray(self.renderer.head.cells),
+            np.asarray(self.renderer.head_models["skin"].vertices),
+            np.asarray(self.renderer.head_models["skin"].cells),
         )
         self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
 
@@ -154,8 +151,8 @@ class Backend:
         save_path = BASE_DIR / "coil_config.pkl"
         coil_list = list(self.coils.values())
         for coil in coil_list:
-            distance, index = self.nn.kneighbors(coil.com.reshape(1, -1))
-            coil.intersection_point = self.centers[index[0, 0]].copy()
+            distance, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
+            coil.intersection_point = self.centers[indices[0, 0]].copy()
             print(coil.intersection_point)
         with open(save_path, "wb") as f:
             pickle.dump(coil_list, f)
@@ -195,3 +192,26 @@ class Backend:
             self.coils[id] = old_coil
             self.renderer.edit_coil_actor(old_coil)
         return
+    
+    def white_matter_begin(self):
+        self.renderer.white_matter_picker_on()
+        print(self.renderer.white_matter_placement_mode)
+
+    def white_matter_finalize(self, distance, id):
+        coil = self.coils[id]
+        self.renderer.white_matter_picker_off()
+        white_matter_point = self.renderer.get_white_matter_selected_point()
+        distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
+        idx = indices[0, 0]
+        skin_point = self.centers[idx].copy()
+        skin_point_vector = self.normals[idx].copy() * distance
+        final_point = skin_point + skin_point_vector
+        print(final_point)
+
+        self.renderer.remove_world_axes()
+        transformer(coil, final_point)
+        self.renderer.edit_coil_actor(coil)
+        self.renderer.show_world_axes(coil)
+        return
+        
+        

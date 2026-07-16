@@ -11,9 +11,9 @@ GUI frontend for placing coils. This class is responsible for managing the widge
 
 
 class Frontend:
-    def __init__(self, head, names):
+    def __init__(self, head_models, names):
         # backend
-        self.backend = Backend(head)
+        self.backend = Backend(head_models)
 
         # state
         self.root = tk.Tk()
@@ -112,13 +112,16 @@ class Frontend:
             row=8, column=0, padx=5, pady=5
         )
 
-        add_button5 = ttk.Button(
+        save_button = ttk.Button(
             self.root, text="save", command=self.backend.save_coil_config
         )
-        add_button5.grid(row=10, column=0, columnspan=2, pady=10)
+        save_button.grid(row=10, column=0, columnspan=2, pady=10)
 
-        add_button6 = ttk.Button(self.root, text="Undo", command=self.undo)
-        add_button6.grid(row=10, column=1, columnspan=2, pady=10)
+        undo_button = ttk.Button(self.root, text="Undo", command=self.undo)
+        undo_button.grid(row=10, column=1, columnspan=2, pady=10)
+
+        add_mesh_model_button = ttk.Button(self.root, text="Change Head", command=self.change_head_model)
+        add_mesh_model_button.grid(row=1, column=2, columnspan=2, pady=10)
 
         return
 
@@ -220,6 +223,7 @@ class Frontend:
 
         def on_close():
             self.backend.renderer.remove_world_axes()
+            self.backend.renderer.white_matter_picker_off()
             editor.destroy()
 
         editor.protocol("WM_DELETE_WINDOW", on_close)
@@ -344,6 +348,22 @@ class Frontend:
         )
         auto_orient_button.grid(row=8, column=0, columnspan=2, pady=10)
 
+        def place_with_white_matter(distance):
+            # Allos for a coil to be repositioned with the white matter
+            if not self.backend.renderer.white_matter_placement_mode:
+                self.backend.white_matter_begin()
+            else:
+                self.backend.white_matter_finalize(distance, id)
+                auto_orient_id()
+            return
+        
+        white_matter_distance = tk.DoubleVar()
+        distance_entry = ttk.Entry(editor, textvariable=white_matter_distance)
+        distance_entry.grid(row=8,column=2,columnspan=2,pady=10)
+        
+        white_matter_button = ttk.Button(editor, text="place with wm", command=lambda: place_with_white_matter(white_matter_distance.get()))
+        white_matter_button.grid(row=8, column=1, columnspan=2, pady=10)
+
         x_var.trace_add(
             "write",
             lambda *args: self.backend.edit_coil_com(
@@ -434,20 +454,58 @@ class Frontend:
         twist.trace_add("write", lambda *args: apply_twist_gui(twist.get(), base_rot))
 
         ok_button = ttk.Button(editor, text="OK", command=on_close)
-        ok_button.grid(row=10, column=0, columnspan=2, pady=10)
+        ok_button.grid(row=11, column=0, columnspan=2, pady=10)
 
         def cancel():
             on_close()
             self.undo()
 
         cancel_button = ttk.Button(editor, text="cancel", command=cancel)
-        cancel_button.grid(row=10, column=2, columnspan=2, pady=10)
+        cancel_button.grid(row=11, column=2, columnspan=2, pady=10)
 
         editor.mainloop()
 
         return
+    
+    def change_head_model(self):
+        selector = tk.Toplevel(self.root)
+        selector.title("Visible Head Models")
+        models = ["bone", "cerebellum", "csf", "gm", "plot_skull", "skin", "ventricles", "wm",]
+
+        vars = {}
+
+        for model in models:
+            var = tk.BooleanVar(value=(model in self.backend.renderer.active_head_models))
+            vars[model] = var
+
+            ttk.Checkbutton(
+                selector,
+                text=model,
+                variable=var
+            ).pack(anchor="w", padx=10, pady=2)
+
+        def apply():
+            active_models = [
+                model
+                for model, var in vars.items()
+                if var.get()
+            ]
+
+            self.backend.renderer.active_head_models = active_models
+            self.backend.renderer.render_head_actors()
+
+            selector.destroy()
+        
+        ttk.Button(
+            selector,
+            text="OK",
+            command=apply
+        ).pack(pady=10)
+
+        return
 
     def clear_gui(self):
+        # clears out values
         self.coil_dropdown.set("")
         self.x_entry.delete(0, tk.END)
         self.y_entry.delete(0, tk.END)
@@ -458,6 +516,7 @@ class Frontend:
         return
 
     def undo(self):
+        # undoes last operation
         self.backend.undo_operation()
         coils = self.backend.get_coils()
         self.coil_listbox.delete(0, tk.END)

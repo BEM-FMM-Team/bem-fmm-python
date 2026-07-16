@@ -1,10 +1,10 @@
 import numpy as np
 
-from vedo import Line, Mesh, Plotter, Text3D, Axes
+from vedo import Line, Mesh, Plotter, Text3D, Axes, Sphere
 
 
 class Renderer:
-    def __init__(self, head=None):
+    def __init__(self, head_models):
         self.plt = Plotter()
 
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
@@ -27,18 +27,25 @@ class Renderer:
 
         self.plt.add(axes)
 
-        self.head = head
+        self.head_models = head_models
         self.coil_actors = {}
         self.centerline_actors = {}
         self.edit_axes_actors = []
 
-    def activate(self):
-        head_actor = self.head
-        head_actor.color("lightgray")
-        head_actor.alpha(1)
+        self.white_matter_placement_mode = False
+        self.white_matter_selected_point = None
+        self.white_matter_marker = Sphere(
+            pos=[0, 0, 0],
+            r=0.0005
+        )
 
-        self.plt.add(head_actor)
+        self.active_head_models = {"skin"}
+
+    def activate(self):
+        self.render_head_actors()
+        self.plt.add_callback("LeftButtonPress",self.on_click)
         self.plt.show(interactive=False)
+
         return
 
     def add_coil_actor(self, coil):
@@ -84,17 +91,7 @@ class Renderer:
         xm_label = Text3D("-X", pos=coil.com - [L + offset, 0, 0], s=0.005)
         ym_label = Text3D("-Y", pos=coil.com - [0, L + offset, 0], s=0.005)
         zm_label = Text3D("-Z", pos=coil.com - [0, 0, L + offset], s=0.005)
-        self.edit_axes_actors = [
-            x_actor,
-            y_actor,
-            z_actor,
-            xp_label,
-            yp_label,
-            zp_label,
-            xm_label,
-            ym_label,
-            zm_label,
-        ]
+        self.edit_axes_actors = [x_actor,y_actor,z_actor,xp_label,yp_label,zp_label,xm_label,ym_label,zm_label,]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
         return
@@ -104,7 +101,48 @@ class Renderer:
             self.plt.remove(actor)
         self.edit_axes_actors = []
         return
+    
+    def render_head_actors(self):
+        print(self.active_head_models)
+        for actor in self.head_models.values():
+            self.plt.remove(actor)
+        for head_part in self.active_head_models:
+            self.plt.add(self.head_models[head_part])
 
     def render_plot(self):
         self.plt.render()
         return
+
+    def white_matter_picker_on(self):
+        self.white_matter_placement_mode = True
+        self.white_matter_selected_point = None
+
+        for actor in self.head_models.values():
+            self.plt.remove(actor)
+        self.plt.add(self.head_models["wm"])
+        return
+    
+    def white_matter_picker_off(self):
+        self.white_matter_placement_mode = False
+
+        self.render_head_actors()
+        self.plt.remove(self.white_matter_marker)
+        return
+    
+    def get_white_matter_selected_point(self):
+        return self.white_matter_selected_point
+    
+    def on_click(self, event):
+        print(event.actor)
+        print(event.picked3d)
+        if not self.white_matter_placement_mode:
+            return
+
+        if event.actor != self.head_models["wm"]:
+            return
+
+        self.white_matter_selected_point = event.picked3d
+
+        self.plt.remove(self.white_matter_marker)
+        self.white_matter_marker = Sphere(pos=self.white_matter_selected_point, r=0.001)
+        self.plt.add(self.white_matter_marker)
