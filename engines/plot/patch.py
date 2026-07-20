@@ -1,9 +1,9 @@
 from typing import Annotated
-import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
 
+import matplotlib.pyplot as plt
 import numpy as np
 import vedo
+from matplotlib.colors import LinearSegmentedColormap
 
 
 def plot_worker(P, plot_t, p):
@@ -34,7 +34,7 @@ def plot_coil_worker(
         title=p[0],
         cmap_label=p[1],
         cdata=p[2],
-        colormap=_PATCH_CONFIGS[p[3]],
+        config=_PATCH_CONFIGS[p[3]],
     ).add(coil_mesh).add(obs_line).show()
 
 

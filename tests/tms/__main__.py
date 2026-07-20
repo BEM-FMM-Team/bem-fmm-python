@@ -14,6 +14,7 @@ from scipy.sparse import coo_matrix, csr_matrix
 from scipy.spatial import Delaunay
 from sklearn.neighbors import NearestNeighbors
 
+from engines.gui import pickle_loader
 from engines.plot.fields import plot_fields
 from engines.plot.slice import plot_slices
 
@@ -24,7 +25,10 @@ ROOT_DIR = Path(__file__).resolve().parent.resolve().parent.resolve().parent.abs
 sys.path.insert(0, str(ROOT_DIR))
 print(f"Setup environment {ROOT_DIR}")
 OUTPUT = (ROOT_DIR / "__output__").resolve()
-OUTPUT.mkdir(parents=True)
+try:
+    OUTPUT.mkdir(parents=True)
+except:
+    pass
 
 TEST_DIR = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (TEST_DIR / "assets").resolve()
@@ -288,7 +292,12 @@ def main():
     )
     print(f"{RnumberE} Neighbors Intergrals: {perf_counter() - start:.3f}s")
 
-    default_coil = setup_coil()
+    coil_path = None
+    if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():
+        coil_path = sys.argv[1]
+        print(f"Using coil {coil_path}")
+
+    default_coil = setup_coil() if coil_path is None else pickle_loader(coil_path)[0]
     coils: list[FullCoil] = [default_coil]
 
     rhs_b: list[np.ndarray] = []
