@@ -1,11 +1,10 @@
 import numpy as np
-
-from vedo import Line, Mesh, Plotter, Text3D, Axes
+from vedo import Axes, Line, Mesh, Plotter, Text3D
 
 
 class Renderer:
-    def __init__(self, head=None):
-        self.plt = Plotter()
+    def __init__(self, head=None, vtk_widget=None):
+        self.plt = Plotter(qt_widget=vtk_widget)
 
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
         ticks_mm = ticks_m * 1000
@@ -38,7 +37,7 @@ class Renderer:
         head_actor.alpha(1)
 
         self.plt.add(head_actor)
-        self.plt.show(interactive=False)
+        self.plt.show(interactive=True)
         return
 
     def add_coil_actor(self, coil):

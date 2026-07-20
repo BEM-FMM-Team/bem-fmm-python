@@ -6,19 +6,25 @@ from sys import exit
 from time import perf_counter
 
 import numpy as np
-from scipy.io import loadmat
+import scipy.io
+import trimesh
+import yaml
+from numba import jit
 from scipy.sparse import coo_matrix, csr_matrix
+from scipy.spatial import Delaunay
 from sklearn.neighbors import NearestNeighbors
 
 from engines.plot.fields import plot_fields
 from engines.plot.slice import plot_slices
 
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG), savemat, savemat
 
 CSD = Path(__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
 sys.path.insert(0, str(ROOT_DIR))
 print(f"Setup environment {ROOT_DIR}")
+OUTPUT = (ROOT_DIR / "__output__").resolve()
+OUTPUT.mkdir(parents=True)
 
 TEST_DIR = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (TEST_DIR / "assets").resolve()
@@ -28,9 +34,9 @@ import vedo
 from engines.charge import (inc_field_electric, surface_field_electric_plain,
                             surface_field_lhs)
 from engines.fgmres import fgmres
-from engines.lib import cache, io
-from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_normals,
-                          mesh_rotate1, mesh_rotate2, mesh_tricenter)
+from engines.lib import cache
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                          mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
 # pyrefly: ignore [missing-import]
@@ -38,7 +44,9 @@ from neighbor_ints import neighbor_ints_En
 
 
 def load_model():
-    index_name = ASSETS / "tissue_index.txt"
+    index_name = ASSETS / "tissue_index.yaml"
+
+    # TODO: write parser
 
     shells: dict[str, tuple[float, str]] = {
         "skin": (0.4650, "FreeSpace"),
@@ -64,6 +72,7 @@ def load_model():
         tcell.append(np.array(mesh.cells))
         condinner.append(v[0])
         condouter.append(shells[v[1]][0] if v[1] != "FreeSpace" else 0.0)
+        print(f"Loaded: {path}")
 
     P, t, normals, condin, condout, interface = mesh_combine_simple(
         Pcell, tcell, condinner, condouter
@@ -135,14 +144,14 @@ def setup_coil() -> FullCoil:
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    _strcoil = loadmat(CSD / "coil.mat")["strcoil"]
+    _strcoil = scipy.io.loadmat(CSD / "coil.mat")["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0] - 1,
         Swire=_strcoil["Swire"][0][0],
     )
 
-    coilCAD = loadmat(CSD / "coilCAD.mat")
+    coilCAD = scipy.io.loadmat(CSD / "coilCAD.mat")
     CoilP = coilCAD["P"]
     Coilt = coilCAD["t"] - 1
 
@@ -317,10 +326,6 @@ def main():
     )
     plot_residual(resvec)
 
-    # c = (c * area + np.sum(c[tneighbor] * area[tneighbor], 1)) / (
-    #     area + np.sum(area[tneighbor], 1)
-    # )
-
     ##   Find and save surface fields
     #   (i)     total normal E-field just inside/outside any model surface;
     #   (ii)    secondary continuous E-field contribution for any model surface;
@@ -353,6 +358,23 @@ Norm difference of inner and outer current density: {diff:.3e}"""
 
     plot_t_idx = interface[:, 0] == tissue_list.index(tissue_to_plot)
     plot_t = t[plot_t_idx]
+
+    # save
+    E = Einc + Esec
+
+    save_fmt = "mat"
+
+    # match save_fmt:
+    #     case "npz":
+    #         np.savez(OUTPUT / "E.npz", E)
+    #         np.savez(OUTPUT / "c.npz", c)
+    #         np.savez(OUTPUT / "Ptot.npz", Ptot)
+    #         np.savez(OUTPUT / "En.npz", En)
+    #     case "mat":
+    #         scipy.io.savemat(OUTPUT / "E.mat", E)
+    #         scipy.io.savemat(OUTPUT / "c.mat", c)
+    #         scipy.io.savemat(OUTPUT / "Ptot.mat", Ptot)
+    #         scipy.io.savemat(OUTPUT / "En.mat", En)
 
     plot_fields(
         P,

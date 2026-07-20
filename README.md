@@ -17,6 +17,10 @@ Install `python3.13`. __other versions may not work.__
 
 Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
+> MacOS
+Tested on the M1.
+Install 'libomp'.
+
 Run the following:
 
 ```bash

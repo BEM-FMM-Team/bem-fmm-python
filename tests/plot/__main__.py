@@ -196,8 +196,8 @@ if __name__ == "__main__":
         faces=plot_t,
         cdata=plot_field,
         edge_color="none",
-        title=rf"Primary Field Eⁱ on Surface: {tissuename[0]}",
-        cmap_label="A/m²",
+        title=rf"Normal component of primary Field Eⁱ on Surface: {tissuename[0]}",
+        cmap_label="V/m",
     )
 
     _p.show()

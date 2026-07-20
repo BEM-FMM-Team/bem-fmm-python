@@ -36,3 +36,4 @@ env/
 
 **/*.so
 **/*.dll
+__output__

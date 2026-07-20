@@ -57,6 +57,8 @@
                   with p; [
                     uv
                     napari
+                    scikit-image
+                    pooch
                     requests
                     debugpy
                     ipython
@@ -78,20 +80,9 @@
               ''
                 export LD_LIBRARY_PATH="${l}:$LD_LIBRARY_PATH";
                 export QT_PLUGIN_PATH="${q}:$QT_PLUGIN_PATH";
-                export PYTHONPATH="$(pwd):$PYTHONPATH"
                 export QT_QPA_PLATFORM=xcb
 
-                if [ ! -d .venv ]; then
-                  rm -rf build *.egg-info src/*.egg-info
-                  find . -name "*.so" -delete
-                  # python -m venv venv
-                  uv venv
-                  source .venv/bin/activate
-                  uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
-                  uv pip install -e ".[dev]"
-                else
-                  source .venv/bin/activate
-                fi
+                source ./dev.sh
               '';
           };
       }

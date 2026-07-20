@@ -1,4 +1,6 @@
 from typing import Annotated
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 
 import numpy as np
 import vedo
@@ -32,9 +34,8 @@ def plot_coil_worker(
         title=p[0],
         cmap_label=p[1],
         cdata=p[2],
-    ).add(
-        coil_mesh
-    ).add(obs_line).show()
+        colormap=_PATCH_CONFIGS[p[3]],
+    ).add(coil_mesh).add(obs_line).show()
 
 
 def plot_single_coil_worker(
@@ -57,20 +58,30 @@ def plot_single_coil_worker(
     ).add(obs_line).show()
 
 
+hot_cold = LinearSegmentedColormap.from_list(
+    "blue_cyan_white_magenta_red",
+    list(zip([0, 0.15, 0.5, 0.85, 1], ["blue", "cyan", "white", "orange", "red"])),
+)
+
 # temporary for testing, not really useful at runtime since python default args are evaled once
-_PATCH_CONFIGS = [
-    dict(colormap="jet", bg="white", axes_c="black"),
-    dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="#ffffff"),
-    dict(colormap="inferno", bg="#080808", axes_c="#ffffff"),
-    dict(colormap="magma", bg="#05020a", bg2="#1a0510", axes_c="#888888"),
-    dict(colormap="hot", bg="black", axes_c="white"),
-    dict(colormap="turbo", bg="#111111", axes_c="#aaaaaa"),
-    dict(colormap="viridis", bg="white", edge_color="#e0e0e0", axes_c="#000000"),
-    dict(colormap="RdBu_r", bg="white", edge_color="#dddddd", axes_c="#000000"),
-    dict(colormap="bone", bg="black", axes_c="#555555"),
-    dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
-]
-_PATCH_DEFAULT_CONFIG = _PATCH_CONFIGS[3]
+_PATCH_CONFIGS = {
+    "jet": dict(colormap="jet", bg="white", axes_c="black"),
+    "plasma": dict(colormap="plasma", bg="#0d0d1a", bg2="#2a0a3e", axes_c="#ffffff"),
+    "inferno": dict(colormap="inferno", bg="#080808", axes_c="#ffffff"),
+    "magma": dict(colormap="magma", bg="#05020a", bg2="#1a0510", axes_c="#888888"),
+    "hot": dict(colormap="hot", bg="black", axes_c="white"),
+    "turbo": dict(colormap="turbo", bg="#111111", axes_c="#aaaaaa"),
+    "viridis": dict(
+        colormap="viridis", bg="white", edge_color="#e0e0e0", axes_c="#000000"
+    ),
+    "RdBu_r": dict(
+        colormap="RdBu_r", bg="white", edge_color="#dddddd", axes_c="#000000"
+    ),
+    "bone": dict(colormap="bone", bg="black", axes_c="#555555"),
+    "afmhot": dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
+    "hot_cold": dict(colormap=hot_cold, bg="white", axes_c="black"),
+}
+_PATCH_DEFAULT_CONFIG = _PATCH_CONFIGS["jet"]
 
 
 def patch(
