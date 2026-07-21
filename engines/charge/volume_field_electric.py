@@ -46,7 +46,7 @@ def volume_field_electric(
     U = lfmm3d(eps=prec, sources=sources, charges=charges, targets=targ, pg=pg, pgt=pgt)
     E = -U.gradtarg.T
 
-    return E
+    #return E
 
     M = Center.shape[0]
     const = 4 * np.pi
