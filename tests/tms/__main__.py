@@ -368,9 +368,12 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     plot_t_idx = interface[:, 0] == tissue_list.index(tissue_to_plot)
     plot_t = t[plot_t_idx]
 
-    # save
+    # Total E-Field
     E = Einc + Esec
+    Emag = np.sqrt(np.sum(E**2, axis=1))
 
+
+    # save
     save_fmt = "mat"
 
     # match save_fmt:
@@ -394,6 +397,7 @@ Norm difference of inner and outer current density: {diff:.3e}"""
         Coilt,
         Ptot,
         En,
+        Emag,
         Jn_in,
         pointsline[0],
         pointsline[1],
