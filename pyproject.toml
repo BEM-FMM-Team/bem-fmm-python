@@ -37,6 +37,7 @@ dependencies = [
     "PyQt6==6.11.0",
     "PyQt6Ads==4.5.0",
     "PySide6==6.11.1",
+    "pyyaml==6.0.3",
     #
     "fmm3dpyfast",
 ]
