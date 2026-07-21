@@ -29,8 +29,8 @@ from engines.gui.renderer import Renderer
 contains backend information for a coil manager including information for charge engine computations
 """
 class Backend:
-    def __init__(self, head_models):
-        self.renderer = Renderer(head_models)
+    def __init__(self, head_models, ViewPort):
+        self.renderer = Renderer(head_models, ViewPort)
         self.coils = {}
         self.undo_queue = []
 
@@ -101,6 +101,7 @@ class Backend:
     # for undo
     def save_last_coil(self):
         self.undo_queue.append([2, [self.last_coil.id, self.last_coil.clone()]])
+        self.renderer.render_plot()
         return
 
     # get all coils
@@ -114,6 +115,7 @@ class Backend:
         transformer(coil, xyz)
         self.renderer.edit_coil_actor(coil)
         self.renderer.show_world_axes(coil)
+        self.renderer.render_plot()
         return
 
     # rotate coil
@@ -121,10 +123,11 @@ class Backend:
         coil = self.coils[id]
         transformer(coil, coil.com, xyz_to_quat(rxryrz))
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     # edit current
-    def edit_coil_cur(self, id, dIdt):
+    def edit_coil_dIdt(self, id, dIdt):
         self.coils[id].dIdt = dIdt
         return
 
@@ -136,6 +139,7 @@ class Backend:
         transformer(coil, coil.com, q_final)
 
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     # delete coil
@@ -144,6 +148,7 @@ class Backend:
         del self.coils[id]
 
         self.renderer.remove_coil_actors(id)
+        self.renderer.render_plot()
         return
 
     #  prepare to pass coils
@@ -167,6 +172,7 @@ class Backend:
         transformer(coil, coil.com, target_trans)
 
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     def undo_operation(self):
@@ -191,6 +197,7 @@ class Backend:
             old_coil = data[1]
             self.coils[id] = old_coil
             self.renderer.edit_coil_actor(old_coil)
+        self.renderer.render_plot()
         return
     
     def white_matter_begin(self):
@@ -212,6 +219,7 @@ class Backend:
         transformer(coil, final_point)
         self.renderer.edit_coil_actor(coil)
         self.renderer.show_world_axes(coil)
+        self.renderer.render_plot()
         return
         
         

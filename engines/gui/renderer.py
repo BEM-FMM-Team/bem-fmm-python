@@ -1,11 +1,18 @@
 import numpy as np
 
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
 from vedo import Line, Mesh, Plotter, Text3D, Axes, Sphere
 
 
 class Renderer:
-    def __init__(self, head_models):
-        self.plt = Plotter()
+    def __init__(self, head_models, ViewPort):
+        layout = QVBoxLayout(ViewPort)
+        layout.setContentsMargins(0, 0, 0, 0)
+        vtk_widget = QVTKRenderWindowInteractor(ViewPort)
+        layout.addWidget(vtk_widget)
+        self.plt = Plotter(qt_widget=vtk_widget)
 
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
         ticks_mm = ticks_m * 1000
@@ -58,6 +65,7 @@ class Renderer:
 
         self.plt.add(coil_actor)
         self.plt.add(centerline_actor)
+        self.plt.render()
         return
 
     def edit_coil_actor(self, coil):
@@ -74,6 +82,7 @@ class Renderer:
 
         self.plt.remove(coil_actor)
         self.plt.remove(centerline_actor)
+        self.plt.render()
         return
 
     def show_world_axes(self, coil):
@@ -94,12 +103,14 @@ class Renderer:
         self.edit_axes_actors = [x_actor,y_actor,z_actor,xp_label,yp_label,zp_label,xm_label,ym_label,zm_label,]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
+        self.plt.render()
         return
 
     def remove_world_axes(self):
         for actor in self.edit_axes_actors:
             self.plt.remove(actor)
         self.edit_axes_actors = []
+        self.plt.render()
         return
     
     def render_head_actors(self):
@@ -108,6 +119,7 @@ class Renderer:
             self.plt.remove(actor)
         for head_part in self.active_head_models:
             self.plt.add(self.head_models[head_part])
+        self.plt.render()
 
     def render_plot(self):
         self.plt.render()
@@ -120,6 +132,7 @@ class Renderer:
         for actor in self.head_models.values():
             self.plt.remove(actor)
         self.plt.add(self.head_models["wm"])
+        self.plt.render()
         return
     
     def white_matter_picker_off(self):
@@ -127,6 +140,7 @@ class Renderer:
 
         self.render_head_actors()
         self.plt.remove(self.white_matter_marker)
+        self.plt.render()
         return
     
     def get_white_matter_selected_point(self):
