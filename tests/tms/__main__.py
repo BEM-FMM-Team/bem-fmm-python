@@ -7,7 +7,7 @@ from time import perf_counter
 
 import numpy as np
 import scipy.io
-import trimesh
+#import trimesh
 import yaml
 from numba import jit
 from scipy.sparse import coo_matrix, csr_matrix
