@@ -4,22 +4,6 @@ engines.mesh package
 Submodules
 ----------
 
-engines.mesh.mesh\_adapt module
--------------------------------
-
-.. automodule:: engines.mesh.mesh_adapt
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-engines.mesh.mesh\_amr module
------------------------------
-
-.. automodule:: engines.mesh.mesh_amr
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 engines.mesh.mesh\_areas module
 -------------------------------
 
@@ -92,22 +76,6 @@ engines.mesh.mesh\_laplace\_normals module
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_midsurface module
-------------------------------------
-
-.. automodule:: engines.mesh.mesh_midsurface
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-engines.mesh.mesh\_neighborints\_En module
-------------------------------------------
-
-.. automodule:: engines.mesh.mesh_neighborints_En
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 engines.mesh.mesh\_normals module
 ---------------------------------
 
@@ -172,14 +140,6 @@ engines.mesh.mesh\_surface\_old module
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_surfcreator module
--------------------------------------
-
-.. automodule:: engines.mesh.mesh_surfcreator
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 engines.mesh.mesh\_tri module
 -----------------------------
 
@@ -224,14 +184,6 @@ engines.mesh.meshplaneint\_axis\_nonmanifold module
 ---------------------------------------------------
 
 .. automodule:: engines.mesh.meshplaneint_axis_nonmanifold
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-engines.mesh.meshref\_pulse\_14 module
---------------------------------------
-
-.. automodule:: engines.mesh.meshref_pulse_14
    :members:
    :show-inheritance:
    :undoc-members:

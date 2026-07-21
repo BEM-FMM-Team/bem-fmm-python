@@ -1,8 +1,6 @@
 import numpy as np
-from numba import jit
 
 
-@jit(nopython=True, cache=True)
 def potint2(
     r1,
     r2,
@@ -15,7 +13,6 @@ def potint2(
     an arbitrary number of observation points.  Not divided by area.
 
     Copyright SNM 2004-2020
-    Numba-optimized version
     """
     ObsPoint = np.copy(ObsPoint)  # Avoid modifying input
     n_obs = ObsPoint.shape[0]

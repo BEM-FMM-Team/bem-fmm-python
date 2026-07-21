@@ -47,7 +47,7 @@ uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-ind
 ## Generating and using a coil
 
 ```bash
-python tests\gui\run_gui.py # coil config is emiited to tests\gui\coil_config.pkl (probably going to make a file dialogue)
+python tests\gui # coil config is emiited to tests\gui\coil_config.pkl (probably going to make a file dialogue)
 
 python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
 # charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed

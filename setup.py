@@ -7,9 +7,13 @@ from setuptools import Extension, setup
 if sys.platform == "win32":
     compile_args = ["/O2", "/openmp"]
     link_args = ["/openmp"]
-else:
+elif sys.platform == "linux":
     compile_args = ["-O3", "-fopenmp"]
     link_args = ["-fopenmp"]
+else: # TODO macos
+    compile_args = ["-O3", "-fopenmp"]
+    link_args = ["-fopenmp"]
+
 
 extensions = [
     Extension(

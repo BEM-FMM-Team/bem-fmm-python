@@ -4,14 +4,13 @@ from functools import reduce
 from pathlib import Path
 from sys import exit
 from time import perf_counter
+import yaml
 
 import numpy as np
 import scipy.io
-import trimesh
 import yaml
 from numba import jit
 from scipy.sparse import coo_matrix, csr_matrix
-from scipy.spatial import Delaunay
 from sklearn.neighbors import NearestNeighbors
 
 from engines.gui import pickle_loader
@@ -35,18 +34,28 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (inc_field_electric, surface_field_electric_plain,
-                            surface_field_lhs)
+from engines.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from engines.fgmres import fgmres
 from engines.lib import cache
-from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
-                          mesh_rotate2, mesh_tricenter)
+from engines.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
+
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
 
+@cache
 def load_model():
     index_name = ASSETS / "tissue_index.yaml"
 
@@ -194,7 +203,7 @@ def setup_coil() -> FullCoil:
         ]
     )
 
-    Intersection = np.array([0, 0, 0])
+    Intersection = np.array([0, 0, 0])  # INFO Not used, only for api compat
 
     return (
         pointsline,
@@ -384,6 +393,7 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     #         scipy.io.savemat(OUTPUT / "c.mat", c)
     #         scipy.io.savemat(OUTPUT / "Ptot.mat", Ptot)
     #         scipy.io.savemat(OUTPUT / "En.mat", En)
+    # print(c)
 
     plot_fields(
         P,
@@ -400,6 +410,7 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     )
 
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
+    xyz = np.array([29.4641, 0, 51.6425]) * 1e-3
     plot_slices(
         P,
         t,

@@ -83,6 +83,8 @@
 <span class="n">Mx1</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64_1</span><span class="p">,</span> <span class="s2">&quot;Mx1 vertices&quot;</span><span class="p">]</span>
 <span class="n">Mx3</span> <span class="o">=</span> <span class="n">Annotated</span><span class="p">[</span><span class="n">vf64</span><span class="p">,</span> <span class="s2">&quot;Mx3 vertices&quot;</span><span class="p">]</span>
 
+<span class="c1"># TODO these *Coil types are a bit confusing</span>
+
 
 <span class="c1"># make the math look more elegant</span>
 <div class="viewcode-block" id="StrCoil">
@@ -92,6 +94,42 @@
     <span class="n">Pwire</span><span class="p">:</span> <span class="n">Mx3</span>
     <span class="n">Ewire</span><span class="p">:</span> <span class="n">Nx2</span>
     <span class="n">Swire</span><span class="p">:</span> <span class="n">Nx1</span></div>
+
+
+
+<span class="n">FullCoil</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span>
+    <span class="n">Annotated</span><span class="p">[</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="s2">&quot;points that form a centre line, can be a list of 2 R_3 vectors&quot;</span><span class="p">,</span>  <span class="c1"># INFO maybe for bezier points in the future</span>
+    <span class="p">],</span>
+    <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;dIdt&quot;</span><span class="p">],</span>
+    <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="s2">&quot;I0&quot;</span><span class="p">],</span>
+    <span class="n">StrCoil</span><span class="p">,</span>
+    <span class="n">Mx3</span><span class="p">,</span>
+    <span class="n">Nx3i</span><span class="p">,</span>
+    <span class="n">Annotated</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="s2">&quot;Translation np.zeros(3)&quot;</span><span class="p">],</span>
+<span class="p">]</span>
+
+<span class="n">CoilArray</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="n">FullCoil</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[[</span><span class="nb">int</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">[</span><span class="n">FullCoil</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="EfieldSlice">
+<a class="viewcode-back" href="../../engines.html#engines.my_types.EfieldSlice">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EfieldSlice</span><span class="p">:</span>
+    <span class="n">E_mag</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (Ms^2,) unmasked E-field magnitude</span>
+    <span class="n">E_grid</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (Ms, Ms) log-modulus values, NaN outside mask</span>
+    <span class="n">mask</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (Ms^2,) bool</span>
+    <span class="n">u</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (Ms,) horizontal axis coordinates</span>
+    <span class="n">v</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (Ms,) vertical axis coordinates</span>
+    <span class="n">th1l</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># transformed upper colour limit</span>
+    <span class="n">th2l</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># transformed lower colour limit</span>
+    <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span>  <span class="c1"># log-modulus scale factor (for inverse mapping)</span>
+    <span class="n">points_2d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (K, 2) tissue boundary vertices</span>
+    <span class="n">edges</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (E, 2) tissue boundary edge indices</span>
+    <span class="n">ci</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (E,)   tissue label per edge</span>
+    <span class="n">plane</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span></div>
 
 </pre></div>
 

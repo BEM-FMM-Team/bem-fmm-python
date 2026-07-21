@@ -8,6 +8,7 @@ def inc_field_electric_plain(
     strdipolesig=None,
     strdipoleCurrent=None,
     Points=None,
+    prec=0.01,
 ):
     """
     Computes potential and electric field from the dipole distribution via the FMM
@@ -16,25 +17,21 @@ def inc_field_electric_plain(
 
     Define source (pole) positions and FMM pseudo charges
     """
-    Positions = np.array([[strdipolePplus], [strdipolePminus]])  # TODO check
+    Positions = np.array([[strdipolePplus], [strdipolePminus]])
     PseudoQ = strdipoleCurrent / strdipolesig
-    #   FMM 2019
-    srcinfo.nd = 1
 
     sources = Positions.T
     targ = Points.T
-    prec = 0.01
-    pg = 0
-    pgt = 2
+    charges = PseudoQ.T
 
-    charges = np.zeroes((0, PseudoQ.shape[1]))  # TODO check
-    charges[0, :] = PseudoQ.T
-
-    U = lfmm3d(eps=prec, sources=sources, pg=pg, targets=targ, pgt=pgt, charges=charges)
-    # INFO 4pi already applied
+    U = lfmm3d(
+        eps=prec,
+        sources=sources,
+        targets=targ,
+        charges=charges,
+        pgt=2,
+    )
     Ppri = U.pottarg.T
-    Epri[:, 0] = U.gradtarg[0, :]
-    Epri[:, 1] = U.gradtarg[1, :]
-    Epri[:, 2] = U.gradtarg[2, :]
+    Epri = U.gradtarg
 
     return Epri, Ppri

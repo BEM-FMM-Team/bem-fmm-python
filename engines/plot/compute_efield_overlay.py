@@ -5,7 +5,6 @@ from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.lines import Line2D
 
 from engines.my_types import EfieldSlice
 
@@ -68,16 +67,16 @@ def compute_efield_overlay(
     c: np.ndarray,
     plane: Literal["XY"] | Literal["XZ"] | Literal["YZ"],
     val: float,
-    th1: float = 5,
+    th1: float = 120,
     th2: float = 0,
     Ms: int = 200,
     prec: float = 1e-4,
-    R: int = 5,
+    R: int = 4,
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
-    from engines.charge.volume_field_electric import volume_field_electric
-    from engines.mesh.meshplaneint_axis_nonmanifold import meshplaneint_axis_nonmanifold
+    from engines.charge import volume_field_electric
+    from engines.mesh import meshplaneint_axis_nonmanifold
 
     if plane not in _PLANE_CONFIG:
         raise ValueError(

@@ -88,16 +88,10 @@ def plot_slices(
     tissue_list,
     xyz,
 ):
-    unit_convert = 1e-3  # mm
-    X = -37.4 * unit_convert
-    Y = 20 * unit_convert
-    Z = 20 * unit_convert
-
     X = xyz[0]
     Y = xyz[1]
     Z = xyz[2]
 
-    # pyrefly: ignore [missing-import]
     from .compute_efield_overlay import compute_efield_overlay_worker
 
     compute_efield_overlay_worker(
