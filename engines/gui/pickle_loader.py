@@ -11,14 +11,11 @@ def pickle_loader(
     filename: Path | str,
 ) -> list[FullCoil]:
     with open(filename, "rb") as f:
-        data: list = pickle.load(f)[0]
+        data: list = pickle.load(f)
 
     coil_array = []
     for coil in data:
-        strcoil = StrCoil()
-        strcoil.Pwire = coil.Pwire
-        strcoil.Ewire = coil.Ewire
-        strcoil.Swire = coil.Swire
+        strcoil = StrCoil(Pwire=coil.Pwire, Ewire=coil.Ewire, Swire=coil.Swire)
         coil_array.append(
             (
                 coil.centerline,
@@ -32,3 +29,15 @@ def pickle_loader(
         )
 
     return coil_array
+
+
+CWD = Path(__file__).parent.resolve()
+
+
+def test_loader():
+    d = pickle_loader(CWD / "coil_config.pkl")
+    print(d)
+
+
+if __name__ == "__main__":
+    test_loader()
