@@ -1,9 +1,17 @@
 import numpy as np
-from vedo import Axes, Line, Mesh, Plotter, Text3D
+
+from PySide6.QtWidgets import QWidget, QVBoxLayout
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
+from vedo import Line, Mesh, Plotter, Text3D, Axes, Sphere
 
 
 class Renderer:
-    def __init__(self, head=None, vtk_widget=None):
+    def __init__(self, head_models, ViewPort):
+        layout = QVBoxLayout(ViewPort)
+        layout.setContentsMargins(0, 0, 0, 0)
+        vtk_widget = QVTKRenderWindowInteractor(ViewPort)
+        layout.addWidget(vtk_widget)
         self.plt = Plotter(qt_widget=vtk_widget)
 
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
@@ -26,18 +34,22 @@ class Renderer:
 
         self.plt.add(axes)
 
-        self.head = head
+        self.head_models = head_models
         self.coil_actors = {}
         self.centerline_actors = {}
         self.edit_axes_actors = []
 
-    def activate(self):
-        head_actor = self.head
-        head_actor.color("lightgray")
-        head_actor.alpha(1)
+        self.white_matter_placement_mode = False
+        self.white_matter_selected_point = None
+        self.white_matter_marker = Sphere(pos=[0, 0, 0], r=0.0005)
 
-        self.plt.add(head_actor)
-        self.plt.show(interactive=True)
+        self.active_head_models = {"skin"}
+
+    def activate(self):
+        self.render_head_actors()
+        self.plt.add_callback("LeftButtonPress", self.on_click)
+        self.plt.show(interactive=False)
+
         return
 
     def add_coil_actor(self, coil):
@@ -50,6 +62,7 @@ class Renderer:
 
         self.plt.add(coil_actor)
         self.plt.add(centerline_actor)
+        self.plt.render()
         return
 
     def edit_coil_actor(self, coil):
@@ -66,6 +79,7 @@ class Renderer:
 
         self.plt.remove(coil_actor)
         self.plt.remove(centerline_actor)
+        self.plt.render()
         return
 
     def show_world_axes(self, coil):
@@ -96,14 +110,60 @@ class Renderer:
         ]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
+        self.plt.render()
         return
 
     def remove_world_axes(self):
         for actor in self.edit_axes_actors:
             self.plt.remove(actor)
         self.edit_axes_actors = []
+        self.plt.render()
         return
+
+    def render_head_actors(self):
+        print(self.active_head_models)
+        for actor in self.head_models.values():
+            self.plt.remove(actor)
+        for head_part in self.active_head_models:
+            self.plt.add(self.head_models[head_part])
+        self.plt.render()
 
     def render_plot(self):
         self.plt.render()
         return
+
+    def white_matter_picker_on(self):
+        self.white_matter_placement_mode = True
+        self.white_matter_selected_point = None
+
+        for actor in self.head_models.values():
+            self.plt.remove(actor)
+        self.plt.add(self.head_models["wm"])
+        self.plt.render()
+        return
+
+    def white_matter_picker_off(self):
+        self.white_matter_placement_mode = False
+
+        self.render_head_actors()
+        self.plt.remove(self.white_matter_marker)
+        self.plt.render()
+        return
+
+    def get_white_matter_selected_point(self):
+        return self.white_matter_selected_point
+
+    def on_click(self, event):
+        print(event.actor)
+        print(event.picked3d)
+        if not self.white_matter_placement_mode:
+            return
+
+        if event.actor != self.head_models["wm"]:
+            return
+
+        self.white_matter_selected_point = event.picked3d
+
+        self.plt.remove(self.white_matter_marker)
+        self.white_matter_marker = Sphere(pos=self.white_matter_selected_point, r=0.001)
+        self.plt.add(self.white_matter_marker)

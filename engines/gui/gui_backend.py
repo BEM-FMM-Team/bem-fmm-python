@@ -32,20 +32,20 @@ contains backend information for a coil manager including information for charge
 
 
 class Backend:
-    def __init__(self, head=None):
-        self.renderer = Renderer(head)
+    def __init__(self, head_models, ViewPort):
+        self.renderer = Renderer(head_models, ViewPort)
         self.coils = {}
         self.undo_queue = []
 
         self.next_id = 0
 
         self.normals = mesh_normals(
-            np.asarray(self.renderer.head.vertices),
-            np.asarray(self.renderer.head.cells),
+            np.asarray(self.renderer.head_models["skin"].vertices),
+            np.asarray(self.renderer.head_models["skin"].cells),
         )
         self.centers = mesh_tricenter(
-            np.asarray(self.renderer.head.vertices),
-            np.asarray(self.renderer.head.cells),
+            np.asarray(self.renderer.head_models["skin"].vertices),
+            np.asarray(self.renderer.head_models["skin"].cells),
         )
         self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
 
@@ -104,6 +104,7 @@ class Backend:
     # for undo
     def save_last_coil(self):
         self.undo_queue.append([2, [self.last_coil.id, self.last_coil.clone()]])
+        self.renderer.render_plot()
         return
 
     # get all coils
@@ -117,6 +118,7 @@ class Backend:
         transformer(coil, xyz)
         self.renderer.edit_coil_actor(coil)
         self.renderer.show_world_axes(coil)
+        self.renderer.render_plot()
         return
 
     # rotate coil
@@ -124,10 +126,11 @@ class Backend:
         coil = self.coils[id]
         transformer(coil, coil.com, xyz_to_quat(rxryrz))
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     # edit current
-    def edit_coil_cur(self, id, dIdt):
+    def edit_coil_dIdt(self, id, dIdt):
         self.coils[id].dIdt = dIdt
         return
 
@@ -139,6 +142,7 @@ class Backend:
         transformer(coil, coil.com, q_final)
 
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     # delete coil
@@ -147,6 +151,7 @@ class Backend:
         del self.coils[id]
 
         self.renderer.remove_coil_actors(id)
+        self.renderer.render_plot()
         return
 
     #  prepare to pass coils
@@ -154,8 +159,8 @@ class Backend:
         save_path = BASE_DIR / "coil_config.pkl"
         coil_list = list(self.coils.values())
         for coil in coil_list:
-            distance, index = self.nn.kneighbors(coil.com.reshape(1, -1))
-            coil.intersection_point = self.centers[index[0, 0]].copy()
+            distance, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
+            coil.intersection_point = self.centers[indices[0, 0]].copy()
             print(coil.intersection_point)
         with open(save_path, "wb") as f:
             pickle.dump(coil_list, f)
@@ -170,6 +175,7 @@ class Backend:
         transformer(coil, coil.com, target_trans)
 
         self.renderer.edit_coil_actor(coil)
+        self.renderer.render_plot()
         return
 
     def undo_operation(self):
@@ -194,4 +200,27 @@ class Backend:
             old_coil = data[1]
             self.coils[id] = old_coil
             self.renderer.edit_coil_actor(old_coil)
+        self.renderer.render_plot()
+        return
+
+    def white_matter_begin(self):
+        self.renderer.white_matter_picker_on()
+        print(self.renderer.white_matter_placement_mode)
+
+    def white_matter_finalize(self, distance, id):
+        coil = self.coils[id]
+        self.renderer.white_matter_picker_off()
+        white_matter_point = self.renderer.get_white_matter_selected_point()
+        distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
+        idx = indices[0, 0]
+        skin_point = self.centers[idx].copy()
+        skin_point_vector = self.normals[idx].copy() * distance
+        final_point = skin_point + skin_point_vector
+        print(final_point)
+
+        self.renderer.remove_world_axes()
+        transformer(coil, final_point)
+        self.renderer.edit_coil_actor(coil)
+        self.renderer.show_world_axes(coil)
+        self.renderer.render_plot()
         return

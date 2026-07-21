@@ -36,6 +36,7 @@
             freeglut
             libGLU
             libxcursor
+            libxkbcommon
           ];
         in
           pkgs.mkShell
@@ -56,6 +57,7 @@
                 (pkgs.python313.withPackages (p:
                   with p; [
                     uv
+                    pyside6
                     napari
                     scikit-image
                     pooch
