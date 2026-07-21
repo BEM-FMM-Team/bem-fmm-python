@@ -198,8 +198,8 @@ class Frontend(QMainWindow):
         if not self.backend.renderer.white_matter_placement_mode:
             self.backend.white_matter_begin()
         else:
-            distance = float(self.ui.WhiteMatterDistance.text())
-            self.backend.white_matter_finalize(distance, self.selected_coil_id)
+            distance = float(self.ui.WhiteMatterDistance.text()) / 1000
+            self.backend.white_matter_finalize(distance,self.selected_coil_id)
             self.auto_orient()
 
     def auto_orient(self):
