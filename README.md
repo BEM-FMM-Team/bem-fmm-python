@@ -6,14 +6,13 @@ This repository is in a rapidly changing state.
 
 ```bash
 python -m http.server -d docs\build\html # windows
-
-python -m http.server -d ./docs/build/html/
+python -m http.server -d ./docs/build/html/ # posix
 ```
 
 ## Setup
 
 Download the repo
-Install `python3.13`. __other versions may not work.__
+Install `python3.11+`. __other versions may not work.__
 
 Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
@@ -45,21 +44,17 @@ uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-ind
 ```
 
 ## Generating and using a coil
+Charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed.
+Coil config is emiited to `tests\gui\coil_config.pkl` (probably going to make a file dialogue).
 
 ```bash
-python tests\gui # coil config is emiited to tests\gui\coil_config.pkl (probably going to make a file dialogue)
-
-python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
-# charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed
-python tests\mri_volume_plotter tests\gui\coil_config.pkl # runs the slice
+python tests\gui python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
 ```
 
 ## Tests
 
 ### Windows
 ```bash
-python .\tests\tms
-
 python .\tests\plot
 python .\tests\sphere_3L
 python .\tests\tms # delete ./__compute_cache__/ to reset computation

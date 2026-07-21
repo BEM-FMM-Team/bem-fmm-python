@@ -10,7 +10,7 @@ if sys.platform == "win32":
 elif sys.platform == "linux":
     compile_args = ["-O3", "-fopenmp"]
     link_args = ["-fopenmp"]
-else: # TODO macos
+else:  # TODO macos
     compile_args = ["-O3", "-fopenmp"]
     link_args = ["-fopenmp"]
 

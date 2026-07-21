@@ -8,9 +8,7 @@ from engines.my_types import FaceCenters, f32, vec2f32, vec3f32
 from ..lib import vecnorm
 from ..my_types import VertexIndices, Vertices
 from .inc_field_electric_plain import inc_field_electric_plain
-from .inc_field_electric_plain_dipoles import (
-    inc_field_electric_plain_dipoles,
-)
+from .inc_field_electric_plain_dipoles import inc_field_electric_plain_dipoles
 
 
 def inc_field_gauss_selective_dipoles(
@@ -48,8 +46,6 @@ def inc_field_gauss_selective_dipoles(
         coeffS, weightsS, IndexS = mesh_tri(13, 1)
     elif gauss == 25:
         coeffS, weightsS, IndexS = mesh_tri(25, 10)
-    # elif gauss == 0:
-    #    coeffS, weightsS, IndexS  = mesh_tri(subdivParam)
     else:
         raise ValueError("Invalid Gaussian subdivision parameter")
 

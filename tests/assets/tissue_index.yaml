@@ -3,10 +3,11 @@
 # TissueName : [ condin , "TissueOutside", "file path relative to assets directory" ]
 # TissueOutside must match a TissueName execept FreeSpace with condin of 0.0
 
-skin       : [0.4650, "FreeSpace", "skin.stl"]
-skull      : [0.010,  "skin",      "skull.stl"]
-csf        : [1.654,  "skull",     "csf.stl"]
-gm         : [0.2750, "csf",       "gm.stl"]
-cerebellum : [0.126,  "csf",       "cerebellum.stl"]
-wm         : [0.1260, "gm",        "wm.stl"]
-ventricles : [1.654,  "wm",        "ventricles.stl"]
+
+skin      : [0.4650, "FreeSpace", "skin.stl"]
+bone      : [0.010,  "skin",      "bone.stl"]
+csf       : [1.654,  "bone",      "csf.stl"]
+gm        : [0.2750, "csf",       "gm.stl"]
+cerebellum: [0.126,  "csf",       "cerebellum.stl"]
+wm        : [0.1260, "gm",        "wm.stl"]
+ventricles: [1.654,  "wm",        "ventricles.stl"]

@@ -4,7 +4,6 @@ from functools import reduce
 from pathlib import Path
 from sys import exit
 from time import perf_counter
-import yaml
 
 import numpy as np
 import scipy.io
@@ -12,10 +11,6 @@ import yaml
 from numba import jit
 from scipy.sparse import coo_matrix, csr_matrix
 from sklearn.neighbors import NearestNeighbors
-
-from engines.gui import pickle_loader
-from engines.plot.fields import plot_fields
-from engines.plot.slice import plot_slices
 
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG), savemat, savemat
 
@@ -34,42 +29,28 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from engines.charge import (inc_field_electric, surface_field_electric_plain,
+                            surface_field_lhs)
 from engines.fgmres import fgmres
+from engines.gui.pickle_loader import pickle_loader
 from engines.lib import cache
-from engines.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                          mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
-from engines.plot import plot_residual
-
+from engines.plot import plot_fields, plot_residual, plot_slices
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
+
+model_unit_scalar = 1e-3
 
 
 @cache
 def load_model():
     index_name = ASSETS / "tissue_index.yaml"
 
-    # TODO: write parser
-
-    shells: dict[str, tuple[float, str]] = {
-        "skin": (0.4650, "FreeSpace"),
-        "bone": (0.010, "skin"),
-        "csf": (1.654, "bone"),
-        "gm": (0.2750, "csf"),
-        "cerebellum": (0.126, "csf"),
-        "wm": (0.1260, "gm"),
-        "ventricles": (1.654, "wm"),
-    }
+    with open(index_name, "r") as f:
+        d = f.read()
+    shells: dict[str, tuple[float, str]] = yaml.safe_load(d)
 
     Pcell: list[np.ndarray] = []
     tcell: list[np.ndarray] = []
@@ -81,7 +62,7 @@ def load_model():
             raise RuntimeError(f"Failed to find file {path}")
 
         mesh = vedo.Mesh(path)
-        Pcell.append(mesh.vertices * 1e-3)  # TODO units
+        Pcell.append(mesh.vertices * model_unit_scalar)  # TODO units
         tcell.append(np.array(mesh.cells))
         condinner.append(v[0])
         condouter.append(shells[v[1]][0] if v[1] != "FreeSpace" else 0.0)
@@ -306,8 +287,9 @@ def main():
         coil_path = sys.argv[1]
         print(f"Using coil {coil_path}")
 
-    default_coil = setup_coil() if coil_path is None else pickle_loader(coil_path)[0]
-    coils: list[FullCoil] = [default_coil]
+    coils: list[FullCoil] = (
+        [setup_coil()] if coil_path is None else pickle_loader(coil_path)
+    )
 
     rhs_b: list[np.ndarray] = []
     rhs_Einc: list[np.ndarray] = []
