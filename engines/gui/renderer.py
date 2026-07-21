@@ -41,16 +41,13 @@ class Renderer:
 
         self.white_matter_placement_mode = False
         self.white_matter_selected_point = None
-        self.white_matter_marker = Sphere(
-            pos=[0, 0, 0],
-            r=0.0005
-        )
+        self.white_matter_marker = Sphere(pos=[0, 0, 0], r=0.0005)
 
         self.active_head_models = {"skin"}
 
     def activate(self):
         self.render_head_actors()
-        self.plt.add_callback("LeftButtonPress",self.on_click)
+        self.plt.add_callback("LeftButtonPress", self.on_click)
         self.plt.show(interactive=False)
 
         return
@@ -100,7 +97,17 @@ class Renderer:
         xm_label = Text3D("-X", pos=coil.com - [L + offset, 0, 0], s=0.005)
         ym_label = Text3D("-Y", pos=coil.com - [0, L + offset, 0], s=0.005)
         zm_label = Text3D("-Z", pos=coil.com - [0, 0, L + offset], s=0.005)
-        self.edit_axes_actors = [x_actor,y_actor,z_actor,xp_label,yp_label,zp_label,xm_label,ym_label,zm_label,]
+        self.edit_axes_actors = [
+            x_actor,
+            y_actor,
+            z_actor,
+            xp_label,
+            yp_label,
+            zp_label,
+            xm_label,
+            ym_label,
+            zm_label,
+        ]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
         self.plt.render()
@@ -112,7 +119,7 @@ class Renderer:
         self.edit_axes_actors = []
         self.plt.render()
         return
-    
+
     def render_head_actors(self):
         print(self.active_head_models)
         for actor in self.head_models.values():
@@ -134,7 +141,7 @@ class Renderer:
         self.plt.add(self.head_models["wm"])
         self.plt.render()
         return
-    
+
     def white_matter_picker_off(self):
         self.white_matter_placement_mode = False
 
@@ -142,10 +149,10 @@ class Renderer:
         self.plt.remove(self.white_matter_marker)
         self.plt.render()
         return
-    
+
     def get_white_matter_selected_point(self):
         return self.white_matter_selected_point
-    
+
     def on_click(self, event):
         print(event.actor)
         print(event.picked3d)

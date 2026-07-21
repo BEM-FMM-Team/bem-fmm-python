@@ -25,14 +25,24 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (inc_field_electric, surface_field_electric_plain,
-                            surface_field_lhs)
+from engines.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from engines.fgmres import fgmres
 from engines.lib import cache, io
-from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_normals,
-                          mesh_rotate1, mesh_rotate2, mesh_tricenter)
+from engines.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_normals,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_residual
+
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 

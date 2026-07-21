@@ -120,7 +120,9 @@ class Frontend:
         undo_button = ttk.Button(self.root, text="Undo", command=self.undo)
         undo_button.grid(row=10, column=1, columnspan=2, pady=10)
 
-        add_mesh_model_button = ttk.Button(self.root, text="Change Head", command=self.change_head_model)
+        add_mesh_model_button = ttk.Button(
+            self.root, text="Change Head", command=self.change_head_model
+        )
         add_mesh_model_button.grid(row=1, column=2, columnspan=2, pady=10)
 
         return
@@ -360,12 +362,16 @@ class Frontend:
                 y_var.set(round(new_com[1], 3))
                 z_var.set(round(new_com[2], 3))
             return
-        
+
         white_matter_distance = tk.DoubleVar()
         distance_entry = ttk.Entry(editor, textvariable=white_matter_distance)
-        distance_entry.grid(row=8,column=2,columnspan=2,pady=10)
-        
-        white_matter_button = ttk.Button(editor, text="place with wm", command=lambda: place_with_white_matter(white_matter_distance.get()))
+        distance_entry.grid(row=8, column=2, columnspan=2, pady=10)
+
+        white_matter_button = ttk.Button(
+            editor,
+            text="place with wm",
+            command=lambda: place_with_white_matter(white_matter_distance.get()),
+        )
         white_matter_button.grid(row=8, column=1, columnspan=2, pady=10)
 
         x_var.trace_add(
@@ -470,41 +476,42 @@ class Frontend:
         editor.mainloop()
 
         return
-    
+
     def change_head_model(self):
         selector = tk.Toplevel(self.root)
         selector.title("Visible Head Models")
-        models = ["bone", "cerebellum", "csf", "gm", "plot_skull", "skin", "ventricles", "wm",]
+        models = [
+            "bone",
+            "cerebellum",
+            "csf",
+            "gm",
+            "plot_skull",
+            "skin",
+            "ventricles",
+            "wm",
+        ]
 
         vars = {}
 
         for model in models:
-            var = tk.BooleanVar(value=(model in self.backend.renderer.active_head_models))
+            var = tk.BooleanVar(
+                value=(model in self.backend.renderer.active_head_models)
+            )
             vars[model] = var
 
-            ttk.Checkbutton(
-                selector,
-                text=model,
-                variable=var
-            ).pack(anchor="w", padx=10, pady=2)
+            ttk.Checkbutton(selector, text=model, variable=var).pack(
+                anchor="w", padx=10, pady=2
+            )
 
         def apply():
-            active_models = [
-                model
-                for model, var in vars.items()
-                if var.get()
-            ]
+            active_models = [model for model, var in vars.items() if var.get()]
 
             self.backend.renderer.active_head_models = active_models
             self.backend.renderer.render_head_actors()
 
             selector.destroy()
-        
-        ttk.Button(
-            selector,
-            text="OK",
-            command=apply
-        ).pack(pady=10)
+
+        ttk.Button(selector, text="OK", command=apply).pack(pady=10)
 
         return
 
