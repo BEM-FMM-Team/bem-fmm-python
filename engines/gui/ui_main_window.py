@@ -458,7 +458,7 @@ class Ui_MainWindow(object):
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"dIdt (Amp/ns)", None))
         self.AutoOrientButton.setText(QCoreApplication.translate("MainWindow", u"Auto Orient", None))
         self.WhiteMatterButton.setText(QCoreApplication.translate("MainWindow", u"Place With White Matter", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"White Matter Distance", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Distance From Skin (mm)", None))
         self.OKEdit.setText(QCoreApplication.translate("MainWindow", u"OK", None))
         self.CancelEdit.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
     # retranslateUi
