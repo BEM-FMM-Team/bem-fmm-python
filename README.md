@@ -48,7 +48,8 @@ Charge engine will only need to be run once unless the ./__compute_cache__/ dire
 Coil config is emiited to `tests\gui\coil_config.pkl` (probably going to make a file dialogue).
 
 ```bash
-python tests\gui python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
+python tests\gui
+python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
 ```
 
 ## Tests
