@@ -241,7 +241,7 @@ void grad_potint(const double r1_x, const double r1_y, const double r1_z,
 void c_potint2(const size_t N, const double *r1, const double *r2,
                const double *r3, const double *normal, const double *obs,
                double *Int) {
-#pragma omp parallel for schedule(static)
+  // #pragma omp parallel for schedule(static)
   for (size_t k = 0; k < N; k++) {
     grad_potint(r1[0], r1[1], r1[2], r2[0], r2[1], r2[2], r3[0], r3[1], r3[2],
                 normal[0], normal[1], normal[2], obs[k], obs[k + N],

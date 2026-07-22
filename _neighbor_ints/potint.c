@@ -218,7 +218,7 @@ void c_potint(const size_t N, const double *r1, const double *r2,
   // this is good when all iterations take the same time (which is the case
   // here)
 
-#pragma omp parallel for schedule(static)
+  // #pragma omp parallel for schedule(static)
   for (size_t k = 0; k < N; k++) {
     single_layer_potint(r1[0], r1[1], r1[2], r2[0], r2[1], r2[2], r3[0], r3[1],
                         r3[2], normal[0], normal[1], normal[2], obs[k],
