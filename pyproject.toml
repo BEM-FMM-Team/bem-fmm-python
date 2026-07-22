@@ -44,7 +44,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest>=7.4.0", "jupyter>=1.0.0", "sphinx"
+  "pytest>=7.4.0", "jupyter>=1.0.0", "sphinx", "sphinx_mdinclude",
 ]
 
 [tool.setuptools]

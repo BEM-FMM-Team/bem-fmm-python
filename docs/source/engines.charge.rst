@@ -60,14 +60,6 @@ engines.charge.potint module
    :show-inheritance:
    :undoc-members:
 
-engines.charge.potint2 module
------------------------------
-
-.. automodule:: engines.charge.potint2
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 engines.charge.surface\_field\_electric\_accurate module
 --------------------------------------------------------
 

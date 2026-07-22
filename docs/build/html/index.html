@@ -46,16 +46,15 @@ documentation for details.</p>
 <p>This repository is in a rapidly changing state.</p>
 <section id="docs">
 <h2>Docs<a class="headerlink" href="#docs" title="Link to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>docs<span class="se">\b</span>uild<span class="se">\h</span>tml<span class="w"> </span><span class="c1"># windows</span>
-
-python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>./docs/build/html/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>docs<span class="se">\_</span>build<span class="se">\h</span>tml<span class="w"> </span><span class="c1"># windows</span>
+python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>./docs/_build/html/<span class="w"> </span><span class="c1"># posix</span>
 </pre></div>
 </div>
 </section>
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
 <p>Download the repo
-Install <code class="docutils literal notranslate"><span class="pre">python3.13</span></code>. <strong>other versions may not work.</strong></p>
+Install <code class="docutils literal notranslate"><span class="pre">python3.11+</span></code>. <strong>other versions may not work.</strong></p>
 <p>Open <code class="docutils literal notranslate"><span class="pre">cmd</span></code>/<code class="docutils literal notranslate"><span class="pre">powershell</span></code>/<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">shell</span></code>/<code class="docutils literal notranslate"><span class="pre">venv</span></code> in this directory.</p>
 <blockquote>
 <div><p>MacOS
@@ -85,11 +84,9 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 </section>
 <section id="generating-and-using-a-coil">
 <h2>Generating and using a coil<a class="headerlink" href="#generating-and-using-a-coil" title="Link to this heading">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tests<span class="se">\g</span>ui<span class="se">\r</span>un_gui.py<span class="w"> </span><span class="c1"># coil config is emiited to tests\gui\coil_config.pkl (probably going to make a file dialogue)</span>
-
-python<span class="w"> </span>tests<span class="se">\t</span>ms<span class="w"> </span>tests<span class="se">\g</span>ui<span class="se">\c</span>oil_config.pkl<span class="w"> </span><span class="c1"># runs the single ring with the coil</span>
-<span class="c1"># charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed</span>
-python<span class="w"> </span>tests<span class="se">\m</span>ri_volume_plotter<span class="w"> </span>tests<span class="se">\g</span>ui<span class="se">\c</span>oil_config.pkl<span class="w"> </span><span class="c1"># runs the slice</span>
+<p>Charge engine will only need to be run once unless the ./<strong>compute_cache</strong>/ directory is removed.
+Coil config is emiited to <code class="docutils literal notranslate"><span class="pre">tests\gui\coil_config.pkl</span></code> (probably going to make a file dialogue).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tests<span class="se">\g</span>ui<span class="w"> </span>python<span class="w"> </span>tests<span class="se">\t</span>ms<span class="w"> </span>tests<span class="se">\g</span>ui<span class="se">\c</span>oil_config.pkl<span class="w"> </span><span class="c1"># runs the single ring with the coil</span>
 </pre></div>
 </div>
 </section>
@@ -97,9 +94,7 @@ python<span class="w"> </span>tests<span class="se">\m</span>ri_volume_plotter<s
 <h2>Tests<a class="headerlink" href="#tests" title="Link to this heading">¶</a></h2>
 <section id="windows">
 <h3>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\t</span>ms
-
-python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\p</span>lot
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\p</span>lot
 python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\s</span>phere_3L
 python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\t</span>ms<span class="w"> </span><span class="c1"># delete ./__compute_cache__/ to reset computation</span>
 </pre></div>
@@ -134,7 +129,6 @@ python3<span class="w"> </span>tests/tms
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_electric_plain_dipoles">engines.charge.inc_field_electric_plain_dipoles module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_gauss_selective_dipoles">engines.charge.inc_field_gauss_selective_dipoles module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.potint">engines.charge.potint module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.potint2">engines.charge.potint2 module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_accurate">engines.charge.surface_field_electric_accurate module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_plain">engines.charge.surface_field_electric_plain module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_subdiv">engines.charge.surface_field_electric_subdiv module</a></li>

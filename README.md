@@ -5,8 +5,8 @@ This repository is in a rapidly changing state.
 ## Docs
 
 ```bash
-python -m http.server -d docs\build\html # windows
-python -m http.server -d ./docs/build/html/ # posix
+python -m http.server -d docs\_build\html # windows
+python -m http.server -d ./docs/_build/html/ # posix
 ```
 
 ## Setup

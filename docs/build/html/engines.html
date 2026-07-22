@@ -14,6 +14,8 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="engines.charge package" href="engines.charge.html" />
+    <link rel="prev" title="bem-fmm-python documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -65,10 +67,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="engines.charge.html#module-engines.charge.potint">engines.charge.potint module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="engines.charge.html#engines.charge.potint.potint"><code class="docutils literal notranslate"><span class="pre">potint()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="engines.charge.html#module-engines.charge.potint2">engines.charge.potint2 module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="engines.charge.html#engines.charge.potint2.potint2"><code class="docutils literal notranslate"><span class="pre">potint2()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_accurate">engines.charge.surface_field_electric_accurate module</a><ul>
@@ -503,11 +501,71 @@ webpage: <a class="reference external" href="http://spring.inm.ras.ru/osel">http
     </div>
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">engines package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="engines.charge.html">engines.charge package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="engines.mesh.html">engines.mesh package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="engines.plot.html">engines.plot package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-engines.constants">engines.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-engines.fgmres">engines.fgmres module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#engines.fgmres.dbg_fgmres"><code class="docutils literal notranslate"><span class="pre">dbg_fgmres()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.fgmres.fgmres"><code class="docutils literal notranslate"><span class="pre">fgmres()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.fgmres.pyamg_fgmres"><code class="docutils literal notranslate"><span class="pre">pyamg_fgmres()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-engines.lib">engines.lib module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.disp"><code class="docutils literal notranslate"><span class="pre">disp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.rdiv"><code class="docutils literal notranslate"><span class="pre">rdiv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.repmat"><code class="docutils literal notranslate"><span class="pre">repmat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.size"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.tic"><code class="docutils literal notranslate"><span class="pre">tic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.timeit"><code class="docutils literal notranslate"><span class="pre">timeit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.toc"><code class="docutils literal notranslate"><span class="pre">toc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.vecnorm"><code class="docutils literal notranslate"><span class="pre">vecnorm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.lib.zeros"><code class="docutils literal notranslate"><span class="pre">zeros()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-engines.my_types">engines.my_types module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#engines.my_types.EfieldSlice"><code class="docutils literal notranslate"><span class="pre">EfieldSlice</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.E_grid"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_grid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.E_mag"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_mag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.cfg"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.cfg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.ci"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.ci</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.edges"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.edges</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.mask"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.mask</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.plane"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.plane</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.points_2d"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.points_2d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.scale"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.scale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.th1l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th1l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.th2l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th2l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.u"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.u</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.EfieldSlice.v"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.v</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#engines.my_types.StrCoil"><code class="docutils literal notranslate"><span class="pre">StrCoil</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.StrCoil.Ewire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Ewire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.StrCoil.Pwire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Pwire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#engines.my_types.StrCoil.Swire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Swire</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-engines">Module contents</a></li>
+</ul>
+</li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">bem-fmm-python documentation</a></li>
+      <li>Next: <a href="engines.charge.html" title="next chapter">engines.charge package</a></li>
   </ul></li>
 </ul>
 </div>
