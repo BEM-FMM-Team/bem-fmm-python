@@ -25,6 +25,7 @@ def plot_coil_worker(
     Coilt,
     obs_start,
     obs_end,
+    xyz,
 ):
     coil_mesh = vedo.Mesh([CoilP, Coilt])
     obs_line = vedo.Line(obs_start, obs_end).lw(3).color("red")
@@ -35,6 +36,7 @@ def plot_coil_worker(
         cmap_label=p[1],
         cdata=p[2],
         config=_PATCH_CONFIGS[p[3]],
+        planes=xyz,
     ).add(coil_mesh).add(obs_line).show()
 
 
@@ -103,6 +105,8 @@ def patch(
     axes: dict | None = None,
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
+    planes: np.array = None,
+    planes_size : float = 0.05,
 ) -> vedo.Mesh:
     """
     Plot model with colormap data
@@ -145,6 +149,31 @@ def patch(
 
     plt = vedo.Plotter(**plt_kw, qt_widget=qt_widget)
     plt.add(vedo.Text2D(title, pos="top-center", s=title_size, font=title_font))
+
+    if planes is not None:
+        plane_yz = vedo.Plane(
+            pos=planes,
+            normal=(1, 0, 0),
+            s=(planes_size, planes_size)
+        )
+        plane_yz.color(bg).alpha(0.3)
+        plt.add(plane_yz)
+        
+        plane_xz = vedo.Plane(
+            pos=planes,
+            normal=(0, 1, 0),
+            s=(planes_size, planes_size)
+        )
+        plane_xz.color(bg).alpha(0.3)
+        plt.add(plane_xz)
+        
+        plane_xy = vedo.Plane(
+            pos=planes,
+            normal=(0, 0, 1),
+            s=(planes_size, planes_size)
+        )
+        plane_xy.color(bg).alpha(0.3)
+        plt.add(plane_xy)
 
     plt.add(mesh)
     plt.azimuth(viewax[0])
