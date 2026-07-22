@@ -13,7 +13,8 @@ def plot_fields(
     Emag,
     Jn_in,
     obs_start,
-    obs_end,xyz
+    obs_end,
+    xyz,
 ):
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.

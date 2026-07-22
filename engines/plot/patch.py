@@ -106,7 +106,7 @@ def patch(
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
     planes: np.array = None,
-    planes_size : float = 0.05,
+    planes_size: float = 0.05,
 ) -> vedo.Mesh:
     """
     Plot model with colormap data
@@ -152,25 +152,19 @@ def patch(
 
     if planes is not None:
         plane_yz = vedo.Plane(
-            pos=planes,
-            normal=(1, 0, 0),
-            s=(planes_size, planes_size)
+            pos=planes, normal=(1, 0, 0), s=(planes_size, planes_size)
         )
         plane_yz.color(bg).alpha(0.3)
         plt.add(plane_yz)
-        
+
         plane_xz = vedo.Plane(
-            pos=planes,
-            normal=(0, 1, 0),
-            s=(planes_size, planes_size)
+            pos=planes, normal=(0, 1, 0), s=(planes_size, planes_size)
         )
         plane_xz.color(bg).alpha(0.3)
         plt.add(plane_xz)
-        
+
         plane_xy = vedo.Plane(
-            pos=planes,
-            normal=(0, 0, 1),
-            s=(planes_size, planes_size)
+            pos=planes, normal=(0, 0, 1), s=(planes_size, planes_size)
         )
         plane_xy.color(bg).alpha(0.3)
         plt.add(plane_xy)

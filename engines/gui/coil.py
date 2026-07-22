@@ -22,7 +22,7 @@ class Coil:
         # cad information
         self.cad_P = ...
         self.centerline = np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, -0.1]])
-        self.bottom_to_com = ... # z delta from coil bottom to center of mass
+        self.bottom_to_com = ...  # z delta from coil bottom to center of mass
 
         # transform information
         self.com = np.zeros(3)
