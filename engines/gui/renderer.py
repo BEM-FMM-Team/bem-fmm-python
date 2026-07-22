@@ -20,16 +20,8 @@ class Renderer:
         print(ticks_m)
         print(ticks_mm)
 
-        axes = Axes(
-            xtitle="X (mm)",
-            ytitle="Y (mm)",
-            ztitle="Z (mm)",
-            xrange=[-0.1, 0.1],
-            yrange=[-0.1, 0.1],
-            zrange=[-0.1, 0.1],
-            x_values_and_labels=list(zip(ticks_m, ticks_mm)),
-            y_values_and_labels=list(zip(ticks_m, ticks_mm)),
-            z_values_and_labels=list(zip(ticks_m, ticks_mm)),
+        axes = Axes(xtitle="X (mm)", ytitle="Y (mm)",ztitle="Z (mm)",xrange=[-0.1, 0.1],yrange=[-0.1, 0.1],zrange=[-0.1, 0.1],
+            x_values_and_labels=list(zip(ticks_m, ticks_mm)),y_values_and_labels=list(zip(ticks_m, ticks_mm)),z_values_and_labels=list(zip(ticks_m, ticks_mm)),
         )
 
         self.plt.add(axes)
@@ -41,13 +33,26 @@ class Renderer:
 
         self.white_matter_placement_mode = False
         self.white_matter_selected_point = None
-        self.white_matter_marker = Sphere(pos=[0, 0, 0], r=0.0005)
+        self.white_matter_marker = Sphere(
+            pos=[0, 0, 0],
+            r=0.0005
+        )
 
-        self.active_head_models = {"skin"}
+        self.head_model_state = {
+            model: {
+                "visible": model == "skin",
+                "alpha": 1.0,
+            }
+            for model in self.head_models
+        }
+
+        self.drag_callback = None
 
     def activate(self):
+        for name, actor in self.head_models.items():
+            self.plt.add(actor)
         self.render_head_actors()
-        self.plt.add_callback("LeftButtonPress", self.on_click)
+        self.plt.add_callback("LeftButtonPress",self.on_click)
         self.plt.show(interactive=False)
 
         return
@@ -56,6 +61,7 @@ class Renderer:
         print("adding actor")
         coil_actor = Mesh([coil.cad_P, coil.t]).color("orange").alpha(1)
         centerline_actor = Line(coil.centerline).lw(0.5).c("black")
+        coil_actor.id = coil.id
 
         self.coil_actors[coil.id] = coil_actor
         self.centerline_actors[coil.id] = centerline_actor
@@ -97,17 +103,7 @@ class Renderer:
         xm_label = Text3D("-X", pos=coil.com - [L + offset, 0, 0], s=0.005)
         ym_label = Text3D("-Y", pos=coil.com - [0, L + offset, 0], s=0.005)
         zm_label = Text3D("-Z", pos=coil.com - [0, 0, L + offset], s=0.005)
-        self.edit_axes_actors = [
-            x_actor,
-            y_actor,
-            z_actor,
-            xp_label,
-            yp_label,
-            zp_label,
-            xm_label,
-            ym_label,
-            zm_label,
-        ]
+        self.edit_axes_actors = [x_actor,y_actor,z_actor,xp_label,yp_label,zp_label,xm_label,ym_label,zm_label,]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
         self.plt.render()
@@ -119,13 +115,19 @@ class Renderer:
         self.edit_axes_actors = []
         self.plt.render()
         return
-
+    
     def render_head_actors(self):
-        print(self.active_head_models)
-        for actor in self.head_models.values():
-            self.plt.remove(actor)
-        for head_part in self.active_head_models:
-            self.plt.add(self.head_models[head_part])
+        # print(self.active_head_models)
+        # for actor in self.head_models.values():
+        #     self.plt.remove(actor)
+        # for head_part in self.active_head_models:
+        #     self.plt.add(self.head_models[head_part])
+        # self.plt.render()
+
+        for name, model in self.head_models.items():
+            model.actor.SetVisibility(self.head_model_state[name]["visible"])
+            model.alpha(self.head_model_state[name]["alpha"])
+
         self.plt.render()
 
     def render_plot(self):
@@ -137,11 +139,11 @@ class Renderer:
         self.white_matter_selected_point = None
 
         for actor in self.head_models.values():
-            self.plt.remove(actor)
-        self.plt.add(self.head_models["wm"])
+            actor.off()
+        self.head_models["wm"].on()
         self.plt.render()
         return
-
+    
     def white_matter_picker_off(self):
         self.white_matter_placement_mode = False
 
@@ -149,10 +151,10 @@ class Renderer:
         self.plt.remove(self.white_matter_marker)
         self.plt.render()
         return
-
+    
     def get_white_matter_selected_point(self):
         return self.white_matter_selected_point
-
+    
     def on_click(self, event):
         print(event.actor)
         print(event.picked3d)
@@ -167,3 +169,5 @@ class Renderer:
         self.plt.remove(self.white_matter_marker)
         self.white_matter_marker = Sphere(pos=self.white_matter_selected_point, r=0.001)
         self.plt.add(self.white_matter_marker)
+
+    #def on_drag(self, event):
