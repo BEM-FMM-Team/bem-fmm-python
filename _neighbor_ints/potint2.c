@@ -243,7 +243,7 @@ void c_potint2(const size_t N, const double *r1, const double *r2,
                double *Int) {
   long k;
 #pragma omp parallel for schedule(static)
-  for (k = 0; k < N; k++) {
+  for (k = 0; k < (long)N; k++) {
     grad_potint(r1[0], r1[1], r1[2], r2[0], r2[1], r2[2], r3[0], r3[1], r3[2],
                 normal[0], normal[1], normal[2], obs[k], obs[k + N],
                 obs[k + 2 * N], &(Int[k]), &(Int[k + N]), &(Int[k + 2 * N]));
