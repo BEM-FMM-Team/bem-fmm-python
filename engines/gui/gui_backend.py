@@ -1,11 +1,11 @@
 import os
 import pickle
-import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
+from vedo import Line, Mesh, Plotter, Text3D
 
 BASE_DIR = Path(__file__).resolve().parent
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
@@ -15,24 +15,19 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-DEFAULT_SAVE_PATH = BASE_DIR / "coil_config.pkl"
-
-from engines.gui.axis_angle_to_quat import axis_angle_to_quat
-from engines.gui.load_coil_from_func import load_coil_from_func
-from engines.gui.load_template import load_template
-from engines.gui.quat_multiply import quat_multiply
-from engines.gui.renderer import Renderer
 from engines.gui.transformer import transformer
+from engines.mesh.mesh_tricenter import mesh_tricenter
+from engines.mesh.mesh_normals import mesh_normals
 from engines.gui.vector_to_quat import vector_to_quat
 from engines.gui.xyz_to_quat import xyz_to_quat
-from engines.mesh.mesh_normals import mesh_normals
-from engines.mesh.mesh_tricenter import mesh_tricenter
-
+from engines.gui.load_coil_from_func import load_coil_from_func
+from engines.gui.quat_multiply import quat_multiply
+from engines.gui.axis_angle_to_quat import axis_angle_to_quat
+from engines.gui.load_template import load_template
+from engines.gui.renderer import Renderer
 """
 contains backend information for a coil manager including information for charge engine computations
 """
-
-
 class Backend:
     def __init__(self, head_models, ViewPort):
         self.renderer = Renderer(head_models, ViewPort)
@@ -157,23 +152,15 @@ class Backend:
         return
 
     #  prepare to pass coils
-    def save_coil_config(self, path=DEFAULT_SAVE_PATH):
+    def save_coil_config(self, save_path):
         coil_list = list(self.coils.values())
         for coil in coil_list:
             distance, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
             coil.intersection_point = self.centers[indices[0, 0]].copy()
             print(coil.intersection_point)
-        with open(path, "wb") as f:
+        with open(save_path, "wb") as f:
             pickle.dump(coil_list, f)
         return
-
-    def save_coil_config_and_run(self):
-        # TODO stub implementation
-        self.save_coil_config()
-        if os.name == "posix":
-            subprocess.Popen(["python3", "./tests/tms", str(DEFAULT_SAVE_PATH)])
-        else:
-            subprocess.Popen(["python", r".\tests\tms", str(DEFAULT_SAVE_PATH)])
 
     def auto_orient(self, id):
         coil = self.coils[id]
@@ -211,7 +198,7 @@ class Backend:
             self.renderer.edit_coil_actor(old_coil)
         self.renderer.render_plot()
         return
-
+    
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
         print(self.renderer.white_matter_placement_mode)
@@ -223,7 +210,7 @@ class Backend:
         distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
         idx = indices[0, 0]
         skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * distance
+        skin_point_vector = self.normals[idx].copy() * (distance + self.coils[id].bottom_to_com)
         final_point = skin_point + skin_point_vector
         print(final_point)
 
@@ -233,3 +220,5 @@ class Backend:
         self.renderer.show_world_axes(coil)
         self.renderer.render_plot()
         return
+        
+        

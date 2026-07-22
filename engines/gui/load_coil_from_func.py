@@ -41,6 +41,10 @@ def load_coil_from_func(type, window_cord):
     new_coil.t = mesh_data["t"]
     temp_cad = mesh_data["P"]
     cad_com = np.mean(temp_cad, axis=0)
+
+    bottom_z = np.min(temp_cad[:, 2])
+    new_coil.bottom_to_com = cad_com[2] - bottom_z
+    
     temp_cad = temp_cad - cad_com
     temp_wire = mesh_data["Pwire"]
     wire_com = np.mean(temp_wire, axis=0)
