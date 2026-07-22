@@ -23,7 +23,6 @@ for name in [
     "cerebellum",
     "csf",
     "gm",
-    "plot_skull",
     "skin",
     "ventricles",
     "wm",
