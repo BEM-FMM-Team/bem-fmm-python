@@ -3,8 +3,7 @@ from .inc_field_electric import inc_field_electric
 from .inc_field_electric_constant import inc_field_electric_constant
 from .inc_field_electric_plain import inc_field_electric_plain
 from .inc_field_electric_plain_dipoles import inc_field_electric_plain_dipoles
-from .inc_field_gauss_selective_dipoles import \
-    inc_field_gauss_selective_dipoles
+from .inc_field_gauss_selective_dipoles import inc_field_gauss_selective_dipoles
 from .potint import potint
 from .surface_field_electric_accurate import surface_field_electric_accurate
 from .surface_field_electric_plain import surface_field_electric_plain
