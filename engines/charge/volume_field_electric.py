@@ -2,7 +2,8 @@ import numpy as np
 from fmm3dpy import lfmm3d
 from scipy.spatial import cKDTree
 
-from .potint2 import potint2
+# pyrefly: ignore [missing-import]
+from neighbor_ints import potint2
 
 
 def volume_field_electric(
@@ -49,7 +50,17 @@ def volume_field_electric(
             r1 = P[t[m, 0], :]
             r2 = P[t[m, 1], :]
             r3 = P[t[m, 2], :]
-            I = potint2(r1, r2, r3, normals[m, :], Points[index, :])
+
+            I = potint2(
+                np.atleast_2d(r1).astype(np.float64),
+                np.atleast_2d(r2).astype(np.float64),
+                np.atleast_2d(r3).astype(np.float64),
+                np.atleast_2d(normals[m, :]).astype(np.float64),
+                np.atleast_2d(Points[index, :]).astype(np.float64),
+            )
+
+            # I = potint2(r1, r2, r3, normals[m, :], Points[index, :])
+
             E[index, :] = E[index, :] + (-c[m] * I)
 
     return E

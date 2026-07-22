@@ -459,38 +459,82 @@ class Ui_MainWindow(object):
     # setupUi
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"New Coils", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Type", None))
-        self.AddCoil.setText(QCoreApplication.translate("MainWindow", u"Add Coil", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"Custom", None))
-        self.AddCustomCoil.setText(QCoreApplication.translate("MainWindow", u"Add Custom Coil", None))
-        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
-        self.Edit.setText(QCoreApplication.translate("MainWindow", u"Edit", None))
-        self.Delete.setText(QCoreApplication.translate("MainWindow", u"Delete", None))
-        self.Undo.setText(QCoreApplication.translate("MainWindow", u"Undo", None))
-        self.Save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Head Model", None))
-        self.csf.setText(QCoreApplication.translate("MainWindow", u"csf", None))
-        self.Bone.setText(QCoreApplication.translate("MainWindow", u"Bone", None))
-        self.Cerebellum.setText(QCoreApplication.translate("MainWindow", u"Cerebellum", None))
-        self.gm.setText(QCoreApplication.translate("MainWindow", u"gm", None))
-        self.Skin.setText(QCoreApplication.translate("MainWindow", u"Skin", None))
-        self.Ventricles.setText(QCoreApplication.translate("MainWindow", u"Ventricles", None))
-        self.wm.setText(QCoreApplication.translate("MainWindow", u"wm", None))
-        self.ApplyHeadModel.setText(QCoreApplication.translate("MainWindow", u"Apply", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"X Position (mm)", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Y Position (mm)", None))
-        self.label_16.setText(QCoreApplication.translate("MainWindow", u"Z Position (mm)", None))
-        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Rotation Around X (degrees)", None))
-        self.label_12.setText(QCoreApplication.translate("MainWindow", u"Rotation Around Y (degrees)", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Rotation Around Z (degrees)", None))
-        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Twist (degrees)", None))
-        self.label_14.setText(QCoreApplication.translate("MainWindow", u"dIdt (Amp/ns)", None))
-        self.AutoOrientButton.setText(QCoreApplication.translate("MainWindow", u"Auto Orient", None))
-        self.WhiteMatterButton.setText(QCoreApplication.translate("MainWindow", u"Place With White Matter", None))
-        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Distance From Skin (mm)", None))
-        self.OKEdit.setText(QCoreApplication.translate("MainWindow", u"OK", None))
-        self.CancelEdit.setText(QCoreApplication.translate("MainWindow", u"Cancel", None))
+        MainWindow.setWindowTitle(
+            QCoreApplication.translate("MainWindow", "MainWindow", None)
+        )
+        self.groupBox_3.setTitle(
+            QCoreApplication.translate("MainWindow", "New Coils", None)
+        )
+        self.label_4.setText(QCoreApplication.translate("MainWindow", "Type", None))
+        self.AddCoil.setText(QCoreApplication.translate("MainWindow", "Add Coil", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", "Custom", None))
+        self.AddCustomCoil.setText(
+            QCoreApplication.translate("MainWindow", "Add Custom Coil", None)
+        )
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", "Edit", None))
+        self.Edit.setText(QCoreApplication.translate("MainWindow", "Edit", None))
+        self.Delete.setText(QCoreApplication.translate("MainWindow", "Delete", None))
+        self.Undo.setText(QCoreApplication.translate("MainWindow", "Undo", None))
+        self.Save.setText(QCoreApplication.translate("MainWindow", "Save", None))
+        self.groupBox.setTitle(
+            QCoreApplication.translate("MainWindow", "Head Model", None)
+        )
+        self.csf.setText(QCoreApplication.translate("MainWindow", "csf", None))
+        self.Bone.setText(QCoreApplication.translate("MainWindow", "Bone", None))
+        self.Cerebellum.setText(
+            QCoreApplication.translate("MainWindow", "Cerebellum", None)
+        )
+        self.gm.setText(QCoreApplication.translate("MainWindow", "gm", None))
+        self.Skin.setText(QCoreApplication.translate("MainWindow", "Skin", None))
+        self.Ventricles.setText(
+            QCoreApplication.translate("MainWindow", "Ventricles", None)
+        )
+        self.wm.setText(QCoreApplication.translate("MainWindow", "wm", None))
+        self.ApplyHeadModel.setText(
+            QCoreApplication.translate("MainWindow", "Apply", None)
+        )
+        self.label_2.setText(
+            QCoreApplication.translate("MainWindow", "X Position (mm)", None)
+        )
+        self.label_10.setText(
+            QCoreApplication.translate("MainWindow", "Y Position (mm)", None)
+        )
+        self.label_16.setText(
+            QCoreApplication.translate("MainWindow", "Z Position (mm)", None)
+        )
+        self.label_11.setText(
+            QCoreApplication.translate(
+                "MainWindow", "Rotation Around X (degrees)", None
+            )
+        )
+        self.label_12.setText(
+            QCoreApplication.translate(
+                "MainWindow", "Rotation Around Y (degrees)", None
+            )
+        )
+        self.label_13.setText(
+            QCoreApplication.translate(
+                "MainWindow", "Rotation Around Z (degrees)", None
+            )
+        )
+        self.label_15.setText(
+            QCoreApplication.translate("MainWindow", "Twist (degrees)", None)
+        )
+        self.label_14.setText(
+            QCoreApplication.translate("MainWindow", "dIdt (Amp/ns)", None)
+        )
+        self.AutoOrientButton.setText(
+            QCoreApplication.translate("MainWindow", "Auto Orient", None)
+        )
+        self.WhiteMatterButton.setText(
+            QCoreApplication.translate("MainWindow", "Place With White Matter", None)
+        )
+        self.label_3.setText(
+            QCoreApplication.translate("MainWindow", "Distance From Skin (mm)", None)
+        )
+        self.OKEdit.setText(QCoreApplication.translate("MainWindow", "OK", None))
+        self.CancelEdit.setText(
+            QCoreApplication.translate("MainWindow", "Cancel", None)
+        )
 
     # retranslateUi

@@ -101,7 +101,7 @@ def load_model():
     )
 
 
-def neighbour_ints(
+def neighbor_ints(
     P: Mx3,
     t: Nx3i,
     normals: Nx3,
@@ -212,7 +212,7 @@ def charge_engine(
     area: Nx1,
     center: Nx3,
     contrast: Nx1,
-    # neighbour info
+    # neighbor info
     EC: csr_matrix,
     # coil info
     b: np.ndarray,
@@ -279,7 +279,7 @@ def main():
     distances, ineighborE = knn.kneighbors(center)
 
     start = perf_counter()
-    EC = neighbour_ints(
+    EC = neighbor_ints(
         P=P,
         t=t,
         normals=normals,

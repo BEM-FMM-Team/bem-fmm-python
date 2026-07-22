@@ -19,8 +19,10 @@ extensions = [
     Extension(
         name="neighbor_ints",
         sources=[
-            "_neighbor_ints/neighbor_ints_Enpyx.pyx",
+            "_neighbor_ints/lib_all.pyx",
             "_neighbor_ints/neighbor_ints_En.c",
+            "_neighbor_ints/potint.c",
+            "_neighbor_ints/potint2.c",
         ],
         include_dirs=[
             np.get_include(),

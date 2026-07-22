@@ -71,7 +71,7 @@ FullCoil = tuple[
     StrCoil,
     Mx3,
     Nx3i,
-    Annotated[np.ndarray, "Translation np.zeros(3)"],
+    Annotated[np.ndarray, "Intersection coords for slice plotting np.zeros(3)"],
 ]
 
 CoilArray = list[FullCoil] | np.ndarray[[int], np.dtype[FullCoil]]

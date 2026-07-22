@@ -1,6 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
-from PySide6.QtWidgets import QDialog, QFormLayout, QSpinBox, QDoubleSpinBox, QPushButton
+from PySide6.QtWidgets import (
+    QDialog,
+    QFormLayout,
+    QSpinBox,
+    QDoubleSpinBox,
+    QPushButton,
+)
 
 
 def coil_load_gui(coil_type, window_cord=None):
@@ -89,13 +95,12 @@ def coil_load_gui(coil_type, window_cord=None):
     if window_cord:
         dialog.move(window_cord[0], window_cord[1])
     layout = QFormLayout(dialog)
+
     def submit():
         nonlocal result
-        result = {
-            name: widget.value()
-            for name, widget in entries.items()
-        }
+        result = {name: widget.value() for name, widget in entries.items()}
         dialog.accept()
+
     for name, info in params.items():
         default = info["default"]
         param_type = info["type"]

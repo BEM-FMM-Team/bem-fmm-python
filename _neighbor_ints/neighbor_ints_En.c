@@ -5,7 +5,7 @@
  * of the solid angle as described in Van Oosterom & Strackee 1983 *
  * Guillermo Nunez Ponasso (2026)                                  *
  *******************************************************************/
-#include "neighbor_ints_En.h"
+#include "lib_all.h"
 
 #include <math.h>
 #include <omp.h>
@@ -317,33 +317,6 @@ static const double weights48[48] = {
     0.0001721725358799805, 0.0003625473160152824, 0.0004702300737635471,
     0.0004702300737635471, 0.0003625473160152824, 0.0001721725358799805};
 
-// dot product of two 3D vectors
-static double dot(double u1, double u2, double u3, double v1, double v2,
-                  double v3) {
-  return u1 * v1 + u2 * v2 + u3 * v3;
-}
-
-// norm of a 3D vector
-static double norm(double u1, double u2, double u3) {
-  return sqrt(dot(u1, u2, u3, u1, u2, u3));
-}
-static double dist(double u1, double u2, double u3, double v1, double v2,
-                   double v3) {
-  return norm(u1 - v1, u2 - v2, u3 - v3);
-}
-
-// Compute the triple product of three 3D vectors
-static double triple_product(double u1, double u2, double u3, double v1,
-                             double v2, double v3, double w1, double w2,
-                             double w3) {
-  double a, b, c;
-  a = v2 * w3 - v3 * w2;
-  b = u2 * w3 - u3 * w2;
-  c = u2 * v3 - u3 * v2;
-
-  return u1 * a - v1 * b + w1 * c;
-}
-
 // solid angle subtended by triangle of vertices u,v,w from observation point t
 static double solid_angle(double u1, double u2, double u3, double v1, double v2,
                           double v3, double w1, double w2, double w3, double t1,
@@ -378,10 +351,10 @@ static double solid_angle(double u1, double u2, double u3, double v1, double v2,
   return 2.0 * atan2(N, D);
 }
 
-void cythonFunction(const double *P, const size_t *t, const double *normal,
-                    const double *center, const size_t *neighbor,
-                    const double *area, size_t N, size_t T, size_t M, int gauss,
-                    double *IE, double *IC) {
+void c_neighbor_ints_En(const double *P, const size_t *t, const double *normal,
+                        const double *center, const size_t *neighbor,
+                        const double *area, size_t N, size_t T, size_t M,
+                        int gauss, double *IE, double *IC) {
   // === retrieve the gaussian cubature points ===
   const double *coeff, *weight;
   int *indexF;

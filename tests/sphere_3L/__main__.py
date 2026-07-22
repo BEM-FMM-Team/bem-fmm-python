@@ -22,12 +22,12 @@ from engines.charge import (
 )
 from engines.constants import eps0
 from engines.fgmres import fgmres
-from engines.lib import timeit
+from engines.lib import cache, timeit
 from engines.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
 from engines.plot import plot_residual, plot_worker
 
 
-@timeit
+@cache
 def charge_engine(
     center: np.ndarray,
     area,
