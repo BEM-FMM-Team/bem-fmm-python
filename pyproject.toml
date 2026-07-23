@@ -22,9 +22,6 @@ authors = [
 ]
 # license = { text = "proprietary" }
 
-# [project.scripts]
-# plot = "tests:plot"
-
 dependencies = [
     "numpy==2.4.4",
     "vedo==2026.6.1",
@@ -33,9 +30,6 @@ dependencies = [
     "joblib==1.5.3",
     "numba==0.65.1",
     "scikit-learn==1.9.0",
-    "pyamg==5.3.0",
-    "PyQt6==6.11.0",
-    "PyQt6Ads==4.5.0",
     "PySide6==6.11.1",
     "pyyaml==6.0.3",
     #
@@ -58,3 +52,10 @@ include = ["engines*"]
 testpaths = ["tests"]
 python_files = ["test_*.py"] # TODO have actual unit tests
 python_functions = ["test_*"]
+
+# TODO for future ref after repo restructure
+[project.scripts]
+bemfmm_gui = "apps.gui:main"
+bemfmm_tms = "apps.tms:main"
+bemfmm_plot = "apps.plot:main"
+bemfmm_sphere = "apps.sphere_3L:main"

@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from PySide6.QtWidgets import QFileDialog, QMainWindow
+from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
 from engines.gui.gui_backend import Backend
 from engines.gui.quat_to_xyz import quat_to_xyz
@@ -260,20 +260,44 @@ class Frontend(QMainWindow):
         self.refresh_list_box()
 
     def save_coil_config_dialog(self):
+        if len(self.backend.coils) == 0:
+            QMessageBox.information(
+                self.ui.MainGUI, "Missing Coil(s)", "Create at least one coil"
+            )
+            return None
+
         path, _ = QFileDialog.getSaveFileName(
             self, "Save Coil Configuration", "", "Pickle Files (*.pkl)"
         )
 
         if path:
             self.backend.save_coil_config(path)
+        else:
+            QMessageBox.warning(
+                self.ui.MainGUI, "Failed To save", f"Failed to save to path '{path}'"
+            )
 
         return path
 
     def save_coil_config_dialog_and_run_tms(self):
-        path = Path(self.save_coil_config_dialog())
-        if not path.is_file():
-            print("Failed to save file")
+        s_path = self.save_coil_config_dialog()
+        if s_path is None:
             return
+
+        path = Path(s_path)
+        if not path.is_file():
+            QMessageBox.warning(
+                self.ui.MainGUI, "Running TMS Fail" "Failed to save file"
+            )
+            return
+
+        QMessageBox.information(
+            self.ui.MainGUI,
+            self,
+            "Running TMS",
+            "Check the console used to init the Coil Placer",
+        )
+
         subprocess.run([sys.executable, "./tests/tms", str(path)])
 
     # helpers

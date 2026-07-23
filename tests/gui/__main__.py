@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-import numpy as np
 from vedo import Mesh
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -12,45 +11,51 @@ sys.path.insert(0, str(root_dir))
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-from engines.gui.gui_frontend_new import Frontend
-
 from PySide6.QtWidgets import QApplication
 
-head_models = {}
+from engines.gui.gui_frontend_new import Frontend
 
-for name in [
-    "bone",
-    "cerebellum",
-    "csf",
-    "gm",
-    "skin",
-    "ventricles",
-    "wm",
-]:
-    path = ASSETS / f"{name}.stl"
 
-    mesh = Mesh(str(path))
-    mesh.vertices *= 1e-3
+def main():
+    head_models = {}
 
-    head_models[name] = mesh
+    for name in [
+        "bone",
+        "cerebellum",
+        "csf",
+        "gm",
+        "skin",
+        "ventricles",
+        "wm",
+    ]:
+        path = ASSETS / f"{name}.stl"
 
-app = QApplication(sys.argv)
+        mesh = Mesh(str(path))
+        mesh.vertices *= 1e-3
 
-frontend = Frontend(
-    head_models,
-    [
-        "ring",
-        "figure_eight",
-        "figure_eightX",
-        "MagVenture_Cool_B35",
-        "MagVenture_C_B60",
-        "MagVenture_Cool40_Rat",
-        "MagVenture_D_B80",
-        "MagVenture_MRiB91",
-        "MagVenture_TMSMEG",
-    ],
-)
+        head_models[name] = mesh
 
-frontend.show()
+    app = QApplication(sys.argv)
 
-app.exec()
+    frontend = Frontend(
+        head_models,
+        [
+            "ring",
+            "figure_eight",
+            "figure_eightX",
+            "MagVenture_Cool_B35",
+            "MagVenture_C_B60",
+            "MagVenture_Cool40_Rat",
+            "MagVenture_D_B80",
+            "MagVenture_MRiB91",
+            "MagVenture_TMSMEG",
+        ],
+    )
+
+    frontend.show()
+
+    app.exec()
+
+
+if __name__ == "__main__":
+    main()

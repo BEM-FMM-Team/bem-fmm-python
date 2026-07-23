@@ -146,7 +146,7 @@ def load_model():
     )
 
 
-if __name__ == "__main__":
+def main():
     # Load model
     (
         P,
@@ -201,3 +201,7 @@ if __name__ == "__main__":
     )
 
     _p.show()
+
+
+if __name__ == "__main__":
+    main()

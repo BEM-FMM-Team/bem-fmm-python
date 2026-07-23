@@ -1,16 +1,11 @@
 """
 Provides a wrapper for fgmres to make the code cleaner
-
-It also sometimes makes sense to debug iteration loops so comment out the pygamg_fgmres call and replace it with dbg_fgmres when doing so
-
-For production, use pyamg will be faster
 """
 
 import time
 from typing import Callable
 
 import numpy as np
-from scipy.sparse.linalg import LinearOperator
 
 
 def fgmres(
@@ -22,6 +17,7 @@ def fgmres(
     maxiter: int,
     x0: np.ndarray | None = None,
 ):
+    _ = n
     return dbg_fgmres(
         A=MATVEC,
         b=b,
@@ -30,60 +26,6 @@ def fgmres(
         max_iters=maxiter,
         x0=x0,
     )
-    # return pyamg_fgmres( # TODO emiited resvec is wrong
-    #     MATVEC=MATVEC,
-    #     b=b,
-    #     n=n,
-    #     relres=relres,
-    #     iterations=iter,
-    #     maxiter=maxiter,
-    #     x0=x0,
-    # )
-
-
-def pyamg_fgmres(
-    MATVEC: Callable[[float], float],
-    b: np.ndarray,
-    x0: np.ndarray,
-    n: int,
-    relres: float,
-    iterations: int,
-    maxiter: int,
-):
-    A = LinearOperator((n, n), MATVEC)
-
-    resvec: list[float] = []
-    t0 = time.perf_counter()
-    b_norm = np.linalg.norm(b)
-
-    def callback(xk):
-        r = b - A @ xk
-        locres = np.linalg.norm(r)
-        relres = locres / b_norm
-
-        elapsed = time.perf_counter() - t0
-        it = len(resvec) - 1
-
-        print(
-            f"iter={it:2d}, "
-            f"relres={relres:.3e}, "
-            f"locres={locres:.3e}, "
-            f"time={elapsed:.1f}"
-        )
-
-    from pyamg.krylov import fgmres
-
-    x, exitCode = fgmres(
-        A,
-        b,
-        x0=x0,
-        tol=relres,
-        restart=iterations,
-        maxiter=maxiter,
-        callback=callback,
-        residuals=resvec,
-    )
-    return x, iterations, resvec
 
 
 def dbg_fgmres(
