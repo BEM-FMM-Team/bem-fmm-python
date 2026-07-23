@@ -8,8 +8,8 @@ from ..my_types import EfieldSlice
 def plot_efield_slice(
     result: EfieldSlice,
     tissue_list: list | None = None,
-    levels: int = 100,
-    unit_convert: float = 1e-3,
+    levels: int = 200,
+    unit_convert: float = 1,
 ) -> tuple[plt.Figure, plt.Axes]:
     cfg = result.cfg
 

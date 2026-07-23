@@ -50,10 +50,7 @@ from engines.plot import plot_fields, plot_residual, plot_slices
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
-model_unit_scalar = 1e-3
-
-
-@cache
+# @cache
 def load_model():
     index_name = ASSETS / "tissue_index.yaml"
 
@@ -65,13 +62,16 @@ def load_model():
     tcell: list[np.ndarray] = []
     condinner: list[float] = []
     condouter: list[float] = []
+
+    model_unit_scalar = 1e-3 # mesh defaults to [mm], set to [m]
+
     for k, v in shells.items():
         path = ASSETS / f"{k}.stl"
         if not path.is_file():
             raise RuntimeError(f"Failed to find file {path}")
 
         mesh = vedo.Mesh(path)
-        Pcell.append(mesh.vertices * model_unit_scalar)  # TODO units
+        Pcell.append(mesh.vertices * model_unit_scalar)
         tcell.append(np.array(mesh.cells))
         condinner.append(v[0])
         condouter.append(shells[v[1]][0] if v[1] != "FreeSpace" else 0.0)
@@ -80,6 +80,11 @@ def load_model():
     P, t, normals, condin, condout, interface = mesh_combine_simple(
         Pcell, tcell, condinner, condouter
     )
+
+    # Convert from [m] to [mm]
+    unit_convert = 1e3
+    P = P * unit_convert
+
     area = mesh_areas(P, t)
     center = mesh_tricenter(P, t)
 
@@ -98,6 +103,7 @@ def load_model():
         condout,
         interface,
         shells,
+        unit_convert
     )
 
 
@@ -270,6 +276,7 @@ def main():
         condout,
         interface,
         shells,
+        unit_convert
     ) = load_model()
 
     RnumberE = 4
@@ -311,6 +318,12 @@ def main():
         Coilt,
         Translation,
     ) in coils:  # maybe njit
+
+        # Convert coil to [mm]
+        CoilP = CoilP * unit_convert
+        strcoil.Pwire = strcoil.Pwire * unit_convert
+        pointsline = pointsline * unit_convert
+
         # RHS
         EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
         Einc: Nx3 = 1 / 3 * (EincP[t[:, 0], :] + EincP[t[:, 1], :] + EincP[t[:, 2], :])
@@ -359,8 +372,8 @@ def main():
     diff = np.linalg.norm(((Jn_in - Jn_out) * area))
     print(
         f"""Current conservation law:
-Norm difference of inner and outer current density: {diff:.3e}"""
-    )
+            Norm difference of inner and outer current density: {diff:.3e}"""
+        )
 
     tissue_list = list(shells.keys())
     tissue_to_plot = "wm"
@@ -371,6 +384,14 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     # Total field
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
+
+    # # DEBUG
+    # print("Efield magnitude: ",max(Emag),min(Emag))
+    # print("Potential magnitude: ",max(Ptot),min(Ptot))
+    # print("Normal Efield magnitude: ",max(En),min(En))
+    # print("Normal Current density magnitude: ",max(Jn_in),min(Jn_in))
+    # print("Charge density magnitude: ",max(c),min(c))
+    
 
     # # save data
     # save_fmt = "mat"
@@ -389,21 +410,21 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     # print(c)
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
 
-    plot_fields(
-        P,
-        plot_t,
-        plot_t_idx,
-        c,
-        CoilP,
-        Coilt,
-        Ptot,
-        En,
-        Emag,
-        Jn_in,
-        pointsline[0],
-        pointsline[1],
-        xyz,
-    )
+    # plot_fields(
+    #     P,
+    #     plot_t,
+    #     plot_t_idx,
+    #     c,
+    #     CoilP,
+    #     Coilt,
+    #     Ptot,
+    #     En,
+    #     Emag,
+    #     Jn_in,
+    #     pointsline[0],
+    #     pointsline[1],
+    #     xyz,
+    # )
 
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
     plot_slices(

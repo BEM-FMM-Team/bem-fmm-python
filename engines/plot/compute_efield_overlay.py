@@ -67,11 +67,11 @@ def compute_efield_overlay(
     c: np.ndarray,
     plane: Literal["XY"] | Literal["XZ"] | Literal["YZ"],
     val: float,
-    th1: float = 120,
+    th1: float = 1,
     th2: float = 0,
     Ms: int = 200,
     prec: float = 1e-4,
-    R: int = 4,
+    R: int = 8,
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
 ) -> EfieldSlice:
@@ -121,7 +121,14 @@ def compute_efield_overlay(
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
 
-    E_plot = E_mag.copy()
+    E_plot = E_mag.copy()  
+
+    # # Automatic scales (should probably set another way, is fine for now)
+    # # I cant remember how we did this before...
+    # th1 = np.nanmax(E_plot[mask])
+    # th2 = np.nanmin(E_plot[mask])
+    # print(th1, th2)
+
     E_plot[~mask] = np.nan
     templ, th1l, th2l, scale = _log_modulus(E_plot[mask], th1, th2)
     E_lm = np.full(Ms**2, np.nan)

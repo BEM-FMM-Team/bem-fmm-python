@@ -4,6 +4,7 @@ from scipy.spatial import cKDTree
 
 # pyrefly: ignore [missing-import]
 from neighbor_ints import potint2
+# from .potint2 import potint2
 
 
 def volume_field_electric(
