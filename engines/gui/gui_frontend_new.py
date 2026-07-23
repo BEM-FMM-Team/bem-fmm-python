@@ -1,5 +1,5 @@
-import os
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -274,10 +274,7 @@ class Frontend(QMainWindow):
         if not path.is_file():
             print("Failed to save file")
             return
-        if os.name == "posix":
-            subprocess.Popen(["python3", "./tests/tms", str(path)])
-        else:
-            subprocess.Popen(["python", r".\tests\tms", str(path)])
+        subprocess.run([sys.executable, "./tests/tms", str(path)])
 
     # helpers
     def refresh_coil_editor(self):
