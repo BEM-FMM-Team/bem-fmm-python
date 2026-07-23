@@ -277,7 +277,7 @@ class Frontend(QMainWindow):
         if os.name == "posix":
             subprocess.Popen(["python3", "./tests/tms", str(path)])
         else:
-            subprocess.Popen(["python", r".\tests\tms", str(DEFAULT_SAVE_PATH)])
+            subprocess.Popen(["python", r".\tests\tms", str(path)])
 
     # helpers
     def refresh_coil_editor(self):
