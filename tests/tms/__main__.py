@@ -217,8 +217,8 @@ def charge_engine(
     # coil info
     b: np.ndarray,
 ):
-    iter = 30
-    relres = 1e-6
+    iter = 20 # for best results, set to 50
+    relres = 1e-4 # for best results, set to 1e-6
     weight = 0.5
 
     MATVEC = lambda c: surface_field_lhs(
@@ -372,8 +372,8 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
 
-    # save
-    save_fmt = "mat"
+    # # save data
+    # save_fmt = "mat"
 
     # match save_fmt:
     #     case "npz":
