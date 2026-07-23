@@ -5,6 +5,8 @@ import numpy as np
 import vedo
 from matplotlib.colors import LinearSegmentedColormap
 
+from engines.my_types import FullCoil
+
 
 def plot_worker(P, plot_t, p):
     _p = patch(
@@ -21,23 +23,36 @@ def plot_coil_worker(
     P,
     plot_t,
     p,
-    CoilP,
-    Coilt,
-    obs_start,
-    obs_end,
-    xyz,
+    coils: list[FullCoil],
 ):
-    coil_mesh = vedo.Mesh([CoilP, Coilt])
-    obs_line = vedo.Line(obs_start, obs_end).lw(3).color("red")
-    patch(
+    # TODO in the future this may need to be redone for performance reasons
+    # we are giving it its own process though
+    mesh = vedo.Mesh([P, plot_t])
+    plt = patch(
         vertices=P,
         faces=plot_t,
         title=p[0],
         cmap_label=p[1],
         cdata=p[2],
         config=_PATCH_CONFIGS[p[3]],
-        planes=xyz,
-    ).add(coil_mesh).add(obs_line).show()
+        planes=list(map(lambda c: mesh.intersect_with_line(*c[0])[0], coils)),
+    )
+
+    for (
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
+        Translation,
+    ) in coils:
+        coil_mesh = vedo.Mesh([CoilP, Coilt])
+        obs_line = vedo.Line(*pointsline).lw(3).color("red")
+        plt.add(coil_mesh)
+        plt.add(obs_line)
+
+    plt.show()
 
 
 def plot_single_coil_worker(
@@ -105,7 +120,7 @@ def patch(
     axes: dict | None = None,
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
-    planes: np.array = None,
+    planes: list[np.array] = None,
     planes_size: float = 0.05,
 ) -> vedo.Mesh:
     """
@@ -151,23 +166,24 @@ def patch(
     plt.add(vedo.Text2D(title, pos="top-center", s=title_size, font=title_font))
 
     if planes is not None:
-        plane_yz = vedo.Plane(
-            pos=planes, normal=(1, 0, 0), s=(planes_size, planes_size)
-        )
-        plane_yz.color(bg).alpha(0.3)
-        plt.add(plane_yz)
+        for plane in planes:
+            plane_yz = vedo.Plane(
+                pos=plane, normal=(1, 0, 0), s=(planes_size, planes_size)
+            )
+            plane_yz.color(bg).alpha(0.3)
+            plt.add(plane_yz)
 
-        plane_xz = vedo.Plane(
-            pos=planes, normal=(0, 1, 0), s=(planes_size, planes_size)
-        )
-        plane_xz.color(bg).alpha(0.3)
-        plt.add(plane_xz)
+            plane_xz = vedo.Plane(
+                pos=plane, normal=(0, 1, 0), s=(planes_size, planes_size)
+            )
+            plane_xz.color(bg).alpha(0.3)
+            plt.add(plane_xz)
 
-        plane_xy = vedo.Plane(
-            pos=planes, normal=(0, 0, 1), s=(planes_size, planes_size)
-        )
-        plane_xy.color(bg).alpha(0.3)
-        plt.add(plane_xy)
+            plane_xy = vedo.Plane(
+                pos=plane, normal=(0, 0, 1), s=(planes_size, planes_size)
+            )
+            plane_xy.color(bg).alpha(0.3)
+            plt.add(plane_xy)
 
     plt.add(mesh)
     plt.azimuth(viewax[0])

@@ -6,15 +6,11 @@ def plot_fields(
     plot_t,
     plot_t_idx,
     c,
-    CoilP,
-    Coilt,
+    coils,
     Ptot,
     En,
     Emag,
     Jn_in,
-    obs_start,
-    obs_end,
-    xyz,
 ):
     ## 5. Plot Fields
     # Compute and plot the fields of interest on desired tissue.
@@ -38,11 +34,7 @@ def plot_fields(
                 P,
                 plot_t,
                 p,
-                CoilP,
-                Coilt,
-                obs_start,
-                obs_end,
-                xyz,
+                coils,
             ),
         )
         for p in plots

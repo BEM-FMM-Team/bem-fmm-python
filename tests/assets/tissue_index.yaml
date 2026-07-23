@@ -1,8 +1,7 @@
 # This is yaml, a really simple file format: https://learnxinyminutes.com/yaml/
 
-# TissueName : [ condin , "TissueOutside", "file path relative to assets directory" ]
+# TissueName : [ condin , "TissueOutside", "file path relative to the directory this file lives in" ]
 # TissueOutside must match a TissueName execept FreeSpace with condin of 0.0
-
 
 skin      : [0.4650, "FreeSpace", "skin.stl"]
 bone      : [0.010,  "skin",      "bone.stl"]

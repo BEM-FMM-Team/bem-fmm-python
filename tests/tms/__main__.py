@@ -29,24 +29,15 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from engines.charge import (inc_field_electric, surface_field_electric_plain,
+                            surface_field_lhs)
 from engines.fgmres import fgmres
 from engines.gui.pickle_loader import pickle_loader
 from engines.lib import cache
-from engines.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                          mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_fields, plot_residual, plot_slices
-
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
@@ -387,22 +378,17 @@ Norm difference of inner and outer current density: {diff:.3e}"""
     #         scipy.io.savemat(OUTPUT / "Ptot.mat", Ptot)
     #         scipy.io.savemat(OUTPUT / "En.mat", En)
     # print(c)
-    xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
 
     plot_fields(
         P,
         plot_t,
         plot_t_idx,
         c,
-        CoilP,
-        Coilt,
+        coils,
         Ptot,
         En,
         Emag,
         Jn_in,
-        pointsline[0],
-        pointsline[1],
-        xyz,
     )
 
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
