@@ -1,11 +1,13 @@
+import os
+import subprocess
+from pathlib import Path
+
 import numpy as np
+from PySide6.QtWidgets import QFileDialog, QMainWindow
 
-from engines.gui.quat_to_xyz import quat_to_xyz
 from engines.gui.gui_backend import Backend
-
-from PySide6.QtWidgets import QMainWindow, QFileDialog
+from engines.gui.quat_to_xyz import quat_to_xyz
 from engines.gui.ui_main_window import Ui_MainWindow
-
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
@@ -61,6 +63,7 @@ class Frontend(QMainWindow):
         self.ui.Edit.clicked.connect(self.edit_selected_coil)
         self.ui.Undo.clicked.connect(self.undo)
         self.ui.Save.clicked.connect(self.save_coil_config_dialog)
+        self.ui.SaveRun.clicked.connect(self.save_coil_config_dialog_and_run_tms)
 
         models = [
             "bone",
@@ -263,6 +266,18 @@ class Frontend(QMainWindow):
 
         if path:
             self.backend.save_coil_config(path)
+
+        return path
+
+    def save_coil_config_dialog_and_run_tms(self):
+        path = Path(self.save_coil_config_dialog())
+        if not path.is_file():
+            print("Failed to save file")
+            return
+        if os.name == "posix":
+            subprocess.Popen(["python3", "./tests/tms", str(path)])
+        else:
+            subprocess.Popen(["python", r".\tests\tms", str(DEFAULT_SAVE_PATH)])
 
     # helpers
     def refresh_coil_editor(self):

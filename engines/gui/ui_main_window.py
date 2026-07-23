@@ -169,6 +169,11 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_9.addWidget(self.Save)
 
+        self.SaveRun = QPushButton(self.groupBox_2)
+        self.SaveRun.setObjectName("SaveRun")
+
+        self.verticalLayout_9.addWidget(self.SaveRun)
+
         self.verticalLayout_4.addWidget(self.groupBox_2)
 
         self.groupBox = QGroupBox(self.MainGUI)
@@ -517,6 +522,9 @@ class Ui_MainWindow(object):
         self.Delete.setText(QCoreApplication.translate("MainWindow", "Delete", None))
         self.Undo.setText(QCoreApplication.translate("MainWindow", "Undo", None))
         self.Save.setText(QCoreApplication.translate("MainWindow", "Save", None))
+        self.SaveRun.setText(
+            QCoreApplication.translate("MainWindow", "Save And Run TMS", None)
+        )
         self.groupBox.setTitle(
             QCoreApplication.translate("MainWindow", "Head Model", None)
         )
