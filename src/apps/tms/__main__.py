@@ -425,7 +425,7 @@ def main():
 
     # TODO query on the first point
     if coils.slice_plane is None:
-        pointsline = coils[0][0] * unit_convert
+        pointsline = coils.array[0][0] * unit_convert
         i = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)
         if len(i) > 0:
             xyz = i[0]
@@ -434,15 +434,17 @@ def main():
     else:
         xyz = coils.slice_plane  # * unit_convert NOTE may have to unitconvert
     plot_slices(
-        P,
-        t,
-        center,
-        area,
-        normals,
-        c,
-        interface,
-        tissue_list,
-        xyz,
+        P=P,
+        t=t,
+        center=center,
+        area=area,
+        normals=normals,
+        c=c,
+        interface=interface,
+        tissue_list=tissue_list,
+        xyz=xyz,
+        coils=coils,
+        unit_convert=unit_convert,
     )
 
 

@@ -6,6 +6,7 @@ from typing import Literal
 import matplotlib.pyplot as plt
 import numpy as np
 
+from bemfmm.charge.inc_field_electric import inc_field_electric
 from bemfmm.my_types import EfieldSlice
 
 _PLANE_CONFIG = {
@@ -40,18 +41,20 @@ _PLANE_CONFIG = {
 
 
 def compute_efield_overlay_worker(
-    P, t, centers, areas, normals, c, plane, val, interface, tissue_list
+    P, t, centers, area, normals, c, plane, val, interface, tissue_list, coils, unit_convert
 ):
     result = compute_efield_overlay(
         P=P,
         t=t,
         centers=centers,
-        areas=areas,
+        area=area,
         normals=normals,
         c=c,
         plane=plane,
         val=val,
         interface=interface,
+        coils = coils,
+        unit_convert = unit_convert
     )
     from bemfmm.plot import plot_efield_slice
 
@@ -62,7 +65,7 @@ def compute_efield_overlay(
     P: np.ndarray,
     t: np.ndarray,
     centers: np.ndarray,
-    areas: np.ndarray,
+    area: np.ndarray,
     normals: np.ndarray,
     c: np.ndarray,
     plane: Literal["XY"] | Literal["XZ"] | Literal["YZ"],
@@ -74,6 +77,8 @@ def compute_efield_overlay(
     R: int = 8,
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
+    coils=[],
+    unit_convert = 1e3,
 ) -> EfieldSlice:
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
@@ -103,9 +108,28 @@ def compute_efield_overlay(
     planeABCD = np.array([*cfg["plane_normal"], -val])
 
     t0 = time.perf_counter()
-    Etotal = volume_field_electric(
-        points_obs, c, P, t, centers, areas, normals, R, prec, planeABCD
+    Esec = volume_field_electric(
+        points_obs, c, P, t, centers, area, normals, R, prec, planeABCD
     )
+
+    # Calculate the primary field for every coil
+    Einc = np.zeros_like(Esec)
+    for (
+        pointsline,
+        dIdt,
+        I0,
+        strcoil,
+        CoilP,
+        Coilt,
+        Translation,
+    ) in coils.array:
+        strcoil.Pwire = strcoil.Pwire * unit_convert
+
+        # RHS
+        Einc = Einc + inc_field_electric(strcoil, P, dIdt, prec=1e-1)
+
+    Etotal = Esec + Einc
+
     E_mag = np.linalg.norm(Etotal, axis=1)
     print(f"E-field computation: {time.perf_counter() - t0:.3f}s")
 
@@ -120,6 +144,7 @@ def compute_efield_overlay(
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
+    mask[~mask] = True  # set all to true TEST
 
     E_plot = E_mag.copy()
 

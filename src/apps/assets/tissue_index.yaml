@@ -5,8 +5,9 @@
 
 unit_convert: 1e3
 
+# All conductivities in [S/m]
 shells:
-  skin      : [0.4650, "FreeSpace", "skin.stl"]
+  skin      : [0.4650, "FreeSpace", "skin.stl"] #
   bone      : [0.010,  "skin",      "bone.stl"]
   csf       : [1.654,  "bone",      "csf.stl"]
   gm        : [0.2750, "csf",       "gm.stl"]

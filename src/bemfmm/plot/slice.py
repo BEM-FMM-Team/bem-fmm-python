@@ -80,13 +80,15 @@ def plot_efield_slice(
 def plot_slices(
     P,
     t,
-    Center,
-    Area,
+    center,
+    area,
     normals,
     c,
     interface,
     tissue_list,
     xyz,
+    coils,
+    unit_convert,
 ):
     X = xyz[0]
     Y = xyz[1]
@@ -95,11 +97,11 @@ def plot_slices(
     from .compute_efield_overlay import compute_efield_overlay_worker
 
     compute_efield_overlay_worker(
-        P, t, Center, Area, normals, c, "XY", Z, interface, tissue_list
+        P=P, t=t, centers=center, area=area, normals=normals, c=c, plane="XY", val=Z, interface=interface, tissue_list=tissue_list, coils=coils, unit_convert=unit_convert
     )
     compute_efield_overlay_worker(
-        P, t, Center, Area, normals, c, "XZ", Y, interface, tissue_list
+        P=P, t=t, centers=center, area=area, normals=normals, c=c, plane="XZ", val=Y, interface=interface, tissue_list=tissue_list, coils=coils, unit_convert=unit_convert
     )
     compute_efield_overlay_worker(
-        P, t, Center, Area, normals, c, "YZ", X, interface, tissue_list
+        P=P, t=t, centers=center, area=area, normals=normals, c=c, plane="YZ", val=X, interface=interface, tissue_list=tissue_list, coils=coils, unit_convert=unit_convert
     )
