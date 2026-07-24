@@ -4,23 +4,31 @@
 #include <math.h>
 #include <stddef.h>
 
-void c_neighbor_ints_En(const double *P, const size_t *t, const double *normal,
-                        const double *center, const size_t *neighbor,
-                        const double *area, size_t N, size_t T, size_t M,
-                        int gauss, double *IE, double *IC);
+void c_neighbor_ints_En(const double *restrict P, const size_t *restrict t,
+                        const double *restrict normal,
+                        const double *restrict center,
+                        const size_t *restrict neighbor,
+                        const double *restrict area, size_t N, size_t T,
+                        size_t M, int gauss, double *restrict IE,
+                        double *restrict IC);
 
-void c_neighbor_ints_Pn(const double *P, const size_t *t, const double *normal,
-                        const double *center, const size_t *neighbor,
-                        const double *area, size_t N, size_t T, size_t M,
-                        int gauss, double *IP, double *IPC);
+void c_neighbor_ints_Pn(const double *restrict P, const size_t *restrict t,
+                        const double *restrict normal,
+                        const double *restrict center,
+                        const size_t *restrict neighbor,
+                        const double *restrict area, size_t N, size_t T,
+                        size_t M, int gauss, double *restrict IP,
+                        double *restrict IPC);
 
-void c_potint(const size_t N, const double *r1, const double *r2,
-              const double *r3, const double *normal, const double *obs,
-              double *r_I, double *r_Irho);
+void c_potint(const size_t N, const double *restrict r1,
+              const double *restrict r2, const double *restrict r3,
+              const double *restrict normal, const double *restrict obs,
+              double *restrict r_I, double *restrict r_Irho);
 
-void c_potint2(const size_t N, const double *r1, const double *r2,
-               const double *r3, const double *normal, const double *obs,
-               double *Int);
+void c_potint2(const size_t N, const double *restrict r1,
+               const double *restrict r2, const double *restrict r3,
+               const double *restrict normal, const double *restrict obs,
+               double *restrict Int);
 
 #define TOL 1e-10
 #define EDGE_FACTOR 1e-6

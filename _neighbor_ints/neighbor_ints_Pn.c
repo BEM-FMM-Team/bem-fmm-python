@@ -199,10 +199,13 @@ single_layer_potint(const double r1_x, const double r1_y, const double r1_z,
   *Irho_z = 0.5 * (*Irho_z);
 }
 
-void c_neighbor_ints_Pn(const double *P, const size_t *t, const double *normal,
-                        const double *center, const size_t *neighbor,
-                        const double *area, size_t N, size_t T, size_t M,
-                        int gauss, double *IP, double *IPC) {
+void c_neighbor_ints_Pn(const double *restrict P, const size_t *restrict t,
+                        const double *restrict normal,
+                        const double *restrict center,
+                        const size_t *restrict neighbor,
+                        const double *restrict area, size_t N, size_t T,
+                        size_t M, int gauss, double *restrict IP,
+                        double *restrict IPC) {
   // === retrieve the gaussian cubature points ===
   const double *coeff, *weight;
 

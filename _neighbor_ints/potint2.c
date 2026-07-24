@@ -238,9 +238,10 @@ void grad_potint(const double r1_x, const double r1_y, const double r1_z,
  * ---------------------------------------
  * Int - N x 3 matrix of gradient integrals Int = grad(Is(1/r))
  */
-void c_potint2(const size_t N, const double *r1, const double *r2,
-               const double *r3, const double *normal, const double *obs,
-               double *Int) {
+void c_potint2(const size_t N, const double *restrict r1,
+               const double *restrict r2, const double *restrict r3,
+               const double *restrict normal, const double *restrict obs,
+               double *restrict Int) {
   long k;
 #pragma omp parallel for schedule(static)
   for (k = 0; k < (long)N; k++) {

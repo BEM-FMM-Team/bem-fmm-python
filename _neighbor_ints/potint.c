@@ -210,9 +210,10 @@ void single_layer_potint(
  * I - N x 1 vector of neighbor integrals I = Is(1/r)
  * Irho - N x 3 matrix of neighbor integrals I = Is(vec(r)/r)
  */
-void c_potint(const size_t N, const double *r1, const double *r2,
-              const double *r3, const double *normal, const double *obs,
-              double *I, double *Irho) {
+void c_potint(const size_t N, const double *restrict r1,
+              const double *restrict r2, const double *restrict r3,
+              const double *restrict normal, const double *restrict obs,
+              double *restrict I, double *restrict Irho) {
   long k;
 #pragma omp parallel for schedule(static)
   for (k = 0; k < (long)N; k++) {

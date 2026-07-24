@@ -47,10 +47,13 @@ static double solid_angle(double u1, double u2, double u3, double v1, double v2,
   return 2.0 * atan2(N, D);
 }
 
-void c_neighbor_ints_En(const double *P, const size_t *t, const double *normal,
-                        const double *center, const size_t *neighbor,
-                        const double *area, size_t N, size_t T, size_t M,
-                        int gauss, double *IE, double *IC) {
+void c_neighbor_ints_En(const double *restrict P, const size_t *restrict t,
+                        const double *restrict normal,
+                        const double *restrict center,
+                        const size_t *restrict neighbor,
+                        const double *restrict area, size_t N, size_t T,
+                        size_t M, int gauss, double *restrict IE,
+                        double *restrict IC) {
   // === retrieve the gaussian cubature points ===
   const double *coeff, *weight;
   int *indexF;

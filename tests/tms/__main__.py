@@ -8,7 +8,6 @@ from time import perf_counter
 import numpy as np
 import scipy.io
 import yaml
-from numba import jit
 from scipy.sparse import coo_matrix, csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
@@ -29,24 +28,15 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from engines.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from engines.charge import (inc_field_electric, surface_field_electric_plain,
+                            surface_field_lhs)
 from engines.fgmres import fgmres
 from engines.gui.pickle_loader import pickle_loader
 from engines.lib import cache
-from engines.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from engines.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                          mesh_rotate2, mesh_tricenter)
 from engines.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from engines.plot import plot_fields, plot_residual, plot_slices
-
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
@@ -324,7 +314,7 @@ def main():
         CoilP,
         Coilt,
         Translation,
-    ) in coils:  # maybe njit
+    ) in coils:
         strcoil.Pwire = strcoil.Pwire * unit_convert
 
         # RHS
