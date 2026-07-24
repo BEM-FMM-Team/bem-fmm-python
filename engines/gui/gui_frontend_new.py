@@ -293,7 +293,6 @@ class Frontend(QMainWindow):
 
         QMessageBox.information(
             self.ui.MainGUI,
-            self,
             "Running TMS",
             "Check the console used to init the Coil Placer",
         )
