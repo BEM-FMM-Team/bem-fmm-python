@@ -15,16 +15,18 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
+from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
+from bemfmm.gui.load_coil_from_func import load_coil_from_func
+from bemfmm.gui.load_template import load_template
+from bemfmm.gui.quat_multiply import quat_multiply
+from bemfmm.gui.renderer import Renderer
 from bemfmm.gui.transformer import transformer
-from bemfmm.mesh.mesh_tricenter import mesh_tricenter
-from bemfmm.mesh.mesh_normals import mesh_normals
 from bemfmm.gui.vector_to_quat import vector_to_quat
 from bemfmm.gui.xyz_to_quat import xyz_to_quat
-from bemfmm.gui.load_coil_from_func import load_coil_from_func
-from bemfmm.gui.quat_multiply import quat_multiply
-from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
-from bemfmm.gui.load_template import load_template
-from bemfmm.gui.renderer import Renderer
+from bemfmm.mesh.mesh_normals import mesh_normals
+from bemfmm.mesh.mesh_tricenter import mesh_tricenter
+
+from ..my_types import TMSCoilDefinition
 
 """
 contains backend information for a coil manager including information for charge engine computations
@@ -163,7 +165,9 @@ class Backend:
             distance, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
             coil.intersection_point = self.centers[indices[0, 0]].copy()
         with open(save_path, "wb") as f:
-            pickle.dump(coil_list, f)
+            pickle.dump(
+                TMSCoilDefinition(array=coil_list, slice_plane=None), f
+            )  # TODO simon here is where you would place the final planes XYZ as an np.arrray([0, 0 , 0])
         return
 
     def auto_orient(self, id):
