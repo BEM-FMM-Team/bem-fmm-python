@@ -8,8 +8,8 @@ from ..my_types import EfieldSlice
 def plot_efield_slice(
     result: EfieldSlice,
     tissue_list: list | None = None,
-    levels: int = 100,
-    unit_convert: float = 1e-3,
+    levels: int = 200,
+    unit_convert: float = 1,
 ) -> tuple[plt.Figure, plt.Axes]:
     cfg = result.cfg
 
@@ -31,7 +31,7 @@ def plot_efield_slice(
         orig_vals = result.scale * np.sign(cb_ticks) * (10.0 ** np.abs(cb_ticks) - 1)
         cbar.set_ticks(cb_ticks)
         cbar.set_ticklabels([f"{v:.2g}" for v in orig_vals])
-        cbar.set_label("E-field [V/m]", color="white")
+        cbar.set_label("E-field [V/mm]", color="white")
         cbar.ax.tick_params(colors="white")
         cbar.ax.yaxis.label.set_color("white")
 
@@ -50,7 +50,7 @@ def plot_efield_slice(
 
     ax.set_xlabel(cfg["xlabel"], color="white")
     ax.set_ylabel(cfg["ylabel"], color="white")
-    ax.set_title(f"E-field (V/m) in the {result.plane} plane", color="white")
+    ax.set_title(f"E-field (V/mm) in the {result.plane} plane", color="white")
     ax.set_aspect("equal")
     ax.tick_params(colors="white")
     for spine in ax.spines.values():

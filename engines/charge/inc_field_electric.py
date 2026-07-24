@@ -1,7 +1,7 @@
 import numpy as np
 from fmm3dpy import lfmm3d
 
-from engines.constants import mu0
+from engines.constants import mu0, eps0
 
 from ..my_types import Mx3, StrCoil
 
@@ -31,6 +31,7 @@ def inc_field_electric(
         nd=3,
     )
 
+    # Einc = mu0 * dIdt * U.pottarg.T
     Einc = mu0 * dIdt * U.pottarg.T
 
     return Einc
