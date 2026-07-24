@@ -1,11 +1,11 @@
 bemfmm.charge package
-======================
+=====================
 
 Submodules
 ----------
 
 bemfmm.charge.electrode\_current module
-----------------------------------------
+---------------------------------------
 
 .. automodule:: bemfmm.charge.electrode_current
    :members:
@@ -13,7 +13,7 @@ bemfmm.charge.electrode\_current module
    :undoc-members:
 
 bemfmm.charge.inc\_field\_electric module
-------------------------------------------
+-----------------------------------------
 
 .. automodule:: bemfmm.charge.inc_field_electric
    :members:
@@ -21,7 +21,7 @@ bemfmm.charge.inc\_field\_electric module
    :undoc-members:
 
 bemfmm.charge.inc\_field\_electric\_constant module
-----------------------------------------------------
+---------------------------------------------------
 
 .. automodule:: bemfmm.charge.inc_field_electric_constant
    :members:
@@ -29,7 +29,7 @@ bemfmm.charge.inc\_field\_electric\_constant module
    :undoc-members:
 
 bemfmm.charge.inc\_field\_electric\_plain module
--------------------------------------------------
+------------------------------------------------
 
 .. automodule:: bemfmm.charge.inc_field_electric_plain
    :members:
@@ -37,7 +37,7 @@ bemfmm.charge.inc\_field\_electric\_plain module
    :undoc-members:
 
 bemfmm.charge.inc\_field\_electric\_plain\_dipoles module
-----------------------------------------------------------
+---------------------------------------------------------
 
 .. automodule:: bemfmm.charge.inc_field_electric_plain_dipoles
    :members:
@@ -45,7 +45,7 @@ bemfmm.charge.inc\_field\_electric\_plain\_dipoles module
    :undoc-members:
 
 bemfmm.charge.inc\_field\_gauss\_selective\_dipoles module
------------------------------------------------------------
+----------------------------------------------------------
 
 .. automodule:: bemfmm.charge.inc_field_gauss_selective_dipoles
    :members:
@@ -53,15 +53,23 @@ bemfmm.charge.inc\_field\_gauss\_selective\_dipoles module
    :undoc-members:
 
 bemfmm.charge.potint module
-----------------------------
+---------------------------
 
 .. automodule:: bemfmm.charge.potint
    :members:
    :show-inheritance:
    :undoc-members:
 
+bemfmm.charge.potint2 module
+----------------------------
+
+.. automodule:: bemfmm.charge.potint2
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.charge.surface\_field\_electric\_accurate module
---------------------------------------------------------
+-------------------------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_electric_accurate
    :members:
@@ -69,7 +77,7 @@ bemfmm.charge.surface\_field\_electric\_accurate module
    :undoc-members:
 
 bemfmm.charge.surface\_field\_electric\_plain module
------------------------------------------------------
+----------------------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_electric_plain
    :members:
@@ -77,7 +85,7 @@ bemfmm.charge.surface\_field\_electric\_plain module
    :undoc-members:
 
 bemfmm.charge.surface\_field\_electric\_subdiv module
-------------------------------------------------------
+-----------------------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_electric_subdiv
    :members:
@@ -85,7 +93,7 @@ bemfmm.charge.surface\_field\_electric\_subdiv module
    :undoc-members:
 
 bemfmm.charge.surface\_field\_lhs module
------------------------------------------
+----------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_lhs
    :members:
@@ -93,7 +101,7 @@ bemfmm.charge.surface\_field\_lhs module
    :undoc-members:
 
 bemfmm.charge.surface\_field\_potential\_accurate module
----------------------------------------------------------
+--------------------------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_potential_accurate
    :members:
@@ -101,7 +109,7 @@ bemfmm.charge.surface\_field\_potential\_accurate module
    :undoc-members:
 
 bemfmm.charge.volume\_field\_electric module
----------------------------------------------
+--------------------------------------------
 
 .. automodule:: bemfmm.charge.volume_field_electric
    :members:

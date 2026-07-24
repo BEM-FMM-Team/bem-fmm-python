@@ -12,9 +12,12 @@ python -m http.server -d ./docs/_build/html/ # posix
 ## Setup
 
 Download the repo
-Install `python3.11+`. __other versions may not work.__
+Install `python3.11+`.
 
 Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
+The prefered setup is with `uv`
+
+We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls. Hence the extra index urls.
 
 > MacOS
 Tested on the M1.
@@ -26,47 +29,67 @@ Run the following:
 pip install --index-url https://pandecode.github.io/FMM3D/simple/  --extra-index-url https://pypi.org/simple .
 ```
 
+For development (you want to change the src code)
 ```bash
-# for development (you want to change the src code)
 pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
 ```
 
-We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls.
-
 ## Faster setup
-If you have
+If you have `uv`
+
 ```bash
 python -m pip install uv
 python -m uv venv
 .\.venv\Scripts\activate
 python -m pip install uv
-uv pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple .
+uv pip install -e .
 ```
 
-## Generating and using a coil
-Charge engine will only need to be run once unless the ./__compute_cache__/ directory is removed.
-Coil config is emiited to `tests\gui\coil_config.pkl` (probably going to make a file dialogue).
-
+Runs after will need to activate the python environment
 ```bash
-python tests\gui
-python tests\tms tests\gui\coil_config.pkl # runs the single ring with the coil
+.\.venv\Scripts\activate
+bemfmm_gui # (INTERNAL TODO: change name)
 ```
 
-## Tests
-
-### Windows
+Or 
 ```bash
-python .\tests\plot
-python .\tests\sphere_3L
-python .\tests\tms # delete ./__compute_cache__/ to reset computation
+uv run bemfmm_gui
+```
+
+## Programs
+
+##### Testing Programs
+Run these for a quick way of seeing if all modules are ok.
+###### bemfmm_plot
+```bash
+python src/apps/plot  
+uv run bemfmm_plot    
+bemfmm_plot           
+```
+
+###### bemfmm_sphere
+```bash
+python src/apps/sphere_3L
+```
+
+##### X Programs
+Charge engine will only need to be run once per coil+model config unless the ./__compute_cache__/ directory is removed.
+
+###### bemfmm_gui (INTERNAL TODO: change name)
+```bash
+python src/apps/gui
+```
+Save pkl file that will have coil definitions.
+###### bemfmm_tms
+```bash
+python src/apps/tms
+```
+
+```bash
+python src/apps/tms ./path/to/coil.pkl
 ```
 
 #### Possible errors
 Something about `OpenGL Context` failed to be created or `libmesa` not found: this means that there is something wrong with the GPU, probably a RDP issues. This should only affect the render.
 
-### Linux
-```bash
-python3 tests/plot
-python3 tests/sphere_3L
-python3 tests/tms
-```
+INTERNAL NOTE: I have emailed arc computing about this.

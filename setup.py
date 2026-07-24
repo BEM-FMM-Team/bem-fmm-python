@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 from Cython.Build import cythonize
+
 # pyrefly: ignore [missing-source-for-stubs]
 from setuptools import Extension, setup
 

@@ -1,5 +1,5 @@
 bemfmm package
-===============
+==============
 
 Subpackages
 -----------
@@ -15,7 +15,7 @@ Submodules
 ----------
 
 bemfmm.constants module
-------------------------
+-----------------------
 
 .. automodule:: bemfmm.constants
    :members:
@@ -23,7 +23,7 @@ bemfmm.constants module
    :undoc-members:
 
 bemfmm.fgmres module
----------------------
+--------------------
 
 .. automodule:: bemfmm.fgmres
    :members:
@@ -31,7 +31,7 @@ bemfmm.fgmres module
    :undoc-members:
 
 bemfmm.lib module
-------------------
+-----------------
 
 .. automodule:: bemfmm.lib
    :members:
@@ -39,7 +39,7 @@ bemfmm.lib module
    :undoc-members:
 
 bemfmm.my\_types module
-------------------------
+-----------------------
 
 .. automodule:: bemfmm.my_types
    :members:

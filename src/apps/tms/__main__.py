@@ -28,15 +28,24 @@ ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
 
-from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
-                            surface_field_lhs)
+from bemfmm.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
 from bemfmm.lib import cache
-from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
-                          mesh_rotate2, mesh_tricenter)
+from bemfmm.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from bemfmm.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
+
 # pyrefly: ignore [missing-import]
 from cbemfmm import neighbor_ints_En
 

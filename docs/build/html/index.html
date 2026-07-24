@@ -14,7 +14,7 @@
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="engines package" href="engines.html" />
+    <link rel="next" title="apps package" href="apps.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -54,8 +54,10 @@ python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="
 <section id="setup">
 <h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">¶</a></h2>
 <p>Download the repo
-Install <code class="docutils literal notranslate"><span class="pre">python3.11+</span></code>. <strong>other versions may not work.</strong></p>
-<p>Open <code class="docutils literal notranslate"><span class="pre">cmd</span></code>/<code class="docutils literal notranslate"><span class="pre">powershell</span></code>/<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">shell</span></code>/<code class="docutils literal notranslate"><span class="pre">venv</span></code> in this directory.</p>
+Install <code class="docutils literal notranslate"><span class="pre">python3.11+</span></code>.</p>
+<p>Open <code class="docutils literal notranslate"><span class="pre">cmd</span></code>/<code class="docutils literal notranslate"><span class="pre">powershell</span></code>/<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">shell</span></code>/<code class="docutils literal notranslate"><span class="pre">venv</span></code> in this directory.
+The prefered setup is with <code class="docutils literal notranslate"><span class="pre">uv</span></code></p>
+<p>We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls. Hence the extra index urls.</p>
 <blockquote>
 <div><p>MacOS
 Tested on the M1.
@@ -65,168 +67,207 @@ Install ‘libomp’.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pandecode.github.io/FMM3D/simple/<span class="w">  </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>.
 </pre></div>
 </div>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># for development (you want to change the src code)</span>
-pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pandecode.github.io/FMM3D/simple/<span class="w"> </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>-e<span class="w"> </span>.
+<p>For development (you want to change the src code)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pandecode.github.io/FMM3D/simple/<span class="w"> </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>-e<span class="w"> </span>.
 </pre></div>
 </div>
-<p>We recompile with fmm3dpy with openmp and other optimizations for a 3~4x speedup to lfmm3d calls.</p>
 </section>
 <section id="faster-setup">
 <h2>Faster setup<a class="headerlink" href="#faster-setup" title="Link to this heading">¶</a></h2>
-<p>If you have</p>
+<p>If you have <code class="docutils literal notranslate"><span class="pre">uv</span></code></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>uv
 python<span class="w"> </span>-m<span class="w"> </span>uv<span class="w"> </span>venv
 .<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>uv
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://pandecode.github.io/FMM3D/simple/<span class="w"> </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span>.
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>Runs after will need to activate the python environment</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="se">\.</span>venv<span class="se">\S</span>cripts<span class="se">\a</span>ctivate
+bemfmm_gui<span class="w"> </span><span class="c1"># (INTERNAL TODO: change name)</span>
+</pre></div>
+</div>
+<p>Or</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>bemfmm_gui
 </pre></div>
 </div>
 </section>
-<section id="generating-and-using-a-coil">
-<h2>Generating and using a coil<a class="headerlink" href="#generating-and-using-a-coil" title="Link to this heading">¶</a></h2>
-<p>Charge engine will only need to be run once unless the ./<strong>compute_cache</strong>/ directory is removed.
-Coil config is emiited to <code class="docutils literal notranslate"><span class="pre">tests\gui\coil_config.pkl</span></code> (probably going to make a file dialogue).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>tests<span class="se">\g</span>ui<span class="w"> </span>python<span class="w"> </span>tests<span class="se">\t</span>ms<span class="w"> </span>tests<span class="se">\g</span>ui<span class="se">\c</span>oil_config.pkl<span class="w"> </span><span class="c1"># runs the single ring with the coil</span>
+<section id="programs">
+<h2>Programs<a class="headerlink" href="#programs" title="Link to this heading">¶</a></h2>
+<section id="testing-programs">
+<h3>Testing Programs<a class="headerlink" href="#testing-programs" title="Link to this heading">¶</a></h3>
+<p>Run these for a quick way of seeing if all modules are ok.</p>
+<section id="bemfmm-plot">
+<h4>bemfmm_plot<a class="headerlink" href="#bemfmm-plot" title="Link to this heading">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>src/apps/plot
+uv<span class="w"> </span>run<span class="w"> </span>bemfmm_plot
+bemfmm_plot
 </pre></div>
 </div>
 </section>
-<section id="tests">
-<h2>Tests<a class="headerlink" href="#tests" title="Link to this heading">¶</a></h2>
-<section id="windows">
-<h3>Windows<a class="headerlink" href="#windows" title="Link to this heading">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\p</span>lot
-python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\s</span>phere_3L
-python<span class="w"> </span>.<span class="se">\t</span>ests<span class="se">\t</span>ms<span class="w"> </span><span class="c1"># delete ./__compute_cache__/ to reset computation</span>
+<section id="bemfmm-sphere">
+<h4>bemfmm_sphere<a class="headerlink" href="#bemfmm-sphere" title="Link to this heading">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>src/apps/sphere_3L
+</pre></div>
+</div>
+</section>
+</section>
+<section id="x-programs">
+<h3>X Programs<a class="headerlink" href="#x-programs" title="Link to this heading">¶</a></h3>
+<p>Charge engine will only need to be run once per coil+model config unless the ./<strong>compute_cache</strong>/ directory is removed.</p>
+<section id="bemfmm-gui-internal-todo-change-name">
+<h4>bemfmm_gui (INTERNAL TODO: change name)<a class="headerlink" href="#bemfmm-gui-internal-todo-change-name" title="Link to this heading">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>src/apps/gui
+</pre></div>
+</div>
+<p>Save pkl file that will have coil definitions.</p>
+</section>
+<section id="bemfmm-tms">
+<h4>bemfmm_tms<a class="headerlink" href="#bemfmm-tms" title="Link to this heading">¶</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>src/apps/tms
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>src/apps/tms<span class="w"> </span>./path/to/coil.pkl
 </pre></div>
 </div>
 <section id="possible-errors">
-<h4>Possible errors<a class="headerlink" href="#possible-errors" title="Link to this heading">¶</a></h4>
+<h5>Possible errors<a class="headerlink" href="#possible-errors" title="Link to this heading">¶</a></h5>
 <p>Something about <code class="docutils literal notranslate"><span class="pre">OpenGL</span> <span class="pre">Context</span></code> failed to be created or <code class="docutils literal notranslate"><span class="pre">libmesa</span></code> not found: this means that there is something wrong with the GPU, probably a RDP issues. This should only affect the render.</p>
-</section>
-</section>
-<section id="linux">
-<h3>Linux<a class="headerlink" href="#linux" title="Link to this heading">¶</a></h3>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>tests/plot
-python3<span class="w"> </span>tests/sphere_3L
-python3<span class="w"> </span>tests/tms
-</pre></div>
-</div>
+<p>INTERNAL NOTE: I have emailed arc computing about this.</p>
 </section>
 </section>
 </section>
-<section id="engines">
-<h1>engines<a class="headerlink" href="#engines" title="Link to this heading">¶</a></h1>
+</section>
+</section>
+<section id="src">
+<h1>src<a class="headerlink" href="#src" title="Link to this heading">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="engines.html">engines package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="engines.charge.html">engines.charge package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.electrode_current">engines.charge.electrode_current module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_electric">engines.charge.inc_field_electric module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_electric_constant">engines.charge.inc_field_electric_constant module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_electric_plain">engines.charge.inc_field_electric_plain module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_electric_plain_dipoles">engines.charge.inc_field_electric_plain_dipoles module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.inc_field_gauss_selective_dipoles">engines.charge.inc_field_gauss_selective_dipoles module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.potint">engines.charge.potint module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_accurate">engines.charge.surface_field_electric_accurate module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_plain">engines.charge.surface_field_electric_plain module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_electric_subdiv">engines.charge.surface_field_electric_subdiv module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_lhs">engines.charge.surface_field_lhs module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.surface_field_potential_accurate">engines.charge.surface_field_potential_accurate module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge.volume_field_electric">engines.charge.volume_field_electric module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.charge.html#module-engines.charge">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">apps package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="apps.html#module-apps">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="engines.mesh.html">engines.mesh package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_areas">engines.mesh.mesh_areas module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_clean_coincident_facets">engines.mesh.mesh_clean_coincident_facets module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_combine_simple">engines.mesh.mesh_combine_simple module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_connee">engines.mesh.mesh_connee module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_cross_section">engines.mesh.mesh_cross_section module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_fix">engines.mesh.mesh_fix module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_imprint">engines.mesh.mesh_imprint module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_laplace3D">engines.mesh.mesh_laplace3D module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_laplace_normals">engines.mesh.mesh_laplace_normals module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_normals">engines.mesh.mesh_normals module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_refiner">engines.mesh.mesh_refiner module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_refiner_light">engines.mesh.mesh_refiner_light module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_reorient">engines.mesh.mesh_reorient module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_rotate1">engines.mesh.mesh_rotate1 module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_rotate2">engines.mesh.mesh_rotate2 module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_surface">engines.mesh.mesh_surface module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_surface_old">engines.mesh.mesh_surface_old module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_tri">engines.mesh.mesh_tri module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.mesh_tricenter">engines.mesh.mesh_tricenter module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.meshcoil">engines.mesh.meshcoil module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.meshconnet">engines.mesh.meshconnet module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.meshfill">engines.mesh.meshfill module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.meshplaneint_axis_nonmanifold">engines.mesh.meshplaneint_axis_nonmanifold module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh.meshwire">engines.mesh.meshwire module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.mesh.html#module-engines.mesh">Module contents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html">bemfmm.charge package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.electrode_current">bemfmm.charge.electrode_current module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric">bemfmm.charge.inc_field_electric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_constant">bemfmm.charge.inc_field_electric_constant module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_plain">bemfmm.charge.inc_field_electric_plain module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_plain_dipoles">bemfmm.charge.inc_field_electric_plain_dipoles module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_gauss_selective_dipoles">bemfmm.charge.inc_field_gauss_selective_dipoles module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.potint">bemfmm.charge.potint module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.potint2">bemfmm.charge.potint2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_accurate">bemfmm.charge.surface_field_electric_accurate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_plain">bemfmm.charge.surface_field_electric_plain module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_subdiv">bemfmm.charge.surface_field_electric_subdiv module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_lhs">bemfmm.charge.surface_field_lhs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_potential_accurate">bemfmm.charge.surface_field_potential_accurate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.volume_field_electric">bemfmm.charge.volume_field_electric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge">Module contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="engines.plot.html">engines.plot package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.compute_efield_overlay">engines.plot.compute_efield_overlay module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.fields">engines.plot.fields module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.patch">engines.plot.patch module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.residual">engines.plot.residual module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.slice">engines.plot.slice module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot.sparse">engines.plot.sparse module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.plot.html#module-engines.plot">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_areas">bemfmm.mesh.mesh_areas module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_clean_coincident_facets">bemfmm.mesh.mesh_clean_coincident_facets module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_combine_simple">bemfmm.mesh.mesh_combine_simple module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_connee">bemfmm.mesh.mesh_connee module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_cross_section">bemfmm.mesh.mesh_cross_section module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_fix">bemfmm.mesh.mesh_fix module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_imprint">bemfmm.mesh.mesh_imprint module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_laplace3D">bemfmm.mesh.mesh_laplace3D module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_laplace_normals">bemfmm.mesh.mesh_laplace_normals module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_normals">bemfmm.mesh.mesh_normals module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_refiner">bemfmm.mesh.mesh_refiner module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_refiner_light">bemfmm.mesh.mesh_refiner_light module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_reorient">bemfmm.mesh.mesh_reorient module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_rotate1">bemfmm.mesh.mesh_rotate1 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_rotate2">bemfmm.mesh.mesh_rotate2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_surface">bemfmm.mesh.mesh_surface module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_surface_old">bemfmm.mesh.mesh_surface_old module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_tri">bemfmm.mesh.mesh_tri module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_tricenter">bemfmm.mesh.mesh_tricenter module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshcoil">bemfmm.mesh.meshcoil module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshconnet">bemfmm.mesh.meshconnet module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshfill">bemfmm.mesh.meshfill module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshplaneint_axis_nonmanifold">bemfmm.mesh.meshplaneint_axis_nonmanifold module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshwire">bemfmm.mesh.meshwire module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh">Module contents</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#module-engines.constants">engines.constants module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#module-engines.fgmres">engines.fgmres module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.fgmres.dbg_fgmres"><code class="docutils literal notranslate"><span class="pre">dbg_fgmres()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.fgmres.fgmres"><code class="docutils literal notranslate"><span class="pre">fgmres()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.fgmres.pyamg_fgmres"><code class="docutils literal notranslate"><span class="pre">pyamg_fgmres()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#module-engines.lib">engines.lib module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.disp"><code class="docutils literal notranslate"><span class="pre">disp()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.rdiv"><code class="docutils literal notranslate"><span class="pre">rdiv()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.repmat"><code class="docutils literal notranslate"><span class="pre">repmat()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.size"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.tic"><code class="docutils literal notranslate"><span class="pre">tic()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.timeit"><code class="docutils literal notranslate"><span class="pre">timeit()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.toc"><code class="docutils literal notranslate"><span class="pre">toc()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.vecnorm"><code class="docutils literal notranslate"><span class="pre">vecnorm()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.lib.zeros"><code class="docutils literal notranslate"><span class="pre">zeros()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#module-engines.my_types">engines.my_types module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice"><code class="docutils literal notranslate"><span class="pre">EfieldSlice</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.E_grid"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_grid</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.E_mag"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_mag</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.cfg"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.cfg</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.ci"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.ci</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.edges"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.edges</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.mask"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.mask</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.plane"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.plane</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.points_2d"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.points_2d</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.scale"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.scale</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.th1l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th1l</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.th2l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th2l</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.u"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.u</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.EfieldSlice.v"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.v</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="engines.html#engines.my_types.StrCoil"><code class="docutils literal notranslate"><span class="pre">StrCoil</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.StrCoil.Ewire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Ewire</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.StrCoil.Pwire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Pwire</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="engines.html#engines.my_types.StrCoil.Swire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Swire</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html">bemfmm.plot package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.compute_efield_overlay">bemfmm.plot.compute_efield_overlay module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.fields">bemfmm.plot.fields module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.patch">bemfmm.plot.patch module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.residual">bemfmm.plot.residual module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.slice">bemfmm.plot.slice module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.sparse">bemfmm.plot.sparse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="engines.html#module-engines">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.constants">bemfmm.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.fgmres">bemfmm.fgmres module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.fgmres.dbg_fgmres"><code class="docutils literal notranslate"><span class="pre">dbg_fgmres()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.fgmres.fgmres"><code class="docutils literal notranslate"><span class="pre">fgmres()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.lib">bemfmm.lib module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.disp"><code class="docutils literal notranslate"><span class="pre">disp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.rdiv"><code class="docutils literal notranslate"><span class="pre">rdiv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.repmat"><code class="docutils literal notranslate"><span class="pre">repmat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.size"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.tic"><code class="docutils literal notranslate"><span class="pre">tic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.timeit"><code class="docutils literal notranslate"><span class="pre">timeit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.toc"><code class="docutils literal notranslate"><span class="pre">toc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.vecnorm"><code class="docutils literal notranslate"><span class="pre">vecnorm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.lib.zeros"><code class="docutils literal notranslate"><span class="pre">zeros()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.my_types">bemfmm.my_types module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice"><code class="docutils literal notranslate"><span class="pre">EfieldSlice</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.E_grid"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_grid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.E_mag"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_mag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.cfg"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.cfg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.ci"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.ci</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.edges"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.edges</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.mask"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.mask</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.plane"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.plane</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.points_2d"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.points_2d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.scale"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.scale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.th1l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th1l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.th2l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th2l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.u"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.u</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice.v"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.v</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.StrCoil"><code class="docutils literal notranslate"><span class="pre">StrCoil</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.StrCoil.Ewire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Ewire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.StrCoil.Pwire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Pwire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.StrCoil.Swire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Swire</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cbemfmm.html">cbemfmm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cbemfmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cbemfmm.html#module-cbemfmm.cbemfmm">cbemfmm.cbemfmm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cbemfmm.html#cbemfmm.cbemfmm.neighbor_ints_En"><code class="docutils literal notranslate"><span class="pre">neighbor_ints_En()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cbemfmm.html#cbemfmm.cbemfmm.neighbor_ints_Pn"><code class="docutils literal notranslate"><span class="pre">neighbor_ints_Pn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cbemfmm.html#cbemfmm.cbemfmm.potint"><code class="docutils literal notranslate"><span class="pre">potint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cbemfmm.html#cbemfmm.cbemfmm.potint2"><code class="docutils literal notranslate"><span class="pre">potint2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cbemfmm.html#module-cbemfmm">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -262,14 +303,16 @@ python3<span class="w"> </span>tests/tms
 </search>
 <script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="engines.html">engines package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apps.html">apps package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cbemfmm.html">cbemfmm package</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="engines.html" title="next chapter">engines package</a></li>
+      <li>Next: <a href="apps.html" title="next chapter">apps package</a></li>
   </ul></li>
 </ul>
 </div>
