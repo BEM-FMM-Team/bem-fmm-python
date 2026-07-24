@@ -123,11 +123,10 @@ def compute_efield_overlay(
 
     E_plot = E_mag.copy()  
 
-    # # Automatic scales (should probably set another way, is fine for now)
-    # # I cant remember how we did this before...
-    # th1 = np.nanmax(E_plot[mask])
-    # th2 = np.nanmin(E_plot[mask])
-    # print(th1, th2)
+    # Automatic scales (should probably set another way, is fine for now)
+    # I cant remember how we did this before...
+    th1 = np.nanmax(E_plot[mask])
+    th2 = np.nanmin(E_plot[mask])
 
     E_plot[~mask] = np.nan
     templ, th1l, th2l, scale = _log_modulus(E_plot[mask], th1, th2)

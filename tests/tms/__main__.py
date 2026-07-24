@@ -384,15 +384,7 @@ def main():
     # Total field
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
-
-    # # DEBUG
-    # print("Efield magnitude: ",max(Emag),min(Emag))
-    # print("Potential magnitude: ",max(Ptot),min(Ptot))
-    # print("Normal Efield magnitude: ",max(En),min(En))
-    # print("Normal Current density magnitude: ",max(Jn_in),min(Jn_in))
-    # print("Charge density magnitude: ",max(c),min(c))
     
-
     # # save data
     # save_fmt = "mat"
 
@@ -410,21 +402,21 @@ def main():
     # print(c)
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
 
-    # plot_fields(
-    #     P,
-    #     plot_t,
-    #     plot_t_idx,
-    #     c,
-    #     CoilP,
-    #     Coilt,
-    #     Ptot,
-    #     En,
-    #     Emag,
-    #     Jn_in,
-    #     pointsline[0],
-    #     pointsline[1],
-    #     xyz,
-    # )
+    plot_fields(
+        P,
+        plot_t,
+        plot_t_idx,
+        c,
+        CoilP,
+        Coilt,
+        Ptot,
+        En,
+        Emag,
+        Jn_in,
+        pointsline[0],
+        pointsline[1],
+        xyz,
+    )
 
     xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
     plot_slices(
