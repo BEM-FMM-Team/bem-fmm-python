@@ -48,12 +48,12 @@ uv pip install -e .
 Runs after will need to activate the python environment
 ```bash
 .\.venv\Scripts\activate
-bemfmm_gui # (INTERNAL TODO: change name)
+tms_coil_navigator # (INTERNAL TODO: change name)
 ```
 
-Or 
+Or
 ```bash
-uv run bemfmm_gui
+uv run tms_coil_navigator
 ```
 
 ## Programs
@@ -62,9 +62,9 @@ uv run bemfmm_gui
 Run these for a quick way of seeing if all modules are ok.
 ###### bemfmm_plot
 ```bash
-python src/apps/plot  
-uv run bemfmm_plot    
-bemfmm_plot           
+python src/apps/plot
+uv run bemfmm_plot
+bemfmm_plot
 ```
 
 ###### bemfmm_sphere
@@ -75,7 +75,7 @@ python src/apps/sphere_3L
 ##### X Programs
 Charge engine will only need to be run once per coil+model config unless the ./__compute_cache__/ directory is removed.
 
-###### bemfmm_gui (INTERNAL TODO: change name)
+###### tms_coil_navigator (INTERNAL TODO: change name)
 ```bash
 python src/apps/gui
 ```
