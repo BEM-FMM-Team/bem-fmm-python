@@ -1,3 +1,4 @@
+from bemfmm.my_types import TMSCoilDefinition
 import logging
 import sys
 from functools import reduce
@@ -151,7 +152,7 @@ def neighbor_ints(
     return EC
 
 
-def setup_coil() -> FullCoil:
+def setup_coil() -> TMSCoilDefinition:
     # Define dIdt (for electric field)
     dIdt = 9.4e7  # Amperes/sec (2*pi*I0/period), for electric field
     # Define I0 (for magnetic field)
@@ -207,7 +208,8 @@ def setup_coil() -> FullCoil:
 
     Intersection = np.array([0, 0, 0])  # INFO Not used, only for api compat
 
-    return (
+    # pyrefly: ignore [missing-argument]
+    return TMSCoilDefinition(array=[(
         pointsline,
         dIdt,
         I0,
@@ -215,6 +217,7 @@ def setup_coil() -> FullCoil:
         CoilP,
         Coilt,
         Intersection,
+        )], slice_plane=None,
     )
 
 
@@ -309,9 +312,10 @@ def main():
         coil_path = sys.argv[1]
         print(f"Using coil {coil_path}")
 
-    coils: list[FullCoil] = (
-        [setup_coil()] if coil_path is None else pickle_loader(coil_path)
-    )
+    if coil_path is None:
+        coils = setup_coil()
+    else:
+        coils = pickle_loader(coil_path)
 
     rhs_b: list[np.ndarray] = []
     rhs_Einc: list[np.ndarray] = []
@@ -323,7 +327,7 @@ def main():
         CoilP,
         Coilt,
         Translation,
-    ) in coils:
+    ) in coils.array:
         strcoil.Pwire = strcoil.Pwire * unit_convert
 
         # RHS
@@ -408,7 +412,7 @@ def main():
         plot_t,
         plot_t_idx,
         c,
-        coils,
+        coils.array,
         Ptot,
         En,
         Emag,
@@ -416,12 +420,15 @@ def main():
     )
 
     # TODO query on the first point
-    pointsline = coils[0][0] * unit_convert
-    i = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)
-    if len(i) > 0:
-        xyz = i[0]
+    if coils.slice_plane is None:
+        pointsline = coils[0][0] * unit_convert
+        i = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)
+        if len(i) > 0:
+            xyz = i[0]
+        else:
+            xyz = [0.5, 0.5, 0.5]
     else:
-        xyz = [0.5, 0.5, 0.5]
+        xyz = coils.slice_plane # * unit_convert NOTE may have to unitconvert
     plot_slices(
         P,
         t,

@@ -48,7 +48,7 @@ where = ["src"]
 include = ["cbemfmm", "cbemfmm.*", "apps", "apps.*"]
 
 [project.scripts]
-bemfmm_gui = "apps.gui.__main__:main"
+tms_coil_navigator = "apps.gui.__main__:main"
 bemfmm_tms = "apps.tms.__main__:main"
 bemfmm_plot = "apps.plot.__main__:main"
 bemfmm_sphere = "apps.sphere_3L.__main__:main"

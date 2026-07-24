@@ -1,15 +1,13 @@
-import numpy as np
 import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
+from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
-from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.gui_backend import Backend
-
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.ui_main_window import Ui_MainWindow
-
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
