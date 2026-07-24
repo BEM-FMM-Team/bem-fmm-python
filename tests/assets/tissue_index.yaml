@@ -3,10 +3,23 @@
 # TissueName : [ condin , "TissueOutside", "file path relative to the directory this file lives in" ]
 # TissueOutside must match a TissueName execept FreeSpace with condin of 0.0
 
-skin      : [0.4650, "FreeSpace", "skin.stl"]
-bone      : [0.010,  "skin",      "bone.stl"]
-csf       : [1.654,  "bone",      "csf.stl"]
-gm        : [0.2750, "csf",       "gm.stl"]
-cerebellum: [0.126,  "csf",       "cerebellum.stl"]
-wm        : [0.1260, "gm",        "wm.stl"]
-ventricles: [1.654,  "wm",        "ventricles.stl"]
+unit_convert: 1e3
+
+shells:
+  skin      : [0.4650, "FreeSpace", "skin.stl"]
+  bone      : [0.010,  "skin",      "bone.stl"]
+  csf       : [1.654,  "bone",      "csf.stl"]
+  gm        : [0.2750, "csf",       "gm.stl"]
+  cerebellum: [0.126,  "csf",       "cerebellum.stl"]
+  wm        : [0.1260, "gm",        "wm.stl"]
+  ventricles: [1.654,  "wm",        "ventricles.stl"]
+
+# # >TissueName : condin : TissueOutside
+#
+# >skin       : 0.4650 : FreeSpace
+# >skull      : 0.010  : skin
+# >csf        : 1.654  : skull
+# >gm         : 0.2750 : csf
+# >cerebellum : 0.126  : csf
+# >wm         : 0.1260 : gm
+# >ventricles : 1.654  : wm

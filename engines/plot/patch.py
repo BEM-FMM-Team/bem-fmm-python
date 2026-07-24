@@ -1,9 +1,11 @@
+from sys import exit
 from typing import Annotated
 
 import matplotlib.pyplot as plt
 import numpy as np
 import vedo
 from matplotlib.colors import LinearSegmentedColormap
+from vedo import show
 
 from engines.my_types import FullCoil
 
@@ -24,10 +26,18 @@ def plot_coil_worker(
     plot_t,
     p,
     coils: list[FullCoil],
+    unit_convert=1e3,
 ):
     # TODO in the future this may need to be redone for performance reasons
     # we are giving it its own process though
+    planes = []
     mesh = vedo.Mesh([P, plot_t])
+    for c in coils:
+        pointsline = c[0] * unit_convert
+        i = mesh.intersect_with_line(*pointsline)
+        if len(i) > 0:
+            planes.append(i[0])
+
     plt = patch(
         vertices=P,
         faces=plot_t,
@@ -35,7 +45,7 @@ def plot_coil_worker(
         cmap_label=p[1],
         cdata=p[2],
         config=_PATCH_CONFIGS[p[3]],
-        planes=list(map(lambda c: mesh.intersect_with_line(*c[0])[0], coils)),
+        planes=planes,
     )
 
     for (
@@ -47,8 +57,12 @@ def plot_coil_worker(
         Coilt,
         Translation,
     ) in coils:
+        # TODO move somewhere else
+        CoilP *= unit_convert
+        pointsline *= unit_convert
         coil_mesh = vedo.Mesh([CoilP, Coilt])
         obs_line = vedo.Line(*pointsline).lw(3).color("red")
+
         plt.add(coil_mesh)
         plt.add(obs_line)
 
@@ -121,7 +135,8 @@ def patch(
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
     planes: list[np.array] = None,
-    planes_size: float = 0.05,
+    planes_size: float = 10,
+    planes_alpha: float = 0.8,
 ) -> vedo.Mesh:
     """
     Plot model with colormap data
@@ -152,42 +167,45 @@ def patch(
     else:
         axes = dict(axes)
 
-    mesh = vedo.Mesh([vertices, faces])
-    if color is not None:
-        mesh.color(color)
-    if edge_color.lower() != "none":
-        mesh.linecolor(edge_color)
-
     plt_kw = dict(title=title, axes=axes, bg=bg)
     if bg2 is not None:
         plt_kw["bg2"] = bg2
 
     plt = vedo.Plotter(**plt_kw, qt_widget=qt_widget)
     plt.add(vedo.Text2D(title, pos="top-center", s=title_size, font=title_font))
+    plt.azimuth(viewax[0])
+    plt.elevation(viewax[1])
 
     if planes is not None:
         for plane in planes:
             plane_yz = vedo.Plane(
                 pos=plane, normal=(1, 0, 0), s=(planes_size, planes_size)
             )
-            plane_yz.color(bg).alpha(0.3)
+            plane_yz.color(bg).alpha(planes_alpha)
+            plane_yz.linecolor(edge_color).linewidth(2)  # outline
             plt.add(plane_yz)
 
             plane_xz = vedo.Plane(
                 pos=plane, normal=(0, 1, 0), s=(planes_size, planes_size)
             )
-            plane_xz.color(bg).alpha(0.3)
+            plane_xz.color(bg).alpha(planes_alpha)
+            plane_xz.linecolor(edge_color).linewidth(2)
             plt.add(plane_xz)
 
             plane_xy = vedo.Plane(
                 pos=plane, normal=(0, 0, 1), s=(planes_size, planes_size)
             )
-            plane_xy.color(bg).alpha(0.3)
+            plane_xy.color(bg).alpha(planes_alpha)
+            plane_xy.linecolor(edge_color).linewidth(2)
             plt.add(plane_xy)
 
+    mesh = vedo.Mesh([vertices, faces])
+    if color is not None:
+        mesh.color(color)
+    if edge_color.lower() != "none":
+        mesh.linecolor(edge_color)
+
     plt.add(mesh)
-    plt.azimuth(viewax[0])
-    plt.elevation(viewax[1])
     if cdata is not None:
         mesh.celldata["values"] = cdata
         mesh.cmap(colormap)

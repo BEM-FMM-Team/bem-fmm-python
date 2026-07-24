@@ -51,13 +51,19 @@ from engines.plot import plot_fields, plot_residual, plot_slices
 from neighbor_ints import neighbor_ints_En
 
 
-# @cache
+@cache
 def load_model():
     index_name = ASSETS / "tissue_index.yaml"
 
     with open(index_name, "r") as f:
         d = f.read()
-    shells: dict[str, tuple[float, str]] = yaml.safe_load(d)
+    data: dict[str, tuple[float, str]] = yaml.safe_load(d)
+
+    shells = data.get("shells")
+    if not shells:
+        raise ValueError(f"shells is missing from {index_name}")
+
+    unit_convert = data.get("unit_convert", 1e3)
 
     Pcell: list[np.ndarray] = []
     tcell: list[np.ndarray] = []
@@ -319,11 +325,7 @@ def main():
         Coilt,
         Translation,
     ) in coils:  # maybe njit
-
-        # Convert coil to [mm]
-        CoilP = CoilP * unit_convert
         strcoil.Pwire = strcoil.Pwire * unit_convert
-        pointsline = pointsline * unit_convert
 
         # RHS
         EincP: Mx3 = inc_field_electric(strcoil, P, dIdt, prec=1e-1)
@@ -414,7 +416,13 @@ def main():
         Jn_in,
     )
 
-    xyz = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)[0]
+    # TODO query on the first point
+    pointsline = coils[0][0] * unit_convert
+    i = vedo.Mesh([P, plot_t]).intersect_with_line(*pointsline)
+    if len(i) > 0:
+        xyz = i[0]
+    else:
+        xyz = [0.5, 0.5, 0.5]
     plot_slices(
         P,
         t,

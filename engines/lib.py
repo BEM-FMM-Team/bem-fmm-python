@@ -68,7 +68,7 @@ def timeit(fn):
 
 memory = Memory(Path(__file__).resolve().parent.resolve().parent / "__compute_cache__")
 cache = memory.cache
-cache = timeit
+# cache = timeit
 
 
 io = True
