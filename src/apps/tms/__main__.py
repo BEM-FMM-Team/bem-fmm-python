@@ -209,15 +209,19 @@ def setup_coil() -> TMSCoilDefinition:
     Intersection = np.array([0, 0, 0])  # INFO Not used, only for api compat
 
     # pyrefly: ignore [missing-argument]
-    return TMSCoilDefinition(array=[(
-        pointsline,
-        dIdt,
-        I0,
-        strcoil,
-        CoilP,
-        Coilt,
-        Intersection,
-        )], slice_plane=None,
+    return TMSCoilDefinition(
+        array=[
+            (
+                pointsline,
+                dIdt,
+                I0,
+                strcoil,
+                CoilP,
+                Coilt,
+                Intersection,
+            )
+        ],
+        slice_plane=None,
     )
 
 
@@ -428,7 +432,7 @@ def main():
         else:
             xyz = [0.5, 0.5, 0.5]
     else:
-        xyz = coils.slice_plane # * unit_convert NOTE may have to unitconvert
+        xyz = coils.slice_plane  # * unit_convert NOTE may have to unitconvert
     plot_slices(
         P,
         t,

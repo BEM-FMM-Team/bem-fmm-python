@@ -145,7 +145,7 @@ class Frontend(QMainWindow):
             lambda: self.backend.renderer.orient_camera("yz")
         )
 
-        self.ui.SaveRun.clicked.connect(self.save_coil_config_dialog_and_run_tms)
+        self.ui.RunTMS.clicked.connect(self.save_coil_config_dialog_and_run_tms)
 
     def add_coil(self):
         # creates a new coil

@@ -76,10 +76,12 @@ FullCoil = tuple[
 
 CoilArray = list[FullCoil] | np.ndarray[[int], np.dtype[FullCoil]]
 
+
 @dataclass
 class TMSCoilDefinition:
     array: CoilArray
     slice_plane: np.ndarray | None
+
 
 @dataclass
 class EfieldSlice:

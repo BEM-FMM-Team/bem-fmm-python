@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>995</width>
-    <height>1046</height>
+    <height>1102</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -161,9 +161,9 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="SaveRun">
+            <widget class="QPushButton" name="RunTMS">
              <property name="text">
-              <string>SaveRun</string>
+              <string>Run TMS</string>
              </property>
             </widget>
            </item>
@@ -550,7 +550,7 @@
      <x>0</x>
      <y>0</y>
      <width>995</width>
-     <height>33</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>
