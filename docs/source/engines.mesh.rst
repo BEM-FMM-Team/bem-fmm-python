@@ -1,197 +1,197 @@
-engines.mesh package
+bemfmm.mesh package
 ====================
 
 Submodules
 ----------
 
-engines.mesh.mesh\_areas module
+bemfmm.mesh.mesh\_areas module
 -------------------------------
 
-.. automodule:: engines.mesh.mesh_areas
+.. automodule:: bemfmm.mesh.mesh_areas
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_clean\_coincident\_facets module
+bemfmm.mesh.mesh\_clean\_coincident\_facets module
 ---------------------------------------------------
 
-.. automodule:: engines.mesh.mesh_clean_coincident_facets
+.. automodule:: bemfmm.mesh.mesh_clean_coincident_facets
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_combine\_simple module
+bemfmm.mesh.mesh\_combine\_simple module
 -----------------------------------------
 
-.. automodule:: engines.mesh.mesh_combine_simple
+.. automodule:: bemfmm.mesh.mesh_combine_simple
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_connee module
+bemfmm.mesh.mesh\_connee module
 --------------------------------
 
-.. automodule:: engines.mesh.mesh_connee
+.. automodule:: bemfmm.mesh.mesh_connee
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_cross\_section module
+bemfmm.mesh.mesh\_cross\_section module
 ----------------------------------------
 
-.. automodule:: engines.mesh.mesh_cross_section
+.. automodule:: bemfmm.mesh.mesh_cross_section
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_fix module
+bemfmm.mesh.mesh\_fix module
 -----------------------------
 
-.. automodule:: engines.mesh.mesh_fix
+.. automodule:: bemfmm.mesh.mesh_fix
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_imprint module
+bemfmm.mesh.mesh\_imprint module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_imprint
+.. automodule:: bemfmm.mesh.mesh_imprint
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_laplace3D module
+bemfmm.mesh.mesh\_laplace3D module
 -----------------------------------
 
-.. automodule:: engines.mesh.mesh_laplace3D
+.. automodule:: bemfmm.mesh.mesh_laplace3D
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_laplace\_normals module
+bemfmm.mesh.mesh\_laplace\_normals module
 ------------------------------------------
 
-.. automodule:: engines.mesh.mesh_laplace_normals
+.. automodule:: bemfmm.mesh.mesh_laplace_normals
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_normals module
+bemfmm.mesh.mesh\_normals module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_normals
+.. automodule:: bemfmm.mesh.mesh_normals
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_refiner module
+bemfmm.mesh.mesh\_refiner module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_refiner
+.. automodule:: bemfmm.mesh.mesh_refiner
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_refiner\_light module
+bemfmm.mesh.mesh\_refiner\_light module
 ----------------------------------------
 
-.. automodule:: engines.mesh.mesh_refiner_light
+.. automodule:: bemfmm.mesh.mesh_refiner_light
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_reorient module
+bemfmm.mesh.mesh\_reorient module
 ----------------------------------
 
-.. automodule:: engines.mesh.mesh_reorient
+.. automodule:: bemfmm.mesh.mesh_reorient
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_rotate1 module
+bemfmm.mesh.mesh\_rotate1 module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_rotate1
+.. automodule:: bemfmm.mesh.mesh_rotate1
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_rotate2 module
+bemfmm.mesh.mesh\_rotate2 module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_rotate2
+.. automodule:: bemfmm.mesh.mesh_rotate2
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_surface module
+bemfmm.mesh.mesh\_surface module
 ---------------------------------
 
-.. automodule:: engines.mesh.mesh_surface
+.. automodule:: bemfmm.mesh.mesh_surface
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_surface\_old module
+bemfmm.mesh.mesh\_surface\_old module
 --------------------------------------
 
-.. automodule:: engines.mesh.mesh_surface_old
+.. automodule:: bemfmm.mesh.mesh_surface_old
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_tri module
+bemfmm.mesh.mesh\_tri module
 -----------------------------
 
-.. automodule:: engines.mesh.mesh_tri
+.. automodule:: bemfmm.mesh.mesh_tri
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.mesh\_tricenter module
+bemfmm.mesh.mesh\_tricenter module
 -----------------------------------
 
-.. automodule:: engines.mesh.mesh_tricenter
+.. automodule:: bemfmm.mesh.mesh_tricenter
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.meshcoil module
+bemfmm.mesh.meshcoil module
 ----------------------------
 
-.. automodule:: engines.mesh.meshcoil
+.. automodule:: bemfmm.mesh.meshcoil
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.meshconnet module
+bemfmm.mesh.meshconnet module
 ------------------------------
 
-.. automodule:: engines.mesh.meshconnet
+.. automodule:: bemfmm.mesh.meshconnet
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.meshfill module
+bemfmm.mesh.meshfill module
 ----------------------------
 
-.. automodule:: engines.mesh.meshfill
+.. automodule:: bemfmm.mesh.meshfill
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.meshplaneint\_axis\_nonmanifold module
+bemfmm.mesh.meshplaneint\_axis\_nonmanifold module
 ---------------------------------------------------
 
-.. automodule:: engines.mesh.meshplaneint_axis_nonmanifold
+.. automodule:: bemfmm.mesh.meshplaneint_axis_nonmanifold
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.mesh.meshwire module
+bemfmm.mesh.meshwire module
 ----------------------------
 
-.. automodule:: engines.mesh.meshwire
+.. automodule:: bemfmm.mesh.meshwire
    :members:
    :show-inheritance:
    :undoc-members:
@@ -199,7 +199,7 @@ engines.mesh.meshwire module
 Module contents
 ---------------
 
-.. automodule:: engines.mesh
+.. automodule:: bemfmm.mesh
    :members:
    :show-inheritance:
    :undoc-members:

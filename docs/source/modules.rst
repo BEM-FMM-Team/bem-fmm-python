@@ -1,7 +1,7 @@
-engines
+bemfmm
 =======
 
 .. toctree::
    :maxdepth: 4
 
-   engines
+   bemfmm

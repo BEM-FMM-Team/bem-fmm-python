@@ -38,4 +38,4 @@ env/
 **/*.dll
 __output__
 
-./_neighbor_ints/lib_all.c
+./src/cbemfmm/cbemfmm.c

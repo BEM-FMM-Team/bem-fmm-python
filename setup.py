@@ -2,6 +2,7 @@ import sys
 
 import numpy as np
 from Cython.Build import cythonize
+# pyrefly: ignore [missing-source-for-stubs]
 from setuptools import Extension, setup
 
 if sys.platform == "win32":
@@ -17,28 +18,30 @@ else:  # TODO macos
 
 extensions = [
     Extension(
-        name="neighbor_ints",
+        name="cbemfmm.cbemfmm",
         sources=[
-            "_neighbor_ints/lib_all.pyx",
-            "_neighbor_ints/neighbor_ints_En.c",
-            "_neighbor_ints/potint.c",
-            "_neighbor_ints/potint2.c",
+            "src/cbemfmm/cbemfmm.pyx",
+            "src/cbemfmm/neighbor_ints_En.c",
+            # "src/cbemfmm/neighbor_ints_Pn.c",
+            "src/cbemfmm/potint.c",
+            "src/cbemfmm/potint2.c",
         ],
         include_dirs=[
             np.get_include(),
-            "_neighbor_ints",
+            "src/cbemfmm",
         ],
         extra_compile_args=compile_args,
         extra_link_args=link_args,
     )
 ]
 
+
 setup(
     ext_modules=cythonize(
         extensions,
         language_level="3",
         include_path=[
-            "_neighbor_ints",
+            "cbemfmm",
         ],
     ),
 )

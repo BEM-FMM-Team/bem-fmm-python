@@ -1,53 +1,53 @@
-engines.plot package
+bemfmm.plot package
 ====================
 
 Submodules
 ----------
 
-engines.plot.compute\_efield\_overlay module
+bemfmm.plot.compute\_efield\_overlay module
 --------------------------------------------
 
-.. automodule:: engines.plot.compute_efield_overlay
+.. automodule:: bemfmm.plot.compute_efield_overlay
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.plot.fields module
+bemfmm.plot.fields module
 --------------------------
 
-.. automodule:: engines.plot.fields
+.. automodule:: bemfmm.plot.fields
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.plot.patch module
+bemfmm.plot.patch module
 -------------------------
 
-.. automodule:: engines.plot.patch
+.. automodule:: bemfmm.plot.patch
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.plot.residual module
+bemfmm.plot.residual module
 ----------------------------
 
-.. automodule:: engines.plot.residual
+.. automodule:: bemfmm.plot.residual
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.plot.slice module
+bemfmm.plot.slice module
 -------------------------
 
-.. automodule:: engines.plot.slice
+.. automodule:: bemfmm.plot.slice
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.plot.sparse module
+bemfmm.plot.sparse module
 --------------------------
 
-.. automodule:: engines.plot.sparse
+.. automodule:: bemfmm.plot.sparse
    :members:
    :show-inheritance:
    :undoc-members:
@@ -55,7 +55,7 @@ engines.plot.sparse module
 Module contents
 ---------------
 
-.. automodule:: engines.plot
+.. automodule:: bemfmm.plot
    :members:
    :show-inheritance:
    :undoc-members:

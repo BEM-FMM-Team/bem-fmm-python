@@ -40,24 +40,24 @@ dev = [
   "pytest>=7.4.0", "jupyter>=1.0.0", "sphinx", "sphinx_mdinclude",
 ]
 
-# TODO for future ref after repo restructure
-[project.scripts]
-bemfmm_gui = "apps.gui:main"
-bemfmm_tms = "apps.tms:main"
-bemfmm_plot = "apps.plot:main"
-bemfmm_sphere = "apps.sphere_3L:main"
-
 [tool.setuptools]
-package-dir = {"" = "."}
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["engines*"]
+where = ["src"]
+include = ["cbemfmm", "cbemfmm.*", "apps", "apps.*"]
+
+[project.scripts]
+bemfmm_gui = "apps.gui.__main__:main"
+bemfmm_tms = "apps.tms.__main__:main"
+bemfmm_plot = "apps.plot.__main__:main"
+bemfmm_sphere = "apps.sphere_3L.__main__:main"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"] # TODO have actual unit tests
 python_functions = ["test_*"]
+pythonpath = ["src"]
 
 [tool.uv]
 index-url = "https://pandecode.github.io/FMM3D/simple/"

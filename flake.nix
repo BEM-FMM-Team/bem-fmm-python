@@ -84,7 +84,7 @@
                 export QT_PLUGIN_PATH="${q}:$QT_PLUGIN_PATH";
                 export QT_QPA_PLATFORM=xcb
 
-                source ./dev.sh
+                source ./scripts/dev.sh
               '';
           };
       }

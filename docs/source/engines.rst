@@ -1,4 +1,4 @@
-engines package
+bemfmm package
 ===============
 
 Subpackages
@@ -7,41 +7,41 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   engines.charge
-   engines.mesh
-   engines.plot
+   bemfmm.charge
+   bemfmm.mesh
+   bemfmm.plot
 
 Submodules
 ----------
 
-engines.constants module
+bemfmm.constants module
 ------------------------
 
-.. automodule:: engines.constants
+.. automodule:: bemfmm.constants
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.fgmres module
+bemfmm.fgmres module
 ---------------------
 
-.. automodule:: engines.fgmres
+.. automodule:: bemfmm.fgmres
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.lib module
+bemfmm.lib module
 ------------------
 
-.. automodule:: engines.lib
+.. automodule:: bemfmm.lib
    :members:
    :show-inheritance:
    :undoc-members:
 
-engines.my\_types module
+bemfmm.my\_types module
 ------------------------
 
-.. automodule:: engines.my_types
+.. automodule:: bemfmm.my_types
    :members:
    :show-inheritance:
    :undoc-members:
@@ -49,7 +49,7 @@ engines.my\_types module
 Module contents
 ---------------
 
-.. automodule:: engines
+.. automodule:: bemfmm
    :members:
    :show-inheritance:
    :undoc-members:
