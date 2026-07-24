@@ -17,7 +17,7 @@ def plot_fields(
 
     # fmt: off
     from ..constants import eps0
-    
+
     # plots = [
     #     ("Charge Solution on Surface: ",                "C/mm²", eps0 * c[plot_t_idx], "jet"),
     #     ("Secondary Potential on Surface: ",            "V",     Ptot[plot_t_idx], "jet"),
@@ -25,7 +25,6 @@ def plot_fields(
     #     ("E-field Magnitude on Surface: ",              "V/mm",   Emag[plot_t_idx], "jet"),
     #     ("Normal Current Density (inner) on Surface: ", "A/mm²", Jn_in[plot_t_idx], "jet"),
     # ]
-
     # For demo
     plots = [
         ("Secondary Potential on Surface: ",            "V",     Ptot[plot_t_idx], "jet"),

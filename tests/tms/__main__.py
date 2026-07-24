@@ -50,6 +50,7 @@ from engines.plot import plot_fields, plot_residual, plot_slices
 # pyrefly: ignore [missing-import]
 from neighbor_ints import neighbor_ints_En
 
+
 # @cache
 def load_model():
     index_name = ASSETS / "tissue_index.yaml"
@@ -63,7 +64,7 @@ def load_model():
     condinner: list[float] = []
     condouter: list[float] = []
 
-    model_unit_scalar = 1e-3 # mesh defaults to [mm], set to [m]
+    model_unit_scalar = 1e-3  # mesh defaults to [mm], set to [m]
 
     for k, v in shells.items():
         path = ASSETS / f"{k}.stl"
@@ -103,7 +104,7 @@ def load_model():
         condout,
         interface,
         shells,
-        unit_convert
+        unit_convert,
     )
 
 
@@ -223,8 +224,8 @@ def charge_engine(
     # coil info
     b: np.ndarray,
 ):
-    iter = 20 # for best results, set to 50
-    relres = 1e-4 # for best results, set to 1e-6
+    iter = 20  # for best results, set to 50
+    relres = 1e-4  # for best results, set to 1e-6
     weight = 0.5
 
     MATVEC = lambda c: surface_field_lhs(
@@ -276,7 +277,7 @@ def main():
         condout,
         interface,
         shells,
-        unit_convert
+        unit_convert,
     ) = load_model()
 
     RnumberE = 4
@@ -373,7 +374,7 @@ def main():
     print(
         f"""Current conservation law:
             Norm difference of inner and outer current density: {diff:.3e}"""
-        )
+    )
 
     tissue_list = list(shells.keys())
     tissue_to_plot = "wm"
@@ -384,7 +385,7 @@ def main():
     # Total field
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
-    
+
     # # save data
     # save_fmt = "mat"
 

@@ -121,7 +121,7 @@ def compute_efield_overlay(
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
 
-    E_plot = E_mag.copy()  
+    E_plot = E_mag.copy()
 
     # Automatic scales (should probably set another way, is fine for now)
     # I cant remember how we did this before...
