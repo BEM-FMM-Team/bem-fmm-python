@@ -242,7 +242,7 @@ class Backend:
 
     def load_coil_configuration(self, path):
         for coil in self.coils.values():
-            self.renderer.remove_coil_actors(coil)
+            self.renderer.remove_coil_actors(coil.id)
         with open(path, "rb") as f:
             coil_list = pickle.load(f)
         self.coils = {
