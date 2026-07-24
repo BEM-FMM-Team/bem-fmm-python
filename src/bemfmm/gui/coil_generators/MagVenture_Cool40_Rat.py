@@ -1,7 +1,8 @@
 import numpy as np
-from engines.mesh.meshwire import meshwire
-from engines.mesh.mesh_surface import mesh_surface
-from vedo import Plotter, Mesh
+from vedo import Mesh, Plotter
+
+from bemfmm.mesh.mesh_surface import mesh_surface
+from bemfmm.mesh.meshwire import meshwire
 
 
 def MagVenture_Cool40_Rat(a, b, M, flag, sk):
@@ -12,7 +13,7 @@ def MagVenture_Cool40_Rat(a, b, M, flag, sk):
     P_list = []
     t_list = []
     tind_list = []
-    for turn in range(1,37):
+    for turn in range(1, 37):
 
         m = turn
         offset = 0
@@ -22,7 +23,7 @@ def MagVenture_Cool40_Rat(a, b, M, flag, sk):
             m = m - 12
 
         if m > 24:
-            offset = -2*4.3e-3
+            offset = -2 * 4.3e-3
             m = m - 24
 
         layer = turn // 12

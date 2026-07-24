@@ -25,9 +25,12 @@ from bemfmm.gui.quat_multiply import quat_multiply
 from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
 from bemfmm.gui.load_template import load_template
 from bemfmm.gui.renderer import Renderer
+
 """
 contains backend information for a coil manager including information for charge engine computations
 """
+
+
 class Backend:
     def __init__(self, head_models, ViewPort):
         self.renderer = Renderer(head_models, ViewPort, self.drag_place)
@@ -199,7 +202,7 @@ class Backend:
             self.renderer.edit_coil_actor(old_coil)
         self.renderer.render_plot()
         return
-    
+
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
         print(self.renderer.white_matter_placement_mode)
@@ -211,7 +214,9 @@ class Backend:
         distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
         idx = indices[0, 0]
         skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * (distance + self.coils[id].bottom_to_com)
+        skin_point_vector = self.normals[idx].copy() * (
+            distance + self.coils[id].bottom_to_com
+        )
         final_point = skin_point + skin_point_vector
         print(final_point)
 
@@ -221,7 +226,7 @@ class Backend:
         self.renderer.show_world_axes(coil)
         self.renderer.render_plot()
         return
-        
+
     def drag_place(self, point, distance, id):
         coil = self.coils[id]
 
@@ -229,7 +234,7 @@ class Backend:
         idx = indices[0, 0]
 
         skin_point = self.centers[idx].copy()
-        skin_point_vector = (self.normals[idx].copy() * (distance + coil.bottom_to_com))
+        skin_point_vector = self.normals[idx].copy() * (distance + coil.bottom_to_com)
 
         final_point = skin_point + skin_point_vector
 
@@ -245,12 +250,8 @@ class Backend:
             self.renderer.remove_coil_actors(coil.id)
         with open(path, "rb") as f:
             coil_list = pickle.load(f)
-        self.coils = {
-            coil.id: coil
-            for coil in coil_list
-        }
+        self.coils = {coil.id: coil for coil in coil_list}
         self.undo_queue.clear()
         for coil in self.coils.values():
             self.renderer.add_coil_actor(coil)
         return
-        
