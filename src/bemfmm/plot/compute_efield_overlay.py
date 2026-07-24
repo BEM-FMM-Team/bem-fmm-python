@@ -134,10 +134,10 @@ def compute_efield_overlay(
         Coilt,
         Translation,
     ) in coils.array:
-        strcoil.Pwire = strcoil.Pwire * unit_convert
+        # strcoil.Pwire = strcoil.Pwire * unit_convert # Not needed, since already done in main()
 
         # RHS
-        Einc_l.append(inc_field_electric(strcoil, P, dIdt, prec=1e-1))
+        Einc_l.append(inc_field_electric(strcoil, points_obs, dIdt, prec=1e-1))
 
     Etotal = Esec + sum(Einc_l)
 
@@ -155,7 +155,7 @@ def compute_efield_overlay(
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
-    mask[~mask] = True  # set all to true TEST
+    # mask[~mask] = True  # set all to true TEST outside the model
 
     E_plot = E_mag.copy()
 
