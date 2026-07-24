@@ -45,7 +45,7 @@ def volume_field_electric(
             temp = Center[m, :] - Points[index, :]
             DIST = np.sqrt(np.sum(temp * temp, axis=1))
             I = Area[m] * temp / (DIST[:, None] ** 3)
-            E[index, :] = E[index, :] - (-c[m] * I)
+            E[index, :] = E[index, :] - (-c[m] * I / (4*np.pi))
 
             # Near-field correction (precise integration)
             r1 = P[t[m, 0], :]
@@ -62,6 +62,6 @@ def volume_field_electric(
 
             # I = potint2(r1, r2, r3, normals[m, :], Points[index, :])
 
-            E[index, :] = E[index, :] + (-c[m] * I)
+            E[index, :] = E[index, :] + (-c[m] * I / (4*np.pi))
 
     return E
