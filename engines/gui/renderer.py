@@ -1,7 +1,5 @@
 import numpy as np
 
-from engines.gui.coil_interactor import CoilInteractorStyle
-
 from PySide6.QtWidgets import QWidget, QVBoxLayout
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.vtkRenderingCore import vtkCellPicker
