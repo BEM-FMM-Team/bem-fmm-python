@@ -3,18 +3,17 @@ from pathlib import Path
 
 import numpy as np
 
-from ..my_types import FullCoil, StrCoil, TMSCoilDefinition
-from .coil import Coil
+from ..my_types import StrCoil, TMSCoilDefinition
 
 
 def pickle_loader(
     filename: Path | str,
 ) -> TMSCoilDefinition:
     with open(filename, "rb") as f:
-        data: list = pickle.load(f)
+        data: TMSCoilDefinition = pickle.load(f)
 
     coil_array = []
-    for coil in data:
+    for coil in data.array:
         strcoil = StrCoil(Pwire=coil.Pwire, Ewire=coil.Ewire, Swire=coil.Swire)
         coil_array.append(
             (
@@ -28,7 +27,9 @@ def pickle_loader(
             )
         )
 
-    return TMSCoilDefinition(array=coil_array, slice_plane=np.ndarray([0, 0, 0]))
+    return TMSCoilDefinition(
+        array=coil_array, slice_plane=data.array or np.ndarray([0, 0, 0])
+    )
 
 
 CWD = Path(__file__).parent.resolve()

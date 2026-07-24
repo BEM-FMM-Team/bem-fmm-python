@@ -61,6 +61,7 @@ class StrCoil:
     Swire: Nx1
 
 
+# TODO change to a dataclass()
 FullCoil = tuple[
     Annotated[
         np.ndarray,
