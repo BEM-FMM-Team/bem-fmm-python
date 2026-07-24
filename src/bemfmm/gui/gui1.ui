@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>995</width>
-    <height>764</height>
+    <height>1046</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Coil Navigator</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="enabled">
@@ -20,6 +20,9 @@
    <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,3">
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="MainGUI">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
@@ -41,6 +44,20 @@
                </item>
                <item>
                 <widget class="QComboBox" name="TypeDropdown"/>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Name</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="NameEntry"/>
                </item>
               </layout>
              </item>
@@ -98,6 +115,24 @@
             </layout>
            </item>
            <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_8">
+             <item>
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Coil Opacity</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSlider" name="CoilAlpha">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
             <widget class="QPushButton" name="Edit">
              <property name="text">
               <string>Edit</string>
@@ -118,6 +153,27 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="Save">
+             <property name="text">
+              <string>Save</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="SaveRun">
+             <property name="text">
+              <string>SaveRun</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="Load">
+             <property name="text">
+              <string>Load</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -127,64 +183,128 @@
            <string>Head Model</string>
           </property>
           <layout class="QFormLayout" name="formLayout">
-           <item row="5" column="0">
-            <layout class="QVBoxLayout" name="verticalLayout_10"/>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="bone">
+             <property name="text">
+              <string>Bone</string>
+             </property>
+            </widget>
            </item>
-           <item row="1" column="0">
+           <item row="2" column="1">
+            <widget class="QSlider" name="boneAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
             <widget class="QCheckBox" name="csf">
              <property name="text">
               <string>csf</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="Bone">
-             <property name="text">
-              <string>Bone</string>
+           <item row="3" column="1">
+            <widget class="QSlider" name="csfAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QCheckBox" name="Cerebellum">
-             <property name="text">
-              <string>Cerebellum</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QCheckBox" name="gm">
-             <property name="text">
-              <string>gm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QCheckBox" name="Skin">
+           <item row="4" column="0">
+            <widget class="QCheckBox" name="skin">
              <property name="text">
               <string>Skin</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QCheckBox" name="Ventricles">
-             <property name="text">
-              <string>Ventricles</string>
+           <item row="4" column="1">
+            <widget class="QSlider" name="skinAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="5" column="0">
             <widget class="QCheckBox" name="wm">
              <property name="text">
               <string>wm</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
-            <widget class="QPushButton" name="ApplyHeadModel">
-             <property name="text">
-              <string>Apply</string>
+           <item row="5" column="1">
+            <widget class="QSlider" name="wmAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QCheckBox" name="ventricles">
+             <property name="text">
+              <string>Ventricles</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSlider" name="ventriclesAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QCheckBox" name="gm">
+             <property name="text">
+              <string>gm</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QSlider" name="gmAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QCheckBox" name="cerebellum">
+             <property name="text">
+              <string>Cerebellum</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QSlider" name="cerebellumAlpha">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="10" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_9">
+             <item>
+              <widget class="QPushButton" name="CameraXY">
+               <property name="text">
+                <string>XY</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="CameraXZ">
+               <property name="text">
+                <string>XZ</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="CameraYZ">
+               <property name="text">
+                <string>YZ</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -200,7 +320,7 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>X Position (m)</string>
+               <string>X Position (mm)</string>
               </property>
              </widget>
             </item>
@@ -223,7 +343,7 @@
           <item>
            <widget class="QLabel" name="label_10">
             <property name="text">
-             <string>Y Position (m)</string>
+             <string>Y Position (mm)</string>
             </property>
            </widget>
           </item>
@@ -244,7 +364,7 @@
           <item>
            <widget class="QLabel" name="label_16">
             <property name="text">
-             <string>Z Position (m)</string>
+             <string>Z Position (mm)</string>
             </property>
            </widget>
           </item>
@@ -349,7 +469,7 @@
           <item>
            <widget class="QLabel" name="label_14">
             <property name="text">
-             <string>dIdt (Amp/ns)</string>
+             <string>dIdt (A/s)</string>
             </property>
            </widget>
           </item>
@@ -377,7 +497,7 @@
           <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>White Matter Disatnce</string>
+             <string>Skin Distance (mm)</string>
             </property>
            </widget>
           </item>
