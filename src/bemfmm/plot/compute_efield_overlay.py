@@ -41,7 +41,18 @@ _PLANE_CONFIG = {
 
 
 def compute_efield_overlay_worker(
-    P, t, centers, area, normals, c, plane, val, interface, tissue_list, coils, unit_convert
+    P,
+    t,
+    centers,
+    area,
+    normals,
+    c,
+    plane,
+    val,
+    interface,
+    tissue_list,
+    coils,
+    unit_convert,
 ):
     result = compute_efield_overlay(
         P=P,
@@ -53,8 +64,8 @@ def compute_efield_overlay_worker(
         plane=plane,
         val=val,
         interface=interface,
-        coils = coils,
-        unit_convert = unit_convert
+        coils=coils,
+        unit_convert=unit_convert,
     )
     from bemfmm.plot import plot_efield_slice
 
@@ -78,7 +89,7 @@ def compute_efield_overlay(
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
     coils=[],
-    unit_convert = 1e3,
+    unit_convert=1e3,
 ) -> EfieldSlice:
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
@@ -113,7 +124,7 @@ def compute_efield_overlay(
     )
 
     # Calculate the primary field for every coil
-    Einc = np.zeros_like(Esec)
+    Einc_l = []
     for (
         pointsline,
         dIdt,
@@ -126,9 +137,9 @@ def compute_efield_overlay(
         strcoil.Pwire = strcoil.Pwire * unit_convert
 
         # RHS
-        Einc = Einc + inc_field_electric(strcoil, P, dIdt, prec=1e-1)
+        Einc_l.append(inc_field_electric(strcoil, P, dIdt, prec=1e-1))
 
-    Etotal = Esec + Einc
+    Etotal = Esec + sum(Einc_l)
 
     E_mag = np.linalg.norm(Etotal, axis=1)
     print(f"E-field computation: {time.perf_counter() - t0:.3f}s")
