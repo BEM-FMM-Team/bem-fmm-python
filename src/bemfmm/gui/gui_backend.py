@@ -15,16 +15,16 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-from engines.gui.transformer import transformer
-from engines.mesh.mesh_tricenter import mesh_tricenter
-from engines.mesh.mesh_normals import mesh_normals
-from engines.gui.vector_to_quat import vector_to_quat
-from engines.gui.xyz_to_quat import xyz_to_quat
-from engines.gui.load_coil_from_func import load_coil_from_func
-from engines.gui.quat_multiply import quat_multiply
-from engines.gui.axis_angle_to_quat import axis_angle_to_quat
-from engines.gui.load_template import load_template
-from engines.gui.renderer import Renderer
+from bemfmm.gui.transformer import transformer
+from bemfmm.mesh.mesh_tricenter import mesh_tricenter
+from bemfmm.mesh.mesh_normals import mesh_normals
+from bemfmm.gui.vector_to_quat import vector_to_quat
+from bemfmm.gui.xyz_to_quat import xyz_to_quat
+from bemfmm.gui.load_coil_from_func import load_coil_from_func
+from bemfmm.gui.quat_multiply import quat_multiply
+from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
+from bemfmm.gui.load_template import load_template
+from bemfmm.gui.renderer import Renderer
 """
 contains backend information for a coil manager including information for charge engine computations
 """
