@@ -30,9 +30,9 @@ void grad_potint(const double r1_x, const double r1_y, const double r1_z,
   dz_32 = r3_z - r2_z;
 
   double len1, len2, len3;
-  len1 = norm(dx_21, dy_21, dz_21);
-  len2 = norm(dx_31, dy_31, dz_31);
-  len3 = norm(dx_32, dy_32, dz_32);
+  len1 = norm3(dx_21, dy_21, dz_21);
+  len2 = norm3(dx_31, dy_31, dz_31);
+  len3 = norm3(dx_32, dy_32, dz_32);
 
   double normal_abs_l1_inv, normal_abs_l2_inv, normal_abs_l3_inv;
   normal_abs_l1_inv = 1.0 / len1;

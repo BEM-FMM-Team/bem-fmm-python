@@ -44,9 +44,9 @@ void single_layer_potint(
   dz_32 = r3_z - r2_z;
 
   double normal_abs_l1_inv, normal_abs_l2_inv, normal_abs_l3_inv;
-  normal_abs_l1_inv = 1.0 / norm(dx_21, dy_21, dz_21);
-  normal_abs_l2_inv = 1.0 / norm(dx_31, dy_31, dz_31);
-  normal_abs_l3_inv = 1.0 / norm(dx_32, dy_32, dz_32);
+  normal_abs_l1_inv = 1.0 / norm3(dx_21, dy_21, dz_21);
+  normal_abs_l2_inv = 1.0 / norm3(dx_31, dy_31, dz_31);
+  normal_abs_l3_inv = 1.0 / norm3(dx_32, dy_32, dz_32);
 
   double l1_x, l1_y, l1_z;
   double l2_x, l2_y, l2_z;

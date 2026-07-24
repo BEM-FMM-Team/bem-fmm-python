@@ -42,7 +42,7 @@ inline double dot(const double u_x, const double u_y, const double u_z,
   return u_x * v_x + u_y * v_y + u_z * v_z;
 }
 
-inline double norm(const double u_x, const double u_y, const double u_z) {
+inline double norm3(const double u_x, const double u_y, const double u_z) {
   return sqrt(dot(u_x, u_y, u_z, u_x, u_y, u_z));
 }
 
@@ -67,7 +67,7 @@ inline double triple_product(double u1, double u2, double u3, double v1,
 
 inline double dist(double u1, double u2, double u3, double v1, double v2,
                    double v3) {
-  return norm(u1 - v1, u2 - v2, u3 - v3);
+  return norm3(u1 - v1, u2 - v2, u3 - v3);
 }
 
 #endif

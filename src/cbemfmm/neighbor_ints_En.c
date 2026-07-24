@@ -115,7 +115,7 @@ void cneighbor_ints_En(const double *restrict P, const size_t *restrict t,
       double dnm_x = center[n] - center[nb];
       double dnm_y = center[n + T] - center[nb + T];
       double dnm_z = center[n + 2 * T] - center[nb + 2 * T];
-      double Dnm = norm(dnm_x, dnm_y, dnm_z);
+      double Dnm = norm3(dnm_x, dnm_y, dnm_z);
       double ADnm3 = -area[n] / (Dnm * Dnm * Dnm);
 
       IC[n + m * T] = dot(dnm_x * ADnm3, dnm_y * ADnm3, dnm_z * ADnm3,
