@@ -2,18 +2,19 @@ import sys
 
 import numpy as np
 from Cython.Build import cythonize
-
 # pyrefly: ignore [missing-source-for-stubs]
 from setuptools import Extension, setup
 
 if sys.platform == "win32":
+    # MSVC
     compile_args = ["/O2", "/openmp"]
     link_args = ["/openmp"]
 elif sys.platform == "linux":
-    compile_args = ["-O3", "-fopenmp"]
+    # GCC/Clang
+    compile_args = ["-O3", "-fopenmp", "-march=native", "-funroll-loops"]
     link_args = ["-fopenmp"]
-else:  # TODO macos
-    compile_args = ["-O3", "-fopenmp"]
+else:  # macOS (Clang)
+    compile_args = ["-O3", "-fopenmp", "-march=native", "-funroll-loops"]
     link_args = ["-fopenmp"]
 
 

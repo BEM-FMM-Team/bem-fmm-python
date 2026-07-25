@@ -316,15 +316,9 @@ class Frontend(QMainWindow):
         path = Path(path)
         if not path.is_file():
             QMessageBox.warning(
-                self.ui.MainGUI, "Running TMS Fail", "Failed to load to save file"
+                self.ui.MainGUI, "Failed to run TMS", "Failed to load to save file"
             )
             return
-
-        QMessageBox.information(
-            self.ui.MainGUI,
-            "Running TMS",
-            "Check the console used to init the Coil Placer",
-        )
 
         SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
         tms_script = SRC / "apps/tms"

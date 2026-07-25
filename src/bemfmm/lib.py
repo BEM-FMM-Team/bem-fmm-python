@@ -98,6 +98,7 @@ def launch_detached_new_terminal(script_path: str, script_args: list[str] = []):
 
     elif system == "Darwin":
         mac_terms = [
+            ("ghostty", ["-e"]),
             ("alacritty", ["-e"]),
             ("wezterm", ["start", "--", "-e"]),
         ]
