@@ -52,7 +52,6 @@ def compute_efield_overlay_worker(
     interface,
     tissue_list,
     coils,
-    unit_convert,
 ):
     result = compute_efield_overlay(
         P=P,
@@ -65,7 +64,6 @@ def compute_efield_overlay_worker(
         val=val,
         interface=interface,
         coils=coils,
-        unit_convert=unit_convert,
     )
     from bemfmm.plot import plot_efield_slice
 
@@ -89,7 +87,6 @@ def compute_efield_overlay(
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
     coils: list[FullCoil] = [],
-    unit_convert=1e3,
 ) -> EfieldSlice:
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
@@ -164,6 +161,20 @@ def compute_efield_overlay(
     th1 = np.nanmax(E_plot[mask])
     th2 = np.nanmin(E_plot[mask])
 
+    # # TEMP: For matlab comparison
+    # th1 = 100
+    # th2 = 0
+
+    # # TEMP: For matlab comparison, linear scale
+    # E_plot[~mask] = np.nan
+    # E_lm = np.full(Ms**2, np.nan)
+    # th1l = th1
+    # th2l = th2
+    # scale = 1
+    # E_lm[mask] = E_plot[mask]
+    # E_grid = E_lm.reshape(Ms, Ms)
+
+    # Log scale
     E_plot[~mask] = np.nan
     templ, th1l, th2l, scale = _log_modulus(E_plot[mask], th1, th2)
     E_lm = np.full(Ms**2, np.nan)

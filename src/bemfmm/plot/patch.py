@@ -26,14 +26,13 @@ def plot_coil_worker(
     plot_t,
     p,
     coils: list[FullCoil],
-    unit_convert=1e3,
 ):
     # TODO in the future this may need to be redone for performance reasons
     # we are giving it its own process though
     planes = []
     mesh = vedo.Mesh([P, plot_t])
     for c in coils:
-        pointsline = c[0] * unit_convert
+        pointsline = c[0]
         i = mesh.intersect_with_line(*pointsline)
         if len(i) > 0:
             planes.append(i[0])
@@ -58,8 +57,8 @@ def plot_coil_worker(
         Translation,
     ) in coils:
         # TODO move somewhere else
-        CoilP *= unit_convert
-        pointsline *= unit_convert
+        # CoilP *= unit_convert
+        # pointsline *= unit_convert
         coil_mesh = vedo.Mesh([CoilP, Coilt])
         obs_line = vedo.Line(*pointsline).lw(3).color("red")
 
@@ -67,7 +66,6 @@ def plot_coil_worker(
         plt.add(obs_line)
 
     plt.show()
-
 
 def plot_single_coil_worker(
     P,
@@ -135,7 +133,7 @@ def patch(
     qt_widget=None,  # TODO memory, what is the lifecycle of the plot?
     config: dict | None = None,
     planes: list[np.array] = None,
-    planes_size: float = 10,
+    planes_size: float = 0.001,
     planes_alpha: float = 0.8,
 ) -> vedo.Mesh:
     """
