@@ -1,4 +1,3 @@
-from bemfmm.my_types import TMSCoilDefinition
 import logging
 import sys
 from functools import reduce
@@ -11,6 +10,8 @@ import scipy.io
 import yaml
 from scipy.sparse import coo_matrix, csr_matrix
 from sklearn.neighbors import NearestNeighbors
+
+from bemfmm.my_types import TMSCoilDefinition
 
 # logging.basicConfig(stream=sys.stdout, level=logging.DEBUG), savemat, savemat
 
@@ -433,6 +434,7 @@ def main():
             xyz = [0.5, 0.5, 0.5]
     else:
         xyz = coils.slice_plane  # * unit_convert NOTE may have to unitconvert
+
     plot_slices(
         P=P,
         t=t,
@@ -443,7 +445,7 @@ def main():
         interface=interface,
         tissue_list=tissue_list,
         xyz=xyz,
-        coils=coils,
+        coils=coils.array,
         unit_convert=unit_convert,
     )
 

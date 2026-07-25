@@ -209,7 +209,7 @@ class Backend:
 
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
-        print(self.renderer.white_matter_placement_mode)
+        # print(self.renderer.white_matter_placement_mode)
 
     def white_matter_finalize(self, distance, id):
         coil = self.coils[id]
@@ -222,7 +222,7 @@ class Backend:
             distance + self.coils[id].bottom_to_com
         )
         final_point = skin_point + skin_point_vector
-        print(final_point)
+        # print(final_point)
 
         self.renderer.remove_world_axes()
         transformer(coil, final_point)

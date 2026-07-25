@@ -27,9 +27,7 @@ def pickle_loader(
             )
         )
 
-    return TMSCoilDefinition(
-        array=coil_array, slice_plane=data.array or np.ndarray([0, 0, 0])
-    )
+    return TMSCoilDefinition(array=coil_array, slice_plane=data.slice_plane)
 
 
 CWD = Path(__file__).parent.resolve()

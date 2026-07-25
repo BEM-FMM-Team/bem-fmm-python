@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from bemfmm.charge.inc_field_electric import inc_field_electric
-from bemfmm.my_types import EfieldSlice
+from bemfmm.my_types import EfieldSlice, FullCoil
 
 _PLANE_CONFIG = {
     "XY": dict(
@@ -88,7 +88,7 @@ def compute_efield_overlay(
     R: int = 8,
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
-    coils=[],
+    coils: list[FullCoil] = [],
     unit_convert=1e3,
 ) -> EfieldSlice:
     from bemfmm.charge import volume_field_electric
@@ -133,7 +133,7 @@ def compute_efield_overlay(
         CoilP,
         Coilt,
         Translation,
-    ) in coils.array:
+    ) in coils:
         # strcoil.Pwire = strcoil.Pwire * unit_convert # Not needed, since already done in main()
 
         # RHS

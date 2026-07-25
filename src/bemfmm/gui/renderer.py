@@ -1,10 +1,8 @@
 import numpy as np
-
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QWidget
+from vedo import Axes, Line, Mesh, Plotter, Sphere, Text3D, settings
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.vtkRenderingCore import vtkCellPicker
-
-from vedo import Line, Mesh, Plotter, Text3D, Axes, Sphere, settings
 
 
 class Renderer:
@@ -23,8 +21,8 @@ class Renderer:
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
         ticks_mm = ticks_m * 1000
 
-        print(ticks_m)
-        print(ticks_mm)
+        # print(ticks_m)
+        # print(ticks_mm)
 
         axes = Axes(
             xtitle="X (mm)",

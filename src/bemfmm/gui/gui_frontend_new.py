@@ -14,6 +14,8 @@ from bemfmm.lib import launch_detached_new_terminal
 GUI frontend for placing coils. This class is responsible for managing the widget.
 """
 
+PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
+
 
 class Frontend(QMainWindow):
     def __init__(self, head_models, names):
@@ -185,7 +187,7 @@ class Frontend(QMainWindow):
         coil_id = self.gui_ids[row]
         coil = self.backend.get_coil(coil_id)
         self.backend.renderer.show_world_axes(coil)
-        print(len(self.backend.renderer.edit_axes_actors))
+        # print(len(self.backend.renderer.edit_axes_actors))
 
     def edit_selected_coil(self):
         # prepares to edit a coil
@@ -293,7 +295,7 @@ class Frontend(QMainWindow):
 
     def save_coil_config_dialog(self):
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Coil Configuration", "", "Pickle Files (*.pkl)"
+            self, "Save Coil Configuration", "", PKL_FILTER_STR
         )
 
         if path:
@@ -301,7 +303,7 @@ class Frontend(QMainWindow):
 
     def load_coil_config_dialog(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Coil Configuration", "", "Pickle Files (*.pkl)"
+            self, "Load Coil Configuration", "", PKL_FILTER_STR
         )
         if not path:
             return
@@ -310,7 +312,7 @@ class Frontend(QMainWindow):
 
     def run_tms(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Coil Configuration", "", "Pickle Files (*.pkl)"
+            self, "Load Coil Configuration", "", PKL_FILTER_STR
         )
 
         path = Path(path)
