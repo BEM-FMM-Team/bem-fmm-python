@@ -1,3 +1,8 @@
+import os
+import platform
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 from time import perf_counter
 
@@ -72,3 +77,89 @@ cache = memory.cache
 
 
 io = True
+
+
+def launch_detached_new_terminal(script_path: str, script_args: list[str] = []):
+    script_path = str(Path(script_path).resolve())
+    env = os.environ.copy()
+    py = sys.executable
+    cwd = str(Path().resolve())
+
+    system = platform.system()
+
+    if system == "Windows":
+        subprocess.Popen(
+            [py, script_path] + script_args,
+            env=env,
+            cwd=cwd,
+            creationflags=subprocess.CREATE_NEW_CONSOLE,
+        )
+        return None
+
+    elif system == "Darwin":
+        mac_terms = [
+            ("alacritty", ["-e"]),
+            ("wezterm", ["start", "--", "-e"]),
+        ]
+
+        for exe, prefix in mac_terms:
+            if not shutil.which(exe):
+                continue
+
+            cmd = [exe] + prefix + [py, script_path] + script_args
+            return subprocess.Popen(
+                cmd,
+                env=env,
+                cwd=cwd,
+                start_new_session=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).pid
+
+        cmd = ["open", "-a", "Terminal", script_path] + script_args
+        return subprocess.Popen(
+            cmd,
+            env=env,
+            cwd=cwd,
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).pid
+
+    else:
+        terms = [
+            ("ghostty", ["-e"]),
+            ("st", ["-e"]),
+            ("xterm", ["-e"]),
+            ("alacritty", ["-e"]),
+            ("wezterm", ["start", "--", "-e"]),
+            ("termite", ["-e"]),
+            ("foot", ["--command"]),
+        ]
+
+        for exe, prefix in terms:
+            if not shutil.which(exe):
+                continue
+
+            if exe == "foot":
+                cmd = [exe, "--command", py, script_path] + script_args
+            else:
+                cmd = [exe] + prefix + [py, script_path] + script_args
+
+            return subprocess.Popen(
+                cmd,
+                env=env,
+                cwd=cwd,
+                start_new_session=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            ).pid
+
+        return subprocess.Popen(
+            [py, script_path] + script_args,
+            env=env,
+            cwd=cwd,
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        ).pid

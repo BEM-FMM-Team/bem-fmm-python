@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.ui_main_window import Ui_MainWindow
+from bemfmm.lib import launch_detached_new_terminal
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
@@ -145,7 +146,7 @@ class Frontend(QMainWindow):
             lambda: self.backend.renderer.orient_camera("yz")
         )
 
-        self.ui.RunTMS.clicked.connect(self.save_coil_config_dialog_and_run_tms)
+        self.ui.RunTMS.clicked.connect(self.run_tms)
 
     def add_coil(self):
         # creates a new coil
@@ -307,15 +308,15 @@ class Frontend(QMainWindow):
         self.backend.load_coil_configuration(path)
         self.refresh_list_box()
 
-    def save_coil_config_dialog_and_run_tms(self):
-        s_path = self.save_coil_config_dialog()
-        if s_path is None:
-            return
+    def run_tms(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Coil Configuration", "", "Pickle Files (*.pkl)"
+        )
 
-        path = Path(s_path)
+        path = Path(path)
         if not path.is_file():
             QMessageBox.warning(
-                self.ui.MainGUI, "Running TMS Fail" "Failed to save file"
+                self.ui.MainGUI, "Running TMS Fail", "Failed to load to save file"
             )
             return
 
@@ -325,7 +326,17 @@ class Frontend(QMainWindow):
             "Check the console used to init the Coil Placer",
         )
 
-        subprocess.run([sys.executable, "./tests/tms", str(path)])
+        SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
+        tms_script = SRC / "apps/tms"
+
+        if not tms_script.is_dir():
+            QMessageBox.warning(
+                self.ui.MainGUI,
+                "Failed to run TMS",
+                f"Failed to find tms_script (contact devs) {tms_script}",
+            )
+
+        launch_detached_new_terminal(tms_script, [str(path)])
 
     # helpers
     def refresh_coil_editor(self):
