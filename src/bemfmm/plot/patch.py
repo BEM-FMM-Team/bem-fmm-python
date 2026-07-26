@@ -136,7 +136,6 @@ def patch(
     planes: list[np.array] = None,
     planes_size: float = 0.001,
     planes_alpha: float = 0.8,
-    unit_convert=1e3,
 ) -> vedo.Mesh:
     """
     Plot model with colormap data
@@ -207,7 +206,7 @@ def patch(
 
     plt.add(mesh)
     if cdata is not None:
-        mesh.celldata["values"] = cdata * unit_convert
+        mesh.celldata["values"] = cdata
         mesh.cmap(colormap)
         cbar = vedo.ScalarBar(
             mesh, title=cmap_label, c=axes.get("c", "black"), font_size=20
