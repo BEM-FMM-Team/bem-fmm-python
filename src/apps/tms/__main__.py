@@ -64,7 +64,7 @@ def load_model():
     if not shells:
         raise ValueError(f"shells is missing from {index_name}")
 
-    unit_convert = data.get("unit_convert", 1e3)
+    # unit_convert = data.get("unit_convert", 1e3)
 
     Pcell: list[np.ndarray] = []
     tcell: list[np.ndarray] = []
@@ -90,7 +90,8 @@ def load_model():
     )
 
     # Convert from [m] to [mm]
-    unit_convert = 1e3
+    # unit_convert = 1e3
+    unit_convert = 1 # stick with SI units
     P = P * unit_convert
 
     area = mesh_areas(P, t)
@@ -446,7 +447,6 @@ def main():
         tissue_list=tissue_list,
         xyz=xyz,
         coils=coils.array,
-        unit_convert=unit_convert,
     )
 
 

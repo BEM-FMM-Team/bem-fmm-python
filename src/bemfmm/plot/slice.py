@@ -31,7 +31,7 @@ def plot_efield_slice(
         orig_vals = result.scale * np.sign(cb_ticks) * (10.0 ** np.abs(cb_ticks) - 1)
         cbar.set_ticks(cb_ticks)
         cbar.set_ticklabels([f"{v:.2g}" for v in orig_vals])
-        cbar.set_label("E-field [V/mm]", color="white")
+        cbar.set_label("E-field [V/m]", color="white")
         cbar.ax.tick_params(colors="white")
         cbar.ax.yaxis.label.set_color("white")
 
@@ -50,7 +50,7 @@ def plot_efield_slice(
 
     ax.set_xlabel(cfg["xlabel"], color="white")
     ax.set_ylabel(cfg["ylabel"], color="white")
-    ax.set_title(f"E-field (V/mm) in the {result.plane} plane", color="white")
+    ax.set_title(f"E-field [V/m] in the {result.plane} plane", color="white")
     ax.set_aspect("equal")
     ax.tick_params(colors="white")
     for spine in ax.spines.values():
@@ -59,8 +59,8 @@ def plot_efield_slice(
     ax.set_xticks(ax.get_xticks())
     ax.set_yticks(ax.get_yticks())
 
-    ax.set_xticklabels([f"{v / unit_convert:.1f}" for v in ax.get_xticks()])
-    ax.set_yticklabels([f"{v / unit_convert:.1f}" for v in ax.get_yticks()])
+    ax.set_xticklabels([f"{v*1e3:.1f}" for v in ax.get_xticks()])
+    ax.set_yticklabels([f"{v*1e3:.1f}" for v in ax.get_yticks()])
 
     if tissue_list and count:
         handles = [
@@ -88,11 +88,15 @@ def plot_slices(
     tissue_list,
     xyz,
     coils,
-    unit_convert,
 ):
     X = xyz[0]
     Y = xyz[1]
     Z = xyz[2]
+
+    # # Testing to compare to matlab code
+    # X       = +29.4641*1e-3
+    # Y       = -0.0*1e-3
+    # Z       = +51.6425*1e-3
 
     from .compute_efield_overlay import compute_efield_overlay_worker
 
@@ -108,7 +112,6 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
-        unit_convert=unit_convert,
     )
     compute_efield_overlay_worker(
         P=P,
@@ -122,7 +125,6 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
-        unit_convert=unit_convert,
     )
     compute_efield_overlay_worker(
         P=P,
@@ -136,5 +138,4 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
-        unit_convert=unit_convert,
     )
