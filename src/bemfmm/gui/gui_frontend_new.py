@@ -157,7 +157,7 @@ class Frontend(QMainWindow):
         self.backend.new_coil(
             np.array([0, 0, 0]),
             coil_type,
-            1000,
+            100,
             False,
             [0, 0],
             self.ui.NameEntry.text(),
@@ -224,7 +224,7 @@ class Frontend(QMainWindow):
         if self.updating_gui:
             return
         try:
-            value = float(self.ui.dIdtEntry.text())
+            value = float(self.ui.dIdtEntry.text())*1e6 # input in A/us, convert to A/s
         except ValueError:
             return
         self.backend.edit_coil_dIdt(self.selected_coil_id, value)
