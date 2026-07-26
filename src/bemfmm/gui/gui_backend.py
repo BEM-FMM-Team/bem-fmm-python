@@ -253,8 +253,9 @@ class Backend:
         for coil in self.coils.values():
             self.renderer.remove_coil_actors(coil.id)
         with open(path, "rb") as f:
-            coil_list = pickle.load(f)
-        self.coils = {coil.id: coil for coil in coil_list}
+            coil_list: TMSCoilDefinition = pickle.load(f)
+            # TODO @simon however you handle the slice_planes make sure to load it back here
+        self.coils = {coil.id: coil for coil in coil_list.array}
         self.undo_queue.clear()
         for coil in self.coils.values():
             self.renderer.add_coil_actor(coil)
