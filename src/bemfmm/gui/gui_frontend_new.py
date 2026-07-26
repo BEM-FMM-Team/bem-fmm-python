@@ -4,12 +4,12 @@ import sys
 from pathlib import Path
 
 
-from engines.gui.quat_to_xyz import quat_to_xyz
-from engines.gui.gui_backend import Backend
+from bemfmm.gui.quat_to_xyz import quat_to_xyz
+from bemfmm.gui.gui_backend import Backend
 
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QListWidgetItem
 from PySide6.QtCore import Qt
-from engines.gui.ui_main_window import Ui_MainWindow
+from bemfmm.gui.ui_main_window import Ui_MainWindow
 
 
 """
