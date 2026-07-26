@@ -46,6 +46,8 @@
               ++ (with pkgs; [
                 gdb
 
+                pkg-config
+
                 ruff
                 basedpyright
                 black

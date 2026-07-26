@@ -29,27 +29,18 @@ TEST_DIR = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (TEST_DIR / "assets").resolve()
 
 import vedo
+# pyrefly: ignore [missing-import]
+from cbemfmm import neighbor_ints_En
 
-from bemfmm.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
+                           surface_field_lhs)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
 from bemfmm.lib import cache
-from bemfmm.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                         mesh_rotate2, mesh_tricenter)
 from bemfmm.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
-
-# pyrefly: ignore [missing-import]
-from cbemfmm import neighbor_ints_En
 
 
 @cache
@@ -91,7 +82,7 @@ def load_model():
 
     # Convert from [m] to [mm]
     # unit_convert = 1e3
-    unit_convert = 1 # stick with SI units
+    unit_convert = 1  # stick with SI units
     P = P * unit_convert
 
     area = mesh_areas(P, t)
@@ -311,7 +302,7 @@ def main():
         gauss=25,
         contrast=contrast,
     )
-    print(f"{RnumberE} Neighbors Intergrals: {perf_counter() - start:.3f}s")
+    print(f"{RnumberE} Neighbors Integrals: {perf_counter() - start:.3f}s")
 
     coil_path = None
     if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():
@@ -414,7 +405,7 @@ def main():
     # print(c)
 
     plot_fields(
-        P,
+        P * 1e3, # move from m to mm for displaying
         plot_t,
         plot_t_idx,
         c,

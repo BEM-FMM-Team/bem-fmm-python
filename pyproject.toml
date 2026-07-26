@@ -16,11 +16,10 @@ requires-python = ">=3.11"
 authors = [
   { name = "Shawn Pande", email = "spande@wpi.edu" },
   { name = "Simon Hao", email = "shao1@wpi.edu" },
-
   { name = "Guillermo Nunez Ponasso", email = "gcnunez@wpi.edu" },
   { name = "Drumm Derek", email = "dadrumm@wpi.edu" },
 ]
-# license = { text = "proprietary" }
+license = { text = "proprietary" }
 
 dependencies = [
     "numpy==2.4.4",
@@ -31,9 +30,13 @@ dependencies = [
     "scikit-learn==1.9.0",
     "PySide6==6.11.1",
     "pyyaml==6.0.3",
-    #
+    # These come from our index
     "fmm3dpyfast",
+    "cbemfmm",
 ]
+
+# [project.urls]
+# Repository = "https://github.com//bem-fmm-python"
 
 [project.optional-dependencies]
 dev = [
@@ -45,7 +48,10 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["cbemfmm", "cbemfmm.*", "apps", "apps.*"]
+include = ["bemfmm", "apps"]
+
+[tool.setuptools.package-data]
+apps = ["assets/**/*", "gui/*.ui", "tms/*.mat"]
 
 [project.scripts]
 tms_coil_navigator = "apps.gui.__main__:main"
@@ -62,3 +68,8 @@ pythonpath = ["src"]
 [tool.uv]
 index-url = "https://pandecode.github.io/FMM3D/simple/"
 extra-index-url = ["https://pypi.org/simple"]
+
+[tool.uv.workspace]
+members = [
+    "hellowrld",
+]
