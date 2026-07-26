@@ -13,3 +13,6 @@ rem
 rem if pip
 rem then python -m pip
 rem then python -m uv run tms_coil_naviagtor
+rem
+rem
+rem okay cmd cannot find python scripts but powershell can

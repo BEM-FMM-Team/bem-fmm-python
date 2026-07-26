@@ -1,8 +1,7 @@
-import subprocess
-import sys
 from pathlib import Path
 
 import numpy as np
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
 from bemfmm.gui.gui_backend import Backend
