@@ -1,12 +1,5 @@
-import tkinter as tk
-from tkinter import ttk
-from PySide6.QtWidgets import (
-    QDialog,
-    QFormLayout,
-    QSpinBox,
-    QDoubleSpinBox,
-    QPushButton,
-)
+from PySide6.QtWidgets import (QDialog, QDoubleSpinBox, QFormLayout,
+                               QPushButton, QSpinBox)
 
 
 def coil_load_gui(coil_type, window_cord=None):
