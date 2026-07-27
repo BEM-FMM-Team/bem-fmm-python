@@ -50,20 +50,6 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                 <item>
-                  <widget class="QLabel" name="label_5">
-                   <property name="text">
-                    <string>Name</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="NameEntry"/>
-                 </item>
-                </layout>
-               </item>
-               <item>
                 <widget class="QPushButton" name="AddCoil">
                  <property name="text">
                   <string>Add Coil</string>
@@ -188,7 +174,7 @@
                <item row="1" column="0">
                 <widget class="QPushButton" name="PlanePlaceButton">
                  <property name="text">
-                  <string>Place Planes</string>
+                  <string>Slice Planes</string>
                  </property>
                 </widget>
                </item>
@@ -210,17 +196,10 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="1">
-              <widget class="QSlider" name="boneAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
              <item row="3" column="0">
               <widget class="QCheckBox" name="csf">
                <property name="text">
-                <string>csf</string>
+                <string>CSF</string>
                </property>
               </widget>
              </item>
@@ -248,7 +227,7 @@
              <item row="5" column="0">
               <widget class="QCheckBox" name="wm">
                <property name="text">
-                <string>wm</string>
+                <string>WM</string>
                </property>
               </widget>
              </item>
@@ -276,7 +255,7 @@
              <item row="7" column="0">
               <widget class="QCheckBox" name="gm">
                <property name="text">
-                <string>gm</string>
+                <string>GM</string>
                </property>
               </widget>
              </item>
@@ -296,6 +275,13 @@
              </item>
              <item row="8" column="1">
               <widget class="QSlider" name="cerebellumAlpha">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QSlider" name="boneAlpha">
                <property name="orientation">
                 <enum>Qt::Orientation::Horizontal</enum>
                </property>
@@ -464,7 +450,7 @@
             <item>
              <widget class="QLabel" name="label_14">
               <property name="text">
-               <string>dIdt (A/s)</string>
+               <string>dIdt (A/μs)</string>
               </property>
              </widget>
             </item>
@@ -504,7 +490,14 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="WhiteMatterDistance"/>
+             <widget class="QSlider" name="DistanceSlider">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="DistanceEntry"/>
             </item>
            </layout>
           </item>
@@ -538,6 +531,13 @@
                <string>GroupBox</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_20">
+               <item>
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Places slice planes for imaging.</string>
+                 </property>
+                </widget>
+               </item>
                <item>
                 <layout class="QVBoxLayout" name="verticalLayout_19">
                  <item>

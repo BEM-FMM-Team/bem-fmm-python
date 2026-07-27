@@ -1,16 +1,15 @@
+from bemfmm.lib import launch_detached_new_terminal
 import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
-                               QMessageBox)
+from PySide6.QtWidgets import QFileDialog, QListWidgetItem, QMainWindow, QMessageBox
 
 from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.ui_main_window import Ui_MainWindow
-from bemfmm.lib import launch_detached_new_terminal
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
@@ -40,6 +39,7 @@ class Frontend(QMainWindow):
         )
 
         self.backend.renderer.end_drag_callback = lambda: (
+            self.log_base_rotation(),
             self.refresh_coil_editor(),
             self.refresh_twist(),
             self.ui.EditGUI.setEnabled(True),
@@ -66,6 +66,9 @@ class Frontend(QMainWindow):
         ):
             slider.setMinimum(-150000)
             slider.setMaximum(150000)
+        
+        self.ui.DistanceSlider.setMinimum(0)
+        self.ui.DistanceSlider.setMaximum(150000)
 
         for slider in (
             self.ui.rXSlider,
@@ -127,6 +130,8 @@ class Frontend(QMainWindow):
         self.ui.ZPlaneSpin.valueChanged.connect(self.update_z_plane)
         self.ui.TwistEntry.valueChanged.connect(self.apply_twist)
 
+        self.ui.DistanceEntry.valueChanged.connect(self.apply_distance)
+
         self.ui.WhiteMatterButton.clicked.connect(self.place_with_white_matter)
 
         for box in (
@@ -140,6 +145,10 @@ class Frontend(QMainWindow):
             box.setRange(-150.0, 150.0)
             box.setDecimals(4)
             box.setSingleStep(0.0001)
+
+        self.ui.DistanceEntry.setRange(0,150.0)
+        self.ui.DistanceEntry.setDecimals(4)
+        self.ui.DistanceEntry.setSingleStep(0.0001)
 
         for box in (
             self.ui.rXEntry,
@@ -170,7 +179,9 @@ class Frontend(QMainWindow):
         self.bind_slider_spinbox(
             self.ui.ZPlaneSlider, self.ui.ZPlaneSpin, POSITION_SCALE
         )
-        self.ui.WhiteMatterDistance.setText("10")
+        self.bind_slider_spinbox(
+            self.ui.DistanceSlider, self.ui.DistanceEntry, POSITION_SCALE
+        )
         self.ui.CoilList.currentRowChanged.connect(self.coil_selection_changed)
 
         self.ui.CameraXY.clicked.connect(
@@ -191,9 +202,6 @@ class Frontend(QMainWindow):
 
         self.ui.FlipCoilButton.clicked.connect(self.flip_selected_coil)
 
-        self.ui.WhiteMatterDistance.textChanged.connect(
-            lambda value: setattr(self.backend, "skin_distance", float(value) / 1000)
-        )
         self.ui.CoilList.itemChanged.connect(self.rename_coil)
 
     def add_coil(self):
@@ -201,14 +209,11 @@ class Frontend(QMainWindow):
         coil_type = self.ui.TypeDropdown.currentText()
 
         self.backend.new_coil(
-            np.array(
-                [0, 0, 0.100]
-            ),  # default Z position 100mm higher (so we can see the coil at first)
+            np.array([0, 0, 0]),
             coil_type,
-            100 * 1e6,  # default 100 A/us = 100 * 1e6 A/s
+            100,  # default 100 A/us
             False,
             [0, 0],
-            self.ui.NameEntry.text(),
         )
         self.refresh_list_box()
 
@@ -243,7 +248,7 @@ class Frontend(QMainWindow):
             return
         self.selected_coil_id = item.data(Qt.UserRole)
         self.load_coil_editor()
-        self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot
+        self.log_base_rotation()
         self.ui.stackedWidget.setCurrentWidget(self.ui.EditGUI)
         return
 
@@ -252,6 +257,7 @@ class Frontend(QMainWindow):
         self.backend.save_state()
         self.backend.renderer.show_world_axes(coil)
         self.refresh_coil_editor()
+        self.refresh_distance()
         self.backend.renderer.dragging_id = coil.id
 
     def edit_coil_position(self):
@@ -267,6 +273,7 @@ class Frontend(QMainWindow):
                 ]
             ),
         )
+        self.refresh_distance()
 
     def edit_coil_dIdt(self):
         if self.updating_gui:
@@ -281,7 +288,7 @@ class Frontend(QMainWindow):
         if self.updating_gui:
             return
         self.refresh_twist()
-        self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot
+        self.log_base_rotation()
         self.backend.edit_coil_rot(
             self.selected_coil_id,
             np.array(
@@ -300,9 +307,9 @@ class Frontend(QMainWindow):
             self.ui.OKEdit.setEnabled(False)
             self.ui.CancelEdit.setEnabled(False)
         else:
-            distance = float(self.ui.WhiteMatterDistance.text()) / 1000
+            distance = self.ui.DistanceEntry.value() / 1000
             self.backend.white_matter_finalize(distance, self.selected_coil_id)
-            self.auto_orient()
+            self.log_base_rotation()
             self.ui.WhiteMatterButton.setText("Place With White Matter")
             self.ui.OKEdit.setEnabled(True)
             self.ui.CancelEdit.setEnabled(True)
@@ -311,7 +318,7 @@ class Frontend(QMainWindow):
         self.backend.auto_orient(self.selected_coil_id)
         self.refresh_coil_editor()
         self.refresh_twist()
-        self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot
+        self.log_base_rotation()
 
     def apply_twist(self):
         if self.updating_gui:
@@ -384,7 +391,7 @@ class Frontend(QMainWindow):
                 f"Failed to find tms_script (contact devs) {tms_script}",
             )
 
-        launch_detached_new_terminal(tms_script, ["--coil-path", str(path)])
+        launch_detached_new_terminal(tms_script, [str(path)])
 
     def open_plane_placer(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)
@@ -424,6 +431,7 @@ class Frontend(QMainWindow):
 
     def flip_selected_coil(self):
         self.backend.flip_coil(self.selected_coil_id)
+        self.log_base_rotation()
         self.refresh_coil_editor()
 
     def rename_coil(self, item):
@@ -434,6 +442,14 @@ class Frontend(QMainWindow):
         new_name = item.text()
 
         self.backend.coils[coil_id].name = new_name
+
+    def apply_distance(self):
+        if self.updating_gui:
+            return
+        distance = self.ui.DistanceEntry.value()
+        self.backend.edit_coil_distance(self.selected_coil_id, distance / 1000)
+        self.log_base_rotation()
+        self.refresh_coil_editor()
 
     # helpers
     def refresh_coil_editor(self):
@@ -446,7 +462,7 @@ class Frontend(QMainWindow):
         self.ui.rXEntry.setValue(rot[0])
         self.ui.rYEntry.setValue(rot[1])
         self.ui.rZEntry.setValue(rot[2])
-        self.ui.dIdtEntry.setText(str(coil.dIdt * 1e-6))  # maintain user input in A/mus
+        self.ui.dIdtEntry.setText(str(coil.dIdt))
         self.updating_gui = False
 
     def refresh_list_box(self):
@@ -493,6 +509,15 @@ class Frontend(QMainWindow):
         self.ui.TwistEntry.setValue(0)
         self.updating_gui = False
 
+    def refresh_distance(self):
+        coil = self.backend.get_coil(self.selected_coil_id)
+        self.updating_gui = True
+        self.ui.DistanceEntry.setValue(coil.distance * 1000)
+        self.updating_gui = False
+
     def edit_coil_alpha(self):
         self.backend.renderer.coil_alpha = self.ui.CoilAlpha.value() / 100.0
         self.backend.renderer.set_coil_alpha()
+
+    def log_base_rotation(self):
+        self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot

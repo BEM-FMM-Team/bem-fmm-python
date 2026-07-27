@@ -43,13 +43,10 @@ class Backend:
         self.last_coil = None
 
         self.planes = (0.0, 0.0, 0.0)
-        self.skin_distance = 0.01
 
-    def new_coil(self, xyz, coil_type, dIdt, auto_orient, window_cord, name):
+    def new_coil(self, xyz, coil_type, dIdt, auto_orient, window_cord):
         self.save_state()
         new_coil = load_coil_from_func(coil_type, window_cord)
-        if not name == "":
-            new_coil.name = name
         new_coil.id = str(self.next_id)
         self.next_id += 1
         new_coil.dIdt = dIdt
@@ -102,6 +99,8 @@ class Backend:
     def edit_coil_com(self, id, xyz):
         coil = self.coils[id]
         transformer(coil, xyz)
+        distances, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
+        coil.distance = distances[0, 0]
         self.renderer.edit_coil_actor(coil)
         return
 
@@ -185,42 +184,19 @@ class Backend:
 
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
-        # print(self.renderer.white_matter_placement_mode)
 
     def white_matter_finalize(self, distance, id):
         coil = self.coils[id]
         self.renderer.white_matter_picker_off()
         white_matter_point = self.renderer.get_white_matter_selected_point()
-        distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
-        idx = indices[0, 0]
-        skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * (
-            distance + self.coils[id].bottom_to_com
-        )
-        final_point = skin_point + skin_point_vector
-        # print(final_point)
-
-        transformer(coil, final_point)
-        self.renderer.edit_coil_actor(coil)
+        transformer(coil,white_matter_point)
+        self.edit_coil_distance(id, distance)
         return
 
     def drag_place(self, point, id):
         coil = self.coils[id]
-
-        distances, indices = self.nn.kneighbors(point.reshape(1, -1))
-        idx = indices[0, 0]
-
-        skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * (
-            self.skin_distance + coil.bottom_to_com
-        )
-
-        final_point = skin_point + skin_point_vector
-
-        self.auto_orient(id)
-
-        transformer(coil, final_point)
-        self.renderer.edit_coil_actor(coil)
+        transformer(coil, point)
+        self.edit_coil_distance(id, coil.distance)
 
     def load_coil_configuration(self, path):
         self.save_state()
@@ -244,9 +220,22 @@ class Backend:
 
     def flip_coil(self, id):
         coil = self.coils[id]
-
         quat = flip_quaternion(coil.rot)
         transformer(coil, coil.com, quat)
-
         self.renderer.edit_coil_actor(coil)
         return
+
+    def edit_coil_distance(self, id, distance):
+        coil = self.coils[id]
+        coil.distance = distance
+        distances, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
+        idx = indices[0, 0]
+        skin_point = self.centers[idx].copy()
+        skin_normal = self.normals[idx].copy()
+        final_point = (skin_point + skin_normal * (distance + coil.bottom_to_com))
+        transformer(coil, final_point)
+        self.renderer.edit_coil_actor(coil)
+        self.auto_orient(id)
+        self.renderer.render_plot()
+
+    
