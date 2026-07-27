@@ -202,7 +202,7 @@ class Frontend(QMainWindow):
         self.backend.new_coil(
             np.array([0, 0, 0]),
             coil_type,
-            100,  # default 100 A/us
+            100 * 1e6,  # default 100 A/us = 100 * 1e6 A/s
             False,
             [0, 0],
             self.ui.NameEntry.text(),
@@ -443,7 +443,7 @@ class Frontend(QMainWindow):
         self.ui.rXEntry.setValue(rot[0])
         self.ui.rYEntry.setValue(rot[1])
         self.ui.rZEntry.setValue(rot[2])
-        self.ui.dIdtEntry.setText(str(coil.dIdt))
+        self.ui.dIdtEntry.setText(str(coil.dIdt * 1e-6))  # maintain user input in A/mus
         self.updating_gui = False
 
     def refresh_list_box(self):
