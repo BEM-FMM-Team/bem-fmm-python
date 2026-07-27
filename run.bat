@@ -200,7 +200,12 @@ echo -- running app --
 if exist "%VENV_DIR%\Scripts\tms_coil_navigator.exe" (
     echo running tms_coil_navigator.exe
     "%VENV_DIR%\Scripts\tms_coil_navigator.exe" %*
-    exit /b %errorlevel%
+
+    if %errorlevel%==0 (
+        exit /b 0
+    )
+
+    echo exe failed, running module directly...
 )
 
 echo running module directly...
