@@ -236,11 +236,11 @@ class Renderer:
         self.remove_planes()
         x, y, z = planes
 
-        self.planes[0] = Plane(pos=(x, 0, 0), normal=(1, 0, 0))
+        self.planes[0] = Plane(pos=(x, 0, 0), normal=(1, 0, 0),s=(0.25, 0.25))
 
-        self.planes[1] = Plane(pos=(0, y, 0), normal=(0, 1, 0))
+        self.planes[1] = Plane(pos=(0, y, 0), normal=(0, 1, 0),s=(0.25, 0.25))
 
-        self.planes[2] = Plane(pos=(0, 0, z), normal=(0, 0, 1))
+        self.planes[2] = Plane(pos=(0, 0, z), normal=(0, 0, 1),s=(0.25, 0.25))
 
         for plane in self.planes:
             plane.alpha(0.5)
