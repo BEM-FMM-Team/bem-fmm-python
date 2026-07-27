@@ -68,8 +68,8 @@ class Backend:
 
     def new_custom_coil(self, xyz, name, dIdt, auto_orient):
         self.save_state()
-        print(name)
-        print(type(name))
+        # print(name)
+        # print(type(name))
         new_coil = load_template(name)
         new_coil.id = str(self.next_id)
         self.next_id += 1
@@ -185,7 +185,7 @@ class Backend:
 
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
-        print(self.renderer.white_matter_placement_mode)
+        # print(self.renderer.white_matter_placement_mode)
 
     def white_matter_finalize(self, distance, id):
         coil = self.coils[id]
@@ -198,7 +198,7 @@ class Backend:
             distance + self.coils[id].bottom_to_com
         )
         final_point = skin_point + skin_point_vector
-        print(final_point)
+        # print(final_point)
 
         transformer(coil, final_point)
         self.renderer.edit_coil_actor(coil)

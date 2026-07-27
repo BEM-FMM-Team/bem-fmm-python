@@ -5,8 +5,7 @@ from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
-                               QMessageBox)
+from PySide6.QtWidgets import QFileDialog, QListWidgetItem, QMainWindow, QMessageBox
 
 from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
@@ -17,6 +16,7 @@ GUI frontend for placing coils. This class is responsible for managing the widge
 """
 
 PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
+
 
 class Frontend(QMainWindow):
     def __init__(self, head_models, names):
@@ -202,7 +202,7 @@ class Frontend(QMainWindow):
         self.backend.new_coil(
             np.array([0, 0, 0]),
             coil_type,
-            100, # default 100 A/us
+            100,  # default 100 A/us
             False,
             [0, 0],
             self.ui.NameEntry.text(),
@@ -358,8 +358,6 @@ class Frontend(QMainWindow):
             return
         self.backend.load_coil_configuration(path)
         self.refresh_list_box()
-
-
 
     def run_tms(self):
         path, _ = QFileDialog.getOpenFileName(

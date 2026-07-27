@@ -18,7 +18,7 @@ def flip_quaternion(quat):
     # normal vector in coil coordinates:
     # coil coordinates are defined such that the normal is always in x direction
     # If this convention changes, then this will need to be updated.
-    n = current.apply([1, 0, 0]) 
+    n = current.apply([1, 0, 0])
     n = n / np.linalg.norm(n)
 
     # 180deg rotation around the normal vector

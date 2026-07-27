@@ -1,10 +1,8 @@
 import numpy as np
-
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QWidget
+from vedo import Axes, Line, Mesh, Plane, Plotter, Sphere, Text3D, settings
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.vtkRenderingCore import vtkCellPicker
-
-from vedo import Line, Mesh, Plotter, Text3D, Axes, Sphere, Plane, settings
 
 
 class Renderer:
@@ -19,8 +17,8 @@ class Renderer:
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)
         ticks_mm = ticks_m * 1000
 
-        print(ticks_m)
-        print(ticks_mm)
+        # print(ticks_m)
+        # print(ticks_mm)
 
         axes = Axes(
             xtitle="X (mm)",
@@ -236,11 +234,11 @@ class Renderer:
         self.remove_planes()
         x, y, z = planes
 
-        self.planes[0] = Plane(pos=(x, 0, 0), normal=(1, 0, 0),s=(0.25, 0.25))
+        self.planes[0] = Plane(pos=(x, 0, 0), normal=(1, 0, 0), s=(0.25, 0.25))
 
-        self.planes[1] = Plane(pos=(0, y, 0), normal=(0, 1, 0),s=(0.25, 0.25))
+        self.planes[1] = Plane(pos=(0, y, 0), normal=(0, 1, 0), s=(0.25, 0.25))
 
-        self.planes[2] = Plane(pos=(0, 0, z), normal=(0, 0, 1),s=(0.25, 0.25))
+        self.planes[2] = Plane(pos=(0, 0, z), normal=(0, 0, 1), s=(0.25, 0.25))
 
         for plane in self.planes:
             plane.alpha(0.5)
