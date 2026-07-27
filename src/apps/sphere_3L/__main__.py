@@ -196,9 +196,8 @@ def main():
     for p in plots_p:
         p.start()
 
-    xyz = [0.0, 0.0, 0.0]  # TODO inspect next function for zero div
-
     # TODO query do we need this because now it depends on having a list of coils
+    # xyz = [0.0, 0.0, 0.0]  # TODO inspect next function for zero div
     # plot_slices(
     #     P,
     #     t,
