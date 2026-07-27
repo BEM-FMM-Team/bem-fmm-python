@@ -7,9 +7,6 @@ DD 5/2026
 SP 6/2026
 """
 
-import sys
-from pathlib import Path
-
 import numpy as np
 import vedo
 

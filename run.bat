@@ -65,6 +65,7 @@ if not defined UV_EXE (
         where python3 >nul 2>&1 && set PYEXE=python3
     )
 
+    rem ERROR WARN TODO something here is wrong, i think pyexe is not set right
     if defined PYEXE (
         echo.
         echo -- attempting uv install via pip --

@@ -401,17 +401,19 @@ def main():
         plot_t,
         plot_t_idx,
         c,
-        map(
-            lambda coil: (
-                coil[0] * 1e6,
-                coil[1],
-                coil[2],
-                coil[3],
-                coil[4] * 1e6,
-                coil[5],
-                coil[6],
-            ),
-            coils.array,
+        list(
+            map(
+                lambda coil: (
+                    coil[0] * 1e3,
+                    coil[1],
+                    coil[2],
+                    coil[3],
+                    coil[4] * 1e3,
+                    coil[5],
+                    coil[6],
+                ),
+                coils.array,
+            )
         ),
         Ptot,
         En,
