@@ -8,6 +8,7 @@ SP 6/2026
 """
 
 import numpy as np
+import typer
 import vedo
 
 from bemfmm.charge.inc_field_gauss_selective_dipoles import (
@@ -137,6 +138,10 @@ def load_model():
     )
 
 
+app = typer.Typer()
+
+
+@app.command()
 def main():
     # Load model
     (
@@ -195,4 +200,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    app()

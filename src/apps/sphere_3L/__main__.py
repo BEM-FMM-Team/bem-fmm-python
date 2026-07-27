@@ -1,15 +1,13 @@
 from multiprocessing import Process
 
 import numpy as np
+import typer
 from scipy.sparse import csr_matrix
 from vedo import Sphere
 
-from bemfmm.charge import (
-    inc_field_electric_constant,
-    surface_field_electric_accurate,
-    surface_field_lhs,
-    surface_field_potential_accurate,
-)
+from bemfmm.charge import (inc_field_electric_constant,
+                           surface_field_electric_accurate, surface_field_lhs,
+                           surface_field_potential_accurate)
 from bemfmm.constants import eps0
 from bemfmm.fgmres import fgmres
 from bemfmm.lib import cache, timeit
@@ -145,6 +143,10 @@ def load_model():
     )
 
 
+app = typer.Typer()
+
+
+@app.command()
 def main():
     ## 1. Setup Model
 
@@ -196,18 +198,19 @@ def main():
 
     xyz = [0.0, 0.0, 0.0]  # TODO inspect next function for zero div
 
-    plot_slices(
-        P,
-        t,
-        Center,
-        Area,
-        normals,
-        c,
-        interface,
-        tissue_list,
-        xyz,
-    )
+    # TODO query do we need this because now it depends on having a list of coils
+    # plot_slices(
+    #     P,
+    #     t,
+    #     Center,
+    #     Area,
+    #     normals,
+    #     c,
+    #     interface,
+    #     tissue_list,
+    #     xyz,
+    # )
 
 
 if __name__ == "__main__":
-    main()
+    app()

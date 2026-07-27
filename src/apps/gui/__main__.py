@@ -1,12 +1,16 @@
 import sys
 
+import typer
 from PySide6.QtWidgets import QApplication
 from vedo import Mesh
 
 from bemfmm.gui.gui_frontend_new import Frontend
 from bemfmm.lib import get_asset_path
 
+app = typer.Typer()
 
+
+@app.command()
 def main():
     head_models = {}
 
@@ -26,7 +30,7 @@ def main():
 
         head_models[name] = mesh
 
-    app = QApplication(sys.argv)
+    qapp = QApplication(sys.argv)
 
     frontend = Frontend(
         head_models,
@@ -45,8 +49,8 @@ def main():
 
     frontend.show()
 
-    app.exec()
+    qapp.exec()
 
 
 if __name__ == "__main__":
-    main()
+    app()

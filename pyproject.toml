@@ -25,6 +25,7 @@ dependencies = [
     "scikit-learn==1.9.0",
     "PySide6==6.11.1",
     "pyyaml==6.0.3",
+    "typer==0.27.0",
     # These come from our index
     "fmm3dpyfast",
     "cbemfmm",
@@ -49,10 +50,10 @@ include = ["bemfmm", "apps"]
 apps = ["assets/**/*", "gui/*.ui", "tms/*.mat"]
 
 [project.scripts]
-tms_coil_navigator = "apps.gui.__main__:main"
-bemfmm_tms = "apps.tms.__main__:main"
-bemfmm_plot = "apps.plot.__main__:main"
-bemfmm_sphere = "apps.sphere_3L.__main__:main"
+tms_coil_navigator = "apps.gui.__main__:app"
+bemfmm_tms = "apps.tms.__main__:app"
+bemfmm_plot = "apps.plot.__main__:app"
+bemfmm_sphere = "apps.sphere_3L.__main__:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

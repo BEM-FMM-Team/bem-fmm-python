@@ -5,6 +5,7 @@ from time import perf_counter
 
 import numpy as np
 import scipy.io
+import typer
 import vedo
 import yaml
 
@@ -259,7 +260,11 @@ solution_error={solution_error:.4e}"""
     return c, resvec
 
 
-def main():
+app = typer.Typer()
+
+
+@app.command()
+def main(tissue_index: Path = get_asset_path("tissue_index.yaml"), RnumberE=4):
     (
         P,
         t,
@@ -275,9 +280,7 @@ def main():
         interface,
         shells,
         unit_convert,
-    ) = load_model(get_asset_path("tissue_index.yaml"))
-
-    RnumberE = 4
+    ) = load_model(tissue_index)
 
     knn = NearestNeighbors(n_neighbors=RnumberE, algorithm="auto")
     knn.fit(center)
@@ -366,8 +369,7 @@ def main():
 
     diff = np.linalg.norm(((Jn_in - Jn_out) * area))
     print(
-        f"""Current conservation law:
-            Norm difference of inner and outer current density: {diff:.3e}"""
+        f"""Current conservation law:\nNorm difference of inner and outer current density: {diff:.3e}"""
     )
 
     tissue_list = list(shells.keys())
@@ -447,4 +449,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    app()
