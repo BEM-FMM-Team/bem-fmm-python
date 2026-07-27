@@ -200,7 +200,7 @@ class Frontend(QMainWindow):
         coil_type = self.ui.TypeDropdown.currentText()
 
         self.backend.new_coil(
-            np.array([0, 0, 0]),
+            np.array([0, 0, .100]), # default Z position 100mm higher (so we can see the coil at first)
             coil_type,
             100 * 1e6,  # default 100 A/us = 100 * 1e6 A/s
             False,
