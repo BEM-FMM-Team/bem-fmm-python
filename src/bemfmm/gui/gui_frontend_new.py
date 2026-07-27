@@ -1,21 +1,22 @@
-import numpy as np
+from bemfmm.lib import launch_detached_new_terminal
 import subprocess
 import sys
 from pathlib import Path
 
-
-from bemfmm.gui.quat_to_xyz import quat_to_xyz
-from bemfmm.gui.gui_backend import Backend
-
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QListWidgetItem
+import numpy as np
 from PySide6.QtCore import Qt
-from bemfmm.gui.ui_main_window import Ui_MainWindow
+from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
+                               QMessageBox)
 
+from bemfmm.gui.gui_backend import Backend
+from bemfmm.gui.quat_to_xyz import quat_to_xyz
+from bemfmm.gui.ui_main_window import Ui_MainWindow
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
 """
 
+PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
 
 class Frontend(QMainWindow):
     def __init__(self, head_models, names):
@@ -181,7 +182,7 @@ class Frontend(QMainWindow):
             lambda: self.backend.renderer.orient_camera("yz")
         )
 
-        # self.ui.SaveRun.clicked.connect(self.save_coil_config_dialog_and_run_tms)
+        self.ui.Run.clicked.connect(self.run_tms)
 
         self.ui.PlanePlaceButton.clicked.connect(self.open_plane_placer)
 
@@ -344,20 +345,45 @@ class Frontend(QMainWindow):
 
     def save_coil_config_dialog(self):
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Coil Configuration", "", "Pickle Files (*.pkl)"
+            self, "Save Coil Configuration", "", PKL_FILTER_STR
         )
-
         if path:
             self.backend.save_coil_config(path)
 
     def load_coil_config_dialog(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Coil Configuration", "", "Pickle Files (*.pkl)"
+            self, "Load Coil Configuration", "", PKL_FILTER_STR
         )
         if not path:
             return
         self.backend.load_coil_configuration(path)
         self.refresh_list_box()
+
+
+
+    def run_tms(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Coil Configuration", "", PKL_FILTER_STR
+        )
+
+        path = Path(path)
+        if not path.is_file():
+            QMessageBox.warning(
+                self.ui.MainGUI, "Failed to run TMS", "Failed to load to save file"
+            )
+            return
+
+        SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
+        tms_script = SRC / "apps/tms"
+
+        if not tms_script.is_dir():
+            QMessageBox.warning(
+                self.ui.MainGUI,
+                "Failed to run TMS",
+                f"Failed to find tms_script (contact devs) {tms_script}",
+            )
+
+        launch_detached_new_terminal(tms_script, [str(path)])
 
     def open_plane_placer(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)

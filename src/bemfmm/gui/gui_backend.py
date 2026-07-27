@@ -114,7 +114,7 @@ class Backend:
 
     # edit current
     def edit_coil_dIdt(self, id, dIdt):
-        self.coils[id].dIdt = dIdt*1e6 # from A/mus to A/s
+        self.coils[id].dIdt = dIdt * 1e6  # from A/mus to A/s
         return
 
     # rotate coil around normal vector
