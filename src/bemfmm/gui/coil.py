@@ -21,12 +21,13 @@ class Coil:
 
         # cad information
         self.cad_P = ...
-        self.centerline = np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, -0.1]])
+        self.centerline = np.asarray([[0.0, 0.0, 0.0], [0.0, 0.0, -0.05]])
         self.bottom_to_com = ...  # z delta from coil bottom to center of mass
 
         # transform information
         self.com = np.zeros(3)
         self.rot = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion
+        self.distance = 0 # distance from head
         self.dIdt = 0
 
         self.Epri = 0
