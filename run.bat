@@ -13,12 +13,14 @@ rem Check if venv already exists and is valid
 if exist "%VENV_DIR%" (
     echo -- .venv already exists --
     if exist "%VENV_DIR%\Scripts\python.exe" (
-        echo venv is valid
-        goto runtime_fallback
-    ) else (
-        echo venv is corrupted, removing...
-        rmdir /s /q "%VENV_DIR%"
+        if exist "%VENV_DIR%\Scripts\tms_coil_navigator.exe" (
+            echo venv is valid
+            call "%VENV_DIR%\Scripts\activate.bat"
+            goto run_app
+        )
     )
+    echo venv is bricked, removing...
+    rmdir /s /q "%VENV_DIR%"
 )
 
 set UV_EXE=
@@ -142,15 +144,9 @@ if defined UV_EXE (
         set UV_EXE=
     ) else (
         echo dependencies installed
+        call "%VENV_DIR%\Scripts\activate.bat"
+        goto run_app
     )
-)
-
-if defined UV_EXE (
-    echo.
-    echo -- running with uv --
-    "%VENV_DIR%\Scripts\tms_coil_navigator.exe" %*
-    if errorlevel 0 exit /b 0
-    echo tms_coil_navigator.exe exited with error
 )
 
 :runtime_fallback
@@ -194,21 +190,21 @@ if errorlevel 1 (
 )
 echo dependencies installed
 
+call "%VENV_DIR%\Scripts\activate.bat"
+
+:run_app
+
 echo.
 echo -- running app --
 
 if exist "%VENV_DIR%\Scripts\tms_coil_navigator.exe" (
     echo running tms_coil_navigator.exe
     "%VENV_DIR%\Scripts\tms_coil_navigator.exe" %*
-    if errorlevel 0 exit /b 0
-    echo tms_coil_navigator.exe failed
+    exit /b %errorlevel%
 )
 
 echo running module directly...
 "%VENV_DIR%\Scripts\python.exe" -m apps.gui.__main__ %*
-if errorlevel 1 (
-    echo failed
-    exit /b 1
-)
+exit /b %errorlevel%
 
 endlocal
