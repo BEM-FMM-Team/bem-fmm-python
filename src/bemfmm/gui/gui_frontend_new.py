@@ -1,15 +1,16 @@
-from bemfmm.lib import launch_detached_new_terminal
 import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFileDialog, QListWidgetItem, QMainWindow, QMessageBox
+from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
+                               QMessageBox)
 
 from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.ui_main_window import Ui_MainWindow
+from bemfmm.lib import launch_detached_new_terminal
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
@@ -200,7 +201,9 @@ class Frontend(QMainWindow):
         coil_type = self.ui.TypeDropdown.currentText()
 
         self.backend.new_coil(
-            np.array([0, 0, .100]), # default Z position 100mm higher (so we can see the coil at first)
+            np.array(
+                [0, 0, 0.100]
+            ),  # default Z position 100mm higher (so we can see the coil at first)
             coil_type,
             100 * 1e6,  # default 100 A/us = 100 * 1e6 A/s
             False,
@@ -381,7 +384,7 @@ class Frontend(QMainWindow):
                 f"Failed to find tms_script (contact devs) {tms_script}",
             )
 
-        launch_detached_new_terminal(tms_script, [str(path)])
+        launch_detached_new_terminal(tms_script, ["--coil-path", str(path)])
 
     def open_plane_placer(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)

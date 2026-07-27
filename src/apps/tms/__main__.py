@@ -8,29 +8,20 @@ import scipy.io
 import typer
 import vedo
 import yaml
-
-# pyrefly: ignore [missing-import]
-from cbemfmm import neighbor_ints_En
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-from bemfmm.charge import (
-    inc_field_electric,
-    surface_field_electric_plain,
-    surface_field_lhs,
-)
+from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
+                           surface_field_lhs)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
 from bemfmm.lib import cache, get_asset_path
-from bemfmm.mesh import (
-    mesh_areas,
-    mesh_combine_simple,
-    mesh_rotate1,
-    mesh_rotate2,
-    mesh_tricenter,
-)
+from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
+                         mesh_rotate2, mesh_tricenter)
 from bemfmm.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil, TMSCoilDefinition
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
+# pyrefly: ignore [missing-import]
+from cbemfmm import neighbor_ints_En
 
 
 def load_model(indexpath: Path):
@@ -263,7 +254,11 @@ app = typer.Typer()
 
 
 @app.command()
-def main(tissue_index: Path = get_asset_path("tissue_index.yaml"), RnumberE:int=4):
+def main(
+    coil_path: None | str = None,
+    tissue_index: Path = get_asset_path("tissue_index.yaml"),
+    RnumberE: int = 4,
+):
     (
         P,
         t,
@@ -298,15 +293,12 @@ def main(tissue_index: Path = get_asset_path("tissue_index.yaml"), RnumberE:int=
     )
     print(f"{RnumberE} Neighbors Integrals: {perf_counter() - start:.3f}s")
 
-    coil_path = None
-    if len(sys.argv) > 1 and (a := Path(sys.argv[1])) and a.exists():
-        coil_path = sys.argv[1]
-        print(f"Using coil {coil_path}")
-
     if coil_path is None:
         coils = setup_coil()
+        print("Using Default coil")
     else:
         coils = pickle_loader(coil_path)
+        print(f"Using coil from path {coil_path}")
 
     rhs_b: list[np.ndarray] = []
     rhs_Einc: list[np.ndarray] = []

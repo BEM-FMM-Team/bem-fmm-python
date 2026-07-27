@@ -5,9 +5,12 @@ import typer
 from scipy.sparse import csr_matrix
 from vedo import Sphere
 
-from bemfmm.charge import (inc_field_electric_constant,
-                           surface_field_electric_accurate, surface_field_lhs,
-                           surface_field_potential_accurate)
+from bemfmm.charge import (
+    inc_field_electric_constant,
+    surface_field_electric_accurate,
+    surface_field_lhs,
+    surface_field_potential_accurate,
+)
 from bemfmm.constants import eps0
 from bemfmm.fgmres import fgmres
 from bemfmm.lib import cache, timeit
