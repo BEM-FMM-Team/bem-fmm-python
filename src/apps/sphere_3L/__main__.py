@@ -1,18 +1,8 @@
-import sys
 from multiprocessing import Process
-from pathlib import Path
 
 import numpy as np
 from scipy.sparse import csr_matrix
-from vedo import Mesh, Sphere
-
-from bemfmm.plot.slice import plot_slices
-
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-
-print(f"Setup environment {root_dir}")
-
+from vedo import Sphere
 
 from bemfmm.charge import (
     inc_field_electric_constant,
@@ -25,6 +15,7 @@ from bemfmm.fgmres import fgmres
 from bemfmm.lib import cache, timeit
 from bemfmm.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
 from bemfmm.plot import plot_residual, plot_worker
+from bemfmm.plot.slice import plot_slices
 
 
 @cache

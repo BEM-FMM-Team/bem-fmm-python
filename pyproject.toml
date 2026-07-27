@@ -1,10 +1,5 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-    "Cython",
-    "numpy",
-]
+requires = [ "setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -68,8 +63,3 @@ pythonpath = ["src"]
 [tool.uv]
 index-url = "https://pandecode.github.io/FMM3D/simple/"
 extra-index-url = ["https://pypi.org/simple"]
-
-[tool.uv.workspace]
-members = [
-    "hellowrld",
-]

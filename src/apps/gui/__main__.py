@@ -1,19 +1,10 @@
 import sys
-from pathlib import Path
-
-from vedo import Mesh
-
-BASE_DIR = Path(__file__).resolve().parent
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-# print(f"Setup environment {root_dir}")
-
-test_dir = Path(__file__).resolve().parent.resolve().parent
-ASSETS = (test_dir / "assets").resolve()
 
 from PySide6.QtWidgets import QApplication
+from vedo import Mesh
 
 from bemfmm.gui.gui_frontend_new import Frontend
+from bemfmm.lib import get_asset_path
 
 
 def main():
@@ -28,7 +19,7 @@ def main():
         "ventricles",
         "wm",
     ]:
-        path = ASSETS / f"{name}.stl"
+        path = get_asset_path(f"{name}.stl")
 
         mesh = Mesh(str(path))
         mesh.vertices *= 1e-3

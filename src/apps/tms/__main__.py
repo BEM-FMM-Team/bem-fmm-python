@@ -1,59 +1,37 @@
-import logging
 import sys
 from functools import reduce
 from pathlib import Path
-from sys import exit
 from time import perf_counter
 
 import numpy as np
 import scipy.io
-import yaml
-from scipy.sparse import coo_matrix, csr_matrix
-from sklearn.neighbors import NearestNeighbors
-
-from bemfmm.my_types import TMSCoilDefinition
-
-# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG), savemat, savemat
-
-CSD = Path(__file__).resolve().parent
-ROOT_DIR = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(ROOT_DIR))
-print(f"Setup environment {ROOT_DIR}")
-OUTPUT = (ROOT_DIR / "__output__").resolve()
-try:
-    OUTPUT.mkdir(parents=True)
-except:
-    pass
-
-TEST_DIR = Path(__file__).resolve().parent.resolve().parent
-ASSETS = (TEST_DIR / "assets").resolve()
-
 import vedo
+import yaml
 # pyrefly: ignore [missing-import]
 from cbemfmm import neighbor_ints_En
+from scipy.sparse import csr_matrix
+from sklearn.neighbors import NearestNeighbors
 
 from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
                            surface_field_lhs)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
-from bemfmm.lib import cache
+from bemfmm.lib import cache, get_asset_path
 from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
                          mesh_rotate2, mesh_tricenter)
-from bemfmm.my_types import FullCoil, Mx3, Nx1, Nx3, Nx3i, StrCoil
+from bemfmm.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil, TMSCoilDefinition
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
 
 
 @cache
-def load_model():
-    index_name = ASSETS / "tissue_index.yaml"
-
-    with open(index_name, "r") as f:
+def load_model(indexpath: Path):
+    with open(indexpath, "r") as f:
         d = f.read()
     data: dict[str, tuple[float, str]] = yaml.safe_load(d)
 
     shells = data.get("shells")
     if not shells:
-        raise ValueError(f"shells is missing from {index_name}")
+        raise ValueError(f"shells is missing from {indexpath}")
 
     # unit_convert = data.get("unit_convert", 1e3)
 
@@ -65,7 +43,12 @@ def load_model():
     model_unit_scalar = 1e-3  # mesh defaults to [mm], set to [m]
 
     for k, v in shells.items():
-        path = ASSETS / f"{k}.stl"
+        if len(v) > 2:
+            indexpath = Path(indexpath)
+            rel = indexpath.parent.resolve()
+            path = Path(rel / v[2])
+        else:
+            path = get_asset_path(f"{k}.stl")
         if not path.is_file():
             raise RuntimeError(f"Failed to find file {path}")
 
@@ -153,14 +136,14 @@ def setup_coil() -> TMSCoilDefinition:
 
     ## Load Coil
     # Load base coil data, define coil excitation/position, define coil array if necesary
-    _strcoil = scipy.io.loadmat(CSD / "coil.mat")["strcoil"]
+    _strcoil = scipy.io.loadmat(get_asset_path("coil.mat"))["strcoil"]
     strcoil = StrCoil(
         Pwire=_strcoil["Pwire"][0][0],
         Ewire=_strcoil["Ewire"][0][0] - 1,
         Swire=_strcoil["Swire"][0][0],
     )
 
-    coilCAD = scipy.io.loadmat(CSD / "coilCAD.mat")
+    coilCAD = scipy.io.loadmat(get_asset_path("coilCAD.mat"))
     CoilP = coilCAD["P"]
     Coilt = coilCAD["t"] - 1
 
@@ -283,7 +266,7 @@ def main():
         interface,
         shells,
         unit_convert,
-    ) = load_model()
+    ) = load_model(get_asset_path("tissue_index.yaml"))
 
     RnumberE = 4
 
@@ -405,11 +388,22 @@ def main():
     # print(c)
 
     plot_fields(
-        P * 1e3, # move from m to mm for displaying
+        P * 1e3,  # move from m to mm for displaying
         plot_t,
         plot_t_idx,
         c,
-        coils.array,
+        map(
+            lambda coil: (
+                coil[0] * 1e6,
+                coil[1],
+                coil[2],
+                coil[3],
+                coil[4] * 1e6,
+                coil[5],
+                coil[6],
+            ),
+            coils.array,
+        ),
         Ptot,
         En,
         Emag,

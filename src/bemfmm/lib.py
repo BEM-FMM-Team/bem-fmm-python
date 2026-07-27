@@ -3,6 +3,7 @@ import platform
 import shutil
 import subprocess
 import sys
+from importlib.resources import files
 from pathlib import Path
 from time import perf_counter
 
@@ -167,3 +168,15 @@ def launch_detached_new_terminal(script_path: str, script_args: list[str] = []):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         ).pid
+
+
+def get_asset_path(asset_name: str) -> Path:
+    try:
+        # 3.12+
+        return Path(str(files("apps").joinpath("assets", asset_name)))
+    except TypeError:
+        # fallback for older versions or when installed as directory
+        from importlib.resources import as_file
+
+        with as_file(files("apps").joinpath("assets", asset_name)) as path:
+            return path

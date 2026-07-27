@@ -13,16 +13,10 @@ from pathlib import Path
 import numpy as np
 import vedo
 
-root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
-sys.path.insert(0, str(root_dir))
-ASSETS = Path(__file__).resolve().parent.resolve().parent / "assets"
-
-print(f"Setup environment {root_dir}")
-
 from bemfmm.charge.inc_field_gauss_selective_dipoles import (
     inc_field_gauss_selective_dipoles,
 )
-from bemfmm.lib import timeit
+from bemfmm.lib import get_asset_path, timeit
 from bemfmm.mesh import mesh_areas, mesh_normals, mesh_tricenter
 from bemfmm.plot import patch
 
@@ -102,7 +96,7 @@ def setup_dipoles(
 
 @timeit
 def load_model():
-    mesh = vedo.Mesh(ASSETS / "plot_skull.stl")
+    mesh = vedo.Mesh(get_asset_path("plot_skull.stl"))
     # mesh.subdivide(3)
     P = mesh.vertices
     t = np.array(mesh.cells)

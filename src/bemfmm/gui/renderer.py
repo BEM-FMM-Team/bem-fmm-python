@@ -22,8 +22,16 @@ class Renderer:
         print(ticks_m)
         print(ticks_mm)
 
-        axes = Axes(xtitle="X (mm)", ytitle="Y (mm)",ztitle="Z (mm)",xrange=[-0.1, 0.1],yrange=[-0.1, 0.1],zrange=[-0.1, 0.1],
-            x_values_and_labels=list(zip(ticks_m, ticks_mm)),y_values_and_labels=list(zip(ticks_m, ticks_mm)),z_values_and_labels=list(zip(ticks_m, ticks_mm)),
+        axes = Axes(
+            xtitle="X (mm)",
+            ytitle="Y (mm)",
+            ztitle="Z (mm)",
+            xrange=[-0.1, 0.1],
+            yrange=[-0.1, 0.1],
+            zrange=[-0.1, 0.1],
+            x_values_and_labels=list(zip(ticks_m, ticks_mm)),
+            y_values_and_labels=list(zip(ticks_m, ticks_mm)),
+            z_values_and_labels=list(zip(ticks_m, ticks_mm)),
         )
 
         self.plt.add(axes)
@@ -35,7 +43,7 @@ class Renderer:
 
         self.white_matter_placement_mode = False
         self.white_matter_selected_point = None
-        self.white_matter_marker = Sphere(pos=[0, 0, 0],r=0.0005)
+        self.white_matter_marker = Sphere(pos=[0, 0, 0], r=0.0005)
 
         self.head_model_state = {
             model: {
@@ -52,17 +60,17 @@ class Renderer:
         self.picker.AddPickList(self.head_models["skin"].actor)
         self.picker.PickFromListOn()
 
-        self.begin_drag_callback=None
-        self.end_drag_callback=None
+        self.begin_drag_callback = None
+        self.end_drag_callback = None
 
-        self.planes = [0,0,0]
+        self.planes = [0, 0, 0]
         self.coil_alpha = 1.0
 
     def activate(self):
         for name, actor in self.head_models.items():
             self.plt.add(actor)
         self.render_head_actors()
-        self.plt.add_callback("LeftButtonPress",self.on_click)
+        self.plt.add_callback("LeftButtonPress", self.on_click)
         self.plt.add_callback("MouseMove", self.on_drag)
         self.plt.show(interactive=False)
 
@@ -116,7 +124,17 @@ class Renderer:
         xm_label = Text3D("-X", pos=coil.com - [L + offset, 0, 0], s=0.005)
         ym_label = Text3D("-Y", pos=coil.com - [0, L + offset, 0], s=0.005)
         zm_label = Text3D("-Z", pos=coil.com - [0, 0, L + offset], s=0.005)
-        self.edit_axes_actors = [x_actor,y_actor,z_actor,xp_label,yp_label,zp_label,xm_label,ym_label,zm_label,]
+        self.edit_axes_actors = [
+            x_actor,
+            y_actor,
+            z_actor,
+            xp_label,
+            yp_label,
+            zp_label,
+            xm_label,
+            ym_label,
+            zm_label,
+        ]
         for actor in self.edit_axes_actors:
             self.plt.add(actor)
         self.plt.render()
@@ -128,7 +146,7 @@ class Renderer:
         self.edit_axes_actors = []
         self.plt.render()
         return
-    
+
     def render_head_actors(self):
         for name, model in self.head_models.items():
             model.actor.SetVisibility(self.head_model_state[name]["visible"])
@@ -149,7 +167,7 @@ class Renderer:
         self.head_models["wm"].on()
         self.plt.render()
         return
-    
+
     def white_matter_picker_off(self):
         self.white_matter_placement_mode = False
 
@@ -157,15 +175,18 @@ class Renderer:
         self.plt.remove(self.white_matter_marker)
         self.plt.render()
         return
-    
+
     def get_white_matter_selected_point(self):
         return self.white_matter_selected_point
-    
+
     def on_click(self, event):
         if self.dragging:
             self.dragging = False
             self.end_drag_callback()
-        elif getattr(event.actor, "id", None) == self.dragging_id and not self.white_matter_placement_mode:
+        elif (
+            getattr(event.actor, "id", None) == self.dragging_id
+            and not self.white_matter_placement_mode
+        ):
             self.dragging = True
             self.begin_drag_callback()
         elif self.white_matter_placement_mode:
@@ -173,14 +194,16 @@ class Renderer:
                 return
             self.white_matter_selected_point = event.picked3d
             self.plt.remove(self.white_matter_marker)
-            self.white_matter_marker = Sphere(pos=self.white_matter_selected_point, r=0.001)
+            self.white_matter_marker = Sphere(
+                pos=self.white_matter_selected_point, r=0.001
+            )
             self.plt.add(self.white_matter_marker)
 
     def on_drag(self, event):
         if not self.dragging:
             return
         x, y = event.picked2d
-        if not self.picker.Pick(x,y,0,self.plt.renderer):
+        if not self.picker.Pick(x, y, 0, self.plt.renderer):
             return
         point = self.picker.GetPickPosition()
 
@@ -189,14 +212,14 @@ class Renderer:
 
     def orient_camera(self, flag):
         if flag == "xy":
-            position = (0,0,1)
-            up = (0,1,0)
+            position = (0, 0, 1)
+            up = (0, 1, 0)
         elif flag == "xz":
-            position = (0,1,0)
-            up = (0,0,1)
+            position = (0, 1, 0)
+            up = (0, 0, 1)
         elif flag == "yz":
-            position = (1,0,0)
-            up = (0,0,1)
+            position = (1, 0, 0)
+            up = (0, 0, 1)
 
         self.plt.camera.SetFocalPoint(0, 0, 0)
         self.plt.camera.SetPosition(*position)
@@ -213,26 +236,17 @@ class Renderer:
         self.remove_planes()
         x, y, z = planes
 
-        self.planes[0] = Plane(
-            pos=(x,0,0),
-            normal=(1,0,0)
-        )
+        self.planes[0] = Plane(pos=(x, 0, 0), normal=(1, 0, 0))
 
-        self.planes[1] = Plane(
-            pos=(0,y,0),
-            normal=(0,1,0)
-        )
+        self.planes[1] = Plane(pos=(0, y, 0), normal=(0, 1, 0))
 
-        self.planes[2] = Plane(
-            pos=(0,0,z),
-            normal=(0,0,1)
-        )
+        self.planes[2] = Plane(pos=(0, 0, z), normal=(0, 0, 1))
 
-        for plane in (self.planes):
+        for plane in self.planes:
             plane.alpha(0.5)
             self.plt.add(plane)
         self.plt.render()
-        
+
     def remove_planes(self):
         for plane in self.planes:
             self.plt.remove(plane)
