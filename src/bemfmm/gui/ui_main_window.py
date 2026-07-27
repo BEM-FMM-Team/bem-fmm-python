@@ -732,7 +732,7 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Twist (degrees)", None)
         )
         self.label_14.setText(
-            QCoreApplication.translate("MainWindow", "dIdt (A/s)", None)
+            QCoreApplication.translate("MainWindow", "dI/dt (A/\u03bcs)", None)
         )
         self.AutoOrientButton.setText(
             QCoreApplication.translate("MainWindow", "Auto Orient", None)
