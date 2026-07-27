@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from vedo import Line, Mesh, Plotter, Text3D
+from copy import deepcopy
 
 BASE_DIR = Path(__file__).resolve().parent
 root_dir = Path(__file__).resolve().parent.resolve().parent.resolve().parent.absolute()
@@ -15,29 +16,26 @@ print(f"Setup environment {root_dir}")
 test_dir = Path(__file__).resolve().parent.resolve().parent
 ASSETS = (test_dir / "assets").resolve()
 
-from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
-from bemfmm.gui.load_coil_from_func import load_coil_from_func
-from bemfmm.gui.load_template import load_template
-from bemfmm.gui.quat_multiply import quat_multiply
-from bemfmm.gui.renderer import Renderer
 from bemfmm.gui.transformer import transformer
+from bemfmm.mesh.mesh_tricenter import mesh_tricenter
+from bemfmm.mesh.mesh_normals import mesh_normals
 from bemfmm.gui.vector_to_quat import vector_to_quat
 from bemfmm.gui.xyz_to_quat import xyz_to_quat
-from bemfmm.mesh.mesh_normals import mesh_normals
-from bemfmm.mesh.mesh_tricenter import mesh_tricenter
-
-from ..my_types import TMSCoilDefinition
-
+from bemfmm.gui.load_coil_from_func import load_coil_from_func
+from bemfmm.gui.quat_multiply import quat_multiply
+from bemfmm.gui.axis_angle_to_quat import axis_angle_to_quat
+from bemfmm.gui.load_template import load_template
+from bemfmm.gui.renderer import Renderer
+from bemfmm.gui.flip_quaternion import flip_quaternion
 """
 contains backend information for a coil manager including information for charge engine computations
 """
-
-
 class Backend:
     def __init__(self, head_models, ViewPort):
         self.renderer = Renderer(head_models, ViewPort, self.drag_place)
         self.coils = {}
         self.undo_queue = []
+        self.redo_queue = []
 
         self.next_id = 0
 
@@ -53,7 +51,11 @@ class Backend:
 
         self.last_coil = None
 
+        self.planes = (0.0,0.0,0.0)
+        self.skin_distance = .01
+
     def new_coil(self, xyz, coil_type, dIdt, auto_orient, window_cord, name):
+        self.save_state()
         new_coil = load_coil_from_func(coil_type, window_cord)
         if not name == "":
             new_coil.name = name
@@ -70,13 +72,11 @@ class Backend:
         else:
             transformer(new_coil, xyz)
         self.coils[new_coil.id] = new_coil
-
         self.renderer.add_coil_actor(new_coil)
-
-        self.undo_queue.append([0, [new_coil.id]])
         return
 
     def new_custom_coil(self, xyz, name, dIdt, auto_orient):
+        self.save_state()
         print(name)
         print(type(name))
         new_coil = load_template(name)
@@ -95,8 +95,6 @@ class Backend:
         self.coils[new_coil.id] = new_coil
 
         self.renderer.add_coil_actor(new_coil)
-
-        self.undo_queue.append([0, [new_coil.id]])
         return
 
     # get coil
@@ -105,12 +103,6 @@ class Backend:
         self.last_coil = coil.clone()
         return coil
 
-    # for undo
-    def save_last_coil(self):
-        self.undo_queue.append([2, [self.last_coil.id, self.last_coil.clone()]])
-        self.renderer.render_plot()
-        return
-
     # get all coils
     def get_coils(self):
         return self.coils
@@ -118,11 +110,8 @@ class Backend:
     # move coil
     def edit_coil_com(self, id, xyz):
         coil = self.coils[id]
-        self.renderer.remove_world_axes()
         transformer(coil, xyz)
         self.renderer.edit_coil_actor(coil)
-        self.renderer.show_world_axes(coil)
-        self.renderer.render_plot()
         return
 
     # rotate coil
@@ -130,7 +119,6 @@ class Backend:
         coil = self.coils[id]
         transformer(coil, coil.com, xyz_to_quat(rxryrz))
         self.renderer.edit_coil_actor(coil)
-        self.renderer.render_plot()
         return
 
     # edit current
@@ -146,28 +134,23 @@ class Backend:
         transformer(coil, coil.com, q_final)
 
         self.renderer.edit_coil_actor(coil)
-        self.renderer.render_plot()
         return
 
     # delete coil
     def delete_coil(self, id):
-        self.undo_queue.append([1, [self.coils[id].clone()]])
+        self.save_state()
         del self.coils[id]
-
         self.renderer.remove_coil_actors(id)
-        self.renderer.render_plot()
         return
 
     #  prepare to pass coils
     def save_coil_config(self, save_path):
-        coil_list = list(self.coils.values())
-        for coil in coil_list:
-            distance, indices = self.nn.kneighbors(coil.com.reshape(1, -1))
-            coil.intersection_point = self.centers[indices[0, 0]].copy()
+        scene = {
+            "coils": self.coils,
+            "planes": self.planes
+        }
         with open(save_path, "wb") as f:
-            pickle.dump(
-                TMSCoilDefinition(array=coil_list, slice_plane=None), f
-            )  # TODO simon here is where you would place the final planes XYZ as an np.arrray([0, 0 , 0])
+            pickle.dump(scene, f)
         return
 
     def auto_orient(self, id):
@@ -179,37 +162,53 @@ class Backend:
         transformer(coil, coil.com, target_trans)
 
         self.renderer.edit_coil_actor(coil)
-        self.renderer.render_plot()
         return
+    
+    # for undo
+    def save_state(self):
+        self.undo_queue.append(
+            {
+                "coils": deepcopy(self.coils),
+                "planes": deepcopy(self.planes)
+            }
+        ) 
+        self.redo_queue.clear()
+        if len(self.undo_queue) > 50:
+            self.undo_queue.pop(0)
 
     def undo_operation(self):
-        if len(self.undo_queue) == 0:
+        if not self.undo_queue:
             return
-        operation = self.undo_queue.pop()
-        flag = operation[0]
-        data = operation[1]
-        # undo create
-        if flag == 0:
-            self.delete_coil(data[0])
-            self.next_id -= 1
-            self.undo_queue.pop()
-        # undo delete
-        elif flag == 1:
-            coil = data[0]
-            self.coils[coil.id] = coil
-            self.renderer.add_coil_actor(coil)
-        # edit
-        elif flag == 2:
-            id = data[0]
-            old_coil = data[1]
-            self.coils[id] = old_coil
-            self.renderer.edit_coil_actor(old_coil)
-        self.renderer.render_plot()
+        self.redo_queue.append(
+            {
+                "coils": deepcopy(self.coils),
+                "planes": deepcopy(self.planes)
+            }
+        ) 
+        state = self.undo_queue.pop()
+        self.coils = state["coils"]
+        self.planes = state["planes"]
+        self.renderer.rerender(self.coils)
         return
-
+    
+    def redo_operation(self):
+        if not self.redo_queue:
+            return
+        self.undo_queue.append(
+            {
+                "coils": deepcopy(self.coils),
+                "planes": self.planes
+            }
+        ) 
+        state = self.redo_queue.pop()
+        self.coils = state["coils"]
+        self.planes = state["planes"]
+        self.renderer.rerender(self.coils)
+        return
+    
     def white_matter_begin(self):
         self.renderer.white_matter_picker_on()
-        # print(self.renderer.white_matter_placement_mode)
+        print(self.renderer.white_matter_placement_mode)
 
     def white_matter_finalize(self, distance, id):
         coil = self.coils[id]
@@ -218,27 +217,22 @@ class Backend:
         distances, indices = self.nn.kneighbors(white_matter_point.reshape(1, -1))
         idx = indices[0, 0]
         skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * (
-            distance + self.coils[id].bottom_to_com
-        )
+        skin_point_vector = self.normals[idx].copy() * (distance + self.coils[id].bottom_to_com)
         final_point = skin_point + skin_point_vector
-        # print(final_point)
+        print(final_point)
 
-        self.renderer.remove_world_axes()
         transformer(coil, final_point)
         self.renderer.edit_coil_actor(coil)
-        self.renderer.show_world_axes(coil)
-        self.renderer.render_plot()
         return
-
-    def drag_place(self, point, distance, id):
+        
+    def drag_place(self, point, id):
         coil = self.coils[id]
 
         distances, indices = self.nn.kneighbors(point.reshape(1, -1))
         idx = indices[0, 0]
 
         skin_point = self.centers[idx].copy()
-        skin_point_vector = self.normals[idx].copy() * (distance + coil.bottom_to_com)
+        skin_point_vector = (self.normals[idx].copy() * (self.skin_distance + coil.bottom_to_com))
 
         final_point = skin_point + skin_point_vector
 
@@ -246,17 +240,32 @@ class Backend:
 
         transformer(coil, final_point)
         self.renderer.edit_coil_actor(coil)
-        self.renderer.show_world_axes(coil)
-        self.renderer.render_plot()
 
     def load_coil_configuration(self, path):
-        for coil in self.coils.values():
-            self.renderer.remove_coil_actors(coil.id)
+        self.save_state()
         with open(path, "rb") as f:
-            coil_list: TMSCoilDefinition = pickle.load(f)
-            # TODO @simon however you handle the slice_planes make sure to load it back here
-        self.coils = {coil.id: coil for coil in coil_list.array}
-        self.undo_queue.clear()
-        for coil in self.coils.values():
-            self.renderer.add_coil_actor(coil)
+            scene = pickle.load(f)
+        self.coils = scene["coils"]
+        self.planes = scene["planes"]
+        self.renderer.rerender(self.coils)
+        return
+        
+    def update_planes(self, x=None, y=None, z=None):
+        planes = list(self.planes)
+        if x is not None:
+            planes[0] = x
+        if y is not None:
+            planes[1] = y
+        if z is not None:
+            planes[2] = z
+        self.planes = tuple(planes)
+        self.renderer.show_planes(self.planes)
+
+    def flip_coil(self, id):
+        coil = self.coils[id]
+
+        quat = flip_quaternion(coil.rot)
+        transformer(coil,coil.com,quat)
+
+        self.renderer.edit_coil_actor(coil)
         return

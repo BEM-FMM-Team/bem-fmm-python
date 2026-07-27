@@ -1,26 +1,25 @@
+import numpy as np
+import subprocess
+import sys
 from pathlib import Path
 
-import numpy as np
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFileDialog, QMainWindow, QMessageBox
 
-from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
+from bemfmm.gui.gui_backend import Backend
+
+from PySide6.QtWidgets import QMainWindow, QFileDialog, QMessageBox, QListWidgetItem
+from PySide6.QtCore import Qt
 from bemfmm.gui.ui_main_window import Ui_MainWindow
-from bemfmm.lib import launch_detached_new_terminal
+
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
 """
 
-PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
-
-
 class Frontend(QMainWindow):
     def __init__(self, head_models, names):
         super().__init__()
         # state
-        self.gui_ids = []
         self.coil_names = names
         self.selected_coil_id = 0
         self.selected_coil_rot = None
@@ -31,7 +30,19 @@ class Frontend(QMainWindow):
         self.ui.setupUi(self)
 
         # backend
-        self.backend = Backend(head_models, self.ui.ViewPort)
+        self.backend = Backend(head_models,self.ui.ViewPort)
+
+        self.backend.renderer.begin_drag_callback = (
+            lambda: self.ui.EditGUI.setEnabled(False)
+        )
+
+        self.backend.renderer.end_drag_callback = (
+            lambda: (
+                self.refresh_coil_editor(),
+                self.refresh_twist(),
+                self.ui.EditGUI.setEnabled(True)
+            )
+        )
 
         self.setupUi()
         self.backend.renderer.activate()
@@ -43,17 +54,12 @@ class Frontend(QMainWindow):
         self.ui.TypeDropdown.clear()
         for name in self.coil_names:
             self.ui.TypeDropdown.addItem(name)
-
-        for slider in (self.ui.XSlider, self.ui.YSlider, self.ui.ZSlider):
+        
+        for slider in (self.ui.XSlider,self.ui.YSlider,self.ui.ZSlider,self.ui.XPlaneSlider,self.ui.YPlaneSlider,self.ui.ZPlaneSlider):
             slider.setMinimum(-150000)
             slider.setMaximum(150000)
-
-        for slider in (
-            self.ui.rXSlider,
-            self.ui.rYSlider,
-            self.ui.rZSlider,
-            self.ui.TwistSlider,
-        ):
+    
+        for slider in (self.ui.rXSlider,self.ui.rYSlider,self.ui.rZSlider,self.ui.TwistSlider):
             slider.setMinimum(-180000)
             slider.setMaximum(180000)
 
@@ -64,18 +70,11 @@ class Frontend(QMainWindow):
         self.ui.Delete.clicked.connect(self.delete_selected_coil)
         self.ui.Edit.clicked.connect(self.edit_selected_coil)
         self.ui.Undo.clicked.connect(self.undo)
+        self.ui.Redo.clicked.connect(self.redo)
         self.ui.Save.clicked.connect(self.save_coil_config_dialog)
         self.ui.Load.clicked.connect(self.load_coil_config_dialog)
-
-        models = [
-            "bone",
-            "cerebellum",
-            "csf",
-            "gm",
-            "skin",
-            "ventricles",
-            "wm",
-        ]
+        
+        models = ["bone","cerebellum","csf","gm", "skin", "ventricles","wm",]
 
         for model in models:
             checkbox = getattr(self.ui, model)
@@ -84,7 +83,7 @@ class Frontend(QMainWindow):
             slider.setRange(0, 100)
             slider.setValue(100)
             slider.valueChanged.connect(self.apply_head_models)
-
+        
         self.ui.skin.setChecked(True)
 
         self.ui.CoilAlpha.setRange(0, 100)
@@ -101,148 +100,128 @@ class Frontend(QMainWindow):
         self.ui.rXEntry.valueChanged.connect(self.edit_coil_rotation)
         self.ui.rYEntry.valueChanged.connect(self.edit_coil_rotation)
         self.ui.rZEntry.valueChanged.connect(self.edit_coil_rotation)
+
+        self.ui.XPlaneSpin.valueChanged.connect(self.update_x_plane)
+        self.ui.YPlaneSpin.valueChanged.connect(self.update_y_plane)
+        self.ui.ZPlaneSpin.valueChanged.connect(self.update_z_plane)
         self.ui.TwistEntry.valueChanged.connect(self.apply_twist)
 
         self.ui.WhiteMatterButton.clicked.connect(self.place_with_white_matter)
 
-        for box in (
-            self.ui.XEntry,
-            self.ui.YEntry,
-            self.ui.ZEntry,
-        ):
+        for box in (self.ui.XEntry,self.ui.YEntry,self.ui.ZEntry,self.ui.XPlaneSpin,self.ui.YPlaneSpin,self.ui.ZPlaneSpin):
             box.setRange(-150.0, 150.0)
             box.setDecimals(4)
             box.setSingleStep(0.0001)
 
-        for box in (
-            self.ui.rXEntry,
-            self.ui.rYEntry,
-            self.ui.rZEntry,
-            self.ui.TwistEntry,
-        ):
+        for box in (self.ui.rXEntry,self.ui.rYEntry,self.ui.rZEntry,self.ui.TwistEntry,):
             box.setRange(-180.0, 180.0)
             box.setDecimals(3)
             box.setSingleStep(0.1)
         POSITION_SCALE = 1000
         ROTATION_SCALE = 1000
-        self.bind_slider_spinbox(self.ui.XSlider, self.ui.XEntry, POSITION_SCALE)
-        self.bind_slider_spinbox(self.ui.YSlider, self.ui.YEntry, POSITION_SCALE)
-        self.bind_slider_spinbox(self.ui.ZSlider, self.ui.ZEntry, POSITION_SCALE)
-        self.bind_slider_spinbox(self.ui.rXSlider, self.ui.rXEntry, ROTATION_SCALE)
-        self.bind_slider_spinbox(self.ui.rYSlider, self.ui.rYEntry, ROTATION_SCALE)
-        self.bind_slider_spinbox(self.ui.rZSlider, self.ui.rZEntry, ROTATION_SCALE)
-        self.bind_slider_spinbox(
-            self.ui.TwistSlider, self.ui.TwistEntry, ROTATION_SCALE
-        )
+        self.bind_slider_spinbox(self.ui.XSlider,self.ui.XEntry,POSITION_SCALE)
+        self.bind_slider_spinbox(self.ui.YSlider,self.ui.YEntry,POSITION_SCALE)
+        self.bind_slider_spinbox(self.ui.ZSlider,self.ui.ZEntry,POSITION_SCALE)
+        self.bind_slider_spinbox(self.ui.rXSlider,self.ui.rXEntry,ROTATION_SCALE)
+        self.bind_slider_spinbox(self.ui.rYSlider,self.ui.rYEntry,ROTATION_SCALE)
+        self.bind_slider_spinbox(self.ui.rZSlider,self.ui.rZEntry,ROTATION_SCALE)
+        self.bind_slider_spinbox(self.ui.TwistSlider,self.ui.TwistEntry,ROTATION_SCALE)
+        self.bind_slider_spinbox(self.ui.XPlaneSlider,self.ui.XPlaneSpin,POSITION_SCALE)
+        self.bind_slider_spinbox(self.ui.YPlaneSlider,self.ui.YPlaneSpin,POSITION_SCALE)
+        self.bind_slider_spinbox(self.ui.ZPlaneSlider,self.ui.ZPlaneSpin,POSITION_SCALE)
         self.ui.WhiteMatterDistance.setText("10")
         self.ui.CoilList.currentRowChanged.connect(self.coil_selection_changed)
 
-        self.ui.CameraXY.clicked.connect(
-            lambda: self.backend.renderer.orient_camera("xy")
-        )
-        self.ui.CameraXZ.clicked.connect(
-            lambda: self.backend.renderer.orient_camera("xz")
-        )
-        self.ui.CameraYZ.clicked.connect(
-            lambda: self.backend.renderer.orient_camera("yz")
+        self.ui.CameraXY.clicked.connect(lambda: self.backend.renderer.orient_camera("xy"))
+        self.ui.CameraXZ.clicked.connect(lambda: self.backend.renderer.orient_camera("xz"))
+        self.ui.CameraYZ.clicked.connect(lambda: self.backend.renderer.orient_camera("yz"))
+
+        # self.ui.SaveRun.clicked.connect(self.save_coil_config_dialog_and_run_tms)
+
+        self.ui.PlanePlaceButton.clicked.connect(
+            self.open_plane_placer
         )
 
-        self.ui.RunTMS.clicked.connect(self.run_tms)
+        self.ui.PlaneOK.clicked.connect(
+            self.exit_plane_placer
+        )
+
+        self.ui.FlipCoilButton.clicked.connect(
+            self.flip_selected_coil
+        )
+
+        self.ui.WhiteMatterDistance.textChanged.connect(lambda value: setattr(self.backend, "skin_distance", float(value) / 1000))
+        self.ui.CoilList.itemChanged.connect(self.rename_coil)
 
     def add_coil(self):
         # creates a new coil
         coil_type = self.ui.TypeDropdown.currentText()
 
-        self.backend.new_coil(
-            np.array([0, 0, 0]),
-            coil_type,
-            100,
-            False,
-            [0, 0],
-            self.ui.NameEntry.text(),
-        )
+        self.backend.new_coil(np.array([0, 0, 0]),coil_type,1000,False,[0, 0],self.ui.NameEntry.text())
         self.refresh_list_box()
-
+    
     def import_custom_coil(self):
         # creates a new custom coil
         name = name = self.ui.CustomCoilEntry.text()
 
-        self.backend.new_custom_coil(np.array([0, 0, 0]), name, 1000, False)
+        self.backend.new_custom_coil(np.array([0,0,0]), name, 1000, False)
         self.refresh_list_box()
-
+    
     def delete_selected_coil(self):
-        # deletes a coil
-        row = self.ui.CoilList.currentRow()
-        if row < 0:
+        item = self.ui.CoilList.currentItem()
+        if item is None:
             return
-        self.backend.delete_coil(self.gui_ids[row])
+        coil_id = item.data(Qt.UserRole)
+        self.backend.delete_coil(coil_id)
+        row = self.ui.CoilList.row(item)
         self.ui.CoilList.takeItem(row)
-        del self.gui_ids[row]
-        return
-
-    def coil_selection_changed(self, row):
-        if row < 0:
+    
+    def coil_selection_changed(self):
+        item = self.ui.CoilList.currentItem()
+        if item is None:
             return
-        coil_id = self.gui_ids[row]
+        coil_id =  item.data(Qt.UserRole)
         coil = self.backend.get_coil(coil_id)
         self.backend.renderer.show_world_axes(coil)
-        # print(len(self.backend.renderer.edit_axes_actors))
 
     def edit_selected_coil(self):
         # prepares to edit a coil
-        row = self.ui.CoilList.currentRow()
-        if row < 0:
+        item = self.ui.CoilList.currentItem()
+        if item is None:
             return
-        self.selected_coil_id = self.gui_ids[row]
+        self.selected_coil_id = item.data(Qt.UserRole)
         self.load_coil_editor()
         self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot
         self.ui.stackedWidget.setCurrentWidget(self.ui.EditGUI)
         return
-
+    
     def load_coil_editor(self):
         coil = self.backend.get_coil(self.selected_coil_id)
-        self.backend.save_last_coil()
+        self.backend.save_state()
         self.backend.renderer.show_world_axes(coil)
         self.refresh_coil_editor()
+        self.backend.renderer.dragging_id = coil.id
 
     def edit_coil_position(self):
         if self.updating_gui:
             return
-        self.backend.edit_coil_com(
-            self.selected_coil_id,
-            np.array(
-                [
-                    self.ui.XEntry.value() / 1000,
-                    self.ui.YEntry.value() / 1000,
-                    self.ui.ZEntry.value() / 1000,
-                ]
-            ),
-        )
+        self.backend.edit_coil_com(self.selected_coil_id,np.array([self.ui.XEntry.value()/1000,self.ui.YEntry.value()/1000,self.ui.ZEntry.value()/1000]))
 
     def edit_coil_dIdt(self):
         if self.updating_gui:
             return
         try:
-            value = float(self.ui.dIdtEntry.text())*1e6 # input in A/us, convert to A/s
+            value = float(self.ui.dIdtEntry.text())
         except ValueError:
             return
-        self.backend.edit_coil_dIdt(self.selected_coil_id, value)
+        self.backend.edit_coil_dIdt(self.selected_coil_id,value)
 
     def edit_coil_rotation(self):
         if self.updating_gui:
             return
         self.refresh_twist()
         self.selected_coil_rot = self.backend.get_coil(self.selected_coil_id).rot
-        self.backend.edit_coil_rot(
-            self.selected_coil_id,
-            np.array(
-                [
-                    self.ui.rXEntry.value(),
-                    self.ui.rYEntry.value(),
-                    self.ui.rZEntry.value(),
-                ]
-            ),
-        )
+        self.backend.edit_coil_rot(self.selected_coil_id,np.array([self.ui.rXEntry.value(),self.ui.rYEntry.value(),self.ui.rZEntry.value()]))
 
     def place_with_white_matter(self):
         if not self.backend.renderer.white_matter_placement_mode:
@@ -252,7 +231,7 @@ class Frontend(QMainWindow):
             self.ui.CancelEdit.setEnabled(False)
         else:
             distance = float(self.ui.WhiteMatterDistance.text()) / 1000
-            self.backend.white_matter_finalize(distance, self.selected_coil_id)
+            self.backend.white_matter_finalize(distance,self.selected_coil_id)
             self.auto_orient()
             self.ui.WhiteMatterButton.setText("Place With White Matter")
             self.ui.OKEdit.setEnabled(True)
@@ -267,9 +246,7 @@ class Frontend(QMainWindow):
     def apply_twist(self):
         if self.updating_gui:
             return
-        self.backend.apply_twist(
-            self.selected_coil_id, self.ui.TwistEntry.value(), self.selected_coil_rot
-        )
+        self.backend.apply_twist(self.selected_coil_id,self.ui.TwistEntry.value(),self.selected_coil_rot)
         self.refresh_coil_editor()
 
     def apply_head_models(self):
@@ -291,10 +268,18 @@ class Frontend(QMainWindow):
         # undoes last operation
         self.backend.undo_operation()
         self.refresh_list_box()
+    
+    def redo(self):
+        # redoes last operation
+        self.backend.redo_operation()
+        self.refresh_list_box()
 
     def save_coil_config_dialog(self):
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save Coil Configuration", "", PKL_FILTER_STR
+            self,
+            "Save Coil Configuration",
+            "",
+            "Pickle Files (*.pkl)"
         )
 
         if path:
@@ -302,44 +287,78 @@ class Frontend(QMainWindow):
 
     def load_coil_config_dialog(self):
         path, _ = QFileDialog.getOpenFileName(
-            self, "Load Coil Configuration", "", PKL_FILTER_STR
+            self,
+            "Load Coil Configuration",
+            "",
+            "Pickle Files (*.pkl)"
         )
         if not path:
             return
         self.backend.load_coil_configuration(path)
         self.refresh_list_box()
 
-    def run_tms(self):
-        path, _ = QFileDialog.getOpenFileName(
-            self, "Load Coil Configuration", "", PKL_FILTER_STR
+    def open_plane_placer(self):
+        self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)
+        self.backend.renderer.show_planes(self.backend.planes)
+        self.refresh_plane_gui()
+    
+    def update_x_plane(self):
+        if self.updating_gui:
+            return
+        self.backend.update_planes(
+            x=self.ui.XPlaneSpin.value() / 1000
+        )
+    def update_y_plane(self):
+        if self.updating_gui:
+            return
+        self.backend.update_planes(
+            y=self.ui.YPlaneSpin.value() / 1000
+        )
+    def update_z_plane(self):
+        if self.updating_gui:
+            return
+        self.backend.update_planes(
+            z=self.ui.ZPlaneSpin.value() / 1000
         )
 
-        path = Path(path)
-        if not path.is_file():
-            QMessageBox.warning(
-                self.ui.MainGUI, "Failed to run TMS", "Failed to load to save file"
-            )
+    def exit_plane_placer(self):
+        self.backend.renderer.remove_planes()
+        self.ui.stackedWidget.setCurrentWidget(
+            self.ui.MainGUI
+        )
+        self.backend.renderer.render_plot()
+    
+    def refresh_plane_gui(self):
+        planes = self.backend.planes
+
+        self.updating_gui = True
+
+        self.ui.XPlaneSpin.setValue(planes[0] * 1000)
+        self.ui.YPlaneSpin.setValue(planes[1] * 1000)
+        self.ui.ZPlaneSpin.setValue(planes[2] * 1000)
+
+        self.updating_gui = False
+
+    def flip_selected_coil(self):
+        self.backend.flip_coil(self.selected_coil_id)
+        self.refresh_coil_editor()
+
+    def rename_coil(self, item):
+        self.backend.save_state
+        if self.updating_gui:
             return
+        coil_id = self.selected_coil_id = item.data(Qt.UserRole)
+        new_name = item.text()
 
-        SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
-        tms_script = SRC / "apps/tms"
-
-        if not tms_script.is_dir():
-            QMessageBox.warning(
-                self.ui.MainGUI,
-                "Failed to run TMS",
-                f"Failed to find tms_script (contact devs) {tms_script}",
-            )
-
-        launch_detached_new_terminal(tms_script, [str(path)])
+        self.backend.coils[coil_id].name = new_name
 
     # helpers
     def refresh_coil_editor(self):
         coil = self.backend.get_coil(self.selected_coil_id)
         self.updating_gui = True
-        self.ui.XEntry.setValue(coil.com[0] * 1000)
-        self.ui.YEntry.setValue(coil.com[1] * 1000)
-        self.ui.ZEntry.setValue(coil.com[2] * 1000)
+        self.ui.XEntry.setValue(coil.com[0]*1000)
+        self.ui.YEntry.setValue(coil.com[1]*1000)
+        self.ui.ZEntry.setValue(coil.com[2]*1000)
         rot = quat_to_xyz(coil)
         self.ui.rXEntry.setValue(rot[0])
         self.ui.rYEntry.setValue(rot[1])
@@ -347,21 +366,22 @@ class Frontend(QMainWindow):
         self.ui.dIdtEntry.setText(str(coil.dIdt))
         self.updating_gui = False
 
+
     def refresh_list_box(self):
+        self.updating_gui = True
         coils = self.backend.get_coils()
         self.ui.CoilList.clear()
-        self.gui_ids.clear()
-        for coil in coils.values():
-            self.ui.CoilList.addItem(coil.name)
-            self.gui_ids.append(coil.id)
-        return
 
-    def bind_slider_spinbox(
-        self,
-        slider,
-        spinbox,
-        scale,
-    ):
+        for coil in coils.values():
+            item = QListWidgetItem(coil.name)
+            item.setData(Qt.UserRole, coil.id)
+            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            self.ui.CoilList.addItem(item)
+        self.updating_gui = False
+
+        return
+    
+    def bind_slider_spinbox(self,slider,spinbox,scale,):
         slider.valueChanged.connect(lambda value: spinbox.setValue(value / scale))
         spinbox.valueChanged.connect(lambda value: slider.setValue(int(value * scale)))
 
@@ -373,6 +393,7 @@ class Frontend(QMainWindow):
         if self.backend.renderer.white_matter_placement_mode:
             self.backend.renderer.white_matter_picker_off()
         self.ui.stackedWidget.setCurrentWidget(self.ui.MainGUI)
+        self.backend.renderer.dragging_id = "-1"
 
     def cancel_edit(self):
         if self.backend.renderer.white_matter_placement_mode:
@@ -386,4 +407,5 @@ class Frontend(QMainWindow):
         self.updating_gui = False
 
     def edit_coil_alpha(self):
-        self.backend.renderer.set_coil_alpha(self.ui.CoilAlpha.value() / 100.0)
+        self.backend.renderer.coil_alpha = self.ui.CoilAlpha.value() / 100.0
+        self.backend.renderer.set_coil_alpha()
