@@ -33,7 +33,6 @@ from bemfmm.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil, TMSCoilDefinition
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
 
 
-@cache
 def load_model(indexpath: Path):
     with open(indexpath, "r") as f:
         d = f.read()
@@ -264,7 +263,7 @@ app = typer.Typer()
 
 
 @app.command()
-def main(tissue_index: Path = get_asset_path("tissue_index.yaml"), RnumberE=4):
+def main(tissue_index: Path = get_asset_path("tissue_index.yaml"), RnumberE:int=4):
     (
         P,
         t,
