@@ -201,7 +201,7 @@ class Frontend(QMainWindow):
         self.backend.new_coil(
             np.array([0, 0, 0]),
             coil_type,
-            1000,
+            100, # default 100 A/us
             False,
             [0, 0],
             self.ui.NameEntry.text(),
