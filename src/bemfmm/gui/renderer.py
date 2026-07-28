@@ -76,7 +76,9 @@ class Renderer:
 
     def add_coil_actor(self, coil):
         coil_actor = Mesh([coil.cad_P, coil.t]).color("orange").alpha(self.coil_alpha)
-        centerline_actor = Arrow(coil.centerline[0],coil.centerline[1]).lw(5).c("black")
+        centerline_actor = (
+            Arrow(coil.centerline[0], coil.centerline[1]).lw(5).c("black")
+        )
         coil_actor.id = coil.id
 
         self.coil_actors[coil.id] = coil_actor
@@ -94,9 +96,7 @@ class Renderer:
         coil_actor.points = coil.cad_P
 
         self.centerline_actors[coil.id] = Arrow(
-            coil.centerline[0],
-            coil.centerline[1],
-            c="black"
+            coil.centerline[0], coil.centerline[1], c="black"
         )
         self.plt.add(self.centerline_actors[coil.id])
         self.show_world_axes(coil)

@@ -189,7 +189,7 @@ class Backend:
         coil = self.coils[id]
         self.renderer.white_matter_picker_off()
         white_matter_point = self.renderer.get_white_matter_selected_point()
-        transformer(coil,white_matter_point)
+        transformer(coil, white_matter_point)
         self.edit_coil_distance(id, distance)
         return
 
@@ -232,10 +232,8 @@ class Backend:
         idx = indices[0, 0]
         skin_point = self.centers[idx].copy()
         skin_normal = self.normals[idx].copy()
-        final_point = (skin_point + skin_normal * (distance + coil.bottom_to_com))
+        final_point = skin_point + skin_normal * (distance + coil.bottom_to_com)
         transformer(coil, final_point)
         self.renderer.edit_coil_actor(coil)
         self.auto_orient(id)
         self.renderer.render_plot()
-
-    

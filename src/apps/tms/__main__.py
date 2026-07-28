@@ -11,15 +11,24 @@ import yaml
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
-                           surface_field_lhs)
+from bemfmm.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
 from bemfmm.lib import cache, get_asset_path
-from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
-                         mesh_rotate2, mesh_tricenter)
+from bemfmm.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from bemfmm.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil, TMSCoilDefinition
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
+
 # pyrefly: ignore [missing-import]
 from cbemfmm import neighbor_ints_En
 

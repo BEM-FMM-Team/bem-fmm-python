@@ -66,7 +66,7 @@ class Frontend(QMainWindow):
         ):
             slider.setMinimum(-150000)
             slider.setMaximum(150000)
-        
+
         self.ui.DistanceSlider.setMinimum(0)
         self.ui.DistanceSlider.setMaximum(150000)
 
@@ -146,7 +146,7 @@ class Frontend(QMainWindow):
             box.setDecimals(4)
             box.setSingleStep(0.0001)
 
-        self.ui.DistanceEntry.setRange(0,150.0)
+        self.ui.DistanceEntry.setRange(0, 150.0)
         self.ui.DistanceEntry.setDecimals(4)
         self.ui.DistanceEntry.setSingleStep(0.0001)
 
