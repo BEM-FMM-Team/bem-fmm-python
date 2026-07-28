@@ -54,49 +54,33 @@ if not defined UV_EXE (
     echo uv not found, attempting to find python...
 )
 
-rem If UV not found, try to install it via pip from Python
+rem if uv not found, try to install it via pip from Python
 if not defined UV_EXE (
-    set "PYEXE="
-
-    where py >nul 2>&1 && set "PYEXE=py -3"
+    set PYEXE=
+    where py >nul 2>&1 && set PYEXE=py -3
     if not defined PYEXE (
-        where python >nul 2>&1 && set "PYEXE=python"
+        where python >nul 2>&1 && set PYEXE=python
     )
     if not defined PYEXE (
-        where python3 >nul 2>&1 && set "PYEXE=python3"
+        where python3 >nul 2>&1 && set PYEXE=python3
     )
 
-    rem Debug: show what we found
-    echo -- PYEXE is: [%PYEXE%]
+    rem ERROR WARN TODO something here is wrong, i think pyexe is not set right
+    if defined PYEXE (
+        echo.
+        echo -- attempting uv install via pip --
+        %PYEXE% --version
+        echo running: %PYEXE% -m pip install uv
+        %PYEXE% -m pip install uv
 
-    if not defined PYEXE (
-        echo ERROR: No Python launcher/interpreter found (py/python/python3).
-        goto :eof
-    )
-
-    echo.
-    echo -- attempting uv install via pip --
-    %PYEXE% --version
-    echo running: %PYEXE% -m pip install uv
-    %PYEXE% -m pip install uv --user
-
-    rem Determine user scripts dir and locate uv.exe
-    set "USER_SCRIPTS="
-    for /f "usebackq delims=" %%A in (`%PYEXE% -m site --user-scripts`) do set "USER_SCRIPTS=%%A"
-
-    echo -- USER_SCRIPTS is: [%USER_SCRIPTS%]
-
-    if defined USER_SCRIPTS (
-        if exist "%USER_SCRIPTS%\uv.exe" (
-            set "UV_EXE=%USER_SCRIPTS%\uv.exe"
-            echo uv installed to %UV_EXE%
-            "%UV_EXE%" --version
+        for /f "delims=" %%A in ('%PYEXE% -m site --user-scripts') do set USER_SCRIPTS=%%A
+        if exist "!USER_SCRIPTS!\uv.exe" (
+            set UV_EXE=!USER_SCRIPTS!\uv.exe
+            echo uv installed to !USER_SCRIPTS!\uv.exe
+            "!UV_EXE!" --version
         ) else (
-            echo uv install did not produce uv.exe in the expected user-scripts directory.
-            echo -- Expected: %USER_SCRIPTS%\uv.exe
+            echo uv install via pip did not result in executable
         )
-    ) else (
-        echo Could not determine user-scripts directory via: %PYEXE% -m site --user-scripts
     )
 )
 
