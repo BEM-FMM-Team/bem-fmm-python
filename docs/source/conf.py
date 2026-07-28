@@ -1,15 +1,5 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-project = "bem-fmm-python"
-copyright = "2026, Shawn Pande"
-author = "Shawn Pande"
-release = "0.0.1"
+import tomllib
+from pathlib import Path
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -31,3 +21,20 @@ extensions = [
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
+
+
+ROOT = Path(__file__).resolve().parents[2]
+PYPROJECT = ROOT / "pyproject.toml"
+
+data = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))
+
+project_data = data.get("project", {})
+project = project_data.get("name", "bem-fmm-python")
+
+authors = project_data.get("authors", [])
+author = authors[0].get("name") if authors else "Unknown"
+
+version = project_data.get("version", "0.0.0")
+release = version
+
+copyright = f"{release}"

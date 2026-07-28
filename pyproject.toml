@@ -48,7 +48,7 @@ include = ["bemfmm", "apps"]
 # TODO find a better name for apps
 
 [tool.setuptools.package-data]
-apps = ["assets/**/*", "gui/*.ui", "tms/*.mat"]
+apps = ["assets/**/*", "tms/*.mat"]
 
 [project.scripts]
 tms_coil_navigator = "apps.gui.__main__:app"

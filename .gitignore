@@ -8,6 +8,7 @@ tags
 __compute_cache__
 
 docs/_build/
+docs/build/
 docs/_doctrees/
 docs/api/
 
@@ -38,4 +39,4 @@ env/
 **/*.dll
 __output__
 
-src/cbemfmm/cbemfmm.c
+result/

@@ -6,4 +6,3 @@ src
 
    apps
    bemfmm
-   cbemfmm
