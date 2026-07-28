@@ -39,7 +39,6 @@ class Renderer:
         self.head_models = head_models
         self.coil_actors = {}
         self.centerline_actors = {}
-        self.edit_axes_actors = []
 
         self.white_matter_placement_mode = False
         self.white_matter_selected_point = None
@@ -65,6 +64,8 @@ class Renderer:
 
         self.planes = [0, 0, 0]
         self.coil_alpha = 1.0
+
+        self.selected_id = None
 
     def activate(self):
         for name, actor in self.head_models.items():
@@ -92,7 +93,6 @@ class Renderer:
         return
 
     def edit_coil_actor(self, coil):
-        self.remove_world_axes()
         self.plt.remove(self.centerline_actors[coil.id])
         coil_actor = self.coil_actors[coil.id]
         coil_actor.points = coil.cad_P
@@ -101,7 +101,6 @@ class Renderer:
             coil.centerline[0], coil.centerline[1], s=0.1*1e-3, c="black"
         )
         self.plt.add(self.centerline_actors[coil.id])
-        self.show_world_axes(coil)
         self.plt.render()
         return
 
@@ -110,45 +109,6 @@ class Renderer:
         centerline_actor = self.centerline_actors.pop(id, None)
         self.plt.remove(coil_actor)
         self.plt.remove(centerline_actor)
-        self.remove_world_axes()
-        return
-
-    def show_world_axes(self, coil):
-        self.remove_world_axes()
-        L = 0.03
-        offset = 0.005
-        X = [coil.com - [L, 0, 0], coil.com + [L, 0, 0]]
-        Y = [coil.com - [0, L, 0], coil.com + [0, L, 0]]
-        Z = [coil.com - [0, 0, L], coil.com + [0, 0, L]]
-        x_actor = Line(X).lw(0.5).c("red")
-        y_actor = Line(Y).lw(0.5).c("green")
-        z_actor = Line(Z).lw(0.5).c("blue")
-        xp_label = Text3D("+X", pos=coil.com + [L + offset, 0, 0], s=0.005)
-        yp_label = Text3D("+Y", pos=coil.com + [0, L + offset, 0], s=0.005)
-        zp_label = Text3D("+Z", pos=coil.com + [0, 0, L + offset], s=0.005)
-        xm_label = Text3D("-X", pos=coil.com - [L + offset, 0, 0], s=0.005)
-        ym_label = Text3D("-Y", pos=coil.com - [0, L + offset, 0], s=0.005)
-        zm_label = Text3D("-Z", pos=coil.com - [0, 0, L + offset], s=0.005)
-        self.edit_axes_actors = [
-            x_actor,
-            y_actor,
-            z_actor,
-            xp_label,
-            yp_label,
-            zp_label,
-            xm_label,
-            ym_label,
-            zm_label,
-        ]
-        for actor in self.edit_axes_actors:
-            self.plt.add(actor)
-        self.plt.render()
-        return
-
-    def remove_world_axes(self):
-        for actor in self.edit_axes_actors:
-            self.plt.remove(actor)
-        self.edit_axes_actors = []
         self.plt.render()
         return
 
@@ -257,6 +217,7 @@ class Renderer:
             self.plt.remove(plane)
 
     def rerender(self, coils):
+        self.deselect_actor()
         # remove old coil actors
         for coil_id in list(self.coil_actors.keys()):
             self.remove_coil_actors(coil_id)
@@ -265,4 +226,19 @@ class Renderer:
         for coil in coils.values():
             self.add_coil_actor(coil)
 
+        self.plt.render()
+
+    def select_actor(self):
+        if self.selected_id is None:
+            return
+        if self.selected_id in self.coil_actors:
+            self.coil_actors[self.selected_id].color("cyan")
+        self.plt.render()
+
+    def deselect_actor(self):
+        if self.selected_id is None:
+            return
+        if self.selected_id in self.coil_actors:
+            self.coil_actors[self.selected_id].color("orange")
+        self.selected_id = None
         self.plt.render()
