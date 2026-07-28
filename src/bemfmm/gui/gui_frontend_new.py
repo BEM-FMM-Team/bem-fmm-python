@@ -391,12 +391,14 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         self.ui.CoilList.takeItem(row)
 
     def coil_selection_changed(self):
+        if self.backend.renderer.selected_id is not None:
+            self.backend.renderer.deselect_actor()
         item = self.ui.CoilList.currentItem()
         if item is None:
             return
         coil_id = item.data(Qt.UserRole)
-        coil = self.backend.get_coil(coil_id)
-        self.backend.renderer.show_world_axes(coil)
+        self.backend.renderer.selected_id = coil_id
+        self.backend.renderer.select_actor()
 
     def edit_selected_coil(self):
         # prepares to edit a coil
@@ -412,7 +414,6 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
     def load_coil_editor(self):
         coil = self.backend.get_coil(self.selected_coil_id)
         self.backend.save_state()
-        self.backend.renderer.show_world_axes(coil)
         self.refresh_coil_editor()
         self.refresh_distance()
         self.backend.renderer.dragging_id = coil.id
@@ -665,7 +666,6 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         if self.backend.renderer.white_matter_placement_mode:
             return
         self.backend.renderer.dragging = False
-        self.backend.renderer.remove_world_axes()
         if self.backend.renderer.white_matter_placement_mode:
             self.backend.renderer.white_matter_picker_off()
         self.ui.stackedWidget.setCurrentWidget(self.ui.MainGUI)
