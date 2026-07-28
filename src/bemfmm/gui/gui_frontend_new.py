@@ -33,6 +33,9 @@ SPHERE_SCRIPT = SRC / "apps/sphere_3L"
 PLOT_SCRIPT = SRC / "apps/plot"
 
 
+# TODO clean cache
+# TODO clean output dir
+# TODO base output dir on timestamp and pkl file
 class OptionsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
