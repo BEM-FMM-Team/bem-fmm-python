@@ -152,7 +152,6 @@ def compute_efield_overlay(
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
-    mask[~mask] = True  # set all to true TEST outside the model
 
     E_plot = E_mag.copy()
 
@@ -160,6 +159,9 @@ def compute_efield_overlay(
     # I cant remember how we did this before...
     th1 = np.nanmax(E_plot[mask])
     th2 = np.nanmin(E_plot[mask])
+
+    # Update mask after thresholds, so plots look good
+    mask[~mask] = True  # set all to true TEST outside the model
 
     # # TEMP: For matlab comparison
     # th1 = 100
