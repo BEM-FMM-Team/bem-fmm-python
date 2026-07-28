@@ -366,7 +366,7 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         self.backend.new_coil(
             np.array([0, 0, 0.100]),  # default to 100mm above origin
             coil_type,
-            100,  # default 100 A/us
+            100 * 1e6,  # default 100 * 1e6 A/s, but text converts to A/us for display
             False,
             [0, 0],
         )
@@ -437,7 +437,7 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         if self.updating_gui:
             return
         try:
-            value = float(self.ui.dIdtEntry.text())
+            value = float(self.ui.dIdtEntry.text()) # from A/s to A/us (only for displaying in A/us)
         except ValueError:
             return
         self.backend.edit_coil_dIdt(self.selected_coil_id, value)
@@ -636,7 +636,7 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         self.ui.rXEntry.setValue(rot[0])
         self.ui.rYEntry.setValue(rot[1])
         self.ui.rZEntry.setValue(rot[2])
-        self.ui.dIdtEntry.setText(str(coil.dIdt))
+        self.ui.dIdtEntry.setText(str(coil.dIdt * 1e-6)) # Entry should display A/us, but internally we store A/s
         self.updating_gui = False
 
     def refresh_list_box(self):

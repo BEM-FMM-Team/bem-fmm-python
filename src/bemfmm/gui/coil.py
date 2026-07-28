@@ -28,7 +28,7 @@ class Coil:
         self.com = np.zeros(3)
         self.rot = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion
         self.distance = 0.010  # distance from head
-        self.dIdt = 0
+        self.dIdt = 100 * 1e6  # A/s
 
         self.Epri = 0
 
