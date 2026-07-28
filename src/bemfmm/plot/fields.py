@@ -27,7 +27,6 @@ def plot_fields(
     # ]
     # For demo
     plots = [
-        ("Secondary Potential on Surface: ",            "V",     Ptot[plot_t_idx], "jet"),
         ("E-field Magnitude on Surface: ",              "V/m",   Emag[plot_t_idx], "jet")
     ]
     # fmt: on
