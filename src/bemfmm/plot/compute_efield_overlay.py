@@ -152,7 +152,7 @@ def compute_efield_overlay(
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
-    # mask[~mask] = True  # set all to true TEST outside the model
+    mask[~mask] = True  # set all to true TEST outside the model
 
     E_plot = E_mag.copy()
 

@@ -13,7 +13,7 @@ def transformer(coil, xyz, quat=None):
     if quat is not None:
         coil.rot = quat
 
-    local_centerline = np.array([[0, 0, 0], [0, 0, -0.1]])
+    local_centerline = np.array([[0, 0, 0], [0, 0, -0.025]])
 
     Rmat = R.from_quat(coil.rot).as_matrix()
 
