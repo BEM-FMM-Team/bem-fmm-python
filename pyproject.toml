@@ -45,6 +45,7 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["bemfmm", "apps"]
+# TODO find a better name for apps
 
 [tool.setuptools.package-data]
 apps = ["assets/**/*", "gui/*.ui", "tms/*.mat"]

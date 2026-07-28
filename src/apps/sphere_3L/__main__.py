@@ -5,21 +5,17 @@ import typer
 from scipy.sparse import csr_matrix
 from vedo import Sphere
 
-from bemfmm.charge import (
-    inc_field_electric_constant,
-    surface_field_electric_accurate,
-    surface_field_lhs,
-    surface_field_potential_accurate,
-)
+from bemfmm.charge import (inc_field_electric_constant,
+                           surface_field_electric_accurate, surface_field_lhs,
+                           surface_field_potential_accurate)
 from bemfmm.constants import eps0
 from bemfmm.fgmres import fgmres
-from bemfmm.lib import cache, timeit
+from bemfmm.lib import timeit
 from bemfmm.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
 from bemfmm.plot import plot_residual, plot_worker
-from bemfmm.plot.slice import plot_slices
 
 
-@cache
+@timeit
 def charge_engine(
     center: np.ndarray,
     area,
@@ -198,6 +194,8 @@ def main():
 
     for p in plots_p:
         p.start()
+
+    input("Close All windows and Hit enter to exit...")
 
     # TODO query do we need this because now it depends on having a list of coils
     # xyz = [0.0, 0.0, 0.0]  # TODO inspect next function for zero div

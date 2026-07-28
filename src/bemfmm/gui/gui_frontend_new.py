@@ -1,21 +1,26 @@
-from bemfmm.lib import launch_detached_new_terminal
-import subprocess
-import sys
 from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFileDialog, QListWidgetItem, QMainWindow, QMessageBox
+from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
+                               QMessageBox)
 
 from bemfmm.gui.gui_backend import Backend
 from bemfmm.gui.quat_to_xyz import quat_to_xyz
 from bemfmm.gui.ui_main_window import Ui_MainWindow
+from bemfmm.lib import launch_detached_new_terminal
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
 """
 
 PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
+
+# TODO should probably use the apps module. on that it should probably not have such a generic name
+SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
+TMS_SCRIPT = SRC / "apps/tms"
+SPHERE_SCRIPT = SRC / "apps/sphere_3L"
+PLOT_SCRIPT = SRC / "apps/plot"
 
 
 class Frontend(QMainWindow):
@@ -204,9 +209,81 @@ class Frontend(QMainWindow):
 
         self.ui.CoilList.itemChanged.connect(self.rename_coil)
 
+        self.ui.actionLoad_Coil_Config.triggered.connect(self.actionLoad_Coil_Config)
+        self.ui.actionSave_Coil_Config.triggered.connect(self.actionSave_Coil_Config)
+        self.ui.actionExit.triggered.connect(self.actionExit)
+        self.ui.action3D_viewer_Help.triggered.connect(self.action3D_viewer_Help)
+        self.ui.actionAbout.triggered.connect(self.actionAbout)
+        self.ui.actionSphere_3L.triggered.connect(self.actionSphere_3L)
+        self.ui.actionPlot.triggered.connect(self.actionPlot)
+        self.ui.actionDefault_TMS.triggered.connect(self.actionDefault_TMS)
+
+
+
+    def actionLoad_Coil_Config(self):
+        self.load_coil_config_dialog()
+    def actionSave_Coil_Config(self):
+        self.save_coil_config_dialog()
+    def actionExit(self):
+        self.close()
+    def action3D_viewer_Help(self):
+        QMessageBox.about(
+            self,
+            "About 3D viewer",
+            """"
+Also Applies in the field viewers for TMS
+
+i     print info about the last clicked object
+I     print color of the pixel under the mouse
+Y     show the pipeline for this object as a graph
+<- -> use arrows to reduce/increase opacity
+x     toggle mesh visibility
+w     toggle wireframe/surface style
+l     toggle surface edges visibility
+p/P   hide surface faces and show only points
+1-3   cycle surface color (2=light, 3=dark)
+4     cycle color map (press shift-4 to go back)
+5-6   cycle point-cell arrays (shift to go back)
+7-8   cycle background and gradient color
+09+-  cycle axes styles (on keypad, or press +/-)
+k     cycle available lighting styles
+K     toggle shading as flat or phong
+A     toggle anti-aliasing
+D     toggle depth-peeling (for transparencies)
+U     toggle perspective/parallel projection
+o/O   toggle extra light to scene and rotate it
+a     toggle interaction to Actor Mode
+n     toggle surface normals
+r     reset camera position
+R     reset camera to the closest orthogonal view
+.     fly camera to the last clicked point
+C     print the current camera parameters state
+X     invoke a cutter widget tool
+S     save a screenshot of the current scene
+E/F   export 3D scene to numpy file or X3D
+q     return control to python script
+Esc   abort execution and exit python kernel
+            """
+        )
+    def actionAbout(self):
+        QMessageBox.about(
+            self,
+            "About TMS Coil Naviagtor",
+            "TMS Coil Naviagtor v1.0\n\n"
+            "An application for placing and running TMS on coils.\n\n"
+            "© 2026 WPI" # TODO
+        )
+    def actionSphere_3L(self):
+        launch_detached_new_terminal(SPHERE_SCRIPT)
+    def actionPlot(self):
+        launch_detached_new_terminal(PLOT_SCRIPT)
+    def actionDefault_TMS(self):
+        launch_detached_new_terminal(TMS_SCRIPT)
+
     def add_coil(self):
         # creates a new coil
         coil_type = self.ui.TypeDropdown.currentText()
+        n = len(self.backend.coils)
 
         self.backend.new_coil(
             np.array([0, 0, 0.100]),  # default to 100mm above origin
@@ -216,6 +293,8 @@ class Frontend(QMainWindow):
             [0, 0],
         )
         self.refresh_list_box()
+        if n != len(self.backend.coils):
+            self.ui.CoilList.setCurrentRow(n)
 
     def import_custom_coil(self):
         # creates a new custom coil
@@ -381,17 +460,10 @@ class Frontend(QMainWindow):
             )
             return
 
-        SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
-        tms_script = SRC / "apps/tms"
+        # TODO options window
 
-        if not tms_script.is_dir():
-            QMessageBox.warning(
-                self.ui.MainGUI,
-                "Failed to run TMS",
-                f"Failed to find tms_script (contact devs) {tms_script}",
-            )
+        launch_detached_new_terminal(TMS_SCRIPT, ["--coil-path", str(path)])
 
-        launch_detached_new_terminal(tms_script, [str(path)])
 
     def open_plane_placer(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)

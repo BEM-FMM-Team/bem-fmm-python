@@ -11,9 +11,8 @@ import numpy as np
 import typer
 import vedo
 
-from bemfmm.charge.inc_field_gauss_selective_dipoles import (
-    inc_field_gauss_selective_dipoles,
-)
+from bemfmm.charge.inc_field_gauss_selective_dipoles import \
+    inc_field_gauss_selective_dipoles
 from bemfmm.lib import get_asset_path, timeit
 from bemfmm.mesh import mesh_areas, mesh_normals, mesh_tricenter
 from bemfmm.plot import patch
@@ -197,6 +196,7 @@ def main():
     )
 
     _p.show()
+    input("Close All windows and Hit enter to exit...")
 
 
 if __name__ == "__main__":
