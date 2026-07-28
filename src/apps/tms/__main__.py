@@ -393,7 +393,7 @@ def main(
     else:
         output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    f =open(output_dir/".gitignore", 'w')
+    f = open(output_dir / ".gitignore", "w")
     f.close()
 
     save_arrays = {

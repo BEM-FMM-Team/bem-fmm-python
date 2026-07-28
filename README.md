@@ -10,32 +10,33 @@ Charge engine will only need to be run once per coil+model config unless the `./
 
 ### Windows
 
-Run the `run.bat` script. May need to by pass windows security.
 
-Or. Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
+Run the `run.bat` script either by double clicking or Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
+May need to by pass windows security.
 
 
-### MacOS
+### MacOS (intel and arm)
 
-Run the `run.command`.
+Run the `run.command` script either by double clicking or Open `cmd`/`powershell`/`conda shell` in this directory.
+May need to by pass apple's security.
+
 
 ### Linux
 
 Install [uv]( https://docs.astral.sh/uv/getting-started/installation/) and ensure it is on the `$PATH`. Then
 
-Run the `run.command`
+Run the `run.command` or proceed with
 
 ##### Nix
 
 There is a devShell that will place you in an isolated environment to run everything.
 
 
-
 ## Programs
 
 #### Standalone Testing Programs
-Run these for a quick way of seeing if all modules are ok.
-`run.bat` trys to abstract way the installation complexity.
+Run these for a quick way of seeing if all modules are working ok.
+`run.bat`/`run.command`  trys to abstract way the installation complexity.
 These require a python environment to run:
 
 ```bash

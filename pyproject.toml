@@ -44,7 +44,7 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["bemfmm", "apps"]
+include = ["bemfmm", "apps", "bemfmm*", "apps*"]
 # TODO find a better name for apps
 
 [tool.setuptools.package-data]
