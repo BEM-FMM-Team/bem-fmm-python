@@ -1,6 +1,6 @@
 import numpy as np
 from PySide6.QtWidgets import QVBoxLayout, QWidget
-from vedo import Axes, Line, Mesh, Plane, Plotter, Sphere, Text3D, settings, Arrow
+from vedo import Arrow, Axes, Line, Mesh, Plane, Plotter, Sphere, Text3D, settings
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 from vtkmodules.vtkRenderingCore import vtkCellPicker
 
@@ -11,7 +11,9 @@ class Renderer:
         layout.setContentsMargins(0, 0, 0, 0)
         vtk_widget = QVTKRenderWindowInteractor(ViewPort)
         layout.addWidget(vtk_widget)
-        self.plt = Plotter(qt_widget=vtk_widget)
+        self.plt = Plotter(
+            qt_widget=vtk_widget
+        )  # NOTE , interactive=False will stop the segfault
         settings.enable_default_keyboard_callbacks = False
 
         ticks_m = np.round(np.linspace(-0.1, 0.1, 5), decimals=2)

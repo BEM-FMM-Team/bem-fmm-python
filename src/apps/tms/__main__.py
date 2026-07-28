@@ -1,25 +1,35 @@
-import sys
+import os
 from functools import reduce
 from pathlib import Path
 from time import perf_counter
+from typing import Literal, Optional
 
 import numpy as np
 import scipy.io
 import typer
 import vedo
 import yaml
+
 # pyrefly: ignore [missing-import]
 from cbemfmm import neighbor_ints_En
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-from bemfmm.charge import (inc_field_electric, surface_field_electric_plain,
-                           surface_field_lhs)
+from bemfmm.charge import (
+    inc_field_electric,
+    surface_field_electric_plain,
+    surface_field_lhs,
+)
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
-from bemfmm.lib import cache, get_asset_path
-from bemfmm.mesh import (mesh_areas, mesh_combine_simple, mesh_rotate1,
-                         mesh_rotate2, mesh_tricenter)
+from bemfmm.lib import SAVERS, cache, get_asset_path
+from bemfmm.mesh import (
+    mesh_areas,
+    mesh_combine_simple,
+    mesh_rotate1,
+    mesh_rotate2,
+    mesh_tricenter,
+)
 from bemfmm.my_types import Mx3, Nx1, Nx3, Nx3i, StrCoil, TMSCoilDefinition
 from bemfmm.plot import plot_fields, plot_residual, plot_slices
 
@@ -255,9 +265,11 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    coil_path: None | str = None,
-    tissue_index: Path = get_asset_path("tissue_index.yaml"),
-    RnumberE: int = 4,
+    coil_path: Optional[str] = None,
+    tissue_index: str = str(get_asset_path("tissue_index.yaml")),
+    num_neighbors: int = 4,
+    output_dir: Optional[str] = None,
+    save_format: Literal["csv", "mat", "npz", "pkl"] = "csv",
 ):
     (
         P,
@@ -276,6 +288,7 @@ def main(
         unit_convert,
     ) = load_model(tissue_index)
 
+    RnumberE = num_neighbors
     knn = NearestNeighbors(n_neighbors=RnumberE, algorithm="auto")
     knn.fit(center)
     distances, ineighborE = knn.kneighbors(center)
@@ -373,21 +386,24 @@ def main(
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
 
-    # # save data
-    # save_fmt = "mat"
+    ## save data
+    ## Tempted to multiprocess this
+    if output_dir is None:
+        output_dir = Path(os.getcwd()) / "__output__"
+    else:
+        output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # match save_fmt:
-    #     case "npz":
-    #         np.savez(OUTPUT / "E.npz", E)
-    #         np.savez(OUTPUT / "c.npz", c)
-    #         np.savez(OUTPUT / "Ptot.npz", Ptot)
-    #         np.savez(OUTPUT / "En.npz", En)
-    #     case "mat":
-    #         scipy.io.savemat(OUTPUT / "E.mat", E)
-    #         scipy.io.savemat(OUTPUT / "c.mat", c)
-    #         scipy.io.savemat(OUTPUT / "Ptot.mat", Ptot)
-    #         scipy.io.savemat(OUTPUT / "En.mat", En)
-    # print(c)
+    save_arrays = {
+        "E": E,
+        "c": c,
+        "Ptot": Ptot,
+        "En": En,
+    }
+    for name, array in save_arrays.items():
+        path = output_dir / f"{name}.{save_format}"
+        SAVERS[save_format or "csv"](path, name, array)
+        print(f"Saved {name} to {path}")
 
     plot_fields(
         P * 1e3,  # move from m to mm for displaying

@@ -1,14 +1,19 @@
+import os
 from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (QFileDialog, QListWidgetItem, QMainWindow,
-                               QMessageBox)
+from PySide6.QtGui import QKeySequence, QShortcut
+from PySide6.QtWidgets import (QDialog, QFileDialog, QListWidgetItem,
+                               QMainWindow, QMessageBox)
 
-from bemfmm.gui.gui_backend import Backend
-from bemfmm.gui.quat_to_xyz import quat_to_xyz
-from bemfmm.gui.ui_main_window import Ui_MainWindow
-from bemfmm.lib import launch_detached_new_terminal
+from bemfmm.lib import get_asset_path
+
+from ..lib import launch_detached_new_terminal
+from .gui_backend import Backend
+from .quat_to_xyz import quat_to_xyz
+from .ui_main_window import Ui_MainWindow
+from .ui_tms_dialog import Ui_OptionsDialog
 
 """
 GUI frontend for placing coils. This class is responsible for managing the widget.
@@ -21,6 +26,55 @@ SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
 TMS_SCRIPT = SRC / "apps/tms"
 SPHERE_SCRIPT = SRC / "apps/sphere_3L"
 PLOT_SCRIPT = SRC / "apps/plot"
+
+
+class OptionsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_OptionsDialog()
+        self.ui.setupUi(self)
+
+        # Set default paths
+        self.ui.tissueIndexPath.setText(str(get_asset_path("tissue_index.yaml")))
+        self.ui.outputDirPath.setText(str(Path(os.getcwd()) / "__output__"))
+
+        # Connect browse buttons
+        self.ui.browseTissueBtn.clicked.connect(self.browse_tissue_index)
+        self.ui.browseOutputBtn.clicked.connect(self.browse_output_dir)
+
+    def browse_tissue_index(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Select Tissue Index YAML",
+            "",
+            "YAML Files (*.yaml *.yml);;All Files (*)",
+        )
+        if file_path:
+            self.ui.tissueIndexPath.setText(file_path)
+
+    def browse_output_dir(self):
+        dir_path = QFileDialog.getExistingDirectory(self, "Select Output Directory")
+        if dir_path:
+            self.ui.outputDirPath.setText(dir_path)
+
+    def get_values(self):
+        """Return all selected values"""
+        # Get selected format
+        if self.ui.radioMat.isChecked():
+            format_type = "mat"
+        elif self.ui.radioCsv.isChecked():
+            format_type = "csv"
+        elif self.ui.radioNpz.isChecked():
+            format_type = "npz"
+        else:
+            format_type = "pkl"
+
+        return {
+            "tissue_index": self.ui.tissueIndexPath.text(),
+            "num_neighbors": self.ui.numNeighbors.value(),
+            "output_dir": self.ui.outputDirPath.text(),
+            "save_format": format_type,
+        }
 
 
 class Frontend(QMainWindow):
@@ -57,6 +111,13 @@ class Frontend(QMainWindow):
         """
         Populates window sliders, dropdown and buttons
         """
+        QShortcut(QKeySequence.Save, self).activated.connect(self.save_coil_config_dialog)
+        QShortcut(QKeySequence.Open, self).activated.connect(self.load_coil_config_dialog)
+        QShortcut(QKeySequence.Undo, self).activated.connect(self.undo)
+        QShortcut(QKeySequence.Redo, self).activated.connect(self.redo)
+
+        # QShortcut(QKeySequence.New, self).activated.connect(self.clear) # TODO Simon how would i nuke the state
+
         self.ui.TypeDropdown.clear()
         for name in self.coil_names:
             self.ui.TypeDropdown.addItem(name)
@@ -218,19 +279,20 @@ class Frontend(QMainWindow):
         self.ui.actionPlot.triggered.connect(self.actionPlot)
         self.ui.actionDefault_TMS.triggered.connect(self.actionDefault_TMS)
 
-
-
     def actionLoad_Coil_Config(self):
         self.load_coil_config_dialog()
+
     def actionSave_Coil_Config(self):
         self.save_coil_config_dialog()
+
     def actionExit(self):
         self.close()
+
     def action3D_viewer_Help(self):
         QMessageBox.about(
             self,
             "About 3D viewer",
-            """"
+            """
 Also Applies in the field viewers for TMS
 
 i     print info about the last clicked object
@@ -262,21 +324,25 @@ X     invoke a cutter widget tool
 S     save a screenshot of the current scene
 E/F   export 3D scene to numpy file or X3D
 q     return control to python script
-Esc   abort execution and exit python kernel
-            """
+Esc   abort execution and exit python kernel (Will crash the Navigator)
+            """,
         )
+
     def actionAbout(self):
         QMessageBox.about(
             self,
             "About TMS Coil Naviagtor",
             "TMS Coil Naviagtor v1.0\n\n"
             "An application for placing and running TMS on coils.\n\n"
-            "© 2026 WPI" # TODO
+            "© 2026 WPI",  # TODO
         )
+
     def actionSphere_3L(self):
         launch_detached_new_terminal(SPHERE_SCRIPT)
+
     def actionPlot(self):
         launch_detached_new_terminal(PLOT_SCRIPT)
+
     def actionDefault_TMS(self):
         launch_detached_new_terminal(TMS_SCRIPT)
 
@@ -433,6 +499,9 @@ Esc   abort execution and exit python kernel
         self.refresh_list_box()
 
     def save_coil_config_dialog(self):
+        if len( self.backend.coils ) == 0:
+            QMessageBox.information(self, "Nothing to save", "Create some coil(s) first")
+            return
         path, _ = QFileDialog.getSaveFileName(
             self, "Save Coil Configuration", "", PKL_FILTER_STR
         )
@@ -440,6 +509,8 @@ Esc   abort execution and exit python kernel
             self.backend.save_coil_config(path)
 
     def load_coil_config_dialog(self):
+        # TODO we need some way of tracking if this current loaded memory has been saved
+        # that way we can have the concept of blocking loads when there is something to save
         path, _ = QFileDialog.getOpenFileName(
             self, "Load Coil Configuration", "", PKL_FILTER_STR
         )
@@ -460,10 +531,26 @@ Esc   abort execution and exit python kernel
             )
             return
 
-        # TODO options window
+        dialog = OptionsDialog(self)
+        if dialog.exec() != QDialog.Accepted:
+            return  # User cancelled
 
-        launch_detached_new_terminal(TMS_SCRIPT, ["--coil-path", str(path)])
+        values = dialog.get_values()
 
+        cli_args = [
+            "--coil-path",
+            str(path),
+            "--tissue-index",
+            values["tissue_index"],
+            "--num-neighbors",
+            str(values["num_neighbors"]),
+            "--output-dir",
+            values["output_dir"],
+            "--save-format",
+            values["save_format"],
+        ]
+
+        launch_detached_new_terminal(TMS_SCRIPT, cli_args)
 
     def open_plane_placer(self):
         self.ui.stackedWidget.setCurrentWidget(self.ui.PlaneGUI)

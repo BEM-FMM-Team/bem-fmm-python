@@ -1,4 +1,5 @@
 import os
+import pickle
 import platform
 import shutil
 import subprocess
@@ -10,7 +11,7 @@ from time import perf_counter
 import numpy as np
 import vedo
 from joblib import Memory
-from matplotlib import cm
+from scipy.io import savemat
 
 vedo.settings.default_font = "Theemim"
 
@@ -180,3 +181,16 @@ def get_asset_path(asset_name: str) -> Path:
 
         with as_file(files("apps").joinpath("assets", asset_name)) as path:
             return path
+
+
+def save_pkl(path, _, arr):
+    with open(path, "wb") as f:
+        pickle.dump(arr, f)
+
+
+SAVERS = {
+    "npz": lambda path, name, arr: np.savez(path, **{name: arr}),
+    "mat": lambda path, name, arr: savemat(path, {name: arr}),
+    "csv": lambda path, name, arr: np.savetxt(path, arr, delimiter=","),
+    "pkl": save_pkl,
+}
