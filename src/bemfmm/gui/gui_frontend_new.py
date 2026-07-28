@@ -397,8 +397,6 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         if item is None:
             return
         coil_id = item.data(Qt.UserRole)
-        coil = self.backend.get_coil(coil_id)
-
         self.backend.renderer.selected_id = coil_id
         self.backend.renderer.select_actor()
 
