@@ -4,8 +4,13 @@ from pathlib import Path
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import (QDialog, QFileDialog, QListWidgetItem,
-                               QMainWindow, QMessageBox)
+from PySide6.QtWidgets import (
+    QDialog,
+    QFileDialog,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+)
 
 from bemfmm.lib import get_asset_path
 
@@ -111,8 +116,12 @@ class Frontend(QMainWindow):
         """
         Populates window sliders, dropdown and buttons
         """
-        QShortcut(QKeySequence.Save, self).activated.connect(self.save_coil_config_dialog)
-        QShortcut(QKeySequence.Open, self).activated.connect(self.load_coil_config_dialog)
+        QShortcut(QKeySequence.Save, self).activated.connect(
+            self.save_coil_config_dialog
+        )
+        QShortcut(QKeySequence.Open, self).activated.connect(
+            self.load_coil_config_dialog
+        )
         QShortcut(QKeySequence.Undo, self).activated.connect(self.undo)
         QShortcut(QKeySequence.Redo, self).activated.connect(self.redo)
 
@@ -499,8 +508,10 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         self.refresh_list_box()
 
     def save_coil_config_dialog(self):
-        if len( self.backend.coils ) == 0:
-            QMessageBox.information(self, "Nothing to save", "Create some coil(s) first")
+        if len(self.backend.coils) == 0:
+            QMessageBox.information(
+                self, "Nothing to save", "Create some coil(s) first"
+            )
             return
         path, _ = QFileDialog.getSaveFileName(
             self, "Save Coil Configuration", "", PKL_FILTER_STR
