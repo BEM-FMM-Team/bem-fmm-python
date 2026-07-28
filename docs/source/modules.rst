@@ -1,8 +1,7 @@
-src
-===
+bemfmm
+======
 
 .. toctree::
    :maxdepth: 4
 
-   apps
    bemfmm

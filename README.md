@@ -1,7 +1,5 @@
 # BEM-FMM-Python
 
-This repository is in a rapidly changing state.
-
 ## Setup and Running
 
 Download the repo (clone or download the zip and extract it).
@@ -12,24 +10,25 @@ Charge engine will only need to be run once per coil+model config unless the `./
 
 ### Windows
 
-Run the `run.bat` script.
+Run the `run.bat` script. May need to by pass windows security.
 
 Or. Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 
 
 ### MacOS
 
-Run the `run.command`
+Run the `run.command`.
 
 ### Linux
 
-Install `uv` to make things eaiser.
+Install [uv]( https://docs.astral.sh/uv/getting-started/installation/) and ensure it is on the `$PATH`. Then
 
-#### NixOS
+Run the `run.command`
+
+##### Nix
 
 There is a devShell that will place you in an isolated environment to run everything.
 
-Run the `run.command`
 
 
 ## Programs

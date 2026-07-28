@@ -25,30 +25,6 @@
     checks = eachSystem (_system: pkgs: {
       formatting = treefmtEval.${pkgs.system}.config.build.check self;
     });
-    packages = eachSystem (
-      _system: pkgs: let
-        python = pkgs.python313;
-      in {
-        docs = pkgs.stdenvNoCC.mkDerivation {
-          name = "generte html docs";
-          src = ./.;
-
-          buildInputs = with pkgs; [
-            (python313.withPackages (p: with p; [uv]))
-          ];
-          buildPhase = ''
-            export UV_CACHE_DIR=$(mktemp -d)
-            cd $src
-            source ./scripts/dev.sh
-            ./scripts/docs.sh
-          '';
-          installPhase = ''
-            mkdir -p $out/docs
-            mv ./docs/build/html $out/docs
-          '';
-        };
-      }
-    );
     devShells = eachSystem (
       _system: pkgs: {
         default = let
