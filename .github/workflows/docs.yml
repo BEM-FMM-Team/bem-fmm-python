@@ -26,8 +26,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install sphinx sphinx_mdinclude
-          pip install -e ".[dev]" || pip install -e . --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple .
+          pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
+          pip install -e ".[dev]"
+
 
       - name: Build HTML docs (using script)
         run: |
