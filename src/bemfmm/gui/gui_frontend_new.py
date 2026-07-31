@@ -74,8 +74,10 @@ class OptionsDialog(QDialog):
             format_type = "csv"
         elif self.ui.radioNpz.isChecked():
             format_type = "npz"
-        else:
+        elif self.ui.radioPkl.isChecked():
             format_type = "pkl"
+        else:
+            format_type = "none"
 
         return {
             "tissue_index": self.ui.tissueIndexPath.text(),
@@ -437,7 +439,9 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         if self.updating_gui:
             return
         try:
-            value = float(self.ui.dIdtEntry.text()) # from A/s to A/us (only for displaying in A/us)
+            value = float(
+                self.ui.dIdtEntry.text()
+            )  # from A/s to A/us (only for displaying in A/us)
         except ValueError:
             return
         self.backend.edit_coil_dIdt(self.selected_coil_id, value)
@@ -636,7 +640,9 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         self.ui.rXEntry.setValue(rot[0])
         self.ui.rYEntry.setValue(rot[1])
         self.ui.rZEntry.setValue(rot[2])
-        self.ui.dIdtEntry.setText(str(coil.dIdt * 1e-6)) # Entry should display A/us, but internally we store A/s
+        self.ui.dIdtEntry.setText(
+            str(coil.dIdt * 1e-6)
+        )  # Entry should display A/us, but internally we store A/s
         self.updating_gui = False
 
     def refresh_list_box(self):

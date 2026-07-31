@@ -36,7 +36,7 @@ There is a devShell that will place you in an isolated environment to run everyt
 
 #### Standalone Testing Programs
 Run these for a quick way of seeing if all modules are working ok.
-`run.bat`/`run.command`  trys to abstract way the installation complexity.
+`run.bat`/`run.command`  tries to abstract way the installation complexity.
 These require a python environment to run:
 
 ```bash
@@ -47,7 +47,7 @@ python -m pip install uv
 python -m uv pip install -e .
 ```
 
-There are modules you may run
+There are modules you may run. They are also available as tests in the tms_coil_navigator you get from `run.bat` and `run.command`.
 
 ```bash
 python src/apps/gui
