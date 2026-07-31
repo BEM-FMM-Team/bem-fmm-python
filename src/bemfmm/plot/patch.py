@@ -110,6 +110,7 @@ _PATCH_CONFIGS = {
     "bone": dict(colormap="bone", bg="black", axes_c="#555555"),
     "afmhot": dict(colormap="afmhot", bg="#0a0500", bg2="#1a0800", axes_c="#ff6600"),
     "hot_cold": dict(colormap=hot_cold, bg="white", axes_c="black"),
+    "PuOr": dict(colormap="PuOr", bg="white", axes_c="black"),
 }
 _PATCH_DEFAULT_CONFIG = _PATCH_CONFIGS["jet"]
 
