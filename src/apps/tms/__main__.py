@@ -361,7 +361,7 @@ def main(
 
     c = c.reshape((-1, 1))
 
-    Ptot, Esec = surface_field_electric_plain(c=c, center=center, area=area, prec=1e-3)
+    Psec, Esec = surface_field_electric_plain(c=c, center=center, area=area, prec=1e-3)
     En = np.sum(normals * (Einc + Esec), 1).reshape((-1, 1))
 
     # Normal E-Field Just Inside and Outside
@@ -399,7 +399,7 @@ def main(
     save_arrays = {
         "E": E,
         "c": c,
-        "Ptot": Ptot,
+        "Psec": Psec,
         "En": En,
     }
     for name, array in save_arrays.items():
@@ -426,7 +426,7 @@ def main(
                 coils.array,
             )
         ),
-        Ptot,
+        Psec,
         En,
         Emag,
         Jn_in,
