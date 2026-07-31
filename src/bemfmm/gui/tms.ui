@@ -53,7 +53,7 @@
         <number>10000</number>
        </property>
        <property name="value">
-        <number>5</number>
+        <number>4</number>
        </property>
       </widget>
      </item>
@@ -88,12 +88,19 @@
      <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QRadioButton" name="radioMat">
+        <widget class="QRadioButton" name="radioNone">
          <property name="text">
-          <string>mat</string>
+          <string>none</string>
          </property>
          <property name="checked">
           <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioMat">
+         <property name="text">
+          <string>mat</string>
          </property>
         </widget>
        </item>

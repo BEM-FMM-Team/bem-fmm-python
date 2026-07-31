@@ -4,6 +4,7 @@ import platform
 import shutil
 import subprocess
 import sys
+import warnings
 from importlib.resources import files
 from pathlib import Path
 from time import perf_counter
@@ -12,6 +13,8 @@ import numpy as np
 import vedo
 from joblib import Memory
 from scipy.io import savemat
+
+warnings.filterwarnings("ignore")
 
 vedo.settings.default_font = "Theemim"
 

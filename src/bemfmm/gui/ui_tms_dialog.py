@@ -96,7 +96,7 @@ class Ui_OptionsDialog(object):
         self.numNeighbors.setObjectName("numNeighbors")
         self.numNeighbors.setMinimum(1)
         self.numNeighbors.setMaximum(10000)
-        self.numNeighbors.setValue(5)
+        self.numNeighbors.setValue(4)
 
         self.formLayout.setWidget(1, QFormLayout.ItemRole.FieldRole, self.numNeighbors)
 
@@ -128,9 +128,14 @@ class Ui_OptionsDialog(object):
 
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.radioNone = QRadioButton(OptionsDialog)
+        self.radioNone.setObjectName("radioNone")
+        self.radioNone.setChecked(True)
+
+        self.horizontalLayout_3.addWidget(self.radioNone)
+
         self.radioMat = QRadioButton(OptionsDialog)
         self.radioMat.setObjectName("radioMat")
-        self.radioMat.setChecked(True)
 
         self.horizontalLayout_3.addWidget(self.radioMat)
 
@@ -216,6 +221,9 @@ class Ui_OptionsDialog(object):
         )
         self.label_4.setText(
             QCoreApplication.translate("OptionsDialog", "Save Format:", None)
+        )
+        self.radioNone.setText(
+            QCoreApplication.translate("OptionsDialog", "none", None)
         )
         self.radioMat.setText(QCoreApplication.translate("OptionsDialog", "mat", None))
         self.radioCsv.setText(QCoreApplication.translate("OptionsDialog", "csv", None))

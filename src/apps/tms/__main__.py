@@ -269,7 +269,7 @@ def main(
     tissue_index: str = str(get_asset_path("tissue_index.yaml")),
     num_neighbors: int = 4,
     output_dir: Optional[str] = None,
-    save_format: Literal["csv", "mat", "npz", "pkl"] = "csv",
+    save_format: Literal["none", "csv", "mat", "npz", "pkl"] = "none",
 ):
     (
         P,
@@ -396,16 +396,17 @@ def main(
     f = open(output_dir / ".gitignore", "w")
     f.close()
 
-    save_arrays = {
-        "E": E,
-        "c": c,
-        "Psec": Psec,
-        "En": En,
-    }
-    for name, array in save_arrays.items():
-        path = output_dir / f"{name}.{save_format}"
-        SAVERS[save_format or "csv"](path, name, array)
-        print(f"Saved {name} to {path}")
+    if (save_format is not None) and (save_format != "none"):
+        save_arrays = {
+            "E": E,
+            "c": c,
+            "Ptot": Ptot,
+            "En": En,
+        }
+        for name, array in save_arrays.items():
+            path = output_dir / f"{name}.{save_format}"
+            SAVERS[save_format or "csv"](path, name, array)
+            print(f"Saved {name} to {path}")
 
     plot_fields(
         P * 1e3,  # move from m to mm for displaying
@@ -442,7 +443,6 @@ def main(
             xyz = [0.5, 0.5, 0.5]
     else:
         xyz = coils.slice_plane  # * unit_convert NOTE may have to unitconvert
-
 
     # Plot slices:
     # Threshold to min and max of Emag on the gray matter
