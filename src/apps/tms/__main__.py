@@ -400,7 +400,6 @@ def main(
         save_arrays = {
             "E": E,
             "c": c,
-            "Psec": Psec,
             "En": En,
         }
         for name, array in save_arrays.items():
