@@ -50,7 +50,7 @@ def plot_efield_slice(
 
     ax.set_xlabel(cfg["xlabel"], color="white")
     ax.set_ylabel(cfg["ylabel"], color="white")
-    ax.set_title(f"E-field [V/m] in the {result.plane} plane", color="white")
+    ax.set_title(f"Total E-field [V/m] in the {result.plane} plane", color="white")
     ax.set_aspect("equal")
     ax.tick_params(colors="white")
     for spine in ax.spines.values():
