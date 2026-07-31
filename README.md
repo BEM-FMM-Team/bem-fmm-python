@@ -17,15 +17,18 @@ May need to by pass windows security.
 
 ### MacOS (intel and arm)
 
-Run the `run.command` script either by double clicking or Open `cmd`/`powershell`/`conda shell` in this directory.
+Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
 May need to by pass apple's security.
 
+For now the tms_coil_navigator is incomplete for MacOS.
+However the solver should work but lfmm3d calls will be slower on MacOS specifically for this current version.
+And it can consume coil configurations(`.pkl` files) created from other platforms.
 
 ### Linux
 
 Install [uv]( https://docs.astral.sh/uv/getting-started/installation/) and ensure it is on the `$PATH`. Then
 
-Run the `run.command` or proceed with
+Run the `run.command` or proceed with the `Programs` section.
 
 ##### Nix
 

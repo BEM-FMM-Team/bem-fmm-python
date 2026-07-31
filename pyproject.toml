@@ -27,7 +27,9 @@ dependencies = [
     "pyyaml==6.0.3",
     "typer==0.27.0",
     # These come from our index
-    "fmm3dpyfast",
+    'fmm3dpy ;     platform_system == "Darwin"', # fmm3dpy compilation maybe broken
+    'fmm3dpyfast ; platform_system != "Darwin"',
+
     "cbemfmm",
 ]
 
