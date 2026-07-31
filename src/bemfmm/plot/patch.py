@@ -59,11 +59,11 @@ def plot_coil_worker(
         # TODO move somewhere else
         # CoilP *= unit_convert
         # pointsline *= unit_convert
-        coil_mesh = vedo.Mesh([CoilP, Coilt])
+        coil_mesh = vedo.Mesh([CoilP, Coilt]).alpha(0.2)
         obs_line = vedo.Line(*pointsline).lw(3).color("red")
 
         plt.add(coil_mesh)
-        plt.add(obs_line)
+        # plt.add(obs_line)
 
     plt.show()
 
