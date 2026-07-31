@@ -209,6 +209,7 @@ class Renderer:
 
         for plane in self.planes:
             plane.alpha(0.5)
+            plane.color("cyan")
             self.plt.add(plane)
         self.plt.render()
 
