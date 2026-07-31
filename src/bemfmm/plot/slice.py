@@ -88,6 +88,8 @@ def plot_slices(
     tissue_list,
     xyz,
     coils,
+    th1,
+    th2,
 ):
     X = xyz[0]
     Y = xyz[1]
@@ -112,6 +114,8 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
+        th1=th1,
+        th2=th2,
     )
     compute_efield_overlay_worker(
         P=P,
@@ -125,6 +129,8 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
+        th1=th1,
+        th2=th2,
     )
     compute_efield_overlay_worker(
         P=P,
@@ -138,4 +144,6 @@ def plot_slices(
         interface=interface,
         tissue_list=tissue_list,
         coils=coils,
+        th1=th1,
+        th2=th2,
     )

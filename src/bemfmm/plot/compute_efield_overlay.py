@@ -52,6 +52,8 @@ def compute_efield_overlay_worker(
     interface,
     tissue_list,
     coils,
+    th1,
+    th2,
 ):
     result = compute_efield_overlay(
         P=P,
@@ -64,6 +66,8 @@ def compute_efield_overlay_worker(
         val=val,
         interface=interface,
         coils=coils,
+        th1=th1,
+        th2=th2,
     )
     from bemfmm.plot import plot_efield_slice
 
@@ -155,10 +159,9 @@ def compute_efield_overlay(
 
     E_plot = E_mag.copy()
 
-    # Automatic scales (should probably set another way, is fine for now)
-    # I cant remember how we did this before...
-    th1 = np.nanmax(E_plot[mask])
-    th2 = np.nanmin(E_plot[mask])
+    # # Automatic scales (should probably set another way, is fine for now)
+    # th1 = np.nanmax(E_plot[mask])
+    # th2 = np.nanmin(E_plot[mask])
 
     # Update mask after thresholds, so plots look good
     mask[~mask] = True  # set all to true TEST outside the model

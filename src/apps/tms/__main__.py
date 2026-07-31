@@ -443,6 +443,13 @@ def main(
     else:
         xyz = coils.slice_plane  # * unit_convert NOTE may have to unitconvert
 
+
+    # Plot slices:
+    # Threshold to min and max of Emag on the gray matter
+    tissue_to_plot = "gm"
+    plot_t_idx = interface[:, 0] == tissue_list.index(tissue_to_plot)
+    th1 = np.nanmax(Emag[plot_t_idx])
+    th2 = np.nanmin(Emag[plot_t_idx])
     plot_slices(
         P=P,
         t=t,
@@ -454,6 +461,8 @@ def main(
         tissue_list=tissue_list,
         xyz=xyz,
         coils=coils.array,
+        th1=th1,
+        th2=th2,
     )
 
     input("Close All windows and Hit enter to exit...")
