@@ -64,6 +64,7 @@ from PySide6.QtWidgets import (
     QSpacerItem,
     QStackedWidget,
     QStatusBar,
+    QTextEdit,
     QVBoxLayout,
     QWidget,
 )
@@ -767,10 +768,14 @@ class Ui_MainWindow(object):
         )
         self.label_4.setText(QCoreApplication.translate("MainWindow", "Type", None))
         self.AddCoil.setText(QCoreApplication.translate("MainWindow", "Add Coil", None))
+        self.label.setStyleSheet("color: gray;") # TODO deactivate custom coil for now
         self.label.setText(QCoreApplication.translate("MainWindow", "Custom", None))
+
         self.AddCustomCoil.setText(
             QCoreApplication.translate("MainWindow", "Add Custom Coil", None)
         )
+        self.CustomCoilEntry.setEnabled(False) # TODO deactivate custom coil for now
+        self.AddCustomCoil.setEnabled(False) # TODO deactivate custom coil for now
         self.groupBox_2.setTitle(
             QCoreApplication.translate(
                 "MainWindow", "Edit Coils (double click to edit name)", None
