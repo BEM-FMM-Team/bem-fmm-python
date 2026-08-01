@@ -39,7 +39,7 @@ def main():
             "figure_eight",
             "figure_eightX",
             "MagVenture_Cool_B35",
-            "MagVenture_C_B60",
+            # "MagVenture_C_B60",
             "MagVenture_Cool40_Rat",
             "MagVenture_D_B80",
             "MagVenture_MRiB91",
