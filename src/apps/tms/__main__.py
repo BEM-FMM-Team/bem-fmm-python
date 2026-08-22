@@ -221,11 +221,10 @@ def charge_engine(
     EC: csr_matrix,
     # coil info
     b: np.ndarray,
+    iter=20,  # for best results, set to 50
+    relres=1e-4,  # for best results, set to 1e-6
+    weight=0.5,
 ):
-    iter = 20  # for best results, set to 50
-    relres = 1e-4  # for best results, set to 1e-6
-    weight = 0.5
-
     MATVEC = lambda c: surface_field_lhs(
         c.reshape((-1, 1)),
         center=center,
@@ -270,6 +269,10 @@ def main(
     num_neighbors: int = 4,
     output_dir: Optional[str] = None,
     save_format: Literal["none", "csv", "mat", "npz", "pkl"] = "none",
+    iter: int = 20,  # for best results, set to 50
+    relres: float = 1e-4,  # for best results, set to 1e-6
+    weight: float = 0.5,
+    save: list[str] = typer.Option(["E", "c", "En"], "--save", "-s"),
 ):
     (
         P,
@@ -347,16 +350,20 @@ def main(
         contrast=contrast,
         EC=EC,
         b=b,
+        iter=iter,  # for best results, set to 50
+        relres=relres,  # for best results, set to 1e-6
+        weight=weight,
     )
     plot_residual(resvec)
 
+    # TODO query for what i need to save
     ##   Find and save surface fields
     #   (i)     total normal E-field just inside/outside any model surface;
     #   (ii)    secondary continuous E-field contribution for any model surface;
     #   (iii)   secondary continuous electric potential for any model surface;
-    Eninside = condout / (condin - condout) * c
+    # Eninside = condout / (condin - condout) * c
     # since c is normalized by eps0
-    Enoutside = condin / (condin - condout) * c
+    # Enoutside = condin / (condin - condout) * c
     # since c is normalized by eps0
 
     c = c.reshape((-1, 1))
@@ -398,14 +405,15 @@ def main(
 
     if (save_format is not None) and (save_format != "none"):
         save_arrays = {
-            "E": E,
-            "c": c,
-            "En": En,
+            "E": lambda: E,
+            "c": lambda: c,
+            "En": lambda: En,
         }
-        for name, array in save_arrays.items():
-            path = output_dir / f"{name}.{save_format}"
-            SAVERS[save_format or "csv"](path, name, array)
-            print(f"Saved {name} to {path}")
+        for name, compute_array in save_arrays.items():
+            if name in save:
+                path = output_dir / f"{name}.{save_format}"
+                SAVERS[save_format or "csv"](path, name, compute_array())
+                print(f"Saved {name} to {path}")
 
     plot_fields(
         P * 1e3,  # move from m to mm for displaying
