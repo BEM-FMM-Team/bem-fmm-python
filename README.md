@@ -8,14 +8,18 @@ Install `python3.11+`.
 > Note
 Charge engine will only need to be run once per coil+model config unless the `./__compute_cache__/` directory is removed.
 
-### Windows
+### Windows*
 
 
 Run the `run.bat` script either by double clicking or Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 May need to by pass windows security.
 
+Running through remote desktop does not support the vtk rendering engine.
+You may place the coils on a local machine and then upload to a remote desktop server for the computation.
+But the tms solver works and you may specify the path the generated ".pkl" file
 
-### MacOS (intel and arm)
+
+### MacOS* (intel and arm)
 
 Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
 May need to by pass apple's security.

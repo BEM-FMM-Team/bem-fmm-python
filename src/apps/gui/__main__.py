@@ -1,6 +1,9 @@
 import sys
+from pathlib import Path
+from typing import Optional
 
 import typer
+import yaml
 from PySide6.QtWidgets import QApplication
 from vedo import Mesh
 
@@ -11,10 +14,10 @@ app = typer.Typer()
 
 
 @app.command()
-def main():
+def main(tissue_index: Optional[str] = None):
     head_models = {}
 
-    for name in [
+    shells = [
         "bone",
         "cerebellum",
         "csf",
@@ -22,7 +25,28 @@ def main():
         "skin",
         "ventricles",
         "wm",
-    ]:
+    ]
+
+    if tissue_index:
+        print("Using custom tissue_index")
+        path = Path(tissue_index)
+        if not path.is_file():
+            raise ValueError(
+                f"Invalid tissue index path is missing from {tissue_index}"
+            )
+
+        with open(tissue_index, "r") as f:
+            d = f.read()
+            data: dict[str, tuple[float, str]] = yaml.safe_load(d)
+
+        shells = list(data.get("shells").keys())
+        if not shells:
+            raise ValueError(f"shells is missing from {tissue_index}")
+    else:
+        print("Using default tissue_index")
+        tissue_index = get_asset_path(f"tissue_index.yaml")
+
+    for name in shells:
         path = get_asset_path(f"{name}.stl")
 
         mesh = Mesh(str(path))

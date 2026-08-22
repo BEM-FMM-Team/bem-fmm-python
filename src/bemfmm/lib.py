@@ -139,11 +139,13 @@ def launch_detached_new_terminal(script_path: str, script_args: list[str] = []):
         terms = [
             ("ghostty", ["-e"]),
             ("st", ["-e"]),
-            ("xterm", ["-e"]),
             ("alacritty", ["-e"]),
+            ("xterm", ["-e"]),
             ("wezterm", ["start", "--", "-e"]),
             ("termite", ["-e"]),
             ("foot", ["--command"]),
+            ("gnome-terminal", ["--"]),
+            ("konsole", ["-e"]),
         ]
 
         for exe, prefix in terms:

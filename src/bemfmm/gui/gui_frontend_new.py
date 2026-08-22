@@ -4,13 +4,10 @@ from pathlib import Path
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import (
-    QDialog,
-    QFileDialog,
-    QListWidgetItem,
-    QMainWindow,
-    QMessageBox,
-)
+from PySide6.QtWidgets import (QCheckBox, QDialog, QFileDialog, QGridLayout,
+                               QHBoxLayout, QLabel, QListWidgetItem,
+                               QMainWindow, QMessageBox, QSlider, QVBoxLayout,
+                               QWidget)
 
 from bemfmm.lib import get_asset_path
 
@@ -25,9 +22,11 @@ GUI frontend for placing coils. This class is responsible for managing the widge
 """
 
 PKL_FILTER_STR = "Pickle Files (*.pkl);;All Files (*)"
+YAML_FILTER_STR = "Yaml Files (*.yaml *.yml);;All Files (*)"
 
 # TODO should probably use the apps module. on that it should probably not have such a generic name
 SRC = Path(__file__).parent.resolve().parent.resolve().parent.resolve()
+GUI_SCRIPT = SRC / "apps/gui"
 TMS_SCRIPT = SRC / "apps/tms"
 SPHERE_SCRIPT = SRC / "apps/sphere_3L"
 PLOT_SCRIPT = SRC / "apps/plot"
@@ -91,6 +90,7 @@ class Frontend(QMainWindow):
     def __init__(self, head_models, names):
         super().__init__()
         # state
+        self.head_models = head_models
         self.coil_names = names
         self.selected_coil_id = 0
         self.selected_coil_rot = None
@@ -129,8 +129,10 @@ class Frontend(QMainWindow):
         )
         QShortcut(QKeySequence.Undo, self).activated.connect(self.undo)
         QShortcut(QKeySequence.Redo, self).activated.connect(self.redo)
+        QShortcut(QKeySequence.Quit, self).activated.connect(self.exit_application)
 
         # QShortcut(QKeySequence.New, self).activated.connect(self.clear) # TODO Simon how would i nuke the state
+
 
         self.ui.TypeDropdown.clear()
         for name in self.coil_names:
@@ -159,6 +161,8 @@ class Frontend(QMainWindow):
             slider.setMinimum(-180000)
             slider.setMaximum(180000)
 
+        self.ui.loadTissueIndex.clicked.connect(self.load_tissue_index)
+
         self.ui.dIdtEntry.textChanged.connect(self.edit_coil_dIdt)
         self.ui.AutoOrientButton.clicked.connect(self.auto_orient)
 
@@ -170,23 +174,41 @@ class Frontend(QMainWindow):
         self.ui.Save.clicked.connect(self.save_coil_config_dialog)
         self.ui.Load.clicked.connect(self.load_coil_config_dialog)
 
-        models = [
-            "bone",
-            "cerebellum",
-            "csf",
-            "gm",
-            "skin",
-            "ventricles",
-            "wm",
-        ]
+        for model in self.head_models.keys():
+            checkbox = QCheckBox(model)
+            checkbox.setObjectName(model)
 
-        for model in models:
-            checkbox = getattr(self.ui, model)
-            checkbox.toggled.connect(self.apply_head_models)
-            slider = getattr(self.ui, f"{model}Alpha")
+            slider = QSlider(Qt.Horizontal)
+            slider.setObjectName(f"{model}Alpha")
             slider.setRange(0, 100)
             slider.setValue(100)
+
+            # references on self.ui (so getattr(self.ui, model) works)
+            setattr(self.ui, model, checkbox)
+            setattr(self.ui, f"{model}Alpha", slider)
+
+            scroll_widget = self.ui.scrollArea.widget()
+            if scroll_widget is None:
+                scroll_widget = QWidget()
+                self.ui.scrollArea.setWidget(scroll_widget)
+
+            scroll_layout = scroll_widget.layout()
+            if scroll_layout is None:
+                scroll_layout = QVBoxLayout(scroll_widget)
+
+            model_container = QWidget()
+            model_layout = QGridLayout(model_container)
+            model_layout.setContentsMargins(5, 5, 5, 5)
+            model_layout.addWidget(checkbox, 0, 0)
+            model_layout.addWidget(slider, 0, 1)
+            model_layout.setColumnStretch(1, 1)
+
+            scroll_layout.addWidget(model_container)
+
+            checkbox.toggled.connect(self.apply_head_models)
             slider.valueChanged.connect(self.apply_head_models)
+
+            scroll_layout.addStretch()
 
         self.ui.skin.setChecked(True)
 
@@ -293,6 +315,26 @@ class Frontend(QMainWindow):
         self.ui.actionPlot.triggered.connect(self.actionPlot)
         self.ui.actionDefault_TMS.triggered.connect(self.actionDefault_TMS)
 
+    def load_tissue_index(self):
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Load Tissue Index", "", YAML_FILTER_STR
+        )
+
+        path = Path(path)
+        if not path.is_file():
+            QMessageBox.warning(
+                    self.ui.MainGUI, "Failed to load tissue Index",f"Failed to find index file :{path}"
+            )
+            return
+
+        cli_args = [
+            "--tissue-index",
+            str(path),
+        ]
+
+        launch_detached_new_terminal(GUI_SCRIPT, cli_args)
+        self.exit_application()
+
     def actionLoad_Coil_Config(self):
         self.load_coil_config_dialog()
 
@@ -377,6 +419,7 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
             self.ui.CoilList.setCurrentRow(n)
 
     def import_custom_coil(self):
+        # TODO impl
         # creates a new custom coil
         name = name = self.ui.CustomCoilEntry.text()
 
@@ -526,6 +569,20 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         )
         if path:
             self.backend.save_coil_config(path)
+
+
+    def exit_application(self, additionalMessage = ""):
+        reply = QMessageBox.question(
+            self,
+            'Exit Application',
+            'Are you sure you want to exit?' + additionalMessage,
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            # TODO clean up here
+            self.close()
 
     def load_coil_config_dialog(self):
         # TODO we need some way of tracking if this current loaded memory has been saved

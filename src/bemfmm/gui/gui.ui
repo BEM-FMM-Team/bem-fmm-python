@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>970</width>
-    <height>956</height>
+    <width>1012</width>
+    <height>1052</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,17 +46,57 @@
        </layout>
       </item>
       <item>
-       <spacer name="verticalSpacer_5">
-        <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="1" column="0">
+         <widget class="QPushButton" name="PlanePlaceButton">
+          <property name="text">
+           <string>Slice Planes</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="Load">
+          <property name="text">
+           <string>Load</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="Save">
+          <property name="text">
+           <string>Save</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="Run">
+          <property name="text">
+           <string>Run TMS</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="Undo">
+          <property name="text">
+           <string>Undo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="Redo">
+          <property name="text">
+           <string>Redo</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loadTissueIndex">
+        <property name="text">
+         <string>Load Custom Tissue Index</string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
       <item>
        <widget class="QStackedWidget" name="stackedWidget">
@@ -95,25 +135,7 @@
                 </widget>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_5">
-                 <item>
-                  <widget class="QLabel" name="label">
-                   <property name="text">
-                    <string>Custom</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="CustomCoilEntry"/>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <widget class="QPushButton" name="AddCustomCoil">
-                 <property name="text">
-                  <string>Add Custom Coil</string>
-                 </property>
-                </widget>
+                <layout class="QHBoxLayout" name="horizontalLayout_5"/>
                </item>
               </layout>
              </widget>
@@ -160,13 +182,6 @@
              </item>
              <item>
               <layout class="QGridLayout" name="gridLayout">
-               <item row="3" column="1">
-                <widget class="QPushButton" name="Redo">
-                 <property name="text">
-                  <string>Redo</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="0">
                 <widget class="QPushButton" name="Edit">
                  <property name="text">
@@ -174,45 +189,10 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0">
-                <widget class="QPushButton" name="Undo">
-                 <property name="text">
-                  <string>Undo</string>
-                 </property>
-                </widget>
-               </item>
                <item row="0" column="1">
                 <widget class="QPushButton" name="Delete">
                  <property name="text">
                   <string>Delete</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QPushButton" name="Save">
-                 <property name="text">
-                  <string>Save</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QPushButton" name="Load">
-                 <property name="text">
-                  <string>Load</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QPushButton" name="Run">
-                 <property name="text">
-                  <string>Run TMS</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QPushButton" name="PlanePlaceButton">
-                 <property name="text">
-                  <string>Slice Planes</string>
                  </property>
                 </widget>
                </item>
@@ -226,120 +206,26 @@
             <property name="title">
              <string>Head Model Opacity</string>
             </property>
-            <layout class="QFormLayout" name="formLayout">
-             <item row="2" column="0">
-              <widget class="QCheckBox" name="bone">
-               <property name="text">
-                <string>Bone</string>
+            <layout class="QHBoxLayout" name="horizontalLayout_7">
+             <item>
+              <widget class="QScrollArea" name="scrollArea">
+               <property name="widgetResizable">
+                <bool>true</bool>
                </property>
-              </widget>
-             </item>
-             <item row="3" column="0">
-              <widget class="QCheckBox" name="csf">
-               <property name="text">
-                <string>CSF</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="1">
-              <widget class="QSlider" name="csfAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QCheckBox" name="skin">
-               <property name="text">
-                <string>Skin</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="1">
-              <widget class="QSlider" name="skinAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
-              <widget class="QCheckBox" name="wm">
-               <property name="text">
-                <string>WM</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QSlider" name="wmAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="0">
-              <widget class="QCheckBox" name="ventricles">
-               <property name="text">
-                <string>Ventricles</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="1">
-              <widget class="QSlider" name="ventriclesAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QCheckBox" name="gm">
-               <property name="text">
-                <string>GM</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="1">
-              <widget class="QSlider" name="gmAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="0">
-              <widget class="QCheckBox" name="cerebellum">
-               <property name="text">
-                <string>Cerebellum</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="1">
-              <widget class="QSlider" name="cerebellumAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QSlider" name="boneAlpha">
-               <property name="orientation">
-                <enum>Qt::Orientation::Horizontal</enum>
-               </property>
+               <widget class="QWidget" name="scrollAreaWidgetContents">
+                <property name="geometry">
+                 <rect>
+                  <x>0</x>
+                  <y>0</y>
+                  <width>391</width>
+                  <height>124</height>
+                 </rect>
+                </property>
+               </widget>
               </widget>
              </item>
             </layout>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <spacer name="verticalSpacer_2">
@@ -738,8 +624,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>970</width>
-     <height>33</height>
+     <width>1012</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
