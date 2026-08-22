@@ -4,10 +4,20 @@ from pathlib import Path
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import (QCheckBox, QDialog, QFileDialog, QGridLayout,
-                               QHBoxLayout, QLabel, QListWidgetItem,
-                               QMainWindow, QMessageBox, QSlider, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QDialog,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 from bemfmm.lib import get_asset_path
 
@@ -132,7 +142,6 @@ class Frontend(QMainWindow):
         QShortcut(QKeySequence.Quit, self).activated.connect(self.exit_application)
 
         # QShortcut(QKeySequence.New, self).activated.connect(self.clear) # TODO Simon how would i nuke the state
-
 
         self.ui.TypeDropdown.clear()
         for name in self.coil_names:
@@ -323,7 +332,9 @@ class Frontend(QMainWindow):
         path = Path(path)
         if not path.is_file():
             QMessageBox.warning(
-                    self.ui.MainGUI, "Failed to load tissue Index",f"Failed to find index file :{path}"
+                self.ui.MainGUI,
+                "Failed to load tissue Index",
+                f"Failed to find index file :{path}",
             )
             return
 
@@ -570,14 +581,13 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         if path:
             self.backend.save_coil_config(path)
 
-
-    def exit_application(self, additionalMessage = ""):
+    def exit_application(self, additionalMessage=""):
         reply = QMessageBox.question(
             self,
-            'Exit Application',
-            'Are you sure you want to exit?' + additionalMessage,
+            "Exit Application",
+            "Are you sure you want to exit?" + additionalMessage,
             QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.No,
         )
 
         if reply == QMessageBox.Yes:

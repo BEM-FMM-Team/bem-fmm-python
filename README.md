@@ -58,7 +58,7 @@ There are modules you may run. They are also available as tests in the tms_coil_
 
 ```bash
 python src/apps/gui
-python src/apps/tms
+python src/apps/tms -s c -s E -s En
 python src/apps/plot
 python src/apps/sphere_3L
 ```
