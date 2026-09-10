@@ -4,10 +4,20 @@ from pathlib import Path
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QKeySequence, QShortcut
-from PySide6.QtWidgets import (QCheckBox, QDialog, QFileDialog, QGridLayout,
-                               QHBoxLayout, QLabel, QListWidgetItem,
-                               QMainWindow, QMessageBox, QSlider, QVBoxLayout,
-                               QWidget)
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QDialog,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QListWidgetItem,
+    QMainWindow,
+    QMessageBox,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
+)
 
 from ..lib import launch_detached_new_terminal
 from .gui_backend import Backend
