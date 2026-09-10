@@ -193,6 +193,11 @@ def save_pkl(path, _, arr):
         pickle.dump(arr, f)
 
 
+def validate_index():
+    # TODO impl
+    pass
+
+
 SAVERS = {
     "npz": lambda path, name, arr: np.savez(path, **{name: arr}),
     "mat": lambda path, name, arr: savemat(path, {name: arr}),

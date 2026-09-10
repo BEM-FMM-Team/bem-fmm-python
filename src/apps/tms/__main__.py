@@ -22,6 +22,7 @@ from bemfmm.charge import (
 )
 from bemfmm.fgmres import fgmres
 from bemfmm.gui.pickle_loader import pickle_loader
+from bemfmm.gui.tms_frontend import run_tms_gui
 from bemfmm.lib import SAVERS, cache, get_asset_path
 from bemfmm.mesh import (
     mesh_areas,
@@ -273,7 +274,12 @@ def main(
     relres: float = 1e-4,  # for best results, set to 1e-6
     weight: float = 0.5,
     save: list[str] = typer.Option(["E", "c", "En"], "--save", "-s"),
+    gui: bool = False,
 ):
+    if gui:
+        run_tms_gui(tissue_index)
+        return
+
     (
         P,
         t,

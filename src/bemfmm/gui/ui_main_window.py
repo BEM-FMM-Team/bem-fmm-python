@@ -72,7 +72,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1012, 1052)
+        MainWindow.resize(1135, 909)
         self.actionLoad_Coil_Config = QAction(MainWindow)
         self.actionLoad_Coil_Config.setObjectName("actionLoad_Coil_Config")
         self.actionSave_Coil_Config = QAction(MainWindow)
@@ -119,51 +119,51 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_9)
 
-        self.gridLayout_2 = QGridLayout()
-        self.gridLayout_2.setObjectName("gridLayout_2")
-        self.PlanePlaceButton = QPushButton(self.centralwidget)
-        self.PlanePlaceButton.setObjectName("PlanePlaceButton")
-
-        self.gridLayout_2.addWidget(self.PlanePlaceButton, 1, 0, 1, 1)
-
-        self.Load = QPushButton(self.centralwidget)
-        self.Load.setObjectName("Load")
-
-        self.gridLayout_2.addWidget(self.Load, 0, 1, 1, 1)
-
-        self.Save = QPushButton(self.centralwidget)
-        self.Save.setObjectName("Save")
-
-        self.gridLayout_2.addWidget(self.Save, 0, 0, 1, 1)
-
-        self.Run = QPushButton(self.centralwidget)
-        self.Run.setObjectName("Run")
-
-        self.gridLayout_2.addWidget(self.Run, 1, 1, 1, 1)
-
-        self.Undo = QPushButton(self.centralwidget)
-        self.Undo.setObjectName("Undo")
-
-        self.gridLayout_2.addWidget(self.Undo, 2, 0, 1, 1)
-
-        self.Redo = QPushButton(self.centralwidget)
-        self.Redo.setObjectName("Redo")
-
-        self.gridLayout_2.addWidget(self.Redo, 2, 1, 1, 1)
-
-        self.verticalLayout_3.addLayout(self.gridLayout_2)
-
-        self.loadTissueIndex = QPushButton(self.centralwidget)
-        self.loadTissueIndex.setObjectName("loadTissueIndex")
-
-        self.verticalLayout_3.addWidget(self.loadTissueIndex)
-
         self.stackedWidget = QStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName("stackedWidget")
         self.MainGUI = QWidget()
         self.MainGUI.setObjectName("MainGUI")
         self.verticalLayout_4 = QVBoxLayout(self.MainGUI)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
+        self.loadTissueIndex = QPushButton(self.MainGUI)
+        self.loadTissueIndex.setObjectName("loadTissueIndex")
+
+        self.verticalLayout_4.addWidget(self.loadTissueIndex)
+
+        self.gridLayout_2 = QGridLayout()
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.PlanePlaceButton = QPushButton(self.MainGUI)
+        self.PlanePlaceButton.setObjectName("PlanePlaceButton")
+
+        self.gridLayout_2.addWidget(self.PlanePlaceButton, 2, 0, 1, 1)
+
+        self.Save = QPushButton(self.MainGUI)
+        self.Save.setObjectName("Save")
+
+        self.gridLayout_2.addWidget(self.Save, 1, 0, 1, 1)
+
+        self.Run = QPushButton(self.MainGUI)
+        self.Run.setObjectName("Run")
+
+        self.gridLayout_2.addWidget(self.Run, 2, 1, 1, 1)
+
+        self.Load = QPushButton(self.MainGUI)
+        self.Load.setObjectName("Load")
+
+        self.gridLayout_2.addWidget(self.Load, 1, 1, 1, 1)
+
+        self.Undo = QPushButton(self.MainGUI)
+        self.Undo.setObjectName("Undo")
+
+        self.gridLayout_2.addWidget(self.Undo, 3, 0, 1, 1)
+
+        self.Redo = QPushButton(self.MainGUI)
+        self.Redo.setObjectName("Redo")
+
+        self.gridLayout_2.addWidget(self.Redo, 3, 1, 1, 1)
+
+        self.verticalLayout_4.addLayout(self.gridLayout_2)
+
         self.verticalLayout_2 = QVBoxLayout()
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.groupBox_3 = QGroupBox(self.MainGUI)
@@ -258,18 +258,12 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 391, 124))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 391, 160))
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.horizontalLayout_7.addWidget(self.scrollArea)
 
         self.verticalLayout_4.addWidget(self.groupBox)
-
-        self.verticalSpacer_2 = QSpacerItem(
-            20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
-        )
-
-        self.verticalLayout_4.addItem(self.verticalSpacer_2)
 
         self.stackedWidget.addWidget(self.MainGUI)
         self.EditGUI = QWidget()
@@ -609,7 +603,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName("menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1012, 25))
+        self.menubar.setGeometry(QRect(0, 0, 1135, 25))
         self.menuFile = QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
         self.menuHelp = QMenu(self.menubar)
@@ -673,17 +667,17 @@ class Ui_MainWindow(object):
         self.CameraXY.setText(QCoreApplication.translate("MainWindow", "XY", None))
         self.CameraXZ.setText(QCoreApplication.translate("MainWindow", "XZ", None))
         self.CameraYZ.setText(QCoreApplication.translate("MainWindow", "YZ", None))
-        self.PlanePlaceButton.setText(
-            QCoreApplication.translate("MainWindow", "Slice Planes", None)
-        )
-        self.Load.setText(QCoreApplication.translate("MainWindow", "Load", None))
-        self.Save.setText(QCoreApplication.translate("MainWindow", "Save", None))
-        self.Run.setText(QCoreApplication.translate("MainWindow", "Run TMS", None))
-        self.Undo.setText(QCoreApplication.translate("MainWindow", "Undo", None))
-        self.Redo.setText(QCoreApplication.translate("MainWindow", "Redo", None))
         self.loadTissueIndex.setText(
             QCoreApplication.translate("MainWindow", "Load Custom Tissue Index", None)
         )
+        self.PlanePlaceButton.setText(
+            QCoreApplication.translate("MainWindow", "Slice Planes", None)
+        )
+        self.Save.setText(QCoreApplication.translate("MainWindow", "Save", None))
+        self.Run.setText(QCoreApplication.translate("MainWindow", "Run TMS", None))
+        self.Load.setText(QCoreApplication.translate("MainWindow", "Load", None))
+        self.Undo.setText(QCoreApplication.translate("MainWindow", "Undo", None))
+        self.Redo.setText(QCoreApplication.translate("MainWindow", "Redo", None))
         self.groupBox_3.setTitle(
             QCoreApplication.translate("MainWindow", "New Coil", None)
         )

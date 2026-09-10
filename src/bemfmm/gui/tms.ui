@@ -1,21 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>OptionsDialog</class>
+
  <widget class="QDialog" name="OptionsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>196</height>
+    <width>650</width>
+    <height>470</height>
    </rect>
   </property>
+
   <property name="windowTitle">
    <string>TMS Options</string>
   </property>
+
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QFormLayout" name="formLayout">
+
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -23,6 +27,7 @@
        </property>
       </widget>
      </item>
+
      <item row="0" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -37,6 +42,7 @@
        </item>
       </layout>
      </item>
+
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
@@ -44,6 +50,7 @@
        </property>
       </widget>
      </item>
+
      <item row="1" column="1">
       <widget class="QSpinBox" name="numNeighbors">
        <property name="minimum">
@@ -57,6 +64,7 @@
        </property>
       </widget>
      </item>
+
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
@@ -64,6 +72,7 @@
        </property>
       </widget>
      </item>
+
      <item row="2" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
@@ -78,6 +87,7 @@
        </item>
       </layout>
      </item>
+
      <item row="3" column="0">
       <widget class="QLabel" name="label_4">
        <property name="text">
@@ -85,6 +95,7 @@
        </property>
       </widget>
      </item>
+
      <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
@@ -97,6 +108,7 @@
          </property>
         </widget>
        </item>
+
        <item>
         <widget class="QRadioButton" name="radioMat">
          <property name="text">
@@ -104,6 +116,7 @@
          </property>
         </widget>
        </item>
+
        <item>
         <widget class="QRadioButton" name="radioCsv">
          <property name="text">
@@ -111,6 +124,7 @@
          </property>
         </widget>
        </item>
+
        <item>
         <widget class="QRadioButton" name="radioNpz">
          <property name="text">
@@ -118,6 +132,7 @@
          </property>
         </widget>
        </item>
+
        <item>
         <widget class="QRadioButton" name="radioPkl">
          <property name="text">
@@ -125,23 +140,135 @@
          </property>
         </widget>
        </item>
+      </layout>
+     </item>
+
+     <item row="4" column="0">
+      <widget class="QLabel" name="labelIterations">
+       <property name="text">
+        <string>Iterations:</string>
+       </property>
+      </widget>
+     </item>
+
+     <item row="4" column="1">
+      <widget class="QSpinBox" name="iterations">
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>20</number>
+       </property>
+      </widget>
+     </item>
+
+     <item row="5" column="0">
+      <widget class="QLabel" name="labelRelres">
+       <property name="text">
+        <string>Relative Residual:</string>
+       </property>
+      </widget>
+     </item>
+
+     <item row="5" column="1">
+      <widget class="QDoubleSpinBox" name="relres">
+       <property name="decimals">
+        <number>10</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000001000</double>
+       </property>
+       <property name="maximum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.000010000000000</double>
+       </property>
+       <property name="value">
+        <double>0.000100000000000</double>
+       </property>
+      </widget>
+     </item>
+
+     <item row="6" column="0">
+      <widget class="QLabel" name="labelWeight">
+       <property name="text">
+        <string>Weight:</string>
+       </property>
+      </widget>
+     </item>
+
+     <item row="6" column="1">
+      <widget class="QDoubleSpinBox" name="weight">
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.050000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+     </item>
+
+     <item row="7" column="0">
+      <widget class="QLabel" name="labelSave">
+       <property name="text">
+        <string>Save Components:</string>
+       </property>
+      </widget>
+     </item>
+
+     <item row="7" column="1">
+      <layout class="QHBoxLayout" name="saveLayout">
        <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Orientation::Horizontal</enum>
+        <widget class="QCheckBox" name="saveE">
+         <property name="text">
+          <string>E</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
+         <property name="checked">
+          <bool>true</bool>
          </property>
-        </spacer>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QCheckBox" name="saveC">
+         <property name="text">
+          <string>c</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+
+       <item>
+        <widget class="QCheckBox" name="saveEn">
+         <property name="text">
+          <string>En</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
+
     </layout>
    </item>
+
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -155,10 +282,11 @@
      </property>
     </spacer>
    </item>
+
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <layout class="QHBoxLayout" name="buttonLayout">
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
@@ -170,6 +298,7 @@
        </property>
       </spacer>
      </item>
+
      <item>
       <widget class="QPushButton" name="okButton">
        <property name="text">
@@ -177,6 +306,7 @@
        </property>
       </widget>
      </item>
+
      <item>
       <widget class="QPushButton" name="cancelButton">
        <property name="text">
@@ -188,39 +318,22 @@
    </item>
   </layout>
  </widget>
+
  <resources/>
+
  <connections>
   <connection>
    <sender>okButton</sender>
    <signal>clicked()</signal>
    <receiver>OptionsDialog</receiver>
    <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
   </connection>
+
   <connection>
    <sender>cancelButton</sender>
    <signal>clicked()</signal>
    <receiver>OptionsDialog</receiver>
    <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
   </connection>
  </connections>
 </ui>

@@ -42,7 +42,9 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
     QDialog,
+    QDoubleSpinBox,
     QFormLayout,
     QHBoxLayout,
     QLabel,
@@ -61,7 +63,7 @@ class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName("OptionsDialog")
-        OptionsDialog.resize(498, 196)
+        OptionsDialog.resize(650, 470)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName("verticalLayout")
         self.formLayout = QFormLayout()
@@ -154,15 +156,81 @@ class Ui_OptionsDialog(object):
 
         self.horizontalLayout_3.addWidget(self.radioPkl)
 
-        self.horizontalSpacer = QSpacerItem(
-            40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
-        )
-
-        self.horizontalLayout_3.addItem(self.horizontalSpacer)
-
         self.formLayout.setLayout(
             3, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_3
         )
+
+        self.labelIterations = QLabel(OptionsDialog)
+        self.labelIterations.setObjectName("labelIterations")
+
+        self.formLayout.setWidget(
+            4, QFormLayout.ItemRole.LabelRole, self.labelIterations
+        )
+
+        self.iterations = QSpinBox(OptionsDialog)
+        self.iterations.setObjectName("iterations")
+        self.iterations.setMinimum(1)
+        self.iterations.setMaximum(10000)
+        self.iterations.setValue(20)
+
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.iterations)
+
+        self.labelRelres = QLabel(OptionsDialog)
+        self.labelRelres.setObjectName("labelRelres")
+
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.labelRelres)
+
+        self.relres = QDoubleSpinBox(OptionsDialog)
+        self.relres.setObjectName("relres")
+        self.relres.setDecimals(10)
+        self.relres.setMinimum(0.000000000001000)
+        self.relres.setMaximum(1.000000000000000)
+        self.relres.setSingleStep(0.000010000000000)
+        self.relres.setValue(0.000100000000000)
+
+        self.formLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.relres)
+
+        self.labelWeight = QLabel(OptionsDialog)
+        self.labelWeight.setObjectName("labelWeight")
+
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.LabelRole, self.labelWeight)
+
+        self.weight = QDoubleSpinBox(OptionsDialog)
+        self.weight.setObjectName("weight")
+        self.weight.setDecimals(4)
+        self.weight.setMinimum(0.000000000000000)
+        self.weight.setMaximum(1.000000000000000)
+        self.weight.setSingleStep(0.050000000000000)
+        self.weight.setValue(0.500000000000000)
+
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.FieldRole, self.weight)
+
+        self.labelSave = QLabel(OptionsDialog)
+        self.labelSave.setObjectName("labelSave")
+
+        self.formLayout.setWidget(7, QFormLayout.ItemRole.LabelRole, self.labelSave)
+
+        self.saveLayout = QHBoxLayout()
+        self.saveLayout.setObjectName("saveLayout")
+        self.saveE = QCheckBox(OptionsDialog)
+        self.saveE.setObjectName("saveE")
+        self.saveE.setChecked(True)
+
+        self.saveLayout.addWidget(self.saveE)
+
+        self.saveC = QCheckBox(OptionsDialog)
+        self.saveC.setObjectName("saveC")
+        self.saveC.setChecked(True)
+
+        self.saveLayout.addWidget(self.saveC)
+
+        self.saveEn = QCheckBox(OptionsDialog)
+        self.saveEn.setObjectName("saveEn")
+        self.saveEn.setChecked(True)
+
+        self.saveLayout.addWidget(self.saveEn)
+
+        self.formLayout.setLayout(7, QFormLayout.ItemRole.FieldRole, self.saveLayout)
 
         self.verticalLayout.addLayout(self.formLayout)
 
@@ -172,25 +240,25 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout.addItem(self.verticalSpacer)
 
-        self.horizontalLayout_4 = QHBoxLayout()
-        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.horizontalSpacer_2 = QSpacerItem(
+        self.buttonLayout = QHBoxLayout()
+        self.buttonLayout.setObjectName("buttonLayout")
+        self.horizontalSpacer = QSpacerItem(
             40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
 
-        self.horizontalLayout_4.addItem(self.horizontalSpacer_2)
+        self.buttonLayout.addItem(self.horizontalSpacer)
 
         self.okButton = QPushButton(OptionsDialog)
         self.okButton.setObjectName("okButton")
 
-        self.horizontalLayout_4.addWidget(self.okButton)
+        self.buttonLayout.addWidget(self.okButton)
 
         self.cancelButton = QPushButton(OptionsDialog)
         self.cancelButton.setObjectName("cancelButton")
 
-        self.horizontalLayout_4.addWidget(self.cancelButton)
+        self.buttonLayout.addWidget(self.cancelButton)
 
-        self.verticalLayout.addLayout(self.horizontalLayout_4)
+        self.verticalLayout.addLayout(self.buttonLayout)
 
         self.retranslateUi(OptionsDialog)
         self.okButton.clicked.connect(OptionsDialog.accept)
@@ -229,6 +297,21 @@ class Ui_OptionsDialog(object):
         self.radioCsv.setText(QCoreApplication.translate("OptionsDialog", "csv", None))
         self.radioNpz.setText(QCoreApplication.translate("OptionsDialog", "npz", None))
         self.radioPkl.setText(QCoreApplication.translate("OptionsDialog", "pkl", None))
+        self.labelIterations.setText(
+            QCoreApplication.translate("OptionsDialog", "Iterations:", None)
+        )
+        self.labelRelres.setText(
+            QCoreApplication.translate("OptionsDialog", "Relative Residual:", None)
+        )
+        self.labelWeight.setText(
+            QCoreApplication.translate("OptionsDialog", "Weight:", None)
+        )
+        self.labelSave.setText(
+            QCoreApplication.translate("OptionsDialog", "Save Components:", None)
+        )
+        self.saveE.setText(QCoreApplication.translate("OptionsDialog", "E", None))
+        self.saveC.setText(QCoreApplication.translate("OptionsDialog", "c", None))
+        self.saveEn.setText(QCoreApplication.translate("OptionsDialog", "En", None))
         self.okButton.setText(QCoreApplication.translate("OptionsDialog", "OK", None))
         self.cancelButton.setText(
             QCoreApplication.translate("OptionsDialog", "Cancel", None)
