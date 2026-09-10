@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.mesh.meshplaneint_axis_nonmanifold &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.mesh.meshplaneint_axis_nonmanifold</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="meshplaneint_axis_nonmanifold">
+<a class="viewcode-back" href="../../../bemfmm.mesh.html#bemfmm.mesh.meshplaneint_axis_nonmanifold.meshplaneint_axis_nonmanifold">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">meshplaneint_axis_nonmanifold</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">axis</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">val</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-9</span><span class="p">,</span>
+    <span class="n">compTri</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">opts</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Intersect a (possibly non-manifold) triangle mesh with an axis-aligned plane</span>
+<span class="sd">    P[:, axis-1] = val   (axis 1-&gt;x, 2-&gt;y, 3-&gt;z).</span>
+
+<span class="sd">    Inputs</span>
+<span class="sd">    ------</span>
+<span class="sd">    P       : (Np, 3) vertices</span>
+<span class="sd">    t       : (Nt, 3) triangles, 0-based indices</span>
+<span class="sd">    axis    : 1, 2, or 3</span>
+<span class="sd">    val     : plane coordinate value</span>
+<span class="sd">    tol     : point-uniqueness tolerance (default 1e-9)</span>
+<span class="sd">    compTri : (Nt,) compartment label per triangle</span>
+<span class="sd">    opts    : dict with optional keys</span>
+<span class="sd">                shiftVal       bool  (default True)</span>
+<span class="sd">                maxShiftIters  int   (default 20)</span>
+<span class="sd">                degenerateMode str   'first2' | 'skip' (default 'first2')</span>
+
+<span class="sd">    Outputs</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pi      : (Ni, 3) unique intersection points</span>
+<span class="sd">    edgesI  : (Ne, 2) segment endpoint indices into Pi</span>
+<span class="sd">    ti      : (Ne,)   source triangle index per segment</span>
+<span class="sd">    ci      : (Ne,)   compartment label per segment, or None</span>
+<span class="sd">    flag    : True if any segments were found</span>
+<span class="sd">    valOut  : final plane value used (may be shifted)</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="n">opts</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">opts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"shiftVal"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"maxShiftIters"</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="n">opts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"degenerateMode"</span><span class="p">,</span> <span class="s2">"first2"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">axis</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"axis must be 0, 1, or 2."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"val must be a scalar."</span><span class="p">)</span>
+
+    <span class="n">Nt</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">axis</span>
+    <span class="n">haveComp</span> <span class="o">=</span> <span class="n">compTri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">compTri</span><span class="p">)</span> <span class="o">==</span> <span class="n">Nt</span>
+    <span class="n">degenerate_skip</span> <span class="o">=</span> <span class="n">opts</span><span class="p">[</span><span class="s2">"degenerateMode"</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"skip"</span>
+
+    <span class="c1"># Shift plane away from on-plane vertices</span>
+    <span class="n">valOut</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">opts</span><span class="p">[</span><span class="s2">"shiftVal"</span><span class="p">]:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">opts</span><span class="p">[</span><span class="s2">"maxShiftIters"</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">P</span><span class="p">[:,</span> <span class="n">ax</span><span class="p">]</span> <span class="o">-</span> <span class="n">valOut</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">):</span>
+                <span class="n">valOut</span> <span class="o">+=</span> <span class="n">tol</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="c1"># Vectorised candidate filter - only keep triangles that straddle the plane</span>
+    <span class="n">d_v</span> <span class="o">=</span> <span class="n">P</span><span class="p">[:,</span> <span class="n">ax</span><span class="p">]</span> <span class="o">-</span> <span class="n">valOut</span>  <span class="c1"># (Np,)</span>
+    <span class="n">d_t</span> <span class="o">=</span> <span class="n">d_v</span><span class="p">[</span><span class="n">t</span><span class="p">]</span>  <span class="c1"># (Nt, 3)</span>
+    <span class="n">candidate_mask</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">d_t</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="p">(</span><span class="n">d_t</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">tol</span><span class="p">)</span>
+    <span class="n">candidate_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">candidate_mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Split candidates into generic (no vertex on plane) and degenerate</span>
+    <span class="n">on_plane_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d_t</span><span class="p">[</span><span class="n">candidate_idx</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">tol</span>  <span class="c1"># (Ncand, 3)</span>
+    <span class="n">is_generic</span> <span class="o">=</span> <span class="o">~</span><span class="n">on_plane_t</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># (Ncand,)</span>
+    <span class="n">generic_idx</span> <span class="o">=</span> <span class="n">candidate_idx</span><span class="p">[</span><span class="n">is_generic</span><span class="p">]</span>
+    <span class="n">degen_idx</span> <span class="o">=</span> <span class="n">candidate_idx</span><span class="p">[</span><span class="o">~</span><span class="n">is_generic</span><span class="p">]</span>
+
+    <span class="c1"># --- Vectorised path for generic triangles (no vertex on plane) ---</span>
+    <span class="c1"># Exactly 2 of the 3 edges cross the plane per triangle.</span>
+    <span class="n">Pi_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">edges_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ti_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ci_list</span> <span class="o">=</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">haveComp</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">pointMap</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">n_pts</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_point</span><span class="p">(</span><span class="n">pt</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">nonlocal</span> <span class="n">n_pts</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">pt</span> <span class="o">/</span> <span class="n">tol</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pointMap</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pointMap</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">pointMap</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_pts</span>
+        <span class="n">Pi_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+        <span class="n">n_pts</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">n_pts</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="n">generic_idx</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">d0</span> <span class="o">=</span> <span class="n">d_t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">d_t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">d_t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">V0</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+        <span class="n">V1</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]</span>
+        <span class="n">V2</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span>
+
+        <span class="n">cross01</span> <span class="o">=</span> <span class="n">d0</span> <span class="o">*</span> <span class="n">d1</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="n">cross12</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">*</span> <span class="n">d2</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="n">cross20</span> <span class="o">=</span> <span class="n">d2</span> <span class="o">*</span> <span class="n">d0</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+        <span class="c1"># Interpolation parameters (safe: no on-plane vertex so denominators != 0)</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+            <span class="n">a01</span> <span class="o">=</span> <span class="n">d0</span> <span class="o">/</span> <span class="p">(</span><span class="n">d0</span> <span class="o">-</span> <span class="n">d1</span><span class="p">)</span>
+            <span class="n">a12</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">/</span> <span class="p">(</span><span class="n">d1</span> <span class="o">-</span> <span class="n">d2</span><span class="p">)</span>
+            <span class="n">a20</span> <span class="o">=</span> <span class="n">d2</span> <span class="o">/</span> <span class="p">(</span><span class="n">d2</span> <span class="o">-</span> <span class="n">d0</span><span class="p">)</span>
+
+        <span class="n">P01</span> <span class="o">=</span> <span class="n">V0</span> <span class="o">+</span> <span class="n">a01</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">V1</span> <span class="o">-</span> <span class="n">V0</span><span class="p">)</span>  <span class="c1"># (Ng, 3)</span>
+        <span class="n">P12</span> <span class="o">=</span> <span class="n">V1</span> <span class="o">+</span> <span class="n">a12</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">V2</span> <span class="o">-</span> <span class="n">V1</span><span class="p">)</span>
+        <span class="n">P20</span> <span class="o">=</span> <span class="n">V2</span> <span class="o">+</span> <span class="n">a20</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">V0</span> <span class="o">-</span> <span class="n">V2</span><span class="p">)</span>
+
+        <span class="c1"># Build a (Ng, 2, 3) array: pick the 2 crossing edge points per triangle</span>
+        <span class="c1"># Exactly one of the three cases (01+12), (01+20), (12+20) is true.</span>
+        <span class="n">c_01_12</span> <span class="o">=</span> <span class="p">(</span><span class="n">cross01</span> <span class="o">&amp;</span> <span class="n">cross12</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">c_01_20</span> <span class="o">=</span> <span class="p">(</span><span class="n">cross01</span> <span class="o">&amp;</span> <span class="n">cross20</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="n">pA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_01_12</span><span class="p">,</span> <span class="n">P01</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_01_20</span><span class="p">,</span> <span class="n">P01</span><span class="p">,</span> <span class="n">P12</span><span class="p">))</span>  <span class="c1"># (Ng, 3)</span>
+        <span class="n">pB</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_01_12</span><span class="p">,</span> <span class="n">P12</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c_01_20</span><span class="p">,</span> <span class="n">P20</span><span class="p">,</span> <span class="n">P20</span><span class="p">))</span>
+
+        <span class="c1"># Deduplicate all generic points at once using the tolerance grid</span>
+        <span class="n">all_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">pA</span><span class="p">,</span> <span class="n">pB</span><span class="p">])</span>  <span class="c1"># (2*Ng, 3)</span>
+        <span class="n">rounded</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">all_pts</span> <span class="o">/</span> <span class="n">tol</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">keys_flat</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rounded</span><span class="p">]</span>
+
+        <span class="n">Ng</span> <span class="o">=</span> <span class="n">generic_idx</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">iA_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">Ng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="n">iB_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">Ng</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ng</span><span class="p">):</span>
+            <span class="n">key_a</span> <span class="o">=</span> <span class="n">keys_flat</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">key_a</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pointMap</span><span class="p">:</span>
+                <span class="n">pointMap</span><span class="p">[</span><span class="n">key_a</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_pts</span>
+                <span class="n">Pi_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_pts</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                <span class="n">n_pts</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">iA_arr</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pointMap</span><span class="p">[</span><span class="n">key_a</span><span class="p">]</span>
+
+            <span class="n">key_b</span> <span class="o">=</span> <span class="n">keys_flat</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="n">Ng</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">key_b</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pointMap</span><span class="p">:</span>
+                <span class="n">pointMap</span><span class="p">[</span><span class="n">key_b</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_pts</span>
+                <span class="n">Pi_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">all_pts</span><span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="n">Ng</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+                <span class="n">n_pts</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">iB_arr</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">pointMap</span><span class="p">[</span><span class="n">key_b</span><span class="p">]</span>
+
+        <span class="n">valid</span> <span class="o">=</span> <span class="n">iA_arr</span> <span class="o">!=</span> <span class="n">iB_arr</span>
+        <span class="k">if</span> <span class="n">valid</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">edges_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">iA_arr</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">iB_arr</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+            <span class="n">ti_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">generic_idx</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">haveComp</span><span class="p">:</span>
+                <span class="n">ci_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">compTri</span><span class="p">[</span><span class="n">generic_idx</span><span class="p">[</span><span class="n">valid</span><span class="p">]]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+
+    <span class="c1"># --- Python fallback for degenerate triangles (vertex on plane) ---</span>
+    <span class="n">_edge_pairs</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">kTri</span> <span class="ow">in</span> <span class="n">degen_idx</span><span class="p">:</span>
+        <span class="n">V</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">kTri</span><span class="p">]]</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d_t</span><span class="p">[</span><span class="n">kTri</span><span class="p">]</span>
+
+        <span class="n">pts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">on</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">on</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="k">for</span> <span class="n">i1</span><span class="p">,</span> <span class="n">i2</span> <span class="ow">in</span> <span class="n">_edge_pairs</span><span class="p">:</span>
+            <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">i1</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span> <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tol</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">d1</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">d2</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">a</span> <span class="o">=</span> <span class="n">d1</span> <span class="o">/</span> <span class="p">(</span><span class="n">d1</span> <span class="o">-</span> <span class="n">d2</span><span class="p">)</span>
+                <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="n">i1</span><span class="p">]</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="p">(</span><span class="n">V</span><span class="p">[</span><span class="n">i2</span><span class="p">]</span> <span class="o">-</span> <span class="n">V</span><span class="p">[</span><span class="n">i1</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+            <span class="n">qq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">arr</span> <span class="o">/</span> <span class="n">tol</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">ia</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">qq</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="p">[</span><span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">ia</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">degenerate_skip</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+        <span class="n">iA</span> <span class="o">=</span> <span class="n">add_point</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+        <span class="n">iB</span> <span class="o">=</span> <span class="n">add_point</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">pts</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">iA</span> <span class="o">!=</span> <span class="n">iB</span><span class="p">:</span>
+            <span class="n">edges_list</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">iA</span><span class="p">,</span> <span class="n">iB</span><span class="p">))</span>
+            <span class="n">ti_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">kTri</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">haveComp</span><span class="p">:</span>
+                <span class="n">ci_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compTri</span><span class="p">[</span><span class="n">kTri</span><span class="p">])</span>
+
+    <span class="c1"># Assemble outputs from lists</span>
+    <span class="n">Pi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">Pi_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">Pi_list</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">edgesI</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">edges_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">edges_list</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">ti_out</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ti_list</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="k">if</span> <span class="n">ti_list</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">haveComp</span><span class="p">:</span>
+        <span class="n">ci_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ci_list</span><span class="p">)</span> <span class="k">if</span> <span class="n">ci_list</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">0</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ci_out</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">Pi</span><span class="p">,</span> <span class="n">edgesI</span><span class="p">,</span> <span class="n">ti_out</span><span class="p">,</span> <span class="n">ci_out</span><span class="p">,</span> <span class="nb">bool</span><span class="p">(</span><span class="n">edgesI</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">),</span> <span class="n">valOut</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

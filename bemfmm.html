@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bemfmm package &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bemfmm.charge package" href="bemfmm.charge.html" />
+    <link rel="prev" title="bem-fmm-python documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="bemfmm-package">
+<h1>bemfmm package<a class="headerlink" href="#bemfmm-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.charge.html">bemfmm.charge package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.electrode_current">bemfmm.charge.electrode_current module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.electrode_current.electrode_current"><code class="docutils literal notranslate"><span class="pre">electrode_current()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric">bemfmm.charge.inc_field_electric module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.inc_field_electric.inc_field_electric"><code class="docutils literal notranslate"><span class="pre">inc_field_electric()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_constant">bemfmm.charge.inc_field_electric_constant module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.inc_field_electric_constant.inc_field_electric_constant"><code class="docutils literal notranslate"><span class="pre">inc_field_electric_constant()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_plain">bemfmm.charge.inc_field_electric_plain module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.inc_field_electric_plain.inc_field_electric_plain"><code class="docutils literal notranslate"><span class="pre">inc_field_electric_plain()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_electric_plain_dipoles">bemfmm.charge.inc_field_electric_plain_dipoles module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.inc_field_electric_plain_dipoles.inc_field_electric_plain_dipoles"><code class="docutils literal notranslate"><span class="pre">inc_field_electric_plain_dipoles()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.inc_field_gauss_selective_dipoles">bemfmm.charge.inc_field_gauss_selective_dipoles module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.inc_field_gauss_selective_dipoles.inc_field_gauss_selective_dipoles"><code class="docutils literal notranslate"><span class="pre">inc_field_gauss_selective_dipoles()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.potint">bemfmm.charge.potint module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.potint.potint"><code class="docutils literal notranslate"><span class="pre">potint()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.potint2">bemfmm.charge.potint2 module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.potint2.potint2"><code class="docutils literal notranslate"><span class="pre">potint2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_accurate">bemfmm.charge.surface_field_electric_accurate module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.surface_field_electric_accurate.surface_field_electric_accurate"><code class="docutils literal notranslate"><span class="pre">surface_field_electric_accurate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_plain">bemfmm.charge.surface_field_electric_plain module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.surface_field_electric_plain.surface_field_electric_plain"><code class="docutils literal notranslate"><span class="pre">surface_field_electric_plain()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_electric_subdiv">bemfmm.charge.surface_field_electric_subdiv module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.surface_field_electric_subdiv.surface_field_electric_subdiv"><code class="docutils literal notranslate"><span class="pre">surface_field_electric_subdiv()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_lhs">bemfmm.charge.surface_field_lhs module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.surface_field_lhs.surface_field_lhs"><code class="docutils literal notranslate"><span class="pre">surface_field_lhs()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.surface_field_potential_accurate">bemfmm.charge.surface_field_potential_accurate module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.surface_field_potential_accurate.surface_field_potential_accurate"><code class="docutils literal notranslate"><span class="pre">surface_field_potential_accurate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge.volume_field_electric">bemfmm.charge.volume_field_electric module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html#bemfmm.charge.volume_field_electric.volume_field_electric"><code class="docutils literal notranslate"><span class="pre">volume_field_electric()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.charge.html#module-bemfmm.charge">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_areas">bemfmm.mesh.mesh_areas module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_areas.mesh_areas"><code class="docutils literal notranslate"><span class="pre">mesh_areas()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_clean_coincident_facets">bemfmm.mesh.mesh_clean_coincident_facets module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_clean_coincident_facets.mesh_clean_coincident_facets"><code class="docutils literal notranslate"><span class="pre">mesh_clean_coincident_facets()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_combine_simple">bemfmm.mesh.mesh_combine_simple module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_combine_simple.mesh_combine_simple"><code class="docutils literal notranslate"><span class="pre">mesh_combine_simple()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_connee">bemfmm.mesh.mesh_connee module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_connee.mesh_connee"><code class="docutils literal notranslate"><span class="pre">mesh_connee()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_cross_section">bemfmm.mesh.mesh_cross_section module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_cross_section.mesh_cross_section"><code class="docutils literal notranslate"><span class="pre">mesh_cross_section()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_fix">bemfmm.mesh.mesh_fix module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_fix.mesh_fix"><code class="docutils literal notranslate"><span class="pre">mesh_fix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_fix.simpvol"><code class="docutils literal notranslate"><span class="pre">simpvol()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_imprint">bemfmm.mesh.mesh_imprint module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_imprint.linesphere"><code class="docutils literal notranslate"><span class="pre">linesphere()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_imprint.mesh_imprint"><code class="docutils literal notranslate"><span class="pre">mesh_imprint()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_imprint.vertices"><code class="docutils literal notranslate"><span class="pre">vertices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_laplace3D">bemfmm.mesh.mesh_laplace3D module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_laplace3D.mesh_laplace3D"><code class="docutils literal notranslate"><span class="pre">mesh_laplace3D()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_laplace_normals">bemfmm.mesh.mesh_laplace_normals module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_laplace_normals.mesh_laplace_normals"><code class="docutils literal notranslate"><span class="pre">mesh_laplace_normals()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_normals">bemfmm.mesh.mesh_normals module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_normals.mesh_normals"><code class="docutils literal notranslate"><span class="pre">mesh_normals()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_refiner">bemfmm.mesh.mesh_refiner module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_refiner.mesh_refiner"><code class="docutils literal notranslate"><span class="pre">mesh_refiner()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_refiner_light">bemfmm.mesh.mesh_refiner_light module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_refiner_light.mesh_refiner_light"><code class="docutils literal notranslate"><span class="pre">mesh_refiner_light()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_reorient">bemfmm.mesh.mesh_reorient module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_reorient.mesh_reorient"><code class="docutils literal notranslate"><span class="pre">mesh_reorient()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_rotate1">bemfmm.mesh.mesh_rotate1 module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_rotate1.mesh_rotate1"><code class="docutils literal notranslate"><span class="pre">mesh_rotate1()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_rotate2">bemfmm.mesh.mesh_rotate2 module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_rotate2.mesh_rotate2"><code class="docutils literal notranslate"><span class="pre">mesh_rotate2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_surface">bemfmm.mesh.mesh_surface module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_surface.mesh_surface"><code class="docutils literal notranslate"><span class="pre">mesh_surface()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_surface_old">bemfmm.mesh.mesh_surface_old module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_surface_old.mesh_surface"><code class="docutils literal notranslate"><span class="pre">mesh_surface()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_tri">bemfmm.mesh.mesh_tri module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_tri.mesh_tri"><code class="docutils literal notranslate"><span class="pre">mesh_tri()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.mesh_tricenter">bemfmm.mesh.mesh_tricenter module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.mesh_tricenter.mesh_tricenter"><code class="docutils literal notranslate"><span class="pre">mesh_tricenter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshcoil">bemfmm.mesh.meshcoil module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.meshcoil.meshcoil"><code class="docutils literal notranslate"><span class="pre">meshcoil()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshconnet">bemfmm.mesh.meshconnet module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.meshconnet.meshconnet"><code class="docutils literal notranslate"><span class="pre">meshconnet()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshfill">bemfmm.mesh.meshfill module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.meshfill.meshfill"><code class="docutils literal notranslate"><span class="pre">meshfill()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshplaneint_axis_nonmanifold">bemfmm.mesh.meshplaneint_axis_nonmanifold module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.meshplaneint_axis_nonmanifold.meshplaneint_axis_nonmanifold"><code class="docutils literal notranslate"><span class="pre">meshplaneint_axis_nonmanifold()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh.meshwire">bemfmm.mesh.meshwire module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html#bemfmm.mesh.meshwire.meshwire"><code class="docutils literal notranslate"><span class="pre">meshwire()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.mesh.html#module-bemfmm.mesh">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.plot.html">bemfmm.plot package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.compute_efield_overlay">bemfmm.plot.compute_efield_overlay module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.compute_efield_overlay.compute_efield_overlay"><code class="docutils literal notranslate"><span class="pre">compute_efield_overlay()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.compute_efield_overlay.compute_efield_overlay_worker"><code class="docutils literal notranslate"><span class="pre">compute_efield_overlay_worker()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.fields">bemfmm.plot.fields module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.fields.plot_fields"><code class="docutils literal notranslate"><span class="pre">plot_fields()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.patch">bemfmm.plot.patch module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.patch.patch"><code class="docutils literal notranslate"><span class="pre">patch()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.patch.plot_coil_worker"><code class="docutils literal notranslate"><span class="pre">plot_coil_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.patch.plot_single_coil_worker"><code class="docutils literal notranslate"><span class="pre">plot_single_coil_worker()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.patch.plot_worker"><code class="docutils literal notranslate"><span class="pre">plot_worker()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.residual">bemfmm.plot.residual module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.residual.plot_residual"><code class="docutils literal notranslate"><span class="pre">plot_residual()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.residual.res_plot"><code class="docutils literal notranslate"><span class="pre">res_plot()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.slice">bemfmm.plot.slice module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.slice.plot_efield_slice"><code class="docutils literal notranslate"><span class="pre">plot_efield_slice()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.slice.plot_slices"><code class="docutils literal notranslate"><span class="pre">plot_slices()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot.sparse">bemfmm.plot.sparse module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html#bemfmm.plot.sparse.plot_sparse"><code class="docutils literal notranslate"><span class="pre">plot_sparse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.plot.html#module-bemfmm.plot">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bemfmm.constants">
+<span id="bemfmm-constants-module"></span><h2>bemfmm.constants module<a class="headerlink" href="#module-bemfmm.constants" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bemfmm.fgmres">
+<span id="bemfmm-fgmres-module"></span><h2>bemfmm.fgmres module<a class="headerlink" href="#module-bemfmm.fgmres" title="Link to this heading">¶</a></h2>
+<p>Provides a wrapper for fgmres to make the code cleaner</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.fgmres.dbg_fgmres">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.fgmres.</span></span><span class="sig-name descname"><span class="pre">dbg_fgmres</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relaxation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">restart</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol_exit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bemfmm/fgmres.html#dbg_fgmres"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.fgmres.dbg_fgmres" title="Link to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Flexible GMRES method</dt><dd><dl class="simple">
+<dt>fgmres(A, b, tol, relaxation=0, max_iters=1, restart=100, x0=None,</dt><dd><p>verb=2, tol_exit=None, P=None)</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Tries to solve a linear system Ax=b via the flexible GMRES</p>
+<p>A should be given as a function that computes the matrix-vector product A*x.
+A and b can be passed as regular numpy arrays.</p>
+<section id="parameters">
+<h3>Parameters:<a class="headerlink" href="#parameters" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>A<span class="classifier">callable or ndarray</span></dt><dd><p>Matrix or function that computes A*x</p>
+</dd>
+<dt>b<span class="classifier">ndarray</span></dt><dd><p>Right-hand side vector</p>
+</dd>
+<dt>tol<span class="classifier">float</span></dt><dd><p>Tolerance (used for Krylov relaxation by default)</p>
+</dd>
+<dt>relaxation<span class="classifier">float, optional [0]</span></dt><dd><p>Inexact Krylov relaxation power. The accuracy for Krylov vectors is set
+as tol/(<a href="#id3"><span class="problematic" id="id4">|r|</span></a>/<a href="#id5"><span class="problematic" id="id6">|b|</span></a>)^relaxation, where r is the current residual</p>
+</dd>
+<dt>max_iters<span class="classifier">int, optional [2]</span></dt><dd><p>Number of outer iterations</p>
+</dd>
+<dt>restart<span class="classifier">int, optional [20]</span></dt><dd><p>Number of inner iterations</p>
+</dd>
+<dt>x0<span class="classifier">ndarray, optional [all-zeros vector]</span></dt><dd><p>Initial guess</p>
+</dd>
+<dt>verb<span class="classifier">int, optional [2]</span></dt><dd><p>Verbosity. 0 - Silent, 1 - outer iteration info, 2 - inner iteration info,
+3 - iterations + return all solutions</p>
+</dd>
+<dt>tol_exit<span class="classifier">float, optional [tol]</span></dt><dd><p>Stopping tolerance: exit if <a href="#id7"><span class="problematic" id="id8">|r|</span></a>/<a href="#id1"><span class="problematic" id="id2">|</span></a>b|&lt;tol_exit</p>
+</dd>
+<dt>P<span class="classifier">callable or ndarray, optional []</span></dt><dd><p>Preconditioning procedure in the same form as A</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns:<a class="headerlink" href="#returns" title="Link to this heading">¶</a></h3>
+<dl class="simple">
+<dt>x<span class="classifier">ndarray</span></dt><dd><p>Solution</p>
+</dd>
+<dt>iter<span class="classifier">tuple</span></dt><dd><p>Iteration numbers (outer_iter, inner_iter)</p>
+</dd>
+<dt>resids<span class="classifier">ndarray</span></dt><dd><p>Residuals for each iteration</p>
+</dd>
+</dl>
+<p>NOTE: This was ported from MATLAB, below is the original stub</p>
+<p>Development: Sergey Dolgov (<a class="reference external" href="mailto:sergey&#46;v&#46;dolgov&#37;&#52;&#48;gmail&#46;com">sergey<span>&#46;</span>v<span>&#46;</span>dolgov<span>&#64;</span>gmail<span>&#46;</span>com</a>),
+Max Planck Institute for Mathematics in the Sciences, Leipzig.</p>
+<p>TT-Toolbox 2.2, 2009-2012</p>
+<p>This is TT Toolbox, written by Ivan Oseledets et al.
+Institute of Numerical Mathematics, Moscow, Russia
+webpage: <a class="reference external" href="http://spring.inm.ras.ru/osel">http://spring.inm.ras.ru/osel</a></p>
+<p>For all questions, bugs and suggestions please mail
+<a class="reference external" href="mailto:ivan&#46;oseledets&#37;&#52;&#48;gmail&#46;com">ivan<span>&#46;</span>oseledets<span>&#64;</span>gmail<span>&#46;</span>com</a></p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.fgmres.fgmres">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.fgmres.</span></span><span class="sig-name descname"><span class="pre">fgmres</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">MATVEC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relres</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxiter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/fgmres.html#fgmres"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.fgmres.fgmres" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.lib">
+<span id="bemfmm-lib-module"></span><h2>bemfmm.lib module<a class="headerlink" href="#module-bemfmm.lib" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.disp">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">disp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.disp" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.dot">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">dot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">B</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.dot" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.get_asset_path">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">get_asset_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">asset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="_modules/bemfmm/lib.html#get_asset_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.get_asset_path" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.launch_detached_new_terminal">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">launch_detached_new_terminal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">script_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#launch_detached_new_terminal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.launch_detached_new_terminal" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.rdiv">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">rdiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.rdiv" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.repmat">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">repmat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.repmat" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.save_pkl">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">save_pkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arr</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#save_pkl"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.save_pkl" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.size">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.size" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.tic">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">tic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#tic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.tic" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.timeit">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">timeit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#timeit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.timeit" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.toc">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">toc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#toc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.toc" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.validate_index">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">validate_index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/lib.html#validate_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.lib.validate_index" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.vecnorm">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">vecnorm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.vecnorm" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.lib.zeros">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.lib.</span></span><span class="sig-name descname"><span class="pre">zeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bemfmm.lib.zeros" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.my_types">
+<span id="bemfmm-my-types-module"></span><h2>bemfmm.my_types module<a class="headerlink" href="#module-bemfmm.my_types" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.my_types.</span></span><span class="sig-name descname"><span class="pre">EfieldSlice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">E_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th1l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2l</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_2d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/my_types.html#EfieldSlice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.my_types.EfieldSlice" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.E_grid">
+<span class="sig-name descname"><span class="pre">E_grid</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.E_grid" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.E_mag">
+<span class="sig-name descname"><span class="pre">E_mag</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.E_mag" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.cfg">
+<span class="sig-name descname"><span class="pre">cfg</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.cfg" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.ci">
+<span class="sig-name descname"><span class="pre">ci</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.ci" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.edges">
+<span class="sig-name descname"><span class="pre">edges</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.edges" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.mask">
+<span class="sig-name descname"><span class="pre">mask</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.mask" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.plane">
+<span class="sig-name descname"><span class="pre">plane</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.plane" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.points_2d">
+<span class="sig-name descname"><span class="pre">points_2d</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.points_2d" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.scale">
+<span class="sig-name descname"><span class="pre">scale</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.scale" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.th1l">
+<span class="sig-name descname"><span class="pre">th1l</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.th1l" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.th2l">
+<span class="sig-name descname"><span class="pre">th2l</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.th2l" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.u">
+<span class="sig-name descname"><span class="pre">u</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.u" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.EfieldSlice.v">
+<span class="sig-name descname"><span class="pre">v</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></span><a class="headerlink" href="#bemfmm.my_types.EfieldSlice.v" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.my_types.StrCoil">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.my_types.</span></span><span class="sig-name descname"><span class="pre">StrCoil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Pwire</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Mx3</span> <span class="pre">vertices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ewire</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx2</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Swire</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/my_types.html#StrCoil"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.my_types.StrCoil" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.StrCoil.Ewire">
+<span class="sig-name descname"><span class="pre">Ewire</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx2</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bemfmm.my_types.StrCoil.Ewire" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.StrCoil.Pwire">
+<span class="sig-name descname"><span class="pre">Pwire</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Mx3</span> <span class="pre">vertices'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bemfmm.my_types.StrCoil.Pwire" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.StrCoil.Swire">
+<span class="sig-name descname"><span class="pre">Swire</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#bemfmm.my_types.StrCoil.Swire" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.my_types.TMSCoilDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.my_types.</span></span><span class="sig-name descname"><span class="pre">TMSCoilDefinition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'points</span> <span class="pre">that</span> <span class="pre">form</span> <span class="pre">a</span> <span class="pre">centre</span> <span class="pre">line,</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">2</span> <span class="pre">R_3</span> <span class="pre">vectors'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dIdt'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'I0'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#bemfmm.my_types.StrCoil" title="bemfmm.my_types.StrCoil"><span class="pre">bemfmm.my_types.StrCoil</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Mx3</span> <span class="pre">vertices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.uint32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3i</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Intersection</span> <span class="pre">coords</span> <span class="pre">for</span> <span class="pre">slice</span> <span class="pre">plotting</span> <span class="pre">np.zeros(3)'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'points</span> <span class="pre">that</span> <span class="pre">form</span> <span class="pre">a</span> <span class="pre">centre</span> <span class="pre">line,</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">2</span> <span class="pre">R_3</span> <span class="pre">vectors'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'dIdt'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'I0'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#bemfmm.my_types.StrCoil" title="bemfmm.my_types.StrCoil"><span class="pre">bemfmm.my_types.StrCoil</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Mx3</span> <span class="pre">vertices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.uint32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3i</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Intersection</span> <span class="pre">coords</span> <span class="pre">for</span> <span class="pre">slice</span> <span class="pre">plotting</span> <span class="pre">np.zeros(3)'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_plane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/my_types.html#TMSCoilDefinition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.my_types.TMSCoilDefinition" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.TMSCoilDefinition.array">
+<span class="sig-name descname"><span class="pre">array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list[tuple[~typing.Annotated[~numpy.ndarray,</span> <span class="pre">'points</span> <span class="pre">that</span> <span class="pre">form</span> <span class="pre">a</span> <span class="pre">centre</span> <span class="pre">line,</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">2</span> <span class="pre">R_3</span> <span class="pre">vectors'],</span> <span class="pre">~typing.Annotated[float,</span> <span class="pre">'dIdt'],</span> <span class="pre">~typing.Annotated[float,</span> <span class="pre">'I0'],</span> <span class="pre">~bemfmm.my_types.StrCoil,</span> <span class="pre">~typing.Annotated[~numpy.ndarray[tuple[int,</span> <span class="pre">int],</span> <span class="pre">~numpy.dtype[~numpy.float64]],</span> <span class="pre">'Mx3</span> <span class="pre">vertices'],</span> <span class="pre">~typing.Annotated[~numpy.ndarray[tuple[int,</span> <span class="pre">int],</span> <span class="pre">~numpy.dtype[~numpy.uint32]],</span> <span class="pre">'Nx3i</span> <span class="pre">indices'],</span> <span class="pre">~typing.Annotated[~numpy.ndarray,</span> <span class="pre">'Intersection</span> <span class="pre">coords</span> <span class="pre">for</span> <span class="pre">slice</span> <span class="pre">plotting</span> <span class="pre">np.zeros(3)']]]</span> <span class="pre">|</span> <span class="pre">~numpy.ndarray[[&lt;class</span> <span class="pre">'int'&gt;],</span> <span class="pre">~numpy.dtype[tuple[~typing.Annotated[~numpy.ndarray,</span> <span class="pre">'points</span> <span class="pre">that</span> <span class="pre">form</span> <span class="pre">a</span> <span class="pre">centre</span> <span class="pre">line,</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">a</span> <span class="pre">list</span> <span class="pre">of</span> <span class="pre">2</span> <span class="pre">R_3</span> <span class="pre">vectors'],</span> <span class="pre">~typing.Annotated[float,</span> <span class="pre">'dIdt'],</span> <span class="pre">~typing.Annotated[float,</span> <span class="pre">'I0'],</span> <span class="pre">~bemfmm.my_types.StrCoil,</span> <span class="pre">~typing.Annotated[~numpy.ndarray[tuple[int,</span> <span class="pre">int],</span> <span class="pre">~numpy.dtype[~numpy.float64]],</span> <span class="pre">'Mx3</span> <span class="pre">vertices'],</span> <span class="pre">~typing.Annotated[~numpy.ndarray[tuple[int,</span> <span class="pre">int],</span> <span class="pre">~numpy.dtype[~numpy.uint32]],</span> <span class="pre">'Nx3i</span> <span class="pre">indices'],</span> <span class="pre">~typing.Annotated[~numpy.ndarray,</span> <span class="pre">'Intersection</span> <span class="pre">coords</span> <span class="pre">for</span> <span class="pre">slice</span> <span class="pre">plotting</span> <span class="pre">np.zeros(3)']]]]</span></span><a class="headerlink" href="#bemfmm.my_types.TMSCoilDefinition.array" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.my_types.TMSCoilDefinition.slice_plane">
+<span class="sig-name descname"><span class="pre">slice_plane</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#bemfmm.my_types.TMSCoilDefinition.slice_plane" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bemfmm">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bemfmm" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">bemfmm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html">bemfmm.charge package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html">bemfmm.plot package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bemfmm.constants">bemfmm.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bemfmm.fgmres">bemfmm.fgmres module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.fgmres.dbg_fgmres"><code class="docutils literal notranslate"><span class="pre">dbg_fgmres()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.fgmres.fgmres"><code class="docutils literal notranslate"><span class="pre">fgmres()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bemfmm.lib">bemfmm.lib module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.disp"><code class="docutils literal notranslate"><span class="pre">disp()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.dot"><code class="docutils literal notranslate"><span class="pre">dot()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.get_asset_path"><code class="docutils literal notranslate"><span class="pre">get_asset_path()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.launch_detached_new_terminal"><code class="docutils literal notranslate"><span class="pre">launch_detached_new_terminal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.rdiv"><code class="docutils literal notranslate"><span class="pre">rdiv()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.repmat"><code class="docutils literal notranslate"><span class="pre">repmat()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.save_pkl"><code class="docutils literal notranslate"><span class="pre">save_pkl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.size"><code class="docutils literal notranslate"><span class="pre">size()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.tic"><code class="docutils literal notranslate"><span class="pre">tic()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.timeit"><code class="docutils literal notranslate"><span class="pre">timeit()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.toc"><code class="docutils literal notranslate"><span class="pre">toc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.validate_index"><code class="docutils literal notranslate"><span class="pre">validate_index()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.vecnorm"><code class="docutils literal notranslate"><span class="pre">vecnorm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.lib.zeros"><code class="docutils literal notranslate"><span class="pre">zeros()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bemfmm.my_types">bemfmm.my_types module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice"><code class="docutils literal notranslate"><span class="pre">EfieldSlice</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.E_grid"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_grid</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.E_mag"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.E_mag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.cfg"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.cfg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.ci"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.ci</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.edges"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.edges</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.mask"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.mask</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.plane"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.plane</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.points_2d"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.points_2d</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.scale"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.scale</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.th1l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th1l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.th2l"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.th2l</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.u"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.u</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.EfieldSlice.v"><code class="docutils literal notranslate"><span class="pre">EfieldSlice.v</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.my_types.StrCoil"><code class="docutils literal notranslate"><span class="pre">StrCoil</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.StrCoil.Ewire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Ewire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.StrCoil.Pwire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Pwire</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.StrCoil.Swire"><code class="docutils literal notranslate"><span class="pre">StrCoil.Swire</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#bemfmm.my_types.TMSCoilDefinition"><code class="docutils literal notranslate"><span class="pre">TMSCoilDefinition</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.TMSCoilDefinition.array"><code class="docutils literal notranslate"><span class="pre">TMSCoilDefinition.array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bemfmm.my_types.TMSCoilDefinition.slice_plane"><code class="docutils literal notranslate"><span class="pre">TMSCoilDefinition.slice_plane</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bemfmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">bem-fmm-python documentation</a></li>
+      <li>Next: <a href="bemfmm.charge.html" title="next chapter">bemfmm.charge package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/bemfmm.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

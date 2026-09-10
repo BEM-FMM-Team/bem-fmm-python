@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.plot.patch &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.plot.patch</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sys</span><span class="w"> </span><span class="kn">import</span> <span class="n">exit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vedo</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearSegmentedColormap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vedo</span><span class="w"> </span><span class="kn">import</span> <span class="n">show</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.my_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">FullCoil</span>
+
+
+<div class="viewcode-block" id="plot_worker">
+<a class="viewcode-back" href="../../../bemfmm.plot.html#bemfmm.plot.patch.plot_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_worker</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">plot_t</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+    <span class="n">_p</span> <span class="o">=</span> <span class="n">patch</span><span class="p">(</span>
+        <span class="n">vertices</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">faces</span><span class="o">=</span><span class="n">plot_t</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">cmap_label</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">cdata</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">_p</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="plot_coil_worker">
+<a class="viewcode-back" href="../../../bemfmm.plot.html#bemfmm.plot.patch.plot_coil_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_coil_worker</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">,</span>
+    <span class="n">plot_t</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">,</span>
+    <span class="n">coils</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FullCoil</span><span class="p">],</span>
+<span class="p">):</span>
+    <span class="c1"># TODO in the future this may need to be redone for performance reasons</span>
+    <span class="c1"># we are giving it its own process though</span>
+    <span class="n">planes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">([</span><span class="n">P</span><span class="p">,</span> <span class="n">plot_t</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coils</span><span class="p">:</span>
+        <span class="n">pointsline</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">intersect_with_line</span><span class="p">(</span><span class="o">*</span><span class="n">pointsline</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">planes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">patch</span><span class="p">(</span>
+        <span class="n">vertices</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">faces</span><span class="o">=</span><span class="n">plot_t</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">cmap_label</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">cdata</span><span class="o">=</span><span class="n">p</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">_PATCH_CONFIGS</span><span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+        <span class="n">planes</span><span class="o">=</span><span class="n">planes</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="p">(</span>
+        <span class="n">pointsline</span><span class="p">,</span>
+        <span class="n">dIdt</span><span class="p">,</span>
+        <span class="n">I0</span><span class="p">,</span>
+        <span class="n">strcoil</span><span class="p">,</span>
+        <span class="n">CoilP</span><span class="p">,</span>
+        <span class="n">Coilt</span><span class="p">,</span>
+        <span class="n">Translation</span><span class="p">,</span>
+    <span class="p">)</span> <span class="ow">in</span> <span class="n">coils</span><span class="p">:</span>
+        <span class="c1"># TODO move somewhere else</span>
+        <span class="c1"># CoilP *= unit_convert</span>
+        <span class="c1"># pointsline *= unit_convert</span>
+        <span class="n">coil_mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">([</span><span class="n">CoilP</span><span class="p">,</span> <span class="n">Coilt</span><span class="p">])</span><span class="o">.</span><span class="n">alpha</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">obs_line</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="o">*</span><span class="n">pointsline</span><span class="p">)</span><span class="o">.</span><span class="n">lw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"red"</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">coil_mesh</span><span class="p">)</span>
+        <span class="c1"># plt.add(obs_line)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="plot_single_coil_worker">
+<a class="viewcode-back" href="../../../bemfmm.plot.html#bemfmm.plot.patch.plot_single_coil_worker">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_single_coil_worker</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">,</span>
+    <span class="n">plot_t</span><span class="p">,</span>
+    <span class="n">p</span><span class="p">,</span>
+    <span class="n">CoilP</span><span class="p">,</span>
+    <span class="n">Coilt</span><span class="p">,</span>
+    <span class="n">obs_start</span><span class="p">,</span>
+    <span class="n">obs_end</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">coil_mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">([</span><span class="n">CoilP</span><span class="p">,</span> <span class="n">Coilt</span><span class="p">])</span>
+    <span class="n">obs_line</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Line</span><span class="p">(</span><span class="n">obs_start</span><span class="p">,</span> <span class="n">obs_end</span><span class="p">)</span><span class="o">.</span><span class="n">lw</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="s2">"red"</span><span class="p">)</span>
+    <span class="n">patch</span><span class="p">(</span>
+        <span class="n">vertices</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">faces</span><span class="o">=</span><span class="n">plot_t</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="n">p</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+        <span class="n">coil_mesh</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obs_line</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+
+<span class="n">hot_cold</span> <span class="o">=</span> <span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
+    <span class="s2">"blue_cyan_white_magenta_red"</span><span class="p">,</span>
+    <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s2">"blue"</span><span class="p">,</span> <span class="s2">"cyan"</span><span class="p">,</span> <span class="s2">"white"</span><span class="p">,</span> <span class="s2">"orange"</span><span class="p">,</span> <span class="s2">"red"</span><span class="p">])),</span>
+<span class="p">)</span>
+
+<span class="c1"># temporary for testing, not really useful at runtime since python default args are evaled once</span>
+<span class="n">_PATCH_CONFIGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"jet"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"jet"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"black"</span><span class="p">),</span>
+    <span class="s2">"plasma"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"plasma"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"#0d0d1a"</span><span class="p">,</span> <span class="n">bg2</span><span class="o">=</span><span class="s2">"#2a0a3e"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">),</span>
+    <span class="s2">"inferno"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"inferno"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"#080808"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#ffffff"</span><span class="p">),</span>
+    <span class="s2">"magma"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"magma"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"#05020a"</span><span class="p">,</span> <span class="n">bg2</span><span class="o">=</span><span class="s2">"#1a0510"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#888888"</span><span class="p">),</span>
+    <span class="s2">"hot"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"hot"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"white"</span><span class="p">),</span>
+    <span class="s2">"turbo"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"turbo"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"#111111"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#aaaaaa"</span><span class="p">),</span>
+    <span class="s2">"viridis"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">colormap</span><span class="o">=</span><span class="s2">"viridis"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">edge_color</span><span class="o">=</span><span class="s2">"#e0e0e0"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#000000"</span>
+    <span class="p">),</span>
+    <span class="s2">"RdBu_r"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">colormap</span><span class="o">=</span><span class="s2">"RdBu_r"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">edge_color</span><span class="o">=</span><span class="s2">"#dddddd"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#000000"</span>
+    <span class="p">),</span>
+    <span class="s2">"bone"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"bone"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#555555"</span><span class="p">),</span>
+    <span class="s2">"afmhot"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"afmhot"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"#0a0500"</span><span class="p">,</span> <span class="n">bg2</span><span class="o">=</span><span class="s2">"#1a0800"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"#ff6600"</span><span class="p">),</span>
+    <span class="s2">"hot_cold"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="n">hot_cold</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"black"</span><span class="p">),</span>
+    <span class="s2">"PuOr"</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">colormap</span><span class="o">=</span><span class="s2">"PuOr"</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="s2">"white"</span><span class="p">,</span> <span class="n">axes_c</span><span class="o">=</span><span class="s2">"black"</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">_PATCH_DEFAULT_CONFIG</span> <span class="o">=</span> <span class="n">_PATCH_CONFIGS</span><span class="p">[</span><span class="s2">"jet"</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="patch">
+<a class="viewcode-back" href="../../../bemfmm.plot.html#bemfmm.plot.patch.patch">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">patch</span><span class="p">(</span>
+    <span class="n">vertices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">faces</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">cdata</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="c1"># resolve from config at call-time</span>
+    <span class="n">colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bg</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bg2</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">edge_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">title_font</span><span class="o">=</span><span class="s2">"VictorMono"</span><span class="p">,</span>
+    <span class="n">title_size</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+    <span class="n">cmap_label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">viewax</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="s2">"view(az, el)"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">90</span><span class="p">),</span>
+    <span class="n">subdivide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># subdivide and interpolate colordata, looks better</span>
+    <span class="n">axes</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">qt_widget</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># TODO memory, what is the lifecycle of the plot?</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">planes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">planes_size</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="n">planes_alpha</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Plot model with colormap data</span>
+<span class="sd">    Name comes from legacy matlab # TODO change</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">"_PATCH_DEFAULT_CONFIG"</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">colormap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"colormap"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">bg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bg"</span><span class="p">,</span> <span class="s2">"white"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bg2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bg2</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"bg2"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">edge_color</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">edge_color</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edge_color"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">axes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"axes_c"</span><span class="p">],</span>
+            <span class="n">xtitle</span><span class="o">=</span><span class="s2">"x"</span><span class="p">,</span>
+            <span class="n">ytitle</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span>
+            <span class="n">ztitle</span><span class="o">=</span><span class="s2">"z"</span><span class="p">,</span>
+            <span class="n">zxgrid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">yzgrid</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">number_of_divisions</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+    <span class="n">plt_kw</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">axes</span><span class="p">,</span> <span class="n">bg</span><span class="o">=</span><span class="n">bg</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bg2</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plt_kw</span><span class="p">[</span><span class="s2">"bg2"</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg2</span>
+
+    <span class="n">plt</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Plotter</span><span class="p">(</span><span class="o">**</span><span class="n">plt_kw</span><span class="p">,</span> <span class="n">qt_widget</span><span class="o">=</span><span class="n">qt_widget</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vedo</span><span class="o">.</span><span class="n">Text2D</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="s2">"top-center"</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">title_size</span><span class="p">,</span> <span class="n">font</span><span class="o">=</span><span class="n">title_font</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">azimuth</span><span class="p">(</span><span class="n">viewax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">elevation</span><span class="p">(</span><span class="n">viewax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">planes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">plane</span> <span class="ow">in</span> <span class="n">planes</span><span class="p">:</span>
+            <span class="n">plane_yz</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span>
+                <span class="n">pos</span><span class="o">=</span><span class="n">plane</span><span class="p">,</span> <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="n">planes_size</span><span class="p">,</span> <span class="n">planes_size</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">plane_yz</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span><span class="o">.</span><span class="n">alpha</span><span class="p">(</span><span class="n">planes_alpha</span><span class="p">)</span>
+            <span class="n">plane_yz</span><span class="o">.</span><span class="n">linecolor</span><span class="p">(</span><span class="n">edge_color</span><span class="p">)</span><span class="o">.</span><span class="n">linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># outline</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plane_yz</span><span class="p">)</span>
+
+            <span class="n">plane_xz</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span>
+                <span class="n">pos</span><span class="o">=</span><span class="n">plane</span><span class="p">,</span> <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="n">planes_size</span><span class="p">,</span> <span class="n">planes_size</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">plane_xz</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span><span class="o">.</span><span class="n">alpha</span><span class="p">(</span><span class="n">planes_alpha</span><span class="p">)</span>
+            <span class="n">plane_xz</span><span class="o">.</span><span class="n">linecolor</span><span class="p">(</span><span class="n">edge_color</span><span class="p">)</span><span class="o">.</span><span class="n">linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plane_xz</span><span class="p">)</span>
+
+            <span class="n">plane_xy</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Plane</span><span class="p">(</span>
+                <span class="n">pos</span><span class="o">=</span><span class="n">plane</span><span class="p">,</span> <span class="n">normal</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="p">(</span><span class="n">planes_size</span><span class="p">,</span> <span class="n">planes_size</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">plane_xy</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">bg</span><span class="p">)</span><span class="o">.</span><span class="n">alpha</span><span class="p">(</span><span class="n">planes_alpha</span><span class="p">)</span>
+            <span class="n">plane_xy</span><span class="o">.</span><span class="n">linecolor</span><span class="p">(</span><span class="n">edge_color</span><span class="p">)</span><span class="o">.</span><span class="n">linewidth</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">plane_xy</span><span class="p">)</span>
+
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">([</span><span class="n">vertices</span><span class="p">,</span> <span class="n">faces</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">color</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">edge_color</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">"none"</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">linecolor</span><span class="p">(</span><span class="n">edge_color</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cdata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">celldata</span><span class="p">[</span><span class="s2">"values"</span><span class="p">]</span> <span class="o">=</span> <span class="n">cdata</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">cmap</span><span class="p">(</span><span class="n">colormap</span><span class="p">)</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">ScalarBar</span><span class="p">(</span>
+            <span class="n">mesh</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">cmap_label</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">axes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"c"</span><span class="p">,</span> <span class="s2">"black"</span><span class="p">),</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">20</span>
+        <span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cbar</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">subdivide</span><span class="p">:</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">subdivide</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">plt</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

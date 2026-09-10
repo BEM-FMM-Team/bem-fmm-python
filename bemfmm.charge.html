@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bemfmm.charge package &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bemfmm.mesh package" href="bemfmm.mesh.html" />
+    <link rel="prev" title="bemfmm package" href="bemfmm.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="bemfmm-charge-package">
+<h1>bemfmm.charge package<a class="headerlink" href="#bemfmm-charge-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bemfmm.charge.electrode_current">
+<span id="bemfmm-charge-electrode-current-module"></span><h2>bemfmm.charge.electrode_current module<a class="headerlink" href="#module-bemfmm.charge.electrode_current" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.electrode_current.electrode_current">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.electrode_current.</span></span><span class="sig-name descname"><span class="pre">electrode_current</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ElectrodeIndexes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/electrode_current.html#electrode_current"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.electrode_current.electrode_current" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the electrode currents</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.inc_field_electric">
+<span id="bemfmm-charge-inc-field-electric-module"></span><h2>bemfmm.charge.inc_field_electric module<a class="headerlink" href="#module-bemfmm.charge.inc_field_electric" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.inc_field_electric.inc_field_electric">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.inc_field_electric.</span></span><span class="sig-name descname"><span class="pre">inc_field_electric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strcoil</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.StrCoil" title="bemfmm.my_types.StrCoil"><span class="pre">StrCoil</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">Points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Mx3</span> <span class="pre">vertices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dIdt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/inc_field_electric.html#inc_field_electric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.inc_field_electric.inc_field_electric" title="Link to this definition">¶</a></dt>
+<dd><p>Computes electric field from the coil via the FMM  in terms of the pseudo electric potential evaluated for segment centers</p>
+<p>Copyright SNM 2017-2020</p>
+<p>Compute pseudo potentials</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.inc_field_electric_constant">
+<span id="bemfmm-charge-inc-field-electric-constant-module"></span><h2>bemfmm.charge.inc_field_electric_constant module<a class="headerlink" href="#module-bemfmm.charge.inc_field_electric_constant" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.inc_field_electric_constant.inc_field_electric_constant">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.inc_field_electric_constant.</span></span><span class="sig-name descname"><span class="pre">inc_field_electric_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polarization</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/inc_field_electric_constant.html#inc_field_electric_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.inc_field_electric_constant.inc_field_electric_constant" title="Link to this definition">¶</a></dt>
+<dd><p>Computes potential and electric field for the constant field</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.inc_field_electric_plain">
+<span id="bemfmm-charge-inc-field-electric-plain-module"></span><h2>bemfmm.charge.inc_field_electric_plain module<a class="headerlink" href="#module-bemfmm.charge.inc_field_electric_plain" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.inc_field_electric_plain.inc_field_electric_plain">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.inc_field_electric_plain.</span></span><span class="sig-name descname"><span class="pre">inc_field_electric_plain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strdipolePplus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolePminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolesig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipoleCurrent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/inc_field_electric_plain.html#inc_field_electric_plain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.inc_field_electric_plain.inc_field_electric_plain" title="Link to this definition">¶</a></dt>
+<dd><p>Computes potential and electric field from the dipole distribution via the FMM
+at observation points (Points)
+Copyright SNM 2018-2020</p>
+<p>Define source (pole) positions and FMM pseudo charges</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.inc_field_electric_plain_dipoles">
+<span id="bemfmm-charge-inc-field-electric-plain-dipoles-module"></span><h2>bemfmm.charge.inc_field_electric_plain_dipoles module<a class="headerlink" href="#module-bemfmm.charge.inc_field_electric_plain_dipoles" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.inc_field_electric_plain_dipoles.inc_field_electric_plain_dipoles">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.inc_field_electric_plain_dipoles.</span></span><span class="sig-name descname"><span class="pre">inc_field_electric_plain_dipoles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strdipolePplus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolePminus</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolesig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipoleCurrent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/inc_field_electric_plain_dipoles.html#inc_field_electric_plain_dipoles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.inc_field_electric_plain_dipoles.inc_field_electric_plain_dipoles" title="Link to this definition">¶</a></dt>
+<dd><p>Computes potential and electric field from the dipole distribution via the FMM
+at observation points (Points)</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.inc_field_gauss_selective_dipoles">
+<span id="bemfmm-charge-inc-field-gauss-selective-dipoles-module"></span><h2>bemfmm.charge.inc_field_gauss_selective_dipoles module<a class="headerlink" href="#module-bemfmm.charge.inc_field_gauss_selective_dipoles" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.inc_field_gauss_selective_dipoles.inc_field_gauss_selective_dipoles">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.inc_field_gauss_selective_dipoles.</span></span><span class="sig-name descname"><span class="pre">inc_field_gauss_selective_dipoles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strdipolePplus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolePminus</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipolesig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strdipoleCurrent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'N'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'indices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'shape</span> <span class="pre">(N,</span> <span class="pre">3),</span> <span class="pre">vertex</span> <span class="pre">coordinates'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'M'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'vertices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">uint32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'shape</span> <span class="pre">(M,</span> <span class="pre">3),</span> <span class="pre">triangle</span> <span class="pre">face</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'N'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'indices'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">floating</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'shape</span> <span class="pre">(N,</span> <span class="pre">3),</span> <span class="pre">centers</span> <span class="pre">per</span> <span class="pre">triangluar</span> <span class="pre">face'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipoleClusterCenter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">floating</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gaussRadius</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">floating</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/inc_field_gauss_selective_dipoles.html#inc_field_gauss_selective_dipoles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.inc_field_gauss_selective_dipoles.inc_field_gauss_selective_dipoles" title="Link to this definition">¶</a></dt>
+<dd><p>Compute model subdivision parameters
+number of integration points in the Gaussian quadrature
+for the outer potential integrals
+Numbers 1, 4, 7, 13, 25 are permitted
+Gaussian weights for analytical integration (for the outer integral)</p>
+<p>strdipolePplus = SourceDipole.src_p
+strdipolePminus = SourceDipole.src_m
+strdipolesig = SourceDipole.src_sig
+strdipoleCurrent = SourceDipole.src_cur</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.potint">
+<span id="bemfmm-charge-potint-module"></span><h2>bemfmm.charge.potint module<a class="headerlink" href="#module-bemfmm.charge.potint" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.potint.potint">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.potint.</span></span><span class="sig-name descname"><span class="pre">potint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ObsPoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/potint.html#potint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.potint.potint" title="Link to this definition">¶</a></dt>
+<dd><p>This function computes single potential integrals I = Is(1/r) and
+integrals IRho=Is(vec(r)/r), respectively,  and
+follows the method described in: Wilton DR, Rao SM, Glisson AW,
+Schaubert DH, Al-Bundak OM, Butler CM. Potential integrals for uniform
+and linear source distribution on polygonal and polyhedral domains.
+IEEE Trans Antennas Propag 1984;AP-32 (3):276–281 - uses the last
+formula in Eq. (5) on page 279.
+Inputs:
+r1, r2, r3 - three triangle vertices (1x3 rows)
+normal - unit normal vector to the triangle:</p>
+<blockquote>
+<div><p>tempv           = cross(r2-r1, r3-r1);
+temps           = sqrt(tempv(1)^2 + tempv(2)^2 + tempv(3)^2);
+normal          = tempv’/temps;</p>
+</div></blockquote>
+<p>ObsPoint - Nx3 array of observation points
+Outputs:
+I - Nx1 array of integrals I = Is(1/r)
+IRho - Nx3 array of integrals IRho = Is(vec(r)/r)
+To obtain the complete integrals these results should be multiplied by
+triangle area A</p>
+<p>Copyright SNM 2002-2020</p>
+<p>SP 2026</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.potint2">
+<span id="bemfmm-charge-potint2-module"></span><h2>bemfmm.charge.potint2 module<a class="headerlink" href="#module-bemfmm.charge.potint2" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.potint2.potint2">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.potint2.</span></span><span class="sig-name descname"><span class="pre">potint2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ObsPoint</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/potint2.html#potint2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.potint2.potint2" title="Link to this definition">¶</a></dt>
+<dd><p>Potential integrals grad(1/R) for a single triangle, vectorised over
+an arbitrary number of observation points.  Not divided by area.</p>
+<p>Copyright SNM 2004-2020</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.surface_field_electric_accurate">
+<span id="bemfmm-charge-surface-field-electric-accurate-module"></span><h2>bemfmm.charge.surface_field_electric_accurate module<a class="headerlink" href="#module-bemfmm.charge.surface_field_electric_accurate" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.surface_field_electric_accurate.surface_field_electric_accurate">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.surface_field_electric_accurate.</span></span><span class="sig-name descname"><span class="pre">surface_field_electric_accurate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/surface_field_electric_accurate.html#surface_field_electric_accurate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.surface_field_electric_accurate.surface_field_electric_accurate" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the normal electric field just inside</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.surface_field_electric_plain">
+<span id="bemfmm-charge-surface-field-electric-plain-module"></span><h2>bemfmm.charge.surface_field_electric_plain module<a class="headerlink" href="#module-bemfmm.charge.surface_field_electric_plain" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.surface_field_electric_plain.surface_field_electric_plain">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.surface_field_electric_plain.</span></span><span class="sig-name descname"><span class="pre">surface_field_electric_plain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/surface_field_electric_plain.html#surface_field_electric_plain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.surface_field_electric_plain.surface_field_electric_plain" title="Link to this definition">¶</a></dt>
+<dd><p>Computes potential/continuous electric field on a surface facet due to
+charges on ALL OTHER facets using plain FMM
+Self-terms causing discontinuity may not be included
+To obtain the true field, use E = E/eps0;</p>
+<p>Copyright SNM 2018-2020</p>
+<p>FMM 2019
+Fields plus potentials of surface charges (potential not used)
+Only FMM (without correction)</p>
+<p>SP 26</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.surface_field_electric_subdiv">
+<span id="bemfmm-charge-surface-field-electric-subdiv-module"></span><h2>bemfmm.charge.surface_field_electric_subdiv module<a class="headerlink" href="#module-bemfmm.charge.surface_field_electric_subdiv" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.surface_field_electric_subdiv.surface_field_electric_subdiv">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.surface_field_electric_subdiv.</span></span><span class="sig-name descname"><span class="pre">surface_field_electric_subdiv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Area</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gauss'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeArg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/surface_field_electric_subdiv.html#surface_field_electric_subdiv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.surface_field_electric_subdiv.surface_field_electric_subdiv" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.surface_field_lhs">
+<span id="bemfmm-charge-surface-field-lhs-module"></span><h2>bemfmm.charge.surface_field_lhs module<a class="headerlink" href="#module-bemfmm.charge.surface_field_lhs" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.surface_field_lhs.surface_field_lhs">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.surface_field_lhs.</span></span><span class="sig-name descname"><span class="pre">surface_field_lhs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contrast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx1</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Nx3</span> <span class="pre">indices'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">EC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">csr_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/surface_field_lhs.html#surface_field_lhs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.surface_field_lhs.surface_field_lhs" title="Link to this definition">¶</a></dt>
+<dd><p>Computes the left hand side of the charge equation for surface charges
+LHS is the user-defined function of c equal to c - Z_times_c which is
+exactly the left-hand side of the matrix equation Zc = b</p>
+<p>SP 2026</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – Nx1</p></li>
+<li><p><strong>center</strong> – Nx3</p></li>
+<li><p><strong>area</strong> – Nx3</p></li>
+<li><p><strong>contrast</strong> – Nx1</p></li>
+<li><p><strong>normals</strong> – Nx3</p></li>
+<li><p><strong>weight</strong> – float</p></li>
+<li><p><strong>EC</strong> – csr_matrix</p></li>
+<li><p><strong>prec</strong> – float</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Unknown</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.surface_field_potential_accurate">
+<span id="bemfmm-charge-surface-field-potential-accurate-module"></span><h2>bemfmm.charge.surface_field_potential_accurate module<a class="headerlink" href="#module-bemfmm.charge.surface_field_potential_accurate" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.surface_field_potential_accurate.surface_field_potential_accurate">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.surface_field_potential_accurate.</span></span><span class="sig-name descname"><span class="pre">surface_field_potential_accurate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">float64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PC</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/surface_field_potential_accurate.html#surface_field_potential_accurate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.surface_field_potential_accurate.surface_field_potential_accurate" title="Link to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>This function computes CONTINUOUS electric field and the full potential
+on a surface facet due to charges on ALL OTHER facets including
+accurate neighbor integrals. Self-terms causing discontinuity may not
+be included for electric field</p>
+</div></blockquote>
+<dl class="simple">
+<dt>To obtain the true field/potential, divide the result(s) by eps0;</dt><dd><p>Copyright SNM 2018-2020</p>
+</dd>
+</dl>
+<p>FMM 2019
+Potentials of surface charges
+FMM plus correction</p>
+<p>SP 2026</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.charge.volume_field_electric">
+<span id="bemfmm-charge-volume-field-electric-module"></span><h2>bemfmm.charge.volume_field_electric module<a class="headerlink" href="#module-bemfmm.charge.volume_field_electric" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.charge.volume_field_electric.volume_field_electric">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.charge.volume_field_electric.</span></span><span class="sig-name descname"><span class="pre">volume_field_electric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planeABCD</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/charge/volume_field_electric.html#volume_field_electric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.charge.volume_field_electric.volume_field_electric" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.charge">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bemfmm.charge" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="bemfmm.html">bemfmm package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bemfmm.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bemfmm.charge package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.electrode_current">bemfmm.charge.electrode_current module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.inc_field_electric">bemfmm.charge.inc_field_electric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.inc_field_electric_constant">bemfmm.charge.inc_field_electric_constant module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.inc_field_electric_plain">bemfmm.charge.inc_field_electric_plain module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.inc_field_electric_plain_dipoles">bemfmm.charge.inc_field_electric_plain_dipoles module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.inc_field_gauss_selective_dipoles">bemfmm.charge.inc_field_gauss_selective_dipoles module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.potint">bemfmm.charge.potint module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.potint2">bemfmm.charge.potint2 module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.surface_field_electric_accurate">bemfmm.charge.surface_field_electric_accurate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.surface_field_electric_plain">bemfmm.charge.surface_field_electric_plain module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.surface_field_electric_subdiv">bemfmm.charge.surface_field_electric_subdiv module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.surface_field_lhs">bemfmm.charge.surface_field_lhs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.surface_field_potential_accurate">bemfmm.charge.surface_field_potential_accurate module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge.volume_field_electric">bemfmm.charge.volume_field_electric module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.charge">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html">bemfmm.plot package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.constants">bemfmm.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.fgmres">bemfmm.fgmres module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.lib">bemfmm.lib module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.my_types">bemfmm.my_types module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="bemfmm.html">bemfmm package</a><ul>
+      <li>Previous: <a href="bemfmm.html" title="previous chapter">bemfmm package</a></li>
+      <li>Next: <a href="bemfmm.mesh.html" title="next chapter">bemfmm.mesh package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/bemfmm.charge.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

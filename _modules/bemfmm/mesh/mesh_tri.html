@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.mesh.mesh_tri &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.mesh.mesh_tri</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Gaussian quadrature rule data (centralized)</span>
+<span class="c1"># Uses Gaussian quadratures (with authors permission) from</span>
+<span class="c1"># http://www.cs.kuleuven.ac.be/~nines/research/ecf/ecf.html</span>
+<span class="c1"># Formulas of third (4 integration points), fifth (7 integration points)</span>
+<span class="c1"># seventh (13 integration points), and tenth (25 integration points) order</span>
+<span class="c1"># of accuracy may be created</span>
+<span class="n">GAUSSIAN_RULES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span> <span class="p">{</span><span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]],</span> <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">]},</span>
+    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">]],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mi">27</span> <span class="o">/</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">25</span> <span class="o">/</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">25</span> <span class="o">/</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">25</span> <span class="o">/</span> <span class="mi">48</span><span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">2</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span>
+        <span class="s2">"weight_multiplier"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.797426985353087</span><span class="p">,</span> <span class="mf">0.101286507323456</span><span class="p">,</span> <span class="mf">0.101286507323456</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.101286507323456</span><span class="p">,</span> <span class="mf">0.797426985353087</span><span class="p">,</span> <span class="mf">0.101286507323456</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.101286507323456</span><span class="p">,</span> <span class="mf">0.101286507323456</span><span class="p">,</span> <span class="mf">0.797426985353087</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.059715871789770</span><span class="p">,</span> <span class="mf">0.470142064105115</span><span class="p">,</span> <span class="mf">0.470142064105115</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.470142064105115</span><span class="p">,</span> <span class="mf">0.059715871789770</span><span class="p">,</span> <span class="mf">0.470142064105115</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.470142064105115</span><span class="p">,</span> <span class="mf">0.470142064105115</span><span class="p">,</span> <span class="mf">0.059715871789770</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mf">0.225</span><span class="p">,</span>
+            <span class="mf">0.1259392</span><span class="p">,</span>
+            <span class="mf">0.1259392</span><span class="p">,</span>
+            <span class="mf">0.1259392</span><span class="p">,</span>
+            <span class="mf">0.1323942</span><span class="p">,</span>
+            <span class="mf">0.1323942</span><span class="p">,</span>
+            <span class="mf">0.1323942</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.62283903060711</span><span class="p">,</span> <span class="mf">0.18858048469644</span><span class="p">,</span> <span class="mf">0.18858048469644</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.18858048469644</span><span class="p">,</span> <span class="mf">0.62283903060711</span><span class="p">,</span> <span class="mf">0.18858048469644</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.18858048469644</span><span class="p">,</span> <span class="mf">0.18858048469644</span><span class="p">,</span> <span class="mf">0.62283903060711</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mf">0.01027006767296</span><span class="p">,</span>
+            <span class="mf">0.01027006767296</span><span class="p">,</span>
+            <span class="mf">0.01027006767296</span><span class="p">,</span>
+            <span class="mf">0.03098774943413</span><span class="p">,</span>
+            <span class="mf">0.03098774943413</span><span class="p">,</span>
+            <span class="mf">0.03098774943413</span><span class="p">,</span>
+            <span class="mf">0.12540884955956</span><span class="p">,</span>
+            <span class="mf">0.12540884955956</span><span class="p">,</span>
+            <span class="mf">0.12540884955956</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">"weight_multiplier"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.4793080678</span><span class="p">,</span> <span class="mf">0.2603459660</span><span class="p">,</span> <span class="mf">0.2603459660</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2603459660</span><span class="p">,</span> <span class="mf">0.4793080678</span><span class="p">,</span> <span class="mf">0.2603459660</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2603459660</span><span class="p">,</span> <span class="mf">0.2603459660</span><span class="p">,</span> <span class="mf">0.4793080678</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.8697397941</span><span class="p">,</span> <span class="mf">0.0651301029</span><span class="p">,</span> <span class="mf">0.0651301029</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0651301029</span><span class="p">,</span> <span class="mf">0.8697397941</span><span class="p">,</span> <span class="mf">0.0651301029</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0651301029</span><span class="p">,</span> <span class="mf">0.0651301029</span><span class="p">,</span> <span class="mf">0.8697397941</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6384441885</span><span class="p">,</span> <span class="mf">0.3128654960</span><span class="p">,</span> <span class="mf">0.0486903154</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6384441885</span><span class="p">,</span> <span class="mf">0.0486903154</span><span class="p">,</span> <span class="mf">0.3128654960</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.3128654960</span><span class="p">,</span> <span class="mf">0.6384441885</span><span class="p">,</span> <span class="mf">0.0486903154</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.3128654960</span><span class="p">,</span> <span class="mf">0.0486903154</span><span class="p">,</span> <span class="mf">0.6384441885</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0486903154</span><span class="p">,</span> <span class="mf">0.6384441885</span><span class="p">,</span> <span class="mf">0.3128654960</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0486903154</span><span class="p">,</span> <span class="mf">0.3128654960</span><span class="p">,</span> <span class="mf">0.6384441885</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="o">-</span><span class="mf">0.14957004</span><span class="p">,</span>
+            <span class="mf">0.1756152574</span><span class="p">,</span>
+            <span class="mf">0.1756152574</span><span class="p">,</span>
+            <span class="mf">0.1756152574</span><span class="p">,</span>
+            <span class="mf">0.0533472356</span><span class="p">,</span>
+            <span class="mf">0.0533472356</span><span class="p">,</span>
+            <span class="mf">0.0533472356</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+            <span class="mf">0.0771137608</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">"coeff"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.1498275788</span><span class="p">,</span> <span class="mf">0.4250862106</span><span class="p">,</span> <span class="mf">0.4250862106</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.4250862106</span><span class="p">,</span> <span class="mf">0.1498275788</span><span class="p">,</span> <span class="mf">0.4250862106</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.4250862106</span><span class="p">,</span> <span class="mf">0.4250862106</span><span class="p">,</span> <span class="mf">0.1498275788</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.9533822650</span><span class="p">,</span> <span class="mf">0.0233088675</span><span class="p">,</span> <span class="mf">0.0233088675</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0233088675</span><span class="p">,</span> <span class="mf">0.9533822650</span><span class="p">,</span> <span class="mf">0.0233088675</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0233088675</span><span class="p">,</span> <span class="mf">0.0233088675</span><span class="p">,</span> <span class="mf">0.9533822650</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6283074002</span><span class="p">,</span> <span class="mf">0.2237669736</span><span class="p">,</span> <span class="mf">0.1479256262</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6283074002</span><span class="p">,</span> <span class="mf">0.1479256262</span><span class="p">,</span> <span class="mf">0.2237669736</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2237669736</span><span class="p">,</span> <span class="mf">0.6283074002</span><span class="p">,</span> <span class="mf">0.1479256262</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.2237669736</span><span class="p">,</span> <span class="mf">0.1479256262</span><span class="p">,</span> <span class="mf">0.6283074002</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.1479256262</span><span class="p">,</span> <span class="mf">0.6283074002</span><span class="p">,</span> <span class="mf">0.2237669736</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.1479256262</span><span class="p">,</span> <span class="mf">0.2237669736</span><span class="p">,</span> <span class="mf">0.6283074002</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6113138262</span><span class="p">,</span> <span class="mf">0.3587401419</span><span class="p">,</span> <span class="mf">0.0299460319</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.6113138262</span><span class="p">,</span> <span class="mf">0.0299460319</span><span class="p">,</span> <span class="mf">0.3587401419</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.3587401419</span><span class="p">,</span> <span class="mf">0.6113138262</span><span class="p">,</span> <span class="mf">0.0299460319</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.3587401419</span><span class="p">,</span> <span class="mf">0.0299460319</span><span class="p">,</span> <span class="mf">0.6113138262</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0299460319</span><span class="p">,</span> <span class="mf">0.6113138262</span><span class="p">,</span> <span class="mf">0.3587401419</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0299460319</span><span class="p">,</span> <span class="mf">0.3587401419</span><span class="p">,</span> <span class="mf">0.6113138262</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.8210720699</span><span class="p">,</span> <span class="mf">0.1432953704</span><span class="p">,</span> <span class="mf">0.0356325597</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.8210720699</span><span class="p">,</span> <span class="mf">0.0356325597</span><span class="p">,</span> <span class="mf">0.1432953704</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.1432953704</span><span class="p">,</span> <span class="mf">0.8210720699</span><span class="p">,</span> <span class="mf">0.0356325597</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.1432953704</span><span class="p">,</span> <span class="mf">0.0356325597</span><span class="p">,</span> <span class="mf">0.8210720699</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0356325597</span><span class="p">,</span> <span class="mf">0.8210720699</span><span class="p">,</span> <span class="mf">0.1432953704</span><span class="p">],</span>
+            <span class="p">[</span><span class="mf">0.0356325597</span><span class="p">,</span> <span class="mf">0.1432953704</span><span class="p">,</span> <span class="mf">0.8210720699</span><span class="p">],</span>
+        <span class="p">],</span>
+        <span class="s2">"weights"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mf">0.03994725237</span><span class="p">,</span>
+            <span class="mf">0.03556190112</span><span class="p">,</span>
+            <span class="mf">0.03556190112</span><span class="p">,</span>
+            <span class="mf">0.03556190112</span><span class="p">,</span>
+            <span class="mf">0.00411190935</span><span class="p">,</span>
+            <span class="mf">0.00411190935</span><span class="p">,</span>
+            <span class="mf">0.00411190935</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.02271529614</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01867992812</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+            <span class="mf">0.01544332844</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="s2">"weight_multiplier"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_barycentric_points</span><span class="p">(</span><span class="n">M</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Generate barycentric subdivision points for triangular integration.</span>
+
+<span class="sd">    Uses the "edge" method for barycentric subdivision of arbitrary order,</span>
+<span class="sd">    where the edges of smaller triangles (similar to the original one) are</span>
+<span class="sd">    equally subdivided. This gives the desired barycentric points.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">M</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Handle tiny M (degenerate)</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">]]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">T</span>  <span class="c1"># center barycentric for single point</span>
+        <span class="k">return</span> <span class="n">coeff</span>
+
+    <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="n">M</span> <span class="o">*</span> <span class="n">M</span><span class="p">))</span>  <span class="c1"># preallocate (may be larger than used)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># next fill index (0-based for Python)</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="mf">1e-9</span>  <span class="c1"># scaling (small offset to avoid exact 2)</span>
+
+    <span class="c1"># Compute N following MATLAB logic (N may be non-integer; iterate to int(N))</span>
+    <span class="k">if</span> <span class="n">M</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">M</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">M</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="n">M</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">2</span>
+
+    <span class="c1"># Border loop - starts with the outer border of integration points</span>
+    <span class="c1"># and then goes inside - "triangle" by "triangle"</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># div: integer - edge is divided into 'div' segments (XX-jump-XX-jump)</span>
+        <span class="n">div</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">M</span> <span class="o">-</span> <span class="n">m</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">m</span> <span class="o">/</span> <span class="n">eps</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">div</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># real - relative scale</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">div</span> <span class="o">/</span> <span class="n">M</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">scale</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span>
+
+        <span class="c1"># p1, p2, p3 new vertices</span>
+        <span class="n">coeff1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta</span><span class="p">])</span>
+        <span class="n">coeff2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">])</span>
+        <span class="n">coeff3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">beta</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">alpha</span><span class="p">])</span>
+
+        <span class="c1"># Generate points along each of the 3 edges</span>
+        <span class="k">for</span> <span class="n">edge_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">v_start</span><span class="p">,</span> <span class="n">v_end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="p">[(</span><span class="n">coeff1</span><span class="p">,</span> <span class="n">coeff2</span><span class="p">),</span> <span class="p">(</span><span class="n">coeff2</span><span class="p">,</span> <span class="n">coeff3</span><span class="p">),</span> <span class="p">(</span><span class="n">coeff3</span><span class="p">,</span> <span class="n">coeff1</span><span class="p">)]</span>
+        <span class="p">):</span>
+            <span class="c1"># first edge, second edge, third edge</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">div</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">vector</span> <span class="o">=</span> <span class="n">v_start</span> <span class="o">*</span> <span class="p">(</span><span class="n">div</span> <span class="o">-</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span> <span class="o">+</span> <span class="n">v_end</span> <span class="o">*</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">div</span>
+                <span class="n">coeff</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">vector</span>
+                <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Center point (if M is not divisible by 3)</span>
+    <span class="k">if</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">M</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">!=</span> <span class="n">M</span><span class="p">:</span>
+        <span class="n">coeff</span><span class="p">[:,</span> <span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">coeff</span><span class="p">[:,</span> <span class="p">:</span><span class="n">k</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="mesh_tri">
+<a class="viewcode-back" href="../../../bemfmm.mesh.html#bemfmm.mesh.mesh_tri.mesh_tri">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mesh_tri</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    This function creates integration points and weights for triangles</span>
+
+<span class="sd">    Syntax:</span>
+<span class="sd">    [coeff, weights, IndexF] = mesh_tri(3) - will do barycentric subdivision with</span>
+<span class="sd">                                            3*3 = 9 integration points</span>
+<span class="sd">    [coeff, weights, IndexF] = mesh_tri(7,5) - will use Gaussian quadrature of fifth</span>
+<span class="sd">                                              order with seven integration points</span>
+
+<span class="sd">    Description:</span>
+<span class="sd">    Uses Gaussian quadratures (with authors permission) from</span>
+<span class="sd">    http://www.cs.kuleuven.ac.be/~nines/research/ecf/ecf.html</span>
+<span class="sd">    Formulas of third (4 integration points), fifth (7 integration points)</span>
+<span class="sd">    seventh (13 integration points), and tenth (25 integration points) order</span>
+<span class="sd">    of accuracy may be created</span>
+
+<span class="sd">    Uses the "edge" method for barycentric subdivision of arbitrary order,</span>
+<span class="sd">    where the edges of smaller triangles (similar to the original one) are</span>
+<span class="sd">    equally subdivided. This gives the desired barycentric points.</span>
+
+<span class="sd">    Copyright SNM 2002-2020</span>
+<span class="sd">    SP 2026</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Barycentric triangle subdivision - coefficients for vertexes only</span>
+        <span class="c1"># M - subdivision order (number of subtriangles is M*M)</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">_generate_barycentric_points</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">arg1</span><span class="p">))</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">coeff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="n">coeff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Gaussian quadrature formulae</span>
+        <span class="c1"># arg1 - number of integration points</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">GAUSSIAN_RULES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Unsupported quadrature rule: </span><span class="si">{</span><span class="n">arg1</span><span class="si">}</span><span class="s2"> points, order </span><span class="si">{</span><span class="n">arg2</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">rule</span> <span class="o">=</span> <span class="n">GAUSSIAN_RULES</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="n">coeff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="s2">"coeff"</span><span class="p">])</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rule</span><span class="p">[</span><span class="s2">"weights"</span><span class="p">])</span>
+
+        <span class="c1"># Apply multiplier if specified (for "side" rules)</span>
+        <span class="k">if</span> <span class="s2">"weight_multiplier"</span> <span class="ow">in</span> <span class="n">rule</span><span class="p">:</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span> <span class="o">*</span> <span class="n">rule</span><span class="p">[</span><span class="s2">"weight_multiplier"</span><span class="p">]</span>
+
+    <span class="c1"># Trim unused preallocated columns</span>
+    <span class="n">IndexF</span> <span class="o">=</span> <span class="n">coeff</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">coeff</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">IndexF</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

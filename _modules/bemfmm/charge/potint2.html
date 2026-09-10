@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.charge.potint2 &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.charge.potint2</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<div class="viewcode-block" id="potint2">
+<a class="viewcode-back" href="../../../bemfmm.charge.html#bemfmm.charge.potint2.potint2">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">potint2</span><span class="p">(</span>
+    <span class="n">r1</span><span class="p">,</span>
+    <span class="n">r2</span><span class="p">,</span>
+    <span class="n">r3</span><span class="p">,</span>
+    <span class="n">normal</span><span class="p">,</span>
+    <span class="n">ObsPoint</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Potential integrals grad(1/R) for a single triangle, vectorised over</span>
+<span class="sd">    an arbitrary number of observation points.  Not divided by area.</span>
+
+<span class="sd">    Copyright SNM 2004-2020</span>
+<span class="sd">    """</span>
+    <span class="n">ObsPoint</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ObsPoint</span><span class="p">)</span>  <span class="c1"># Avoid modifying input</span>
+    <span class="n">n_obs</span> <span class="o">=</span> <span class="n">ObsPoint</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Edge vectors and lengths</span>
+    <span class="n">e1</span> <span class="o">=</span> <span class="n">r2</span> <span class="o">-</span> <span class="n">r1</span>
+    <span class="n">e2</span> <span class="o">=</span> <span class="n">r3</span> <span class="o">-</span> <span class="n">r1</span>
+    <span class="n">e3</span> <span class="o">=</span> <span class="n">r3</span> <span class="o">-</span> <span class="n">r2</span>
+    <span class="n">nl1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">e1</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">nl2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">e2</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">nl3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">e3</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Unit edge directions</span>
+    <span class="n">lhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e1</span> <span class="o">/</span> <span class="n">nl1</span><span class="p">,</span> <span class="n">e2</span> <span class="o">/</span> <span class="n">nl2</span><span class="p">,</span> <span class="n">e3</span> <span class="o">/</span> <span class="n">nl3</span><span class="p">])</span>
+
+    <span class="c1"># r+/r- vertices per edge</span>
+    <span class="n">rplus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r2</span><span class="p">,</span> <span class="n">r3</span><span class="p">,</span> <span class="n">r3</span><span class="p">])</span>
+    <span class="n">rminus</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">r1</span><span class="p">,</span> <span class="n">r1</span><span class="p">,</span> <span class="n">r2</span><span class="p">])</span>
+
+    <span class="c1"># Unit outward edge normals</span>
+    <span class="n">u_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">lhat</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">normal</span><span class="p">),</span>
+            <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">lhat</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">normal</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">lhat</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">normal</span><span class="p">),</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="n">nls</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">nl1</span><span class="p">,</span> <span class="n">nl2</span><span class="p">,</span> <span class="n">nl3</span><span class="p">])</span>
+
+    <span class="c1"># Project ObsPoint onto triangle plane</span>
+    <span class="n">ndot</span> <span class="o">=</span> <span class="n">ObsPoint</span> <span class="o">@</span> <span class="n">normal</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ObsPoint</span> <span class="o">-</span> <span class="n">ndot</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">normal</span>
+
+    <span class="c1"># Nudge ObsPoint off triangle edges if needed</span>
+    <span class="n">midpoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r2</span><span class="p">),</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">r1</span> <span class="o">+</span> <span class="n">r3</span><span class="p">),</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">r2</span> <span class="o">+</span> <span class="n">r3</span><span class="p">)])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">fi</span> <span class="o">=</span> <span class="mf">1e-6</span> <span class="o">*</span> <span class="n">nls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="p">(</span><span class="n">midpoints</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span> <span class="o">@</span> <span class="n">u_edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_obs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">check</span><span class="p">[</span><span class="n">k</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">fi</span><span class="p">:</span>
+                <span class="n">ObsPoint</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-=</span> <span class="n">fi</span> <span class="o">*</span> <span class="n">u_edges</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="c1"># Recompute projection</span>
+    <span class="n">ndot</span> <span class="o">=</span> <span class="n">ObsPoint</span> <span class="o">@</span> <span class="n">normal</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">ObsPoint</span> <span class="o">-</span> <span class="n">ndot</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">normal</span>
+
+    <span class="n">Beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_obs</span><span class="p">)</span>
+    <span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_obs</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">c1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">rp</span> <span class="o">=</span> <span class="n">rplus</span><span class="p">[</span><span class="n">c1</span><span class="p">]</span>
+        <span class="n">rm</span> <span class="o">=</span> <span class="n">rminus</span><span class="p">[</span><span class="n">c1</span><span class="p">]</span>
+        <span class="n">lh</span> <span class="o">=</span> <span class="n">lhat</span><span class="p">[</span><span class="n">c1</span><span class="p">]</span>
+        <span class="n">ui</span> <span class="o">=</span> <span class="n">u_edges</span><span class="p">[</span><span class="n">c1</span><span class="p">]</span>
+
+        <span class="n">distanceobs</span> <span class="o">=</span> <span class="p">(</span><span class="n">ObsPoint</span> <span class="o">-</span> <span class="n">rm</span><span class="p">)</span> <span class="o">@</span> <span class="n">normal</span>
+
+        <span class="n">pplus</span> <span class="o">=</span> <span class="n">rp</span> <span class="o">-</span> <span class="n">normal</span> <span class="o">*</span> <span class="p">(</span><span class="n">rp</span> <span class="o">@</span> <span class="n">normal</span><span class="p">)</span>
+        <span class="n">pminus</span> <span class="o">=</span> <span class="n">rm</span> <span class="o">-</span> <span class="n">normal</span> <span class="o">*</span> <span class="p">(</span><span class="n">rm</span> <span class="o">@</span> <span class="n">normal</span><span class="p">)</span>
+
+        <span class="n">dp</span> <span class="o">=</span> <span class="n">pplus</span> <span class="o">-</span> <span class="n">p</span>
+        <span class="n">dm</span> <span class="o">=</span> <span class="n">pminus</span> <span class="o">-</span> <span class="n">p</span>
+
+        <span class="n">lplus</span> <span class="o">=</span> <span class="n">dp</span> <span class="o">@</span> <span class="n">lh</span>
+        <span class="n">lminus</span> <span class="o">=</span> <span class="n">dm</span> <span class="o">@</span> <span class="n">lh</span>
+        <span class="n">P0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">dm</span> <span class="o">@</span> <span class="n">ui</span><span class="p">)</span>
+
+        <span class="n">PPLUS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">P0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">lplus</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">PMINUS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">P0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">lminus</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">RPLUS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PPLUS</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">distanceobs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">RMINUS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">PMINUS</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">distanceobs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">R0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">P0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">distanceobs</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">PHAT</span> <span class="o">=</span> <span class="p">(</span><span class="n">dm</span> <span class="o">-</span> <span class="n">lminus</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">lh</span><span class="p">)</span> <span class="o">/</span> <span class="n">P0</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">P0</span> <span class="o">*</span> <span class="n">lplus</span> <span class="o">/</span> <span class="p">(</span><span class="n">R0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distanceobs</span><span class="p">)</span> <span class="o">*</span> <span class="n">RPLUS</span><span class="p">))</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">P0</span> <span class="o">*</span> <span class="n">lminus</span> <span class="o">/</span> <span class="p">(</span><span class="n">R0</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">distanceobs</span><span class="p">)</span> <span class="o">*</span> <span class="n">RMINUS</span><span class="p">))</span>
+        <span class="n">d3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">((</span><span class="n">RPLUS</span> <span class="o">+</span> <span class="n">lplus</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RMINUS</span> <span class="o">+</span> <span class="n">lminus</span><span class="p">))</span>
+
+        <span class="n">Beta</span> <span class="o">+=</span> <span class="p">(</span><span class="n">PHAT</span> <span class="o">@</span> <span class="n">ui</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">d1</span> <span class="o">-</span> <span class="n">d2</span><span class="p">)</span>
+        <span class="n">I</span> <span class="o">+=</span> <span class="n">d3</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">ui</span>
+
+    <span class="n">Sign</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">distanceobs</span><span class="p">)</span>
+    <span class="n">Int</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">Sign</span> <span class="o">*</span> <span class="n">Beta</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">normal</span> <span class="o">-</span> <span class="n">I</span>
+
+    <span class="c1"># Handle NaN/inf</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_obs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Int</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Int</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">Int</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]):</span>  <span class="c1"># NaN check</span>
+                <span class="n">Int</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="n">Int</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
