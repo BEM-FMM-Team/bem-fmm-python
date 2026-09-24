@@ -55,6 +55,7 @@ apps = ["assets/**/*", "tms/*.mat"]
 [project.scripts]
 tms_coil_navigator = "apps.gui.__main__:app"
 bemfmm_tms = "apps.tms.__main__:app"
+bemfmm_tdcs = "apps.tdcs.__main__:app"
 bemfmm_plot = "apps.plot.__main__:app"
 bemfmm_sphere = "apps.sphere_3L.__main__:app"
 

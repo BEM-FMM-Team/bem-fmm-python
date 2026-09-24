@@ -15,8 +15,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..lib import launch_detached_new_terminal
+from ..lib import get_asset_path, launch_detached_new_terminal
 from .electrode_backend import ElectrodeBackend
+from .tdcs_frontend import run_tdcs_gui
 from .ui_electrode_window import Ui_ElectrodeMainWindow
 
 """
@@ -31,10 +32,11 @@ ELECTRODE_GUI_SCRIPT = SRC / "apps/electrode_gui"
 
 
 class ElectrodeFrontend(QMainWindow):
-    def __init__(self, head_models):
+    def __init__(self, head_models, tissue_index=get_asset_path("tissue_index.yaml")):
         super().__init__()
         # state
         self.head_models = head_models
+        self.tissue_index = tissue_index
         self.selected_electrode_id = 0
         self.updating_gui = False
 
@@ -342,10 +344,18 @@ Esc   abort execution and exit python kernel (Will crash the Navigator)
         )
 
     def run_tdcs(self):
-        # TODO no tdcs solver app exists yet, wire this up once one does
-        QMessageBox.information(
-            self, "Not implemented", "The tDCS solver is not wired up yet."
+        if len(self.backend.electrodes) < 2:
+            QMessageBox.information(
+                self, "Not enough electrodes", "Place at least two electrodes first"
+            )
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save Electrode Configuration", "", PKL_FILTER_STR
         )
+        if not path:
+            return
+        self.backend.save_electrode_config(path)
+        run_tdcs_gui(self.tissue_index, path)
 
     def apply_head_models(self):
         state = self.backend.renderer.head_model_state

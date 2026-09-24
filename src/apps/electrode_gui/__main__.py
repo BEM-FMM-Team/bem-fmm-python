@@ -50,7 +50,7 @@ def main(tissue_index: Optional[str] = None):
 
     qapp = QApplication(sys.argv)
 
-    frontend = ElectrodeFrontend(head_models)
+    frontend = ElectrodeFrontend(head_models, tissue_index)
 
     frontend.show()
 

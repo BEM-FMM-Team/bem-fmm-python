@@ -13,6 +13,7 @@ from .mesh_refiner_light import mesh_refiner_light
 from .mesh_reorient import mesh_reorient
 from .mesh_rotate1 import mesh_rotate1
 from .mesh_rotate2 import mesh_rotate2
+from .mesh_simpqual import mesh_simpqual
 from .mesh_surface import mesh_surface
 from .mesh_tri import mesh_tri
 from .mesh_tricenter import mesh_tricenter
