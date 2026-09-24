@@ -7,8 +7,6 @@ import vedo
 from matplotlib.colors import LinearSegmentedColormap
 from vedo import show
 
-from bemfmm.my_types import FullCoil
-
 
 def plot_worker(P, plot_t, p):
     _p = patch(
@@ -25,15 +23,15 @@ def plot_coil_worker(
     P,
     plot_t,
     p,
-    coils: list[FullCoil],
+    coils,
 ):
     # TODO in the future this may need to be redone for performance reasons
     # we are giving it its own process though
+    # coils: list of (centerline, cad_P, t) in the same units as P
     planes = []
     mesh = vedo.Mesh([P, plot_t])
-    for c in coils:
-        pointsline = c[0]
-        i = mesh.intersect_with_line(*pointsline)
+    for centerline, _, _ in coils:
+        i = mesh.intersect_with_line(*centerline)
         if len(i) > 0:
             planes.append(i[0])
 
@@ -47,23 +45,8 @@ def plot_coil_worker(
         planes=planes,
     )
 
-    for (
-        pointsline,
-        dIdt,
-        I0,
-        strcoil,
-        CoilP,
-        Coilt,
-        Translation,
-    ) in coils:
-        # TODO move somewhere else
-        # CoilP *= unit_convert
-        # pointsline *= unit_convert
-        coil_mesh = vedo.Mesh([CoilP, Coilt]).alpha(0.1)
-        obs_line = vedo.Line(*pointsline).lw(3).color("red")
-
-        plt.add(coil_mesh)
-        # plt.add(obs_line)
+    for centerline, cad_P, t in coils:
+        plt.add(vedo.Mesh([cad_P, t]).alpha(0.1))
 
     plt.show()
 

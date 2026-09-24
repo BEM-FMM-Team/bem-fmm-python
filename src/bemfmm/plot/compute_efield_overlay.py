@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from bemfmm.charge.inc_field_electric import inc_field_electric
-from bemfmm.my_types import EfieldSlice, FullCoil
+from bemfmm.my_types import EfieldSlice
 
 _PLANE_CONFIG = {
     "XY": dict(
@@ -90,7 +90,7 @@ def compute_efield_overlay(
     R: int = 8,
     interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
-    coils: list[FullCoil] = [],
+    coils: list = [],
 ) -> EfieldSlice:
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
@@ -126,19 +126,8 @@ def compute_efield_overlay(
 
     # Calculate the primary field for every coil
     Einc_l = []
-    for (
-        pointsline,
-        dIdt,
-        I0,
-        strcoil,
-        CoilP,
-        Coilt,
-        Translation,
-    ) in coils:
-        # strcoil.Pwire = strcoil.Pwire * unit_convert # Not needed, since already done in main()
-
-        # RHS
-        Einc_l.append(inc_field_electric(strcoil, points_obs, dIdt, prec=1e-1))
+    for coil in coils:
+        Einc_l.append(inc_field_electric(coil, points_obs, coil.dIdt, prec=1e-1))
 
     Etotal = Esec + sum(Einc_l)
 
