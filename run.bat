@@ -13,7 +13,7 @@ rem Check if venv already exists and is valid
 if exist "%VENV_DIR%" (
     echo -- .venv already exists --
     if exist "%VENV_DIR%\Scripts\python.exe" (
-        if exist "%VENV_DIR%\Scripts\tms_coil_navigator.exe" (
+        if exist "%VENV_DIR%\Scripts\bemfmm.exe" (
             echo venv is valid
             call "%VENV_DIR%\Scripts\activate.bat"
             goto run_app
@@ -198,9 +198,9 @@ call "%VENV_DIR%\Scripts\activate.bat"
 echo.
 echo -- running app --
 
-if exist "%VENV_DIR%\Scripts\bemfmm_tms.exe" (
-    echo running bemfmm_tms.exe
-    "%VENV_DIR%\Scripts\bemfmm_tms.exe" --gui %*
+if exist "%VENV_DIR%\Scripts\bemfmm.exe" (
+    echo running bemfmm.exe
+    "%VENV_DIR%\Scripts\bemfmm.exe" gui %*
 
     if %errorlevel%==0 (
         exit /b 0
@@ -210,7 +210,7 @@ if exist "%VENV_DIR%\Scripts\bemfmm_tms.exe" (
 )
 
 echo running module directly...
-"%VENV_DIR%\Scripts\python.exe" -m apps.tms.__main__ %*
+"%VENV_DIR%\Scripts\python.exe" -m bemfmm gui %*
 exit /b %errorlevel%
 
 endlocal

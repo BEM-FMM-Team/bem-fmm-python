@@ -1,14 +1,11 @@
 """
-"Wrapper Script
-
-Wrapper script for the multi-layer sphere model.
+Primary field of a current dipole on a skull surface
 
 DD 5/2026
 SP 6/2026
 """
 
 import numpy as np
-import typer
 import vedo
 
 from bemfmm.charge.inc_field_gauss_selective_dipoles import (
@@ -138,11 +135,7 @@ def load_model():
     )
 
 
-app = typer.Typer()
-
-
-@app.command()
-def main():
+def run():
     # Load model
     (
         P,
@@ -192,13 +185,8 @@ def main():
         faces=plot_t,
         cdata=plot_field,
         edge_color="none",
-        title=rf"Normal component of primary Field Eⁱ on Surface: {tissuename[0]}",
+        title=f"Normal component of primary field Epri on Surface: {tissuename[0]}",
         cmap_label="V/m",
     )
 
     _p.show()
-    input("Close All windows and Hit enter to exit...")
-
-
-if __name__ == "__main__":
-    app()
