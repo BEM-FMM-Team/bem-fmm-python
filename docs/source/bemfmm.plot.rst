@@ -12,6 +12,14 @@ bemfmm.plot.compute\_efield\_overlay module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.plot.electrodes module
+-----------------------------
+
+.. automodule:: bemfmm.plot.electrodes
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.plot.fields module
 -------------------------
 
@@ -32,6 +40,14 @@ bemfmm.plot.residual module
 ---------------------------
 
 .. automodule:: bemfmm.plot.residual
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+bemfmm.plot.results module
+--------------------------
+
+.. automodule:: bemfmm.plot.results
    :members:
    :show-inheritance:
    :undoc-members:
