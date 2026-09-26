@@ -14,7 +14,7 @@ echo "WORKDIR: $SCRIPT_DIR"
 # Check if venv already exists and is valid
 if [ -d "$VENV_DIR" ]; then
     echo "-- .venv already exists --"
-    if [ -x "$VENV_DIR/bin/python" ] && [ -x "$VENV_DIR/bin/tms_coil_navigator" ]; then
+    if [ -x "$VENV_DIR/bin/python" ] && [ -x "$VENV_DIR/bin/bemfmm" ]; then
         echo "venv is valid"
         # shellcheck disable=SC1091
         source "$VENV_DIR/bin/activate"
@@ -164,9 +164,9 @@ fi # end of "if RUN_APP not already set"
 echo
 echo "-- running app --"
 
-if [ -x "$VENV_DIR/bin/tms_coil_navigator" ]; then
-    echo "running tms_coil_navigator"
-    "$VENV_DIR/bin/tms_coil_navigator" "$@"
+if [ -x "$VENV_DIR/bin/bemfmm" ]; then
+    echo "running bemfmm gui"
+    "$VENV_DIR/bin/bemfmm" gui "$@"
     status=$?
     if [ $status -eq 0 ]; then
         exit 0
@@ -175,5 +175,5 @@ if [ -x "$VENV_DIR/bin/tms_coil_navigator" ]; then
 fi
 
 echo "running module directly..."
-"$VENV_DIR/bin/python" -m apps.gui.__main__ "$@"
+"$VENV_DIR/bin/python" -m bemfmm gui "$@"
 exit $?

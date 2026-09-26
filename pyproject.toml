@@ -46,17 +46,13 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["bemfmm", "apps", "bemfmm*", "apps*"]
-# TODO find a better name for apps
+include = ["bemfmm", "bemfmm*"]
 
 [tool.setuptools.package-data]
-apps = ["assets/**/*", "tms/*.mat"]
+bemfmm = ["assets/**/*", "coils/templates/*", "gui/*.qss"]
 
 [project.scripts]
-tms_coil_navigator = "apps.gui.__main__:app"
-bemfmm_tms = "apps.tms.__main__:app"
-bemfmm_plot = "apps.plot.__main__:app"
-bemfmm_sphere = "apps.sphere_3L.__main__:app"
+bemfmm = "bemfmm.cli:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

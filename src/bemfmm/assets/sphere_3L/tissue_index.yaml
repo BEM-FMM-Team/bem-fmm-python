@@ -1,0 +1,8 @@
+# Three layer sphere, radii 42, 36, 28 and 25 mm, all meshes in [mm]
+# Regenerate with scripts/make_sphere_model.py
+
+shells:
+  skin : [0.4650, "FreeSpace", "skin.stl"]
+  bone : [0.0100, "skin", "bone.stl"]
+  gm   : [0.2750, "bone", "gm.stl"]
+  wm   : [0.1260, "gm", "wm.stl"]

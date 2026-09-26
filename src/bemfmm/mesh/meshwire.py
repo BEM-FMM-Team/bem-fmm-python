@@ -1,8 +1,8 @@
 import numpy as np
 
-from ..gui.mesh_cross_section import meshcross_section
 from .mesh_areas import mesh_areas
 from .mesh_connee import mesh_connee
+from .mesh_cross_section import mesh_cross_section
 from .mesh_rotate2 import mesh_rotate2
 from .mesh_tricenter import mesh_tricenter
 from .meshconnet import meshconnet
@@ -36,7 +36,7 @@ def meshwire(Pcenter, a, b, M, flag, sk):
     #   Create triangular mesh for the start cap
     UnitPathVector = PathVector[0] + Closed * PathVector[-1]
     UnitPathVector = UnitPathVector / np.linalg.norm(UnitPathVector)
-    pbottom, e = meshcross_section(a, b, UnitPathVector, M, flag)
+    pbottom, e = mesh_cross_section(a, b, UnitPathVector, M, flag)
     NE = e.shape[0]
     pbottom = pbottom + Pcenter[0]
     p, t, _ = meshfill(pbottom, PathVector[0])

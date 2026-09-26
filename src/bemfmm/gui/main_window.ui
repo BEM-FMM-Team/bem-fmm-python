@@ -1,0 +1,1658 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1440</width>
+    <height>900</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>BEM-FMM</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="centralLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Orientation::Horizontal</enum>
+      </property>
+      <property name="childrenCollapsible">
+       <bool>false</bool>
+      </property>
+      <widget class="QTabWidget" name="sideTabs">
+       <property name="minimumSize">
+        <size>
+         <width>400</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>560</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="documentMode">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="modelTab">
+        <attribute name="title">
+         <string>Model</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="modelLayout">
+         <item>
+          <widget class="QGroupBox" name="indexGroup">
+           <property name="title">
+            <string>Tissue index</string>
+           </property>
+           <layout class="QGridLayout" name="indexLayout">
+            <item row="0" column="0">
+             <widget class="QLineEdit" name="indexPath">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="openIndexButton">
+              <property name="text">
+               <string>Open...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" colspan="2">
+             <widget class="QLabel" name="modelSummary">
+              <property name="text">
+               <string>No model loaded</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="tissueGroup">
+           <property name="title">
+            <string>Tissues</string>
+           </property>
+           <layout class="QVBoxLayout" name="tissueLayout">
+            <item>
+             <widget class="QLabel" name="tissueHint">
+              <property name="text">
+               <string>Each tissue is a closed surface. Outside is the tissue just beyond that surface, FreeSpace for air.</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QTableWidget" name="tissueTable">
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+              </property>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>true</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>Tissue</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>S/m</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Outside</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Mesh file</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="tissueButtons">
+              <item>
+               <widget class="QPushButton" name="addTissueButton">
+                <property name="text">
+                 <string>Add...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="removeTissueButton">
+                <property name="text">
+                 <string>Remove</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="tissueButtonSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>10</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="saveIndexButton">
+                <property name="text">
+                 <string>Save as...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="applyIndexButton">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Reload the model with the edited tissues</string>
+                </property>
+                <property name="text">
+                 <string>Apply</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="displayGroup">
+           <property name="title">
+            <string>Display</string>
+           </property>
+           <layout class="QVBoxLayout" name="displayGroupLayout">
+            <item>
+             <widget class="QScrollArea" name="displayScroll">
+              <property name="frameShape">
+               <enum>QFrame::Shape::NoFrame</enum>
+              </property>
+              <property name="widgetResizable">
+               <bool>true</bool>
+              </property>
+              <widget class="QWidget" name="displayContents">
+               <layout class="QGridLayout" name="displayLayout"/>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="stimulationTab">
+        <attribute name="title">
+         <string>Stimulation</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="stimulationLayout">
+         <item>
+          <widget class="QGroupBox" name="modeGroup">
+           <property name="title">
+            <string>Type</string>
+           </property>
+           <layout class="QGridLayout" name="modeLayout">
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="tmsRadio">
+              <property name="text">
+               <string>TMS coils</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QRadioButton" name="tdcsRadio">
+              <property name="text">
+               <string>tDCS electrodes</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="surfaceLabel">
+              <property name="text">
+               <string>Place on</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="surfaceCombo">
+              <property name="toolTip">
+               <string>Surface that coils and electrodes snap to and are dragged on</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="stimStack">
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="coilPage">
+            <layout class="QVBoxLayout" name="coilPageLayout">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="addCoilLayout">
+               <item>
+                <widget class="QComboBox" name="coilTypeCombo">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="addCoilButton">
+                 <property name="text">
+                  <string>Add coil</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QListWidget" name="coilList">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>140</height>
+                </size>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::EditTrigger::DoubleClicked|QAbstractItemView::EditTrigger::EditKeyPressed</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="coilListButtons">
+               <item>
+                <widget class="QPushButton" name="deleteCoilButton">
+                 <property name="text">
+                  <string>Delete</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="coilListSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="coilAlphaLabel">
+                 <property name="text">
+                  <string>Opacity</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="coilAlpha">
+                 <property name="maximumSize">
+                  <size>
+                   <width>120</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>100</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="coilEditor">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>Selected coil</string>
+               </property>
+               <layout class="QFormLayout" name="coilEditorLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="coilPositionLabel">
+                  <property name="text">
+                   <string>Position (mm)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout" name="coilPositionLayout">
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilX"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilY"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilZ"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="coilRotationLabel">
+                  <property name="text">
+                   <string>Rotation (deg)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <layout class="QHBoxLayout" name="coilRotationLayout">
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilRX"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilRY"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="coilRZ"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="coilTwistLabel">
+                  <property name="text">
+                   <string>Twist (deg)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="coilTwist">
+                  <property name="toolTip">
+                   <string>Rotation about the coil axis</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="coilDistanceLabel">
+                  <property name="text">
+                   <string>Distance (mm)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QDoubleSpinBox" name="coilDistance">
+                  <property name="toolTip">
+                   <string>Distance from the bottom of the coil to the surface</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="coilDIdtLabel">
+                  <property name="text">
+                   <string>dI/dt (A/us)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QDoubleSpinBox" name="coilDIdt"/>
+                </item>
+                <item row="5" column="0" colspan="2">
+                 <layout class="QHBoxLayout" name="coilActionLayout">
+                  <item>
+                   <widget class="QPushButton" name="autoOrientButton">
+                    <property name="toolTip">
+                     <string>Point the coil axis along the surface normal</string>
+                    </property>
+                    <property name="text">
+                     <string>Auto orient</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="flipButton">
+                    <property name="text">
+                     <string>Flip</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="moveCoilButton">
+                    <property name="toolTip">
+                     <string>Click the coil in the 3D view, move it over the surface, click again to drop it</string>
+                    </property>
+                    <property name="text">
+                     <string>Drag</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="6" column="0">
+                 <widget class="QLabel" name="targetLabel">
+                  <property name="text">
+                   <string>Aim at</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="1">
+                 <layout class="QHBoxLayout" name="targetLayout">
+                  <item>
+                   <widget class="QComboBox" name="targetCombo">
+                    <property name="toolTip">
+                     <string>Tissue to pick the target point on</string>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="aimButton">
+                    <property name="toolTip">
+                     <string>Click a point on the target tissue, then press again to move the coil above it</string>
+                    </property>
+                    <property name="text">
+                     <string>Pick target</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="electrodePage">
+            <layout class="QVBoxLayout" name="electrodePageLayout">
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="addElectrodeLayout">
+               <item>
+                <widget class="QLabel" name="electrodeHint">
+                 <property name="text">
+                  <string>Electrodes are held at a fixed voltage</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="addElectrodeSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QPushButton" name="addElectrodeButton">
+                 <property name="text">
+                  <string>Add electrode</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QListWidget" name="electrodeList">
+               <property name="maximumSize">
+                <size>
+                 <width>16777215</width>
+                 <height>140</height>
+                </size>
+               </property>
+               <property name="editTriggers">
+                <set>QAbstractItemView::EditTrigger::DoubleClicked|QAbstractItemView::EditTrigger::EditKeyPressed</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="electrodeListButtons">
+               <item>
+                <widget class="QPushButton" name="deleteElectrodeButton">
+                 <property name="text">
+                  <string>Delete</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="electrodeListSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>10</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QLabel" name="electrodeAlphaLabel">
+                 <property name="text">
+                  <string>Opacity</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QSlider" name="electrodeAlpha">
+                 <property name="maximumSize">
+                  <size>
+                   <width>120</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>100</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Horizontal</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="electrodeEditor">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="title">
+                <string>Selected electrode</string>
+               </property>
+               <layout class="QFormLayout" name="electrodeEditorLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="electrodePositionLabel">
+                  <property name="text">
+                   <string>Position (mm)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <layout class="QHBoxLayout" name="electrodePositionLayout">
+                  <item>
+                   <widget class="QDoubleSpinBox" name="electrodeX"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="electrodeY"/>
+                  </item>
+                  <item>
+                   <widget class="QDoubleSpinBox" name="electrodeZ"/>
+                  </item>
+                 </layout>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="electrodeRadiusLabel">
+                  <property name="text">
+                   <string>Radius (mm)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QDoubleSpinBox" name="electrodeRadius"/>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="electrodeVoltageLabel">
+                  <property name="text">
+                   <string>Voltage (V)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QDoubleSpinBox" name="electrodeVoltage"/>
+                </item>
+                <item row="3" column="0" colspan="2">
+                 <layout class="QHBoxLayout" name="electrodeActionLayout">
+                  <item>
+                   <spacer name="electrodeActionSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>20</width>
+                      <height>10</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="moveElectrodeButton">
+                    <property name="toolTip">
+                     <string>Click the electrode in the 3D view, move it over the surface, click again to drop it</string>
+                    </property>
+                    <property name="text">
+                     <string>Drag</string>
+                    </property>
+                    <property name="checkable">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="planesGroup">
+           <property name="title">
+            <string>Slice planes (mm)</string>
+           </property>
+           <layout class="QHBoxLayout" name="planesLayout">
+            <item>
+             <widget class="QLabel" name="planeXLabel">
+              <property name="text">
+               <string>X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="planeX"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="planeYLabel">
+              <property name="text">
+               <string>Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="planeY"/>
+            </item>
+            <item>
+             <widget class="QLabel" name="planeZLabel">
+              <property name="text">
+               <string>Z</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="planeZ"/>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showPlanes">
+              <property name="text">
+               <string>Show</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer name="stimulationSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="solveTab">
+        <attribute name="title">
+         <string>Solve</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="solveLayout">
+         <item>
+          <widget class="QLabel" name="solveSummary">
+           <property name="text">
+            <string>Nothing to solve yet</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="solverGroup">
+           <property name="title">
+            <string>Solver</string>
+           </property>
+           <layout class="QFormLayout" name="solverLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="numNeighborsLabel">
+              <property name="text">
+               <string>Neighbor integrals</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="numNeighbors">
+              <property name="toolTip">
+               <string>Nearest facets integrated exactly for the E-field</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="value">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="numNeighborsPLabel">
+              <property name="text">
+               <string>Potential integrals</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="numNeighborsP">
+              <property name="toolTip">
+               <string>Nearest facets integrated exactly for the potential on electrodes</string>
+              </property>
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="value">
+               <number>32</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="iterationsLabel">
+              <property name="text">
+               <string>Max iterations</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="iterations">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+              <property name="value">
+               <number>20</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="relresLabel">
+              <property name="text">
+               <string>Tolerance</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QDoubleSpinBox" name="relres">
+              <property name="toolTip">
+               <string>Stop when the relative residual is below this</string>
+              </property>
+              <property name="decimals">
+               <number>10</number>
+              </property>
+              <property name="minimum">
+               <double>0.000000000001000</double>
+              </property>
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.000100000000000</double>
+              </property>
+              <property name="value">
+               <double>0.000100000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="weightLabel">
+              <property name="text">
+               <string>Conservation weight</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="weight">
+              <property name="decimals">
+               <number>4</number>
+              </property>
+              <property name="maximum">
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.050000000000000</double>
+              </property>
+              <property name="value">
+               <double>0.500000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="outputGroup">
+           <property name="title">
+            <string>Output</string>
+           </property>
+           <layout class="QFormLayout" name="outputLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="outputDirLabel">
+              <property name="text">
+               <string>Folder</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="outputDirLayout">
+              <item>
+               <widget class="QLineEdit" name="outputDir"/>
+              </item>
+              <item>
+               <widget class="QPushButton" name="browseOutputButton">
+                <property name="text">
+                 <string>Browse...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="exportFormatLabel">
+              <property name="text">
+               <string>Also export</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="exportFormat">
+              <item>
+               <property name="text">
+                <string>none</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>mat</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>npz</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>csv</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>pkl</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="exportFieldsLabel">
+              <property name="text">
+               <string>Fields</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QGridLayout" name="exportFieldsLayout">
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="saveE">
+                <property name="text">
+                 <string>E</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QCheckBox" name="saveEmag">
+                <property name="text">
+                 <string>Emag</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QCheckBox" name="saveEn">
+                <property name="text">
+                 <string>En</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QCheckBox" name="saveC">
+                <property name="text">
+                 <string>c</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QCheckBox" name="saveJn">
+                <property name="text">
+                 <string>Jn</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QCheckBox" name="savePot">
+                <property name="text">
+                 <string>Pot</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="runLayout">
+           <item>
+            <widget class="QPushButton" name="runButton">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>34</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Run</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="cancelButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>34</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Cancel</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="stageLabel">
+           <property name="text">
+            <string>Idle</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QProgressBar" name="progressBar">
+           <property name="value">
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPlainTextEdit" name="logView">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="lineWrapMode">
+            <enum>QPlainTextEdit::LineWrapMode::NoWrap</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="resultsTab">
+        <attribute name="title">
+         <string>Results</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="resultsLayout">
+         <item>
+          <widget class="QGroupBox" name="runGroup">
+           <property name="title">
+            <string>Run</string>
+           </property>
+           <layout class="QFormLayout" name="runInfoLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="resultKindLabel">
+              <property name="text">
+               <string>Type</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="resultKind">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="resultCreatedLabel">
+              <property name="text">
+               <string>Created</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="resultCreated">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="resultConvergenceLabel">
+              <property name="text">
+               <string>Convergence</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="resultConvergence">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="resultFolderLabel">
+              <property name="text">
+               <string>Folder</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="resultFolder">
+              <property name="text">
+               <string>-</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::TextInteractionFlag::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="showGroup">
+           <property name="title">
+            <string>Show</string>
+           </property>
+           <layout class="QFormLayout" name="showLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="resultFieldLabel">
+              <property name="text">
+               <string>Field</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="resultField"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="resultTissueLabel">
+              <property name="text">
+               <string>Tissue</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="resultTissue"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="resultColormapLabel">
+              <property name="text">
+               <string>Colormap</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="resultColormap">
+              <item>
+               <property name="text">
+                <string>jet</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>viridis</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>plasma</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>hot</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>RdBu_r</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="resultRangeLabel">
+              <property name="text">
+               <string>Range</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="resultRangeLayout">
+              <item>
+               <widget class="QCheckBox" name="autoRange">
+                <property name="text">
+                 <string>Auto</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rangeMin">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rangeMax">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0" colspan="2">
+             <widget class="QLabel" name="resultStats">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" colspan="2">
+             <widget class="QPushButton" name="showResultButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>Show in 3D view</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="electrodeResultGroup">
+           <property name="title">
+            <string>Electrodes</string>
+           </property>
+           <layout class="QVBoxLayout" name="electrodeResultLayout">
+            <item>
+             <widget class="QTableWidget" name="electrodeTable">
+              <property name="editTriggers">
+               <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>true</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>Electrode</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Set (V)</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Solved (V)</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Current (mA)</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="electrodeSummary">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="resultButtons">
+           <item>
+            <widget class="QPushButton" name="convergenceButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Convergence</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="plotWindowsButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>Surface and slice plots in separate windows</string>
+             </property>
+             <property name="text">
+              <string>Plot windows</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="openFolderButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Open folder</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="resultsSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="viewPort">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNewSetup"/>
+    <addaction name="actionOpenSetup"/>
+    <addaction name="actionSaveSetup"/>
+    <addaction name="actionSaveSetupAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenIndex"/>
+    <addaction name="actionSaveIndexAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenResult"/>
+    <addaction name="actionExportMatlab"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionViewXY"/>
+    <addaction name="actionViewXZ"/>
+    <addaction name="actionViewYZ"/>
+    <addaction name="actionResetView"/>
+   </widget>
+   <widget class="QMenu" name="menuRun">
+    <property name="title">
+     <string>&amp;Run</string>
+    </property>
+    <addaction name="actionRun"/>
+    <addaction name="separator"/>
+    <addaction name="actionSphere"/>
+    <addaction name="actionDipole"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionViewerHelp"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuRun"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="windowTitle">
+    <string>Main toolbar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpenSetup"/>
+   <addaction name="actionSaveSetup"/>
+   <addaction name="separator"/>
+   <addaction name="actionUndo"/>
+   <addaction name="actionRedo"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewXY"/>
+   <addaction name="actionViewXZ"/>
+   <addaction name="actionViewYZ"/>
+   <addaction name="actionResetView"/>
+   <addaction name="separator"/>
+   <addaction name="actionRun"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNewSetup">
+   <property name="text">
+    <string>&amp;New setup</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpenSetup">
+   <property name="text">
+    <string>&amp;Open setup...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSaveSetup">
+   <property name="text">
+    <string>&amp;Save setup</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSaveSetupAs">
+   <property name="text">
+    <string>Save setup &amp;as...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionOpenIndex">
+   <property name="text">
+    <string>Open tissue &amp;index...</string>
+   </property>
+  </action>
+  <action name="actionSaveIndexAs">
+   <property name="text">
+    <string>Save tissue index as...</string>
+   </property>
+  </action>
+  <action name="actionOpenResult">
+   <property name="text">
+    <string>Open &amp;result...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionExportMatlab">
+   <property name="text">
+    <string>Export model to &amp;MATLAB...</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionViewXY">
+   <property name="text">
+    <string>Top (XY)</string>
+   </property>
+   <property name="iconText">
+    <string>XY</string>
+   </property>
+  </action>
+  <action name="actionViewXZ">
+   <property name="text">
+    <string>Front (XZ)</string>
+   </property>
+   <property name="iconText">
+    <string>XZ</string>
+   </property>
+  </action>
+  <action name="actionViewYZ">
+   <property name="text">
+    <string>Side (YZ)</string>
+   </property>
+   <property name="iconText">
+    <string>YZ</string>
+   </property>
+  </action>
+  <action name="actionResetView">
+   <property name="text">
+    <string>Reset view</string>
+   </property>
+   <property name="iconText">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionRun">
+   <property name="text">
+    <string>Run &amp;solver</string>
+   </property>
+   <property name="iconText">
+    <string>Run</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionSphere">
+   <property name="text">
+    <string>Sphere check (uniform field)</string>
+   </property>
+  </action>
+  <action name="actionDipole">
+   <property name="text">
+    <string>Dipole on skull</string>
+   </property>
+  </action>
+  <action name="actionViewerHelp">
+   <property name="text">
+    <string>3D view &amp;keys</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
