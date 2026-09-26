@@ -13,17 +13,24 @@ class Scene:
     """
     Everything placed on a head model: coils for TMS, electrodes for tDCS and
     the slice planes used for plotting. Saved as json
+
+    mode is "tms" or "tdcs", the kind of study the setup was made for, and skin
+    the tissue the coils and electrodes sit on. Both can be empty
     """
 
     coils: list[Coil] = field(default_factory=list)
     electrodes: list[Electrode] = field(default_factory=list)
     planes: tuple[float, float, float] = (0.0, 0.0, 0.0)
     tissue_index: str = ""
+    mode: str = ""
+    skin: str = ""
 
     def to_dict(self):
         return {
             "version": SCENE_VERSION,
             "tissue_index": str(self.tissue_index),
+            "mode": self.mode,
+            "skin": self.skin,
             "planes": [float(p) for p in self.planes],
             "coils": [coil.to_dict() for coil in self.coils],
             "electrodes": [electrode.to_dict() for electrode in self.electrodes],
@@ -41,6 +48,8 @@ class Scene:
             electrodes=[Electrode.from_dict(e) for e in d.get("electrodes", [])],
             planes=tuple(d.get("planes", (0.0, 0.0, 0.0))),
             tissue_index=d.get("tissue_index", ""),
+            mode=d.get("mode", ""),
+            skin=d.get("skin", ""),
         )
 
     def save(self, path):

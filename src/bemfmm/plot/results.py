@@ -7,11 +7,12 @@ from bemfmm.constants import eps0
 from bemfmm.mesh import mesh_areas, mesh_tricenter
 from bemfmm.results import Result
 
+from .compute_efield_overlay import compute_efield_overlay
 from .electrodes import plot_electrode_worker
 from .fields import plot_fields
 from .patch import plot_worker
 from .residual import plot_residual
-from .slice import plot_slices
+from .slice import SLICE_PLANES, plot_efield_slice
 
 
 def tissue_or_last(result: Result, tissue):
@@ -19,28 +20,58 @@ def tissue_or_last(result: Result, tissue):
     return tissue if tissue in result.tissues else result.tissues[-1]
 
 
-def show_slices(result: Result, xyz, th_tissue, coils=()):
+def default_planes(result: Result, coils, tissue="wm"):
+    # through the point where the first coil axis meets the tissue
+    t = result.t[result.facets(tissue_or_last(result, tissue))]
+    i = vedo.Mesh([result.P, t]).intersect_with_line(*coils[0].centerline)
+    return i[0] if len(i) > 0 else [0.5, 0.5, 0.5]
+
+
+def compute_slices(result: Result, xyz, th_tissue="gm", coils=(), progress=None):
     # Threshold to min and max of Emag on th_tissue
     th_tissue = tissue_or_last(result, th_tissue)
-    Emag = result.fields["Emag"]
-    idx = result.facets(th_tissue)
-    plot_slices(
-        P=result.P,
-        t=result.t,
-        center=mesh_tricenter(result.P, result.t),
-        area=mesh_areas(result.P, result.t),
-        normals=result.normals,
-        c=result.fields["c"].reshape((-1, 1)),
-        interface=result.interface,
-        tissue_list=result.tissues,
-        xyz=xyz,
-        coils=list(coils),
-        th1=np.nanmax(Emag[idx]),
-        th2=np.nanmin(Emag[idx]),
-    )
+    Emag = result.fields["Emag"][result.facets(th_tissue)]
+    center = mesh_tricenter(result.P, result.t)
+    area = mesh_areas(result.P, result.t)
+
+    slices = {}
+    for i, (plane, val) in enumerate(zip(SLICE_PLANES, (xyz[2], xyz[1], xyz[0]))):
+        if progress:
+            progress("slices", i, len(SLICE_PLANES))
+        slices[plane] = compute_efield_overlay(
+            P=result.P,
+            t=result.t,
+            centers=center,
+            area=area,
+            normals=result.normals,
+            c=result.fields["c"].reshape((-1, 1)),
+            plane=plane,
+            val=val,
+            interface=result.interface,
+            coils=list(coils),
+            th1=np.nanmax(Emag),
+            th2=np.nanmin(Emag),
+        )
+    if progress:
+        progress("slices", len(SLICE_PLANES), len(SLICE_PLANES))
+    return slices
 
 
-def show_tms(result: Result, coils, planes=None, plot_tissue="wm", slice_tissue="gm"):
+def show_slices(result: Result, xyz, th_tissue, coils=(), slices=None):
+    if slices is None:
+        slices = compute_slices(result, xyz, th_tissue, coils)
+    for data in slices.values():
+        Process(target=plot_efield_slice, args=(data, result.tissues)).start()
+
+
+def show_tms(
+    result: Result,
+    coils,
+    planes=None,
+    plot_tissue="wm",
+    slice_tissue="gm",
+    slices=None,
+):
     plot_residual(result.resvec)
 
     plot_tissue = tissue_or_last(result, plot_tissue)
@@ -61,16 +92,11 @@ def show_tms(result: Result, coils, planes=None, plot_tissue="wm", slice_tissue=
         f["Jn"].reshape((-1, 1)),
     )
 
-    if planes is None:
-        i = vedo.Mesh([result.P, plot_t]).intersect_with_line(*coils[0].centerline)
-        xyz = i[0] if len(i) > 0 else [0.5, 0.5, 0.5]
-    else:
-        xyz = planes
-
-    show_slices(result, xyz, slice_tissue, coils)
+    xyz = default_planes(result, coils, plot_tissue) if planes is None else planes
+    show_slices(result, xyz, slice_tissue, coils, slices)
 
 
-def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin"):
+def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin", slices=None):
     plot_residual(result.resvec)
 
     f = result.fields
@@ -102,7 +128,7 @@ def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin"):
     ).start()
     # fmt: on
 
-    show_slices(result, planes, plot_tissue)
+    show_slices(result, planes, plot_tissue, slices=slices)
 
 
 def show_uniform(result: Result, plot_tissue="gm"):

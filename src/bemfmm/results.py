@@ -99,6 +99,33 @@ class Result:
 
         return directory / RESULT_INFO
 
+    def export(self, directory, names, fmt="mat", tissue=None, mesh=False):
+        """
+        Writes each named field to its own file, one row per facet, only the
+        facets of tissue if one is given. mesh adds the vertices P and facets
+        t, numbered from 1 in .mat files. Returns the paths written
+        """
+        from bemfmm.lib import SAVERS
+
+        directory = Path(directory)
+        directory.mkdir(parents=True, exist_ok=True)
+        facets = self.facets(tissue) if tissue else slice(None)
+        suffix = f"_{tissue}" if tissue else ""
+
+        arrays = {name: self.fields[name][facets] for name in names}
+        if mesh:
+            arrays["P"] = self.P
+            arrays["t"] = self.t[facets] + (1 if fmt == "mat" else 0)
+
+        paths = []
+        for name, arr in arrays.items():
+            if arr.ndim == 1:
+                arr = arr.reshape((-1, 1))
+            path = directory / f"{name}{suffix}.{fmt}"
+            SAVERS[fmt](path, name, arr)
+            paths.append(path)
+        return paths
+
     @classmethod
     def load(cls, path):
         path = Path(path)

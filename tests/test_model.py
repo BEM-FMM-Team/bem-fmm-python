@@ -64,12 +64,15 @@ def test_scene_roundtrip(tmp_path):
         electrodes=[Electrode("A", [0, 0, 0.042], 0.008, 1.0)],
         planes=(0.0, 0.002, -0.001),
         tissue_index=str(sphere_index()),
+        mode="tms",
+        skin="skin",
     )
     scene.save(tmp_path / "setup.json")
     again = Scene.load(tmp_path / "setup.json")
 
     assert again.planes == scene.planes
     assert again.tissue_index == scene.tissue_index
+    assert (again.mode, again.skin) == ("tms", "skin")
     assert [c.name for c in again.coils] == ["F8", "default"]
     for a, b in zip(again.coils, scene.coils):
         np.testing.assert_allclose(a.Pwire, b.Pwire, atol=1e-12)

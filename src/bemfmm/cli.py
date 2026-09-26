@@ -47,21 +47,49 @@ def progress_printer(enabled):
 
 
 def save_fields(result, output_dir, save_format, save):
-    from bemfmm.lib import SAVERS
-
     if save_format == "none":
         return
+    names = []
     for name in save:
         if name not in result.fields:
             print(f"{name} is not a field of this result, skipping")
             continue
-        # per facet values are written as columns, like the matlab code
-        arr = result.fields[name]
-        if arr.ndim == 1:
-            arr = arr.reshape((-1, 1))
-        path = output_dir / f"{name}.{save_format}"
-        SAVERS[save_format](path, name, arr)
+        names.append(name)
+    # per facet values are written as columns, like the matlab code
+    for name, path in zip(names, result.export(output_dir, names, save_format)):
         print(f"Saved {name} to {path}")
+
+
+def write_slices(result, output_dir, planes, coils=(), progress=None):
+    from bemfmm.plot.results import compute_slices, default_planes
+    from bemfmm.plot.slice import save_slices
+
+    if planes is None:
+        planes = default_planes(result, coils) if coils else (0.0, 0.0, 0.0)
+    start = perf_counter()
+    slices = compute_slices(result, planes, "gm", coils, progress)
+    path = save_slices(
+        output_dir / "slices.npz",
+        slices,
+        planes,
+        result.tissues,
+        result.info.get("created", ""),
+    )
+    print(f"Saved slices to {path} in {perf_counter() - start:.1f}s")
+    return slices
+
+
+def saved_slices(directory, result):
+    # slices.npz from `bemfmm slices` or --slices, if it belongs to this result
+    from bemfmm.plot.slice import load_slices
+
+    path = Path(directory) / "slices.npz"
+    if not path.is_file():
+        return None
+    data = load_slices(path)
+    if data["created"] != result.info.get("created", ""):
+        return None
+    return data
 
 
 def wait_for_windows(plot):
@@ -96,6 +124,7 @@ def tms(
     save_format: SaveFormat = "none",
     save: list[str] = typer.Option(["E", "c", "En"], "--save", "-s"),
     plot_tissue: str = "wm",
+    slices: bool = typer.Option(False, help="Also save E-field slices"),
     plot: bool = True,
     progress: bool = typer.Option(False, hidden=True),
 ):
@@ -128,9 +157,14 @@ def tms(
     output_dir = output_path(output_dir)
     print(f"Saved result to {result.save(output_dir)}")
     save_fields(result, output_dir, save_format, save)
+    slice_data = None
+    if slices:
+        slice_data = write_slices(
+            result, output_dir, planes, coils, progress_printer(progress)
+        )
 
     if plot:
-        show_tms(result, coils, planes, plot_tissue)
+        show_tms(result, coils, planes, plot_tissue, slices=slice_data)
     wait_for_windows(plot)
 
 
@@ -138,7 +172,9 @@ def tms(
 def tdcs(
     setup: Optional[str] = typer.Option(None, help="Setup (.json) with electrodes"),
     tissue_index: Optional[str] = None,
-    skin: str = "skin",
+    skin: Optional[str] = typer.Option(
+        None, help="Tissue the electrodes sit on, from the setup or skin"
+    ),
     num_neighbors: int = 4,
     num_neighbors_p: int = 32,
     iter: int = 50,
@@ -148,6 +184,7 @@ def tdcs(
     save_format: SaveFormat = "none",
     save: list[str] = typer.Option(["E", "c", "En"], "--save", "-s"),
     plot_tissue: str = "gm",
+    slices: bool = typer.Option(False, help="Also save E-field slices"),
     plot: bool = True,
     progress: bool = typer.Option(False, hidden=True),
 ):
@@ -166,6 +203,7 @@ def tdcs(
     else:
         electrodes, planes = scene.electrodes, scene.planes
         print(f"Using electrodes from {setup}")
+    skin = skin or (scene.skin if scene else "") or "skin"
 
     start = perf_counter()
     result = solve(
@@ -190,9 +228,14 @@ Power loss: {info['power']:.4e} W"""
     output_dir = output_path(output_dir)
     print(f"Saved result to {result.save(output_dir)}")
     save_fields(result, output_dir, save_format, save)
+    slice_data = None
+    if slices:
+        slice_data = write_slices(
+            result, output_dir, planes, progress=progress_printer(progress)
+        )
 
     if plot:
-        show_tdcs(result, planes, plot_tissue, skin)
+        show_tdcs(result, planes, plot_tissue, skin, slice_data)
     wait_for_windows(plot)
 
 
@@ -238,16 +281,48 @@ def show(
 
     setup = directory / "setup.json"
     planes = Scene.load(setup).planes if setup.is_file() else None
+    saved = saved_slices(directory, res)
+    slices = None
+    if saved is not None:
+        slices, planes = saved["slices"], saved["planes"]
 
     if res.kind == "tms":
         coils = [Coil.from_dict(d) for d in res.info["coils"]]
-        show_tms(res, coils, planes, plot_tissue or "wm")
+        show_tms(res, coils, planes, plot_tissue or "wm", slices=slices)
     elif res.kind == "tdcs":
         skin = res.info["options"]["skin"]
-        show_tdcs(res, planes or (0.0, 0.0, 0.0), plot_tissue or "gm", skin)
+        planes = planes or (0.0, 0.0, 0.0)
+        show_tdcs(res, planes, plot_tissue or "gm", skin, slices)
     else:
         show_uniform(res, plot_tissue or "gm")
     wait_for_windows(True)
+
+
+@app.command("slices")
+def slices_command(
+    result: str = typer.Argument(..., help="Result folder or its result.json"),
+    planes: Optional[tuple[float, float, float]] = typer.Option(
+        None, help="x y z of the slice planes in mm, from the setup by default"
+    ),
+    progress: bool = typer.Option(False, hidden=True),
+):
+    """Compute E-field slices for a saved result, saved next to it."""
+    from bemfmm.coils import Coil
+    from bemfmm.results import Result
+    from bemfmm.scene import Scene
+
+    path = Path(result)
+    directory = path if path.is_dir() else path.parent
+    res = Result.load(directory)
+    coils = [Coil.from_dict(d) for d in res.info.get("coils", [])]
+
+    if planes:
+        planes = tuple(p * 1e-3 for p in planes)
+    elif (directory / "setup.json").is_file():
+        planes = Scene.load(directory / "setup.json").planes
+    else:
+        planes = None
+    write_slices(res, directory, planes, coils, progress_printer(progress))
 
 
 @app.command()
