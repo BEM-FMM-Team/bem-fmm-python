@@ -1,9 +1,5 @@
 import os
 import pickle
-import platform
-import shutil
-import subprocess
-import sys
 import warnings
 from importlib.resources import files
 from pathlib import Path
@@ -76,9 +72,15 @@ def timeit(fn):
     return ret
 
 
+# BEMFMM_NO_CACHE=1 turns the cache off, the tests use it
 memory = Memory(
-    Path(__file__).resolve().parent.resolve().parent.resolve().parent
-    / "__compute_cache__"
+    (
+        None
+        if os.environ.get("BEMFMM_NO_CACHE")
+        else Path(__file__).resolve().parent.resolve().parent.resolve().parent
+        / "__compute_cache__"
+    ),
+    verbose=0,
 )
 cache = memory.cache
 # cache = timeit
@@ -87,104 +89,15 @@ cache = memory.cache
 io = True
 
 
-def launch_detached_new_terminal(script_path: str, script_args: list[str] = []):
-    script_path = str(Path(script_path).resolve())
-    env = os.environ.copy()
-    py = sys.executable
-    cwd = str(Path().resolve())
-
-    system = platform.system()
-
-    if system == "Windows":
-        subprocess.Popen(
-            [py, script_path] + script_args,
-            env=env,
-            cwd=cwd,
-            creationflags=subprocess.CREATE_NEW_CONSOLE,
-        )
-        return None
-
-    elif system == "Darwin":
-        mac_terms = [
-            ("ghostty", ["-e"]),
-            ("alacritty", ["-e"]),
-            ("wezterm", ["start", "--", "-e"]),
-        ]
-
-        for exe, prefix in mac_terms:
-            if not shutil.which(exe):
-                continue
-
-            cmd = [exe] + prefix + [py, script_path] + script_args
-            return subprocess.Popen(
-                cmd,
-                env=env,
-                cwd=cwd,
-                start_new_session=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            ).pid
-
-        cmd = ["open", "-a", "Terminal", script_path] + script_args
-        return subprocess.Popen(
-            cmd,
-            env=env,
-            cwd=cwd,
-            start_new_session=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ).pid
-
-    else:
-        terms = [
-            ("ghostty", ["-e"]),
-            ("st", ["-e"]),
-            ("alacritty", ["-e"]),
-            ("xterm", ["-e"]),
-            ("wezterm", ["start", "--", "-e"]),
-            ("termite", ["-e"]),
-            ("foot", ["--command"]),
-            ("gnome-terminal", ["--"]),
-            ("konsole", ["-e"]),
-        ]
-
-        for exe, prefix in terms:
-            if not shutil.which(exe):
-                continue
-
-            if exe == "foot":
-                cmd = [exe, "--command", py, script_path] + script_args
-            else:
-                cmd = [exe] + prefix + [py, script_path] + script_args
-
-            return subprocess.Popen(
-                cmd,
-                env=env,
-                cwd=cwd,
-                start_new_session=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            ).pid
-
-        return subprocess.Popen(
-            [py, script_path] + script_args,
-            env=env,
-            cwd=cwd,
-            start_new_session=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ).pid
-
-
 def get_asset_path(asset_name: str) -> Path:
     try:
         # 3.12+
-        return Path(str(files("apps").joinpath("assets", asset_name)))
+        return Path(str(files("bemfmm").joinpath("assets", asset_name)))
     except TypeError:
         # fallback for older versions or when installed as directory
         from importlib.resources import as_file
 
-        with as_file(files("apps").joinpath("assets", asset_name)) as path:
+        with as_file(files("bemfmm").joinpath("assets", asset_name)) as path:
             return path
 
 

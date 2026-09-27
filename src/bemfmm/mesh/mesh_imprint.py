@@ -1,234 +1,190 @@
 import numpy as np
 
-from . import mesh_areas, mesh_connee, mesh_fix, mesh_reorient, mesh_tricenter
+from .mesh_areas import mesh_areas
+from .mesh_connee import mesh_connee
+from .mesh_fix import mesh_fix
+from .mesh_reorient import mesh_reorient
+from .mesh_simpqual import mesh_simpqual
+from .mesh_tricenter import mesh_tricenter
+
+TOL = 1024 * np.finfo(float).eps
 
 
-def mesh_imprint(P, t, normals, ElecNum, ElecPos, ElecRad):
-    ##   Imprint electrodes
-    ###########################################################################
-    ###########################################################################
-    #   Imprints an arbitrary number of electrodes
-    #   Returns new arrays P, t, normals
-    #   Returns indexes in t into particular electrodes
-    #   Copyright SNM 2016-2025
+def mesh_imprint(P, t, normals, ElecPos, ElecRad):
+    """
+    Imprints an arbitrary number of electrodes
 
-    NumberOfElectrodes = ElecNum
-    PositionOfElectrodes = ElecPos
-    RadiusOfElectrodes = ElecRad
+    P       - (V x 3) vertices
+    t       - (T x 3) triangles
+    normals - (T x 3) outer normals, one per triangle
+    ElecPos - (E x 3) electrode centers
+    ElecRad - (E,) electrode radii
 
-    ##   Establish connectivity
-    #   si - triangles attached to every vertex (neighbor triangles)
-    #   vi - vertices attached to every vertex (neighbor edges)
-    si, vi = vertices(P, t)
-    #   edges - array of mesh edges
-    edges = mesh_connee(t)
-    #   global edgelength - real edge length (after refinement, for example)
-    temp = P[edges[:, 0], :] - P[edges[:, 1], :]
+    Returns new P, t, normals and IndicatorElectrodes, where
+    IndicatorElectrodes[i] = m + 1 if triangle i belongs to electrode m and
+    0 otherwise
 
-    edgelength = np.linalg.norm(temp, axis=1)
-    #   global edge center
-    edgecenter = (P[edges[:, 0], :] + P[edges[:, 1], :]) / 2
+    SNM/GNP 2016-2026
+    SP 2026
+    """
+    P = np.array(P, dtype=np.float64)
+    t = np.array(t, dtype=np.int64)
+    normals = np.array(normals, dtype=np.float64)
+    ElecPos = np.atleast_2d(ElecPos)
+    ElecRad = np.atleast_1d(ElecRad)
 
-    ##  Move nodes located close to the boundary exactly to the boundary
-    #   tol - relative tolerance with regard to edge length
-    tol = 0.20  #    a good value
+    NumberOfElectrodes = ElecPos.shape[0]
+
+    edge = mesh_connee(t)
+    edge_length = np.linalg.norm(P[edge[:, 0]] - P[edge[:, 1]], axis=1)
+    edge_center = 0.5 * (P[edge[:, 0]] + P[edge[:, 1]])
+
+    ## Move nodes located near the electrode boundaries exactly to the boundary
+    # tol - relative tolerance wrt. local edge length
+    tol = 0.20
     for m in range(NumberOfElectrodes):
-        position = PositionOfElectrodes[m, :]
-        DIST = np.linalg.norm(P - position, axis=1)
-        temp1 = DIST - RadiusOfElectrodes[m]
-        #   find proximal average edge length
-        index = np.linalg.norm(edgecenter - position, axis=1) < RadiusOfElectrodes[m]
-        avgedgelength = np.mean(edgelength[index])
+        position = ElecPos[m]
+        DIST_sg = np.linalg.norm(P - position, axis=1) - ElecRad[m]
 
-        temp2 = np.abs(temp1) / avgedgelength < tol
-        dirvector = P[temp2, :] - position
-        dirvector = dirvector / np.linalg.norm(dirvector, axis=1, keepdims=True)
-        P[temp2, :] = P[temp2, :] - dirvector * temp1[temp2, None]
-    ##  Split all intersected triangles
-    #   Add boundary nodes/add triangles for all edges crossing the boundary
-    Numbers = P.shape(0)  #    global numbers of new boundary nodes (accumulating)
-    # Lists are faster for quick 1D concatenations
-    NewTriangles = []  #    new triangles
-    NewNormals = []  #    new normal vectors
-    NewNodes = []  #    new nodes (with repetition)
-    Remove = []  #    triangles to remove (to split)
+        ix = np.linalg.norm(edge_center - position, axis=1) < ElecRad[m]
+        if not np.any(ix):
+            continue
+        avg_edge_length = np.mean(edge_length[ix])
+
+        nb_ix = np.abs(DIST_sg) / avg_edge_length < tol
+        dir_vec = P[nb_ix] - position
+        dir_vec = dir_vec / np.linalg.norm(dir_vec, axis=1, keepdims=True)
+        # inner points are pushed outward, outer points inward
+        P[nb_ix] = P[nb_ix] - dir_vec * DIST_sg[nb_ix, None]
+
+    ## Split all triangles crossed by the electrode boundaries
     for m in range(NumberOfElectrodes):
-        #   Find all nodes within the sphere
-        position = PositionOfElectrodes[m, :]
-        DIST = np.linalg.norm(P - position, axis=1)
-        temp = DIST < RadiusOfElectrodes[m] - 1024 * np.finfo(float).eps
-        temp = np.where(temp > 0)[0]  #   all nodes within the sphere
-        for n in range(len(temp)):  #   node, which is in
-            point = temp[n]  #   check this inner node
-            index_in = np.intersect1d(
-                vi[point], temp
-            )  #   all neighbor nodes of the inner node which are inside the sphere
-            index_out = np.setdiff1d(
-                vi[point], temp
-            )  #   all neighbor nodes of the inner node which are outside the sphere
-            if len(index_out) > 0:  #   find all crossing triangles
-                for p in range(
-                    len(si[point])
-                ):  #   loop over triangles attached to the inner node which may intersect the boundary
-                    TriNum = si[point][
-                        p
-                    ]  #   individual triangle TriNum attached to the inner node which may intersect the boundary
-                    IndexIn = np.intersect1d(
-                        t[TriNum, :3], index_in
-                    )  #    index into node(s) of TriNum that are inside
-                    IndexOut = np.intersect1d(
-                        t[TriNum, :3], index_out
-                    )  #    index into node(s) of TriNum that are outside
-                    if (
-                        len(IndexOut) == 2
-                    ):  #    two nodes of TriNum are outside and one (target node) is inside
-                        OutNode1 = P[IndexOut[0], :]
-                        OutNode2 = P[IndexOut[1], :]
-                        InNode = P[point, :]
-                        InterNode1 = linesphere(
-                            OutNode1, InNode, position, RadiusOfElectrodes[m]
-                        )  # NOTE: some helper
-                        newidx1 = Numbers
-                        Numbers += 1
-                        InterNode2 = linesphere(
-                            OutNode2, InNode, position, RadiusOfElectrodes[m]
-                        )
-                        newidx2 = Numbers
-                        Numbers += 1
+        edge = mesh_connee(t)
+        position = ElecPos[m]
+        R = ElecRad[m]
+        inside = np.linalg.norm(P - position, axis=1) < R - TOL
 
-                        #   construct subdivision triangles
+        crossing = inside[edge[:, 0]] ^ inside[edge[:, 1]]
+        cross_edge = edge[crossing]
+        if cross_edge.shape[0] == 0:
+            continue
 
-                        tadd1 = [IndexOut[0], newidx1, IndexOut[1]]
-                        tadd2 = [IndexOut[1], newidx1, newidx2]
-                        tadd3 = [point, newidx1, newidx2]
-                        NewTriangles.extend([tadd1, tadd2, tadd3])
-                        NewNormals.extend(
-                            [normals[TriNum, :], normals[TriNum, :], normals[TriNum, :]]
-                        )
-                        Remove.append(TriNum)
-                        NewNodes.extend([InterNode1, InterNode2])
-                        if (
-                            np.linalg.norm(InterNode1 - InterNode2)
-                            < 1024 * np.finfo(float).eps
-                        ):
-                            print("here")
-    NewTriangles = np.array(NewTriangles, dtype=int)
-    NewNormals = np.array(NewNormals)
-    NewNodes = np.array(NewNodes)
-    Remove = np.array(Remove, dtype=int)
+        InterNodes = linesphere(P[cross_edge[:, 0]], P[cross_edge[:, 1]], position, R)
 
-    Remove = np.unique(Remove)
+        nV = P.shape[0]
+        new_idx = nV + np.arange(InterNodes.shape[0])
+        P = np.vstack((P, InterNodes))
 
-    #   Construct the new mesh
-    t = np.delete(t, Remove, axis=0)
-    normals = np.delete(normals, Remove, axis=0)
-    t = np.vstack((t, NewTriangles))
-    normals = np.vstack((normals, NewNormals))
-    P = np.vstack((P, NewNodes))
+        # edges from mesh_connee are sorted pairs in sorted order, so
+        # the keys are sorted as well and searchsorted works as a hash map
+        keys = cross_edge[:, 0] * nV + cross_edge[:, 1]
 
-    #   Remove triangles with coincident points from the mesh (when two nodes are at the boundary)
-    A = mesh_areas(P, t)
-    index = np.where(A < 1e-9)[0]  # 1e-6 if in mm, 1e-9 if in m
-    t = np.delete(t, index, axis=0)
-    normals = np.delete(normals, index, axis=0)
+        def lookup(a, b):
+            return new_idx[
+                np.searchsorted(keys, np.minimum(a, b) * nV + np.maximum(a, b))
+            ]
 
-    #  Remove duplicated nodes from the mesh
-    P, t = mesh_fix(P, t)
+        n_inside = inside[t].sum(axis=1)
+        caseA = n_inside == 1  # 1 in, 2 out
+        caseB = n_inside == 2  # 2 in, 1 out
 
-    #   Remove duplicated triangles with equal centers
+        # rotate so that column 0 is the inside node
+        tA = t[caseA]
+        for _ in range(2):
+            swap = ~inside[tA[:, 0]]
+            tA[swap] = tA[swap][:, [1, 2, 0]]
+
+        # rotate so that column 0 is the outside node
+        tB = t[caseB]
+        for _ in range(2):
+            swap = inside[tB[:, 0]]
+            tB[swap] = tB[swap][:, [1, 2, 0]]
+
+        iA, o1A, o2A = tA[:, 0], tA[:, 1], tA[:, 2]
+        n1A = lookup(iA, o1A)
+        n2A = lookup(iA, o2A)
+
+        oB, i1B, i2B = tB[:, 0], tB[:, 1], tB[:, 2]
+        n1B = lookup(i1B, oB)
+        n2B = lookup(i2B, oB)
+
+        newT_A = np.vstack(
+            (
+                np.column_stack((o1A, n1A, o2A)),
+                np.column_stack((o2A, n1A, n2A)),
+                np.column_stack((iA, n1A, n2A)),
+            )
+        )
+        newT_B = np.vstack(
+            (
+                np.column_stack((i1B, n1B, i2B)),
+                np.column_stack((i2B, n1B, n2B)),
+                np.column_stack((oB, n1B, n2B)),
+            )
+        )
+
+        # normals are inherited from the parent triangles
+        keep = ~(caseA | caseB)
+        t = np.vstack((t[keep], newT_A, newT_B))
+        normals = np.vstack(
+            (
+                normals[keep],
+                np.tile(normals[caseA], (3, 1)),
+                np.tile(normals[caseB], (3, 1)),
+            )
+        )
+
+    # Remove triangles with coincident points (two nodes at the boundary)
+    A = mesh_areas(P, t).ravel()
+    keep = A >= 1e-12
+    t = t[keep]
+    normals = normals[keep]
+
+    P, t, _ = mesh_fix(P, t)
+
+    # Remove duplicated triangles with equal centers
     C = mesh_tricenter(P, t)
-
     _, index = np.unique(C, axis=0, return_index=True)
-    t = t[index, :]
-    normals = normals[index, :]
-    #   Remove overlapping triangles due to non-manifoldeness
-    #   Boolean masking
-    q = simpqual(P, t)
-    t = t[q >= 1e-2, :]
-    normals = normals[q >= 1e-2, :]
-    P, t = mesh_fix(P, t)
+    t = t[index]
+    normals = normals[index]
 
-    #   Reorient triangles as required
+    # Remove overlapping triangles due to non-manifoldness
+    keep = mesh_simpqual(P, t) >= 1e-2
+    t = t[keep]
+    normals = normals[keep]
+    P, t, _ = mesh_fix(P, t)
+
     t = mesh_reorient(P, t, normals)
 
-    #   Select electrodes
-    IndicatorElectrodes = np.zeroes(np.shape(t)[0], dtype=int)
     C = mesh_tricenter(P, t)
+    IndicatorElectrodes = np.zeros(t.shape[0], dtype=int)
     for m in range(NumberOfElectrodes):
-        #   Identify new electrode triangles
-        position = PositionOfElectrodes[m, :]
-        temp = (
-            (C[:, 0] - position[0]) ** 2
-            + (C[:, 1] - position[1]) ** 2
-            + (C[:, 2] - position[2]) ** 2
-        )
-        R2 = RadiusOfElectrodes**2
-        temp = np.where(temp <= R2 - 1024 * np.finfo(float).eps)[0]
-        IndicatorElectrodes[temp] = m
+        dist2 = np.sum((C - ElecPos[m]) ** 2, axis=1)
+        IndicatorElectrodes[dist2 <= ElecRad[m] ** 2 - TOL] = m + 1
+
     return P, t, normals, IndicatorElectrodes
 
 
-def vertices(P, t):
-    #   si = triangles attached to every vertex (neight or triangles)
-    #   vi - Vertices attached to every vertex (neighbor edges)
-    si = [None] * P.shape[0]
-    vi = [None] * P.shape[0]
-    for m in range(P.shape([0])):
-        temp = (t[:, 0] == m) | (t[:, 1] == m) | (t[:, 2] == m)
-        si[m] = np.where(temp > 0)[0]
-        temp = np.unique(np.concatenate((t[si[m], 0], t[si[m], 1], t[si[m], 2])))
-        temp = temp[temp != m]
-        vi[m] = (
-            temp  # NOTE: there is a strange detail in the matlab code that deletes vertex index 0. Python indexes from 0, so this may need to be revisited
-        )
-    return si, vi
-
-
 def linesphere(P1, P2, P3, R):
-    #   P1, P2 - line;
-    #   P3 - sphere center
-    #   R  - sphere radius
-
-    #   safety check
-    P1 = np.asarray(P1)
-    P2 = np.asarray(P2)
-    P3 = np.asarray(P3)
+    """
+    Vectorized line/sphere intersection
+    P1, P2 - (N x 3) line end points
+    P3     - sphere center
+    R      - sphere radius
+    """
     d = P2 - P1
+    f = P1 - P3
+    a = np.sum(d * d, axis=1)
+    b = 2 * np.sum(f * d, axis=1)
+    c = np.sum(f * f, axis=1) - R**2
+    disc = np.sqrt(b**2 - 4 * a * c)
+    t1 = (-b + disc) / (2 * a)
+    t2 = (-b - disc) / (2 * a)
 
-    x1 = P1[0]
-    x2 = P2[0]
+    s = np.zeros_like(a)
+    m1 = (t1 > 0) & (t1 <= 1 + TOL)
+    s[m1] = t1[m1]
+    m2 = (t2 > 0) & (t2 <= 1 + TOL)
+    s[m2] = t2[m2]
 
-    y1 = P1[1]
-    y2 = P2[1]
-
-    z1 = P1[2]
-    z2 = P2[2]
-
-    x3 = P3[0]
-    y3 = P3[1]
-    z3 = P3[2]
-
-    a = (x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2
-    b = 2 * ((x2 - x1) * (x1 - x3) + (y2 - y1) * (y1 - y3) + (z2 - z1) * (z1 - z3))
-    c = (
-        x3**2
-        + y3**2
-        + z3**2
-        + x1**2
-        + y1**2
-        + z1**2
-        - 2 * (x3 * x1 + y3 * y1 + z3 * z1)
-        - R**2
-    )
-    t1 = (-b + np.sqrt(b * b - 4 * a * c)) / (2 * a)
-    t2 = (-b - np.sqrt(b * b - 4 * a * c)) / (2 * a)
-    t = 0.0
-    if 0 < t1 <= 1 + 1024 * np.finfo(float).eps:
-        t = t1
-    if 0 < t2 <= 1 + 1024 * np.finfo(float).eps:
-        t = t2
-
-    IntersectionPoint = np.array(
-        [x1 + (x2 - x1) * t, y1 + (y2 - y1) * t, z1 + (z2 - z1) * t]
-    )
-    return IntersectionPoint
+    return P1 + d * s[:, None]

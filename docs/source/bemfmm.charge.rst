@@ -52,6 +52,14 @@ bemfmm.charge.inc\_field\_gauss\_selective\_dipoles module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.charge.potential\_neighbor\_ints module
+----------------------------------------------
+
+.. automodule:: bemfmm.charge.potential_neighbor_ints
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.charge.potint module
 ---------------------------
 
@@ -96,6 +104,14 @@ bemfmm.charge.surface\_field\_lhs module
 ----------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_lhs
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+bemfmm.charge.surface\_field\_lhs\_v module
+-------------------------------------------
+
+.. automodule:: bemfmm.charge.surface_field_lhs_v
    :members:
    :show-inheritance:
    :undoc-members:

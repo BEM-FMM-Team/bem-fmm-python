@@ -16,6 +16,7 @@ def fgmres(
     iter: int,
     maxiter: int,
     x0: np.ndarray | None = None,
+    callback: Callable[[int, float], None] | None = None,
 ):
     _ = n
     return dbg_fgmres(
@@ -25,6 +26,7 @@ def fgmres(
         restart=iter,
         max_iters=maxiter,
         x0=x0,
+        callback=callback,
     )
 
 
@@ -39,6 +41,7 @@ def dbg_fgmres(
     verb: int = 2,
     tol_exit: float | None = None,
     P: Callable | np.ndarray | None = None,
+    callback: Callable[[int, float], None] | None = None,
 ) -> tuple[np.ndarray, tuple[int, int], list[float]]:
     """
     Flexible GMRES method
@@ -74,6 +77,8 @@ def dbg_fgmres(
         Stopping tolerance: exit if |r|/|b|<tol_exit
     P : callable or ndarray, optional []
         Preconditioning procedure in the same form as A
+    callback : callable, optional
+        Called as callback(iteration, relres) after every inner iteration
 
     Returns:
     --------
@@ -243,6 +248,8 @@ def dbg_fgmres(
 
             # Report the residual
             resids.append(resid)
+            if callback is not None:
+                callback(j + 1, resid)
 
             if verb > 1:
                 elapsed = time.time() - t_gmres_start

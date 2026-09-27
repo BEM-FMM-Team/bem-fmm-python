@@ -1,0 +1,138 @@
+QMainWindow, QDialog {
+    background: $window;
+}
+
+QTabWidget::pane {
+    border: none;
+    border-top: 1px solid $border;
+}
+
+QTabBar::tab {
+    padding: 8px 16px;
+    color: $tab;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+QTabBar::tab:selected {
+    color: $accent_text;
+    border-bottom: 2px solid $accent_text;
+}
+
+QTabBar::tab:hover:!selected {
+    color: $text;
+}
+
+QTabBar::tab:disabled {
+    color: $border;
+}
+
+QGroupBox {
+    border: 1px solid $border;
+    border-radius: 6px;
+    margin-top: 16px;
+    padding: 8px 6px 6px 6px;
+    background: $panel;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 4px;
+    color: $title;
+}
+
+QPushButton {
+    padding: 4px 12px;
+}
+
+QPushButton:checked {
+    background: $accent_soft;
+    border: 1px solid $accent_text;
+    border-radius: 3px;
+}
+
+QPushButton#runButton {
+    background: $accent;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 20px;
+    font-weight: 600;
+}
+
+QPushButton#runButton:hover {
+    background: $accent_hover;
+}
+
+QPushButton#runButton:disabled {
+    background: $accent_disabled;
+}
+
+QProgressBar {
+    border: 1px solid $border;
+    border-radius: 3px;
+    background: $trough;
+    max-height: 8px;
+}
+
+QProgressBar::chunk {
+    background: $accent;
+}
+
+QPlainTextEdit#logView {
+    font-family: "JetBrains Mono", "Consolas", "Menlo", monospace;
+    font-size: 9pt;
+    background: $log;
+}
+
+QLabel#stageLabel, QLabel#modelSummary, QLabel#tissueHint, QLabel#resultStats,
+QLabel#electrodeSummary, QLabel#electrodeHint, QLabel#sliceInfo,
+QLabel#distributionInfo, QLabel#plotPlaceholder {
+    color: $muted;
+}
+
+QLabel#solveSummary {
+    font-weight: 600;
+    color: $text;
+    padding: 4px 0;
+}
+
+QLabel#noViewportLabel {
+    color: $muted;
+    font-size: 11pt;
+    padding: 40px;
+}
+
+QLabel#modeBadge {
+    background: $accent;
+    color: #ffffff;
+    border-radius: 3px;
+    padding: 1px 10px;
+    font-weight: 600;
+}
+
+QToolBar {
+    border: none;
+    border-bottom: 1px solid $border;
+    spacing: 4px;
+    padding: 2px 6px;
+}
+
+QToolButton#modeButton {
+    padding: 3px 16px;
+    font-weight: 600;
+    border: 1px solid $border;
+    border-radius: 3px;
+}
+
+QToolButton#modeButton:checked {
+    background: $accent;
+    border: 1px solid $accent;
+    color: #ffffff;
+}
+
+QScrollArea#displayScroll, QWidget#displayContents {
+    background: transparent;
+}

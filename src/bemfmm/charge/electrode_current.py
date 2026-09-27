@@ -9,11 +9,12 @@ def electrode_current(c, Center, Area, normals, EC, prec, ElectrodeIndexes, cond
     #  Find total electrode currents at the electrodes
     En = surface_field_electric_accurate(c, Center, Area, normals, EC, prec)
 
-    electrodeCurrents = np.zeros((range(len(ElectrodeIndexes)), 1))
+    Area = np.ravel(Area)
+    condin = np.ravel(condin)
+
+    electrodeCurrents = np.zeros(len(ElectrodeIndexes))
 
     for j, index in enumerate(ElectrodeIndexes):
-        electrodeCurrents[j] = -np.sum(
-            (En[index] * Area[index] * condin[index]), axis=0
-        )
+        electrodeCurrents[j] = -np.sum(En[index] * Area[index] * condin[index])
 
     return electrodeCurrents, En

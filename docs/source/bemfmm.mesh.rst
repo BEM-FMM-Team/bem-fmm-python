@@ -124,6 +124,14 @@ bemfmm.mesh.mesh\_rotate2 module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.mesh.mesh\_simpqual module
+---------------------------------
+
+.. automodule:: bemfmm.mesh.mesh_simpqual
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.mesh.mesh\_surface module
 --------------------------------
 
