@@ -19,10 +19,48 @@ UNDO_LIMIT = 50
 START_POINT = np.array([0.0, 0.0, 0.100])  # new items snap below this point
 
 
+class Surface:
+    """
+    Facet centers and normals of one tissue with a nearest facet lookup
+    """
+
+    def __init__(self, P, t):
+        P, t = np.asarray(P), np.asarray(t)
+        self.normals = mesh_normals(P, t)
+        self.centers = mesh_tricenter(P, t)
+        self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
+        # edges for the ray test
+        self.v0 = P[t[:, 0]]
+        self.e1 = P[t[:, 1]] - self.v0
+        self.e2 = P[t[:, 2]] - self.v0
+
+    def nearest(self, xyz):
+        distances, indices = self.nn.kneighbors(np.reshape(xyz, (1, -1)))
+        idx = indices[0, 0]
+        return distances[0, 0], self.centers[idx].copy(), self.normals[idx].copy()
+
+    def first_hit(self, origin, direction):
+        # Moller-Trumbore against every facet, None if the ray misses
+        p = np.cross(direction, self.e2)
+        det = np.einsum("ij,ij->i", self.e1, p)
+        valid = np.abs(det) > 1e-18
+        inv = np.divide(1.0, det, out=np.zeros_like(det), where=valid)
+        s = origin - self.v0
+        u = np.einsum("ij,ij->i", s, p) * inv
+        q = np.cross(s, self.e1)
+        v = (q @ direction) * inv
+        distance = np.einsum("ij,ij->i", self.e2, q) * inv
+        hit = valid & (u >= 0) & (v >= 0) & (u + v <= 1) & (distance > 0)
+        if not np.any(hit):
+            return None
+        return origin + direction * distance[hit].min()
+
+
 class Stimulation:
     """
     Coils and electrodes placed on the model with undo, everything snaps to
-    the placement surface
+    the placement surface. Coils are oriented along the normal of the align
+    surface, the placement surface unless set_align picks another tissue
     """
 
     def __init__(self, viewport):
@@ -39,19 +77,31 @@ class Stimulation:
         self.electrode_alpha = 1.0
         self.selected = None
 
-        self.normals = None
-        self.centers = None
-        self.nn = None
+        self.surface = None
+        self.align = None
+        self.hidden = set()
 
     def set_surface(self, P, t):
-        self.normals = mesh_normals(np.asarray(P), np.asarray(t))
-        self.centers = mesh_tricenter(np.asarray(P), np.asarray(t))
-        self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
+        self.surface = Surface(P, t)
+
+    def set_align(self, P=None, t=None):
+        # None aligns coils to the placement surface itself
+        self.align = None if P is None else Surface(P, t)
 
     def nearest(self, xyz):
-        distances, indices = self.nn.kneighbors(np.reshape(xyz, (1, -1)))
-        idx = indices[0, 0]
-        return distances[0, 0], self.centers[idx].copy(), self.normals[idx].copy()
+        return self.surface.nearest(xyz)
+
+    def aligned_pose(self, xyz, distance, bottom_to_com):
+        """
+        Center and axis of a coil distance above the placement surface, along
+        the normal of the align surface at the point nearest to xyz
+        """
+        _, anchor, normal = self.align.nearest(xyz)
+        hit = self.surface.first_hit(anchor, normal)
+        if hit is None:
+            # the normal never crosses the placement surface, stay above anchor
+            hit = self.surface.nearest(anchor)[1]
+        return hit + normal * (distance + bottom_to_com), normal
 
     # undo
     def state(self):
@@ -185,6 +235,11 @@ class Stimulation:
 
     def auto_orient(self, id):
         coil = self.coils[id]
+        if self.align is not None:
+            com, normal = self.aligned_pose(coil.com, coil.distance, coil.bottom_to_com)
+            coil.place(com, vector_to_quat(normal))
+            self.draw_coil(coil)
+            return
         _, _, normal = self.nearest(coil.com)
         coil.place(coil.com, vector_to_quat(normal))
         self.draw_coil(coil)
@@ -198,18 +253,38 @@ class Stimulation:
         # sits the coil bottom distance above the nearest surface point
         coil = self.coils[id]
         coil.distance = distance
+        if self.align is not None:
+            # slide along the coil axis, a new anchor could jump to another fold
+            axis = coil.centerline[0] - coil.centerline[1]
+            axis /= np.linalg.norm(axis)
+            hit = self.surface.first_hit(coil.com, -axis)
+            if hit is None:
+                hit = self.nearest(coil.com)[1]
+            coil.place(hit + axis * (distance + coil.bottom_to_com))
+            self.draw_coil(coil)
+            return
         _, point, normal = self.nearest(coil.com)
         coil.place(point + normal * (distance + coil.bottom_to_com))
         self.auto_orient(id)
 
     def drag_coil(self, id, point):
         coil = self.coils[id]
+        if self.align is not None:
+            self.aim_coil(id, point, coil.distance)
+            return
         coil.place(point)
         self.set_distance(id, coil.distance)
 
     def aim_coil(self, id, target, distance):
         # above the surface point closest to a target inside the head
-        self.coils[id].place(target)
+        coil = self.coils[id]
+        if self.align is not None:
+            coil.distance = distance
+            com, normal = self.aligned_pose(target, distance, coil.bottom_to_com)
+            coil.place(com, vector_to_quat(normal))
+            self.draw_coil(coil)
+            return
+        coil.place(target)
         self.set_distance(id, distance)
 
     def delete_coil(self, id):

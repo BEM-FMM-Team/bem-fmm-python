@@ -22,6 +22,12 @@ FALLBACK_COLORS = ["#c7a17a", "#8fb3a3", "#b39ddb", "#e0b060", "#90a4ae"]
 COIL_COLOR = "orange"
 SELECTED_COLOR = "cyan"
 
+# background gradient and text color of the 3D view
+VIEW_COLORS = {
+    "light": ("#fbfcfc", "#d9dee2", "#1c2226"),
+    "dark": ("#2b3137", "#15181b", "#d8dde1"),
+}
+
 
 def electrode_color(voltage):
     if voltage > 0:
@@ -67,14 +73,17 @@ class Viewport:
         self.widget = QVTKRenderWindowInteractor(container)
         layout.addWidget(self.widget)
 
-        self.plt = Plotter(qt_widget=self.widget, bg="#fbfcfc", bg2="#d9dee2")
+        top, bottom, self.text_color = VIEW_COLORS["light"]
+        self.plt = Plotter(qt_widget=self.widget, bg=top, bg2=bottom)
         settings.enable_default_keyboard_callbacks = False
 
         self.surfaces = {}
         self.actors = {}
         self.arrows = {}
+        self.hidden = set()  # kinds of meshes not shown, "coil" or "electrode"
         self.planes = []
         self.axes = None
+        self.half = 0.1
         self.field = None
         self.scalar_bar = None
         self.size = 0.2
@@ -100,14 +109,24 @@ class Viewport:
     def render(self):
         self.plt.render()
 
+    def set_theme(self, name):
+        top, bottom, self.text_color = VIEW_COLORS[name]
+        self.plt.background(top, bottom)
+        if self.surfaces:
+            self._set_axes()
+        for arrow in self.arrows.values():
+            arrow.color(self.text_color)
+        self.render()
+
+    def save_image(self, path):
+        self.plt.screenshot(str(path))
+
     # head model
     def set_surfaces(self, surfaces, visible=()):
-        from vedo import Axes, Mesh
+        from vedo import Mesh
 
         for mesh in self.surfaces.values():
             self.plt.remove(mesh)
-        if self.axes is not None:
-            self.plt.remove(self.axes)
         self.clear_field()
 
         self.surfaces = {}
@@ -124,8 +143,17 @@ class Viewport:
         P = np.vstack([P for P, _ in surfaces.values()])
         half = np.max(np.abs(P)) if len(P) else 0.1
         # round up to 20 mm so the ticks land on whole 10 mm steps
-        half = np.ceil(half * 50) / 50
-        self.size = 2.5 * half
+        self.half = np.ceil(half * 50) / 50
+        self.size = 2.5 * self.half
+        self._set_axes()
+        self.reset_view()
+
+    def _set_axes(self):
+        from vedo import Axes
+
+        if self.axes is not None:
+            self.plt.remove(self.axes)
+        half = self.half
         ticks_m = np.round(np.linspace(-half, half, 5), decimals=3)
         ticks_mm = np.round(ticks_m * 1000).astype(int)
         self.axes = Axes(
@@ -138,9 +166,9 @@ class Viewport:
             x_values_and_labels=list(zip(ticks_m, ticks_mm)),
             y_values_and_labels=list(zip(ticks_m, ticks_mm)),
             z_values_and_labels=list(zip(ticks_m, ticks_mm)),
+            c=self.text_color,
         )
         self.plt.add(self.axes)
-        self.reset_view()
 
     def set_surface_style(self, name, visible, alpha):
         mesh = self.surfaces[name]
@@ -164,7 +192,23 @@ class Viewport:
         self.plt.add(mesh)
         if arrow is not None:
             self._set_arrow(key, arrow)
+        self._apply_hidden(key)
         self.render()
+
+    def show_kind(self, kind, visible):
+        if visible:
+            self.hidden.discard(kind)
+        else:
+            self.hidden.add(kind)
+        for key in self.actors:
+            self._apply_hidden(key)
+        self.render()
+
+    def _apply_hidden(self, key):
+        visible = key.split(":", 1)[0] not in self.hidden
+        self.actors[key].actor.SetVisibility(visible)
+        if key in self.arrows:
+            self.arrows[key].actor.SetVisibility(visible)
 
     def update_mesh(self, key, P, arrow=None):
         self.actors[key].points = P
@@ -177,8 +221,10 @@ class Viewport:
 
         if key in self.arrows:
             self.plt.remove(self.arrows[key])
-        self.arrows[key] = Arrow(arrow[0], arrow[1], s=0.1 * 1e-3, c="black")
+        self.arrows[key] = Arrow(arrow[0], arrow[1], s=0.1 * 1e-3, c=self.text_color)
         self.plt.add(self.arrows[key])
+        if key.split(":", 1)[0] in self.hidden:
+            self.arrows[key].actor.SetVisibility(False)
 
     def remove_mesh(self, key):
         self.plt.remove(self.actors.pop(key, None))
@@ -286,7 +332,7 @@ class Viewport:
         mesh.celldata["values"] = values
         mesh.cmap(cmap, "values", on="cells", vmin=vmin, vmax=vmax)
         self.field = mesh
-        self.scalar_bar = ScalarBar(mesh, title=label, c="black", font_size=18)
+        self.scalar_bar = ScalarBar(mesh, title=label, c=self.text_color, font_size=18)
         for surface in self.surfaces.values():
             surface.actor.SetVisibility(False)
         self.plt.add(mesh)

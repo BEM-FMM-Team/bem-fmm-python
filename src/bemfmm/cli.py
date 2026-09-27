@@ -13,6 +13,7 @@ app = typer.Typer(
 )
 
 SaveFormat = Literal["none", "csv", "mat", "npz", "pkl"]
+Mode = Literal["tms", "tdcs"]
 
 
 def resolve_index(tissue_index, scene):
@@ -102,6 +103,9 @@ def wait_for_windows(plot):
 def gui(
     tissue_index: Optional[str] = typer.Option(None, help="Tissue index to open"),
     setup: Optional[str] = typer.Option(None, help="Setup (.json) to open"),
+    mode: Optional[Mode] = typer.Option(
+        None, help="Start in TMS or tDCS mode, the last one used by default"
+    ),
     no_3d: bool = typer.Option(
         False, "--no-3d", help="Run without the 3D view, for remote desktops"
     ),
@@ -109,7 +113,7 @@ def gui(
     """Open the graphical interface."""
     from bemfmm.gui.app import run
 
-    sys.exit(run(tissue_index, setup, no_3d))
+    sys.exit(run(tissue_index, setup, no_3d, mode))
 
 
 @app.command()

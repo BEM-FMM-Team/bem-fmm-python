@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 from PySide6.QtCore import QProcess, Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QKeySequence, QShortcut
+from PySide6.QtGui import QDesktopServices, QGuiApplication, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QApplication,
@@ -24,7 +24,6 @@ from PySide6.QtWidgets import (
     QSlider,
     QStyle,
     QTableWidgetItem,
-    QVBoxLayout,
 )
 
 from bemfmm.coils import (
@@ -42,10 +41,14 @@ from bemfmm.model import (
     read_index,
     write_index,
 )
+from bemfmm.plot.slice import load_slices
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
 
-from .dialogs import CoilParamsDialog
+from . import plots, theme
+from .dialogs import CoilParamsDialog, ExportDialog, SettingsDialog
+from .plots import PlotPanel
+from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
 from .stimulation import Stimulation
 from .ui_main_window import Ui_MainWindow
@@ -57,6 +60,9 @@ MESH_FILTER = "Surface mesh (*.stl *.obj *.ply *.vtk);;All Files (*)"
 RESULT_FILTER = "Result (result.json);;All Files (*)"
 TEMPLATE_FILTER = "Coil template (*.mat);;All Files (*)"
 MATLAB_FILTER = "MATLAB (*.mat);;All Files (*)"
+IMAGE_FILTER = "PNG image (*.png);;JPEG image (*.jpg);;All Files (*)"
+
+MODE_NAMES = {"tms": "TMS", "tdcs": "tDCS"}
 
 OTHER_TEMPLATE = "Template file..."
 DEFAULT_COIL = "default (bundled coil)"
@@ -104,10 +110,12 @@ def spin(box, low, high, decimals, step):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, tissue_index=None, setup=None, no_3d=False):
+    def __init__(self, tissue_index=None, setup=None, no_3d=False, mode=None):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+        self.settings = Settings()
+        self.theme = "light"
 
         self.model = None
         self.shells = {}
@@ -120,6 +128,7 @@ class MainWindow(QMainWindow):
 
         self.result = None
         self.result_dir = None
+        self.slices = None
 
         self.updating = False
         self.edit_session = None
@@ -143,12 +152,35 @@ class MainWindow(QMainWindow):
         self.runner.output.connect(self.solve_output)
         self.runner.finished.connect(self.solve_finished)
 
+        self.mode_label = QLabel()
+        self.mode_label.setObjectName("modeBadge")
         self.model_label = QLabel()
         self.ui.statusbar.addPermanentWidget(self.model_label)
+        self.ui.statusbar.addPermanentWidget(self.mode_label)
+
+        self.plots = {
+            "convergence": PlotPanel(
+                self.ui.convergencePlot, "Convergence", self.draw_convergence
+            ),
+            "slices": PlotPanel(self.ui.slicesPlot, "Slices", self.draw_slices),
+            "distribution": PlotPanel(
+                self.ui.distributionPlot, "Distribution", self.draw_distribution
+            ),
+            "electrodes": PlotPanel(
+                self.ui.electrodesPlot, "Electrode currents", self.draw_currents
+            ),
+        }
 
         self.setup_widgets()
         self.connect_signals()
-        self.set_mode(True)
+        self.apply_theme()
+
+        if mode is None:
+            start = self.settings["start_mode"]
+            mode = self.settings["mode"] if start == "last" else start
+        self.ui.actionModeTDCS.setChecked(mode == "tdcs")
+        self.ui.actionModeTMS.setChecked(mode != "tdcs")
+        self.set_mode(mode != "tdcs")
 
         if setup:
             scene = Scene.load(setup)
@@ -175,6 +207,8 @@ class MainWindow(QMainWindow):
         ui.actionRedo.setShortcuts(
             [QKeySequence("Ctrl+Shift+Z"), QKeySequence("Ctrl+Y")]
         )
+        for action in (ui.actionModeTMS, ui.actionModeTDCS):
+            ui.mainToolBar.widgetForAction(action).setObjectName("modeButton")
 
         for box in (ui.coilX, ui.coilY, ui.coilZ):
             spin(box, -300.0, 300.0, 2, 0.5)
@@ -209,10 +243,13 @@ class MainWindow(QMainWindow):
         ui.electrodeTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         ui.electrodeTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        ui.outputDir.setText(str(Path.cwd() / "__output__"))
+        ui.outputDir.setText(self.settings.output_dir())
+        ui.computeSlices.setChecked(self.settings["slices"])
         ui.logView.setMaximumBlockCount(5000)
         ui.progressBar.setTextVisible(False)
         ui.electrodeResultGroup.setVisible(False)
+        ui.viewTabs.setTabVisible(ui.viewTabs.indexOf(ui.electrodesTab), False)
+        ui.slicePlane.setCurrentText("All")
 
         if not self.viewport.available:
             for widget in (
@@ -228,6 +265,7 @@ class MainWindow(QMainWindow):
                 ui.actionViewXZ,
                 ui.actionViewYZ,
                 ui.actionResetView,
+                ui.actionSaveImage,
             ):
                 action.setEnabled(False)
 
@@ -241,10 +279,14 @@ class MainWindow(QMainWindow):
         ui.actionOpenIndex.triggered.connect(self.open_index_dialog)
         ui.actionSaveIndexAs.triggered.connect(self.save_index_as)
         ui.actionOpenResult.triggered.connect(self.open_result_dialog)
+        ui.actionExportFields.triggered.connect(self.export_fields)
+        ui.actionSaveImage.triggered.connect(self.save_image)
         ui.actionExportMatlab.triggered.connect(self.export_matlab)
         ui.actionQuit.triggered.connect(self.close)
         ui.actionUndo.triggered.connect(self.undo)
         ui.actionRedo.triggered.connect(self.redo)
+        ui.actionSettings.triggered.connect(self.open_settings)
+        ui.actionModeTMS.toggled.connect(self.set_mode)
         ui.actionViewXY.triggered.connect(lambda: self.viewport.view("xy"))
         ui.actionViewXZ.triggered.connect(lambda: self.viewport.view("xz"))
         ui.actionViewYZ.triggered.connect(lambda: self.viewport.view("yz"))
@@ -264,8 +306,13 @@ class MainWindow(QMainWindow):
         ui.tissueTable.itemChanged.connect(self.tissue_name_edited)
 
         # stimulation
-        ui.tmsRadio.toggled.connect(self.set_mode)
-        ui.surfaceCombo.currentTextChanged.connect(self.surface_changed)
+        ui.coilSurfaceCombo.currentTextChanged.connect(
+            lambda name: self.surface_changed("tms", name)
+        )
+        ui.electrodeSurfaceCombo.currentTextChanged.connect(
+            lambda name: self.surface_changed("tdcs", name)
+        )
+        ui.alignCombo.currentTextChanged.connect(self.align_changed)
 
         ui.addCoilButton.clicked.connect(self.add_coil)
         ui.deleteCoilButton.clicked.connect(self.delete_coil)
@@ -324,9 +371,16 @@ class MainWindow(QMainWindow):
         ui.rangeMin.valueChanged.connect(self.update_result_view)
         ui.rangeMax.valueChanged.connect(self.update_result_view)
         ui.showResultButton.toggled.connect(self.show_result_toggled)
-        ui.convergenceButton.clicked.connect(self.show_convergence)
+        ui.exportFieldsButton.clicked.connect(self.export_fields)
         ui.plotWindowsButton.clicked.connect(self.open_plot_windows)
         ui.openFolderButton.clicked.connect(self.open_result_folder)
+        ui.computeSlicesButton.clicked.connect(self.compute_slices)
+        ui.slicePlane.currentIndexChanged.connect(self.plots["slices"].refresh)
+        ui.distributionLog.toggled.connect(self.plots["distribution"].refresh)
+
+        QGuiApplication.styleHints().colorSchemeChanged.connect(
+            self.system_theme_changed
+        )
 
     # model
     def load_index(self, path=None):
@@ -364,32 +418,38 @@ class MainWindow(QMainWindow):
 
         self.model = model
         names = model.names
+        ui = self.ui
 
-        surface = self.ui.surfaceCombo.currentText()
-        if surface not in names:
+        skin = self.settings["skin"]
+        if skin not in names:
             outer = [n for n, o in zip(names, model.outside) if o == "FreeSpace"]
-            surface = "skin" if "skin" in names else (outer or names)[0]
-        target = self.ui.targetCombo.currentText()
+            skin = (outer or names)[0]
+        target = ui.targetCombo.currentText()
         if target not in names:
             target = next((t for t in ("wm", "gm") if t in names), names[-1])
 
+        # combos keep their tissue when the new model has it
+        values = {}
+        for combo in (ui.coilSurfaceCombo, ui.electrodeSurfaceCombo, ui.alignCombo):
+            value = combo.currentText()
+            values[combo] = value if value in names else skin
+        values[ui.targetCombo] = target
+
         with busy():
             self.viewport.set_surfaces(
-                {name: model.surface(name) for name in names}, visible=[surface]
+                {name: model.surface(name) for name in names},
+                visible=[values[self.placement_combo()]],
             )
 
         self.updating = True
-        for combo, value in (
-            (self.ui.surfaceCombo, surface),
-            (self.ui.targetCombo, target),
-        ):
+        for combo, value in values.items():
             combo.clear()
             combo.addItems(names)
             combo.setCurrentText(value)
         self.updating = False
 
-        self.fill_display(surface)
-        self.surface_changed(surface)
+        self.fill_display(self.surface)
+        self.apply_surfaces()
         self.stim.redraw()
         self.refresh_lists()
         self.show_planes()
@@ -574,27 +634,85 @@ class MainWindow(QMainWindow):
 
     # stimulation
     def set_mode(self, tms):
+        # the gui is for one kind of study at a time, TMS or tDCS
         ui = self.ui
+        mode = "tms" if tms else "tdcs"
+        label = MODE_NAMES[mode]
+        self.stop_modes()
+
         ui.stimStack.setCurrentWidget(ui.coilPage if tms else ui.electrodePage)
+        ui.sideTabs.setTabText(
+            ui.sideTabs.indexOf(ui.stimulationTab), "Coils" if tms else "Electrodes"
+        )
         ui.numNeighborsP.setVisible(not tms)
         ui.numNeighborsPLabel.setVisible(not tms)
         ui.iterations.setValue(20 if tms else 50)
         ui.relres.setValue(1e-4 if tms else 1e-6)
-        self.stop_modes()
+        ui.runButton.setText(f"Run {label}")
+        ui.actionRun.setText(f"Run {label}")
+        ui.actionRun.setIconText(f"Run {label}")
+        self.mode_label.setText(f"{label} mode")
+
+        self.viewport.show_kind("coil", tms)
+        self.viewport.show_kind("electrode", not tms)
+        self.settings["mode"] = mode
+        self.apply_surfaces()
         self.update_solve_summary()
+        self.update_title()
+
+    @property
+    def mode(self):
+        return "tms" if self.ui.actionModeTMS.isChecked() else "tdcs"
 
     @property
     def tms(self):
-        return self.ui.tmsRadio.isChecked()
+        return self.mode == "tms"
 
-    def surface_changed(self, name):
-        if self.updating or self.model is None or name not in self.model.names:
+    def placement_combo(self, mode=None):
+        if (mode or self.mode) == "tms":
+            return self.ui.coilSurfaceCombo
+        return self.ui.electrodeSurfaceCombo
+
+    @property
+    def surface(self):
+        # what coils or electrodes of the current mode sit on
+        return self.placement_combo().currentText()
+
+    def apply_surfaces(self):
+        if self.model is None or self.surface not in self.model.names:
             return
+        name = self.surface
         self.stim.set_surface(*self.model.surface(name))
         self.viewport.set_pick_surface(name)
         if name in self.display:
             self.display[name][0].setChecked(True)
+        self.align_changed()
+
+    def surface_changed(self, mode, name):
+        if self.updating or self.model is None or name not in self.model.names:
+            return
+        if mode != self.mode:
+            return
+        self.apply_surfaces()
+        if mode == "tdcs" and self.stim.electrodes:
+            # electrodes stay imprinted on their surface
+            self.discrete_edit()
+            for id, electrode in self.stim.electrodes.items():
+                self.stim.move_electrode(id, electrode.center)
+            self.refresh_electrode_editor()
         self.update_solve_summary()
+
+    def align_changed(self, *args):
+        if self.updating or self.model is None:
+            return
+        align = self.ui.alignCombo.currentText()
+        if (
+            align in self.model.names
+            and align != self.ui.coilSurfaceCombo.currentText()
+        ):
+            self.stim.set_align(*self.model.surface(align))
+        else:
+            self.stim.set_align()
 
     def begin_edit(self, key):
         # continuous edits of one item share a single undo step
@@ -821,8 +939,8 @@ class MainWindow(QMainWindow):
             self.viewport.start_target_pick(ui.targetCombo.currentText())
             ui.aimButton.setText("Place coil")
             self.statusBar().showMessage(
-                f"Click a point on {ui.targetCombo.currentText()}, "
-                "then press Place coil"
+                f"Click a point on {ui.targetCombo.currentText()}, then press "
+                f"Place coil to set it along the {ui.alignCombo.currentText()} normal"
             )
             return
 
@@ -1001,7 +1119,8 @@ class MainWindow(QMainWindow):
 
     def update_title(self):
         name = self.setup_path.name if self.setup_path else "untitled"
-        self.setWindowTitle(f"{name}{'*' if self.setup_dirty else ''} - BEM-FMM")
+        dirty = "*" if self.setup_dirty else ""
+        self.setWindowTitle(f"{name}{dirty} - {MODE_NAMES[self.mode]} - BEM-FMM")
 
     def confirm_discard(self):
         if not self.setup_dirty or not (self.stim.coils or self.stim.electrodes):
@@ -1024,6 +1143,8 @@ class MainWindow(QMainWindow):
             electrodes=list(self.stim.electrodes.values()),
             planes=self.stim.planes,
             tissue_index=str(index) if index else "",
+            mode=self.mode,
+            skin=self.surface,
         )
 
     def new_setup(self):
@@ -1065,18 +1186,29 @@ class MainWindow(QMainWindow):
                     "It is opened on the current model.",
                 )
 
+        mode = scene.mode
+        if mode not in MODE_NAMES:
+            mode = "tdcs" if scene.electrodes and not scene.coils else "tms"
         self.stop_modes()
+        self.ui.actionModeTDCS.setChecked(mode == "tdcs")
+        self.ui.actionModeTMS.setChecked(mode == "tms")
+        if scene.skin in self.model.names:
+            self.updating = True
+            self.placement_combo(mode).setCurrentText(scene.skin)
+            self.updating = False
+            self.apply_surfaces()
+
         self.stim.clear()
         for coil in scene.coils:
             self.stim.insert_coil(coil)
+        electrode_surface = self.ui.electrodeSurfaceCombo.currentText()
+        if scene.electrodes and electrode_surface != self.surface:
+            # electrodes snap to their own surface in a TMS setup
+            self.stim.set_surface(*self.model.surface(electrode_surface))
         for electrode in scene.electrodes:
             self.stim.insert_electrode(electrode)
+        self.apply_surfaces()
         self.stim.planes = scene.planes
-
-        if scene.electrodes and not scene.coils:
-            self.ui.tdcsRadio.setChecked(True)
-        elif scene.coils:
-            self.ui.tmsRadio.setChecked(True)
 
         self.setup_path = Path(path)
         self.setup_dirty = False
@@ -1122,10 +1254,10 @@ class MainWindow(QMainWindow):
 
     # solve
     def update_solve_summary(self):
-        surface = self.ui.surfaceCombo.currentText()
+        surface = self.surface
         if self.tms:
             n = len(self.stim.coils)
-            text = f"TMS with {n} coil{'s' * (n != 1)}"
+            text = f"TMS with {n} coil{'s' * (n != 1)} over {surface}"
         else:
             voltages = [e.voltage for e in self.stim.electrodes.values()]
             n = len(voltages)
@@ -1161,7 +1293,7 @@ class MainWindow(QMainWindow):
             )
             return
 
-        surface = ui.surfaceCombo.currentText()
+        surface = self.surface
         if self.tms:
             kind = "tms"
             if not self.stim.coils:
@@ -1199,6 +1331,10 @@ class MainWindow(QMainWindow):
             return
 
         args = [
+            kind,
+            "--output-dir",
+            run_dir,
+            "--no-plot",
             "--setup",
             str(run_dir / "setup.json"),
             "--num-neighbors",
@@ -1225,8 +1361,10 @@ class MainWindow(QMainWindow):
         if kind == "tdcs":
             args += ["--num-neighbors-p", str(ui.numNeighborsP.value())]
             args += ["--skin", surface]
+        if ui.computeSlices.isChecked():
+            args += ["--slices"]
 
-        self.start_run(kind, run_dir, args)
+        self.start_run(args, run_dir)
 
     def run_sphere(self):
         if self.runner.running:
@@ -1234,27 +1372,39 @@ class MainWindow(QMainWindow):
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         run_dir = Path(self.ui.outputDir.text()) / f"sphere-{stamp}"
         run_dir.mkdir(parents=True, exist_ok=True)
-        self.start_run("sphere", run_dir, [])
+        self.start_run(["sphere", "--output-dir", run_dir, "--no-plot"], run_dir)
 
-    def start_run(self, command, run_dir, args):
+    def start_run(self, args, run_dir):
         ui = self.ui
         ui.logView.clear()
-        ui.runButton.setEnabled(False)
-        ui.actionRun.setEnabled(False)
+        self.set_running(True)
         ui.cancelButton.setEnabled(True)
         ui.progressBar.setRange(0, 0)
         ui.stageLabel.setText("Starting")
         ui.sideTabs.setCurrentWidget(ui.solveTab)
         self.run_started = datetime.now()
-        self.runner.start(command, run_dir, args)
+        self.runner.start(args, run_dir)
+
+    def set_running(self, running):
+        ui = self.ui
+        ui.runButton.setEnabled(not running)
+        ui.actionRun.setEnabled(not running)
+        ui.actionSphere.setEnabled(not running)
+        ui.computeSlicesButton.setEnabled(not running and self.result is not None)
 
     def solve_progress(self, stage, done, total):
         ui = self.ui
         label = STAGES.get(stage, stage)
+        if self.runner.job == "slices":
+            ui.sliceInfo.setText(f"Computing slices, {done} of {total} done")
+            return
         if total > 0:
             ui.progressBar.setRange(0, total)
             ui.progressBar.setValue(done)
-            label += f" (iteration {done} of at most {total})"
+            if stage == "solve":
+                label += f" (iteration {done} of at most {total})"
+            else:
+                label += f" ({done} of {total})"
         else:
             ui.progressBar.setRange(0, 0)
         ui.stageLabel.setText(label)
@@ -1264,8 +1414,10 @@ class MainWindow(QMainWindow):
 
     def solve_finished(self, ok, run_dir):
         ui = self.ui
-        ui.runButton.setEnabled(True)
-        ui.actionRun.setEnabled(True)
+        self.set_running(False)
+        if self.runner.job == "slices":
+            self.slices_finished(ok)
+            return
         ui.cancelButton.setEnabled(False)
         ui.progressBar.setRange(0, 1)
         ui.progressBar.setValue(1 if ok else 0)
@@ -1363,9 +1515,23 @@ class MainWindow(QMainWindow):
                 f"power {info['power'] * 1e3:.2f} mW"
             )
 
-        for button in (ui.convergenceButton, ui.plotWindowsButton, ui.openFolderButton):
-            button.setEnabled(True)
+        for widget in (
+            ui.exportFieldsButton,
+            ui.plotWindowsButton,
+            ui.openFolderButton,
+            ui.actionExportFields,
+        ):
+            widget.setEnabled(True)
+        ui.computeSlicesButton.setEnabled(not self.runner.running)
+        ui.viewTabs.setTabVisible(
+            ui.viewTabs.indexOf(ui.electrodesTab), bool(electrodes)
+        )
         ui.showResultButton.setEnabled(self.viewport.available)
+
+        self.slices = self.read_slices()
+        self.update_slice_info()
+        for panel in self.plots.values():
+            panel.refresh()
         self.result_selection_changed()
         if self.viewport.available and not ui.showResultButton.isChecked():
             ui.showResultButton.setChecked(True)
@@ -1392,6 +1558,7 @@ class MainWindow(QMainWindow):
         if self.ui.autoRange.isChecked():
             self.set_range(low, high)
         self.update_result_view()
+        self.plots["distribution"].refresh()
 
     def set_range(self, low, high):
         self.updating = True
@@ -1439,24 +1606,102 @@ class MainWindow(QMainWindow):
             self.viewport.clear_field()
             self.apply_display()
 
-    def show_convergence(self):
-        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-        from matplotlib.figure import Figure
+    # result tabs
+    def draw_convergence(self, figure):
+        plots.draw_convergence(figure, self.result)
 
+    def draw_distribution(self, figure):
+        name, values = self.result_values()
+        if values is None:
+            return plots.draw_distribution(figure, None, "", "", "")
+        label, unit = FIELD_LABELS[name]
+        plots.draw_distribution(
+            figure,
+            values,
+            label,
+            unit,
+            self.ui.resultTissue.currentText(),
+            self.ui.distributionLog.isChecked(),
+        )
+
+    def draw_currents(self, figure):
+        electrodes = self.result.info.get("electrodes", []) if self.result else []
+        plots.draw_currents(figure, electrodes)
+
+    def draw_slices(self, figure):
+        color = theme.COLORS[self.theme]["text"]
+        plots.draw_slices(figure, self.slices, self.ui.slicePlane.currentText(), color)
+
+    def read_slices(self):
+        path = self.result_dir / "slices.npz"
+        if not path.is_file():
+            return None
+        try:
+            data = load_slices(path)
+        except (OSError, KeyError, ValueError) as error:
+            self.statusBar().showMessage(f"Could not read {path}: {error}", 5000)
+            return None
+        # slices of an older run in the same folder
+        if data["created"] != self.result.info.get("created", ""):
+            return None
+        return data
+
+    def update_slice_info(self):
+        if self.slices is None:
+            text = "Not computed for this result"
+        else:
+            text = "Planes at x {:.1f}, y {:.1f}, z {:.1f} mm".format(
+                *(p * 1000 for p in self.slices["planes"])
+            )
+        self.ui.sliceInfo.setText(text)
+
+    def compute_slices(self):
+        if self.result is None or self.runner.running:
+            return
+        planes = [f"{p * 1000:.6g}" for p in self.stim.planes]
+        self.ui.sliceInfo.setText("Computing slices")
+        self.set_running(True)
+        self.runner.start(
+            ["slices", self.result_dir, "--planes", *planes],
+            self.result_dir,
+            job="slices",
+        )
+
+    def slices_finished(self, ok):
+        if ok and self.result is not None:
+            self.slices = self.read_slices()
+            self.update_slice_info()
+            self.plots["slices"].refresh()
+        else:
+            self.ui.sliceInfo.setText("Slices failed, the log is in the Solve tab")
+
+    def export_fields(self):
         if self.result is None:
             return
-        dialog = QDialog(self)
-        dialog.setWindowTitle("Convergence")
-        dialog.resize(640, 440)
-        figure = Figure(tight_layout=True)
-        ax = figure.add_subplot()
-        ax.semilogy(np.arange(1, len(self.result.resvec) + 1), self.result.resvec, "-o")
-        ax.grid(True)
-        ax.set_xlabel("Iteration number")
-        ax.set_ylabel("Relative residual")
-        layout = QVBoxLayout(dialog)
-        layout.addWidget(FigureCanvasQTAgg(figure))
-        dialog.show()
+        dialog = ExportDialog(self.result, self.result_dir, self)
+        if dialog.exec() != QDialog.Accepted:
+            return
+        values = dialog.values()
+        if not values["names"] and not values["mesh"]:
+            QMessageBox.information(self, "Export fields", "Nothing was picked.")
+            return
+        try:
+            with busy():
+                paths = self.result.export(**values)
+        except OSError as error:
+            QMessageBox.warning(self, "Could not export", str(error))
+            return
+        self.statusBar().showMessage(
+            f"Exported {len(paths)} files to {values['directory']}", 5000
+        )
+
+    def save_image(self):
+        path, _ = QFileDialog.getSaveFileName(
+            self, "Save 3D view", "view.png", IMAGE_FILTER
+        )
+        if path:
+            self.viewport.save_image(path)
+            self.statusBar().showMessage(f"Saved {path}", 5000)
 
     def open_plot_windows(self):
         if self.result_dir is not None:
@@ -1468,6 +1713,38 @@ class MainWindow(QMainWindow):
     def open_result_folder(self):
         if self.result_dir is not None:
             QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.result_dir)))
+
+    # settings
+    def apply_theme(self, name=None):
+        self.theme = theme.apply(
+            QApplication.instance(), name or self.settings["theme"]
+        )
+        self.viewport.set_theme(self.theme)
+        style = theme.plot_style(self.theme)
+        for panel in self.plots.values():
+            panel.set_style(style)
+        # the color bar is made with the text color
+        self.update_result_view()
+
+    def system_theme_changed(self):
+        if self.settings["theme"] == "system":
+            self.apply_theme()
+
+    def open_settings(self):
+        skin = self.settings["skin"]
+        if SettingsDialog(self.settings, self).exec() != QDialog.Accepted:
+            return
+        self.apply_theme()
+        self.ui.outputDir.setText(self.settings.output_dir())
+        self.ui.computeSlices.setChecked(self.settings["slices"])
+        new_skin = self.settings["skin"]
+        if new_skin != skin and self.model is not None and new_skin in self.model.names:
+            for combo in (
+                self.ui.coilSurfaceCombo,
+                self.ui.electrodeSurfaceCombo,
+                self.ui.alignCombo,
+            ):
+                combo.setCurrentText(new_skin)
 
     # tools
     def export_matlab(self):
@@ -1515,6 +1792,8 @@ class MainWindow(QMainWindow):
         if not self.confirm_discard():
             event.ignore()
             return
+        for panel in self.plots.values():
+            panel.dock()
         self.viewport.close()
         shutil.rmtree(self.temp_dir, ignore_errors=True)
         event.accept()

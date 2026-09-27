@@ -9,13 +9,15 @@ STAGES = {
     "rhs": "Coil fields",
     "solve": "Solving",
     "fields": "Computing fields",
+    "slices": "E-field slices",
 }
 
 
 class SolveRunner(QObject):
     """
-    Runs `bemfmm <command>` in a child process so the window stays responsive
-    and a crash in the solver cannot take the gui down with it
+    Runs `bemfmm <args>` in a child process so the window stays responsive
+    and a crash in the solver cannot take the gui down with it. job is a name
+    for what is running, "solve" or "slices"
     """
 
     progress = Signal(str, int, int)
@@ -26,6 +28,7 @@ class SolveRunner(QObject):
         super().__init__(parent)
         self.process = None
         self.run_dir = None
+        self.job = None
         self.buffer = ""
         self.cancelled = False
 
@@ -33,8 +36,9 @@ class SolveRunner(QObject):
     def running(self):
         return self.process is not None
 
-    def start(self, command, run_dir, args):
+    def start(self, args, run_dir, job="solve"):
         self.run_dir = Path(run_dir)
+        self.job = job
         self.buffer = ""
         self.cancelled = False
 
@@ -50,8 +54,7 @@ class SolveRunner(QObject):
         self.process.finished.connect(self.on_finished)
         self.process.errorOccurred.connect(self.on_error)
 
-        args = ["-m", "bemfmm", command, "--output-dir", str(self.run_dir)] + args
-        args += ["--no-plot", "--progress"]
+        args = ["-m", "bemfmm"] + [str(arg) for arg in args] + ["--progress"]
         self.output.emit(f"$ {Path(sys.executable).name} {' '.join(args)}")
         self.process.start(sys.executable, args)
 

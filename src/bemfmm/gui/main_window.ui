@@ -231,46 +231,6 @@
         </attribute>
         <layout class="QVBoxLayout" name="stimulationLayout">
          <item>
-          <widget class="QGroupBox" name="modeGroup">
-           <property name="title">
-            <string>Type</string>
-           </property>
-           <layout class="QGridLayout" name="modeLayout">
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="tmsRadio">
-              <property name="text">
-               <string>TMS coils</string>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QRadioButton" name="tdcsRadio">
-              <property name="text">
-               <string>tDCS electrodes</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="surfaceLabel">
-              <property name="text">
-               <string>Place on</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="surfaceCombo">
-              <property name="toolTip">
-               <string>Surface that coils and electrodes snap to and are dragged on</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <widget class="QStackedWidget" name="stimStack">
            <property name="currentIndex">
             <number>0</number>
@@ -283,6 +243,43 @@
              <property name="rightMargin">
               <number>0</number>
              </property>
+             <item>
+              <widget class="QGroupBox" name="coilPlacementGroup">
+               <property name="title">
+                <string>Placement</string>
+               </property>
+               <layout class="QFormLayout" name="coilPlacementLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="coilSurfaceLabel">
+                  <property name="text">
+                   <string>Place on</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="coilSurfaceCombo">
+                  <property name="toolTip">
+                   <string>Surface the coils sit above and are dragged over</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="alignLabel">
+                  <property name="text">
+                   <string>Align to</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QComboBox" name="alignCombo">
+                  <property name="toolTip">
+                   <string>The coil axis follows the surface normal of this tissue when a coil is oriented, dragged or aimed</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
              <item>
               <layout class="QHBoxLayout" name="addCoilLayout">
                <item>
@@ -459,7 +456,7 @@
                   <item>
                    <widget class="QPushButton" name="autoOrientButton">
                     <property name="toolTip">
-                     <string>Point the coil axis along the surface normal</string>
+                     <string>Point the coil axis along the normal of the Align to tissue</string>
                     </property>
                     <property name="text">
                      <string>Auto orient</string>
@@ -528,6 +525,19 @@
                </layout>
               </widget>
              </item>
+             <item>
+              <spacer name="coilPageSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="electrodePage">
@@ -538,6 +548,29 @@
              <property name="rightMargin">
               <number>0</number>
              </property>
+             <item>
+              <widget class="QGroupBox" name="electrodePlacementGroup">
+               <property name="title">
+                <string>Placement</string>
+               </property>
+               <layout class="QFormLayout" name="electrodePlacementLayout">
+                <item row="0" column="0">
+                 <widget class="QLabel" name="electrodeSurfaceLabel">
+                  <property name="text">
+                   <string>Place on</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="QComboBox" name="electrodeSurfaceCombo">
+                  <property name="toolTip">
+                   <string>Surface the electrodes are imprinted on, current flows in through it</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
              <item>
               <layout class="QHBoxLayout" name="addElectrodeLayout">
                <item>
@@ -713,6 +746,19 @@
                 </item>
                </layout>
               </widget>
+             </item>
+             <item>
+              <spacer name="electrodePageSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </spacer>
              </item>
             </layout>
            </widget>
@@ -1046,6 +1092,16 @@
               </item>
              </layout>
             </item>
+            <item row="3" column="1">
+             <widget class="QCheckBox" name="computeSlices">
+              <property name="toolTip">
+               <string>E-field on the slice planes, shown in the Slices tab</string>
+              </property>
+              <property name="text">
+               <string>Compute E-field slices</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -1362,12 +1418,12 @@
          <item>
           <layout class="QHBoxLayout" name="resultButtons">
            <item>
-            <widget class="QPushButton" name="convergenceButton">
+            <widget class="QPushButton" name="exportFieldsButton">
              <property name="enabled">
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Convergence</string>
+              <string>Export fields...</string>
              </property>
             </widget>
            </item>
@@ -1412,13 +1468,201 @@
         </layout>
        </widget>
       </widget>
-      <widget class="QWidget" name="viewPort">
+      <widget class="QTabWidget" name="viewTabs">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>1</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <property name="documentMode">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="sceneTab">
+        <attribute name="title">
+         <string>3D view</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="sceneTabLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="viewPort">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="convergenceTab">
+        <attribute name="title">
+         <string>Convergence</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="convergenceTabLayout">
+         <item>
+          <widget class="QWidget" name="convergencePlot">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="slicesTab">
+        <attribute name="title">
+         <string>Slices</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="slicesTabLayout">
+         <item>
+          <layout class="QHBoxLayout" name="sliceControls">
+           <item>
+            <widget class="QLabel" name="slicePlaneLabel">
+             <property name="text">
+              <string>Plane</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="slicePlane">
+             <item>
+              <property name="text">
+               <string>XY</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>XZ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>YZ</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>All</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="sliceInfo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="computeSlicesButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>Compute the E-field on the slice planes set in the stimulation tab</string>
+             </property>
+             <property name="text">
+              <string>Compute slices</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="slicesPlot">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="distributionTab">
+        <attribute name="title">
+         <string>Distribution</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="distributionTabLayout">
+         <item>
+          <layout class="QHBoxLayout" name="distributionControls">
+           <item>
+            <widget class="QLabel" name="distributionInfo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Field and tissue picked in the Results tab</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="distributionLog">
+             <property name="text">
+              <string>Log counts</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QWidget" name="distributionPlot">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="electrodesTab">
+        <attribute name="title">
+         <string>Electrodes</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="electrodesTabLayout">
+         <item>
+          <widget class="QWidget" name="electrodesPlot">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -1438,6 +1682,8 @@
     <addaction name="actionSaveIndexAs"/>
     <addaction name="separator"/>
     <addaction name="actionOpenResult"/>
+    <addaction name="actionExportFields"/>
+    <addaction name="actionSaveImage"/>
     <addaction name="actionExportMatlab"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
@@ -1448,6 +1694,15 @@
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuMode">
+    <property name="title">
+     <string>&amp;Mode</string>
+    </property>
+    <addaction name="actionModeTMS"/>
+    <addaction name="actionModeTDCS"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1476,6 +1731,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuMode"/>
    <addaction name="menuView"/>
    <addaction name="menuRun"/>
    <addaction name="menuHelp"/>
@@ -1496,6 +1752,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionModeTMS"/>
+   <addaction name="actionModeTDCS"/>
+   <addaction name="separator"/>
    <addaction name="actionOpenSetup"/>
    <addaction name="actionSaveSetup"/>
    <addaction name="separator"/>
@@ -1506,6 +1765,7 @@
    <addaction name="actionViewXZ"/>
    <addaction name="actionViewYZ"/>
    <addaction name="actionResetView"/>
+   <addaction name="actionSaveImage"/>
    <addaction name="separator"/>
    <addaction name="actionRun"/>
   </widget>
@@ -1560,6 +1820,25 @@
     <string>Ctrl+R</string>
    </property>
   </action>
+  <action name="actionExportFields">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Export fields...</string>
+   </property>
+  </action>
+  <action name="actionSaveImage">
+   <property name="text">
+    <string>Save 3D view &amp;image...</string>
+   </property>
+   <property name="iconText">
+    <string>Snapshot</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the 3D view as an image</string>
+   </property>
+  </action>
   <action name="actionExportMatlab">
    <property name="text">
     <string>Export model to &amp;MATLAB...</string>
@@ -1589,6 +1868,47 @@
     <string>Ctrl+Shift+Z</string>
    </property>
   </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Se&amp;ttings...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+,</string>
+   </property>
+  </action>
+  <actiongroup name="modeActions">
+   <action name="actionModeTMS">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>TMS</string>
+    </property>
+    <property name="toolTip">
+     <string>Transcranial magnetic stimulation, place coils</string>
+    </property>
+    <property name="shortcut">
+     <string>Ctrl+1</string>
+    </property>
+   </action>
+   <action name="actionModeTDCS">
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string>tDCS</string>
+    </property>
+    <property name="toolTip">
+     <string>Transcranial direct current stimulation, place electrodes</string>
+    </property>
+    <property name="shortcut">
+     <string>Ctrl+2</string>
+    </property>
+   </action>
+  </actiongroup>
   <action name="actionViewXY">
    <property name="text">
     <string>Top (XY)</string>

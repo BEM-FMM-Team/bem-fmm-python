@@ -24,6 +24,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import (
     QAction,
+    QActionGroup,
     QBrush,
     QColor,
     QConicalGradient,
@@ -63,7 +64,6 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
     QProgressBar,
     QPushButton,
-    QRadioButton,
     QScrollArea,
     QSizePolicy,
     QSlider,
@@ -100,6 +100,11 @@ class Ui_MainWindow(object):
         self.actionSaveIndexAs.setObjectName("actionSaveIndexAs")
         self.actionOpenResult = QAction(MainWindow)
         self.actionOpenResult.setObjectName("actionOpenResult")
+        self.actionExportFields = QAction(MainWindow)
+        self.actionExportFields.setObjectName("actionExportFields")
+        self.actionExportFields.setEnabled(False)
+        self.actionSaveImage = QAction(MainWindow)
+        self.actionSaveImage.setObjectName("actionSaveImage")
         self.actionExportMatlab = QAction(MainWindow)
         self.actionExportMatlab.setObjectName("actionExportMatlab")
         self.actionQuit = QAction(MainWindow)
@@ -108,6 +113,8 @@ class Ui_MainWindow(object):
         self.actionUndo.setObjectName("actionUndo")
         self.actionRedo = QAction(MainWindow)
         self.actionRedo.setObjectName("actionRedo")
+        self.actionSettings = QAction(MainWindow)
+        self.actionSettings.setObjectName("actionSettings")
         self.actionViewXY = QAction(MainWindow)
         self.actionViewXY.setObjectName("actionViewXY")
         self.actionViewXZ = QAction(MainWindow)
@@ -126,6 +133,15 @@ class Ui_MainWindow(object):
         self.actionViewerHelp.setObjectName("actionViewerHelp")
         self.actionAbout = QAction(MainWindow)
         self.actionAbout.setObjectName("actionAbout")
+        self.modeActions = QActionGroup(MainWindow)
+        self.modeActions.setObjectName("modeActions")
+        self.actionModeTMS = QAction(self.modeActions)
+        self.actionModeTMS.setObjectName("actionModeTMS")
+        self.actionModeTMS.setCheckable(True)
+        self.actionModeTMS.setChecked(True)
+        self.actionModeTDCS = QAction(self.modeActions)
+        self.actionModeTDCS.setObjectName("actionModeTDCS")
+        self.actionModeTDCS.setCheckable(True)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.centralLayout = QHBoxLayout(self.centralwidget)
@@ -257,33 +273,6 @@ class Ui_MainWindow(object):
         self.stimulationTab.setObjectName("stimulationTab")
         self.stimulationLayout = QVBoxLayout(self.stimulationTab)
         self.stimulationLayout.setObjectName("stimulationLayout")
-        self.modeGroup = QGroupBox(self.stimulationTab)
-        self.modeGroup.setObjectName("modeGroup")
-        self.modeLayout = QGridLayout(self.modeGroup)
-        self.modeLayout.setObjectName("modeLayout")
-        self.tmsRadio = QRadioButton(self.modeGroup)
-        self.tmsRadio.setObjectName("tmsRadio")
-        self.tmsRadio.setChecked(True)
-
-        self.modeLayout.addWidget(self.tmsRadio, 0, 0, 1, 1)
-
-        self.tdcsRadio = QRadioButton(self.modeGroup)
-        self.tdcsRadio.setObjectName("tdcsRadio")
-
-        self.modeLayout.addWidget(self.tdcsRadio, 0, 1, 1, 1)
-
-        self.surfaceLabel = QLabel(self.modeGroup)
-        self.surfaceLabel.setObjectName("surfaceLabel")
-
-        self.modeLayout.addWidget(self.surfaceLabel, 1, 0, 1, 1)
-
-        self.surfaceCombo = QComboBox(self.modeGroup)
-        self.surfaceCombo.setObjectName("surfaceCombo")
-
-        self.modeLayout.addWidget(self.surfaceCombo, 1, 1, 1, 1)
-
-        self.stimulationLayout.addWidget(self.modeGroup)
-
         self.stimStack = QStackedWidget(self.stimulationTab)
         self.stimStack.setObjectName("stimStack")
         self.coilPage = QWidget()
@@ -291,6 +280,40 @@ class Ui_MainWindow(object):
         self.coilPageLayout = QVBoxLayout(self.coilPage)
         self.coilPageLayout.setObjectName("coilPageLayout")
         self.coilPageLayout.setContentsMargins(0, -1, 0, -1)
+        self.coilPlacementGroup = QGroupBox(self.coilPage)
+        self.coilPlacementGroup.setObjectName("coilPlacementGroup")
+        self.coilPlacementLayout = QFormLayout(self.coilPlacementGroup)
+        self.coilPlacementLayout.setObjectName("coilPlacementLayout")
+        self.coilSurfaceLabel = QLabel(self.coilPlacementGroup)
+        self.coilSurfaceLabel.setObjectName("coilSurfaceLabel")
+
+        self.coilPlacementLayout.setWidget(
+            0, QFormLayout.ItemRole.LabelRole, self.coilSurfaceLabel
+        )
+
+        self.coilSurfaceCombo = QComboBox(self.coilPlacementGroup)
+        self.coilSurfaceCombo.setObjectName("coilSurfaceCombo")
+
+        self.coilPlacementLayout.setWidget(
+            0, QFormLayout.ItemRole.FieldRole, self.coilSurfaceCombo
+        )
+
+        self.alignLabel = QLabel(self.coilPlacementGroup)
+        self.alignLabel.setObjectName("alignLabel")
+
+        self.coilPlacementLayout.setWidget(
+            1, QFormLayout.ItemRole.LabelRole, self.alignLabel
+        )
+
+        self.alignCombo = QComboBox(self.coilPlacementGroup)
+        self.alignCombo.setObjectName("alignCombo")
+
+        self.coilPlacementLayout.setWidget(
+            1, QFormLayout.ItemRole.FieldRole, self.alignCombo
+        )
+
+        self.coilPageLayout.addWidget(self.coilPlacementGroup)
+
         self.addCoilLayout = QHBoxLayout()
         self.addCoilLayout.setObjectName("addCoilLayout")
         self.coilTypeCombo = QComboBox(self.coilPage)
@@ -504,12 +527,38 @@ class Ui_MainWindow(object):
 
         self.coilPageLayout.addWidget(self.coilEditor)
 
+        self.coilPageSpacer = QSpacerItem(
+            20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.coilPageLayout.addItem(self.coilPageSpacer)
+
         self.stimStack.addWidget(self.coilPage)
         self.electrodePage = QWidget()
         self.electrodePage.setObjectName("electrodePage")
         self.electrodePageLayout = QVBoxLayout(self.electrodePage)
         self.electrodePageLayout.setObjectName("electrodePageLayout")
         self.electrodePageLayout.setContentsMargins(0, -1, 0, -1)
+        self.electrodePlacementGroup = QGroupBox(self.electrodePage)
+        self.electrodePlacementGroup.setObjectName("electrodePlacementGroup")
+        self.electrodePlacementLayout = QFormLayout(self.electrodePlacementGroup)
+        self.electrodePlacementLayout.setObjectName("electrodePlacementLayout")
+        self.electrodeSurfaceLabel = QLabel(self.electrodePlacementGroup)
+        self.electrodeSurfaceLabel.setObjectName("electrodeSurfaceLabel")
+
+        self.electrodePlacementLayout.setWidget(
+            0, QFormLayout.ItemRole.LabelRole, self.electrodeSurfaceLabel
+        )
+
+        self.electrodeSurfaceCombo = QComboBox(self.electrodePlacementGroup)
+        self.electrodeSurfaceCombo.setObjectName("electrodeSurfaceCombo")
+
+        self.electrodePlacementLayout.setWidget(
+            0, QFormLayout.ItemRole.FieldRole, self.electrodeSurfaceCombo
+        )
+
+        self.electrodePageLayout.addWidget(self.electrodePlacementGroup)
+
         self.addElectrodeLayout = QHBoxLayout()
         self.addElectrodeLayout.setObjectName("addElectrodeLayout")
         self.electrodeHint = QLabel(self.electrodePage)
@@ -649,6 +698,12 @@ class Ui_MainWindow(object):
         )
 
         self.electrodePageLayout.addWidget(self.electrodeEditor)
+
+        self.electrodePageSpacer = QSpacerItem(
+            20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.electrodePageLayout.addItem(self.electrodePageSpacer)
 
         self.stimStack.addWidget(self.electrodePage)
 
@@ -888,6 +943,13 @@ class Ui_MainWindow(object):
             2, QFormLayout.ItemRole.FieldRole, self.exportFieldsLayout
         )
 
+        self.computeSlices = QCheckBox(self.outputGroup)
+        self.computeSlices.setObjectName("computeSlices")
+
+        self.outputLayout.setWidget(
+            3, QFormLayout.ItemRole.FieldRole, self.computeSlices
+        )
+
         self.solveLayout.addWidget(self.outputGroup)
 
         self.runLayout = QHBoxLayout()
@@ -1125,11 +1187,11 @@ class Ui_MainWindow(object):
 
         self.resultButtons = QHBoxLayout()
         self.resultButtons.setObjectName("resultButtons")
-        self.convergenceButton = QPushButton(self.resultsTab)
-        self.convergenceButton.setObjectName("convergenceButton")
-        self.convergenceButton.setEnabled(False)
+        self.exportFieldsButton = QPushButton(self.resultsTab)
+        self.exportFieldsButton.setObjectName("exportFieldsButton")
+        self.exportFieldsButton.setEnabled(False)
 
-        self.resultButtons.addWidget(self.convergenceButton)
+        self.resultButtons.addWidget(self.exportFieldsButton)
 
         self.plotWindowsButton = QPushButton(self.resultsTab)
         self.plotWindowsButton.setObjectName("plotWindowsButton")
@@ -1153,16 +1215,143 @@ class Ui_MainWindow(object):
 
         self.sideTabs.addTab(self.resultsTab, "")
         self.splitter.addWidget(self.sideTabs)
-        self.viewPort = QWidget(self.splitter)
-        self.viewPort.setObjectName("viewPort")
+        self.viewTabs = QTabWidget(self.splitter)
+        self.viewTabs.setObjectName("viewTabs")
         sizePolicy1 = QSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
         sizePolicy1.setHorizontalStretch(1)
         sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.viewPort.sizePolicy().hasHeightForWidth())
-        self.viewPort.setSizePolicy(sizePolicy1)
-        self.splitter.addWidget(self.viewPort)
+        sizePolicy1.setHeightForWidth(self.viewTabs.sizePolicy().hasHeightForWidth())
+        self.viewTabs.setSizePolicy(sizePolicy1)
+        self.viewTabs.setDocumentMode(True)
+        self.sceneTab = QWidget()
+        self.sceneTab.setObjectName("sceneTab")
+        self.sceneTabLayout = QVBoxLayout(self.sceneTab)
+        self.sceneTabLayout.setObjectName("sceneTabLayout")
+        self.sceneTabLayout.setContentsMargins(0, 0, 0, 0)
+        self.viewPort = QWidget(self.sceneTab)
+        self.viewPort.setObjectName("viewPort")
+        sizePolicy2 = QSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
+        )
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(1)
+        sizePolicy2.setHeightForWidth(self.viewPort.sizePolicy().hasHeightForWidth())
+        self.viewPort.setSizePolicy(sizePolicy2)
+
+        self.sceneTabLayout.addWidget(self.viewPort)
+
+        self.viewTabs.addTab(self.sceneTab, "")
+        self.convergenceTab = QWidget()
+        self.convergenceTab.setObjectName("convergenceTab")
+        self.convergenceTabLayout = QVBoxLayout(self.convergenceTab)
+        self.convergenceTabLayout.setObjectName("convergenceTabLayout")
+        self.convergencePlot = QWidget(self.convergenceTab)
+        self.convergencePlot.setObjectName("convergencePlot")
+        sizePolicy2.setHeightForWidth(
+            self.convergencePlot.sizePolicy().hasHeightForWidth()
+        )
+        self.convergencePlot.setSizePolicy(sizePolicy2)
+
+        self.convergenceTabLayout.addWidget(self.convergencePlot)
+
+        self.viewTabs.addTab(self.convergenceTab, "")
+        self.slicesTab = QWidget()
+        self.slicesTab.setObjectName("slicesTab")
+        self.slicesTabLayout = QVBoxLayout(self.slicesTab)
+        self.slicesTabLayout.setObjectName("slicesTabLayout")
+        self.sliceControls = QHBoxLayout()
+        self.sliceControls.setObjectName("sliceControls")
+        self.slicePlaneLabel = QLabel(self.slicesTab)
+        self.slicePlaneLabel.setObjectName("slicePlaneLabel")
+
+        self.sliceControls.addWidget(self.slicePlaneLabel)
+
+        self.slicePlane = QComboBox(self.slicesTab)
+        self.slicePlane.addItem("")
+        self.slicePlane.addItem("")
+        self.slicePlane.addItem("")
+        self.slicePlane.addItem("")
+        self.slicePlane.setObjectName("slicePlane")
+
+        self.sliceControls.addWidget(self.slicePlane)
+
+        self.sliceInfo = QLabel(self.slicesTab)
+        self.sliceInfo.setObjectName("sliceInfo")
+        sizePolicy3 = QSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.sliceInfo.sizePolicy().hasHeightForWidth())
+        self.sliceInfo.setSizePolicy(sizePolicy3)
+
+        self.sliceControls.addWidget(self.sliceInfo)
+
+        self.computeSlicesButton = QPushButton(self.slicesTab)
+        self.computeSlicesButton.setObjectName("computeSlicesButton")
+        self.computeSlicesButton.setEnabled(False)
+
+        self.sliceControls.addWidget(self.computeSlicesButton)
+
+        self.slicesTabLayout.addLayout(self.sliceControls)
+
+        self.slicesPlot = QWidget(self.slicesTab)
+        self.slicesPlot.setObjectName("slicesPlot")
+        sizePolicy2.setHeightForWidth(self.slicesPlot.sizePolicy().hasHeightForWidth())
+        self.slicesPlot.setSizePolicy(sizePolicy2)
+
+        self.slicesTabLayout.addWidget(self.slicesPlot)
+
+        self.viewTabs.addTab(self.slicesTab, "")
+        self.distributionTab = QWidget()
+        self.distributionTab.setObjectName("distributionTab")
+        self.distributionTabLayout = QVBoxLayout(self.distributionTab)
+        self.distributionTabLayout.setObjectName("distributionTabLayout")
+        self.distributionControls = QHBoxLayout()
+        self.distributionControls.setObjectName("distributionControls")
+        self.distributionInfo = QLabel(self.distributionTab)
+        self.distributionInfo.setObjectName("distributionInfo")
+        sizePolicy3.setHeightForWidth(
+            self.distributionInfo.sizePolicy().hasHeightForWidth()
+        )
+        self.distributionInfo.setSizePolicy(sizePolicy3)
+
+        self.distributionControls.addWidget(self.distributionInfo)
+
+        self.distributionLog = QCheckBox(self.distributionTab)
+        self.distributionLog.setObjectName("distributionLog")
+
+        self.distributionControls.addWidget(self.distributionLog)
+
+        self.distributionTabLayout.addLayout(self.distributionControls)
+
+        self.distributionPlot = QWidget(self.distributionTab)
+        self.distributionPlot.setObjectName("distributionPlot")
+        sizePolicy2.setHeightForWidth(
+            self.distributionPlot.sizePolicy().hasHeightForWidth()
+        )
+        self.distributionPlot.setSizePolicy(sizePolicy2)
+
+        self.distributionTabLayout.addWidget(self.distributionPlot)
+
+        self.viewTabs.addTab(self.distributionTab, "")
+        self.electrodesTab = QWidget()
+        self.electrodesTab.setObjectName("electrodesTab")
+        self.electrodesTabLayout = QVBoxLayout(self.electrodesTab)
+        self.electrodesTabLayout.setObjectName("electrodesTabLayout")
+        self.electrodesPlot = QWidget(self.electrodesTab)
+        self.electrodesPlot.setObjectName("electrodesPlot")
+        sizePolicy2.setHeightForWidth(
+            self.electrodesPlot.sizePolicy().hasHeightForWidth()
+        )
+        self.electrodesPlot.setSizePolicy(sizePolicy2)
+
+        self.electrodesTabLayout.addWidget(self.electrodesPlot)
+
+        self.viewTabs.addTab(self.electrodesTab, "")
+        self.splitter.addWidget(self.viewTabs)
 
         self.centralLayout.addWidget(self.splitter)
 
@@ -1173,6 +1362,8 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName("menuFile")
         self.menuEdit = QMenu(self.menubar)
         self.menuEdit.setObjectName("menuEdit")
+        self.menuMode = QMenu(self.menubar)
+        self.menuMode.setObjectName("menuMode")
         self.menuView = QMenu(self.menubar)
         self.menuView.setObjectName("menuView")
         self.menuRun = QMenu(self.menubar)
@@ -1191,6 +1382,7 @@ class Ui_MainWindow(object):
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menuMode.menuAction())
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuRun.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -1203,11 +1395,17 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSaveIndexAs)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionOpenResult)
+        self.menuFile.addAction(self.actionExportFields)
+        self.menuFile.addAction(self.actionSaveImage)
         self.menuFile.addAction(self.actionExportMatlab)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuEdit.addAction(self.actionUndo)
         self.menuEdit.addAction(self.actionRedo)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.actionSettings)
+        self.menuMode.addAction(self.actionModeTMS)
+        self.menuMode.addAction(self.actionModeTDCS)
         self.menuView.addAction(self.actionViewXY)
         self.menuView.addAction(self.actionViewXZ)
         self.menuView.addAction(self.actionViewYZ)
@@ -1218,6 +1416,9 @@ class Ui_MainWindow(object):
         self.menuRun.addAction(self.actionDipole)
         self.menuHelp.addAction(self.actionViewerHelp)
         self.menuHelp.addAction(self.actionAbout)
+        self.mainToolBar.addAction(self.actionModeTMS)
+        self.mainToolBar.addAction(self.actionModeTDCS)
+        self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionOpenSetup)
         self.mainToolBar.addAction(self.actionSaveSetup)
         self.mainToolBar.addSeparator()
@@ -1228,6 +1429,7 @@ class Ui_MainWindow(object):
         self.mainToolBar.addAction(self.actionViewXZ)
         self.mainToolBar.addAction(self.actionViewYZ)
         self.mainToolBar.addAction(self.actionResetView)
+        self.mainToolBar.addAction(self.actionSaveImage)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionRun)
 
@@ -1235,6 +1437,7 @@ class Ui_MainWindow(object):
 
         self.sideTabs.setCurrentIndex(0)
         self.stimStack.setCurrentIndex(0)
+        self.viewTabs.setCurrentIndex(0)
 
         QMetaObject.connectSlotsByName(MainWindow)
 
@@ -1290,6 +1493,22 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Ctrl+R", None)
         )
         # endif // QT_CONFIG(shortcut)
+        self.actionExportFields.setText(
+            QCoreApplication.translate("MainWindow", "&Export fields...", None)
+        )
+        self.actionSaveImage.setText(
+            QCoreApplication.translate("MainWindow", "Save 3D view &image...", None)
+        )
+        self.actionSaveImage.setIconText(
+            QCoreApplication.translate("MainWindow", "Snapshot", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.actionSaveImage.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Save the 3D view as an image", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.actionExportMatlab.setText(
             QCoreApplication.translate("MainWindow", "Export model to &MATLAB...", None)
         )
@@ -1309,6 +1528,14 @@ class Ui_MainWindow(object):
         # if QT_CONFIG(shortcut)
         self.actionRedo.setShortcut(
             QCoreApplication.translate("MainWindow", "Ctrl+Shift+Z", None)
+        )
+        # endif // QT_CONFIG(shortcut)
+        self.actionSettings.setText(
+            QCoreApplication.translate("MainWindow", "Se&ttings...", None)
+        )
+        # if QT_CONFIG(shortcut)
+        self.actionSettings.setShortcut(
+            QCoreApplication.translate("MainWindow", "Ctrl+,", None)
         )
         # endif // QT_CONFIG(shortcut)
         self.actionViewXY.setText(
@@ -1358,6 +1585,38 @@ class Ui_MainWindow(object):
         self.actionAbout.setText(
             QCoreApplication.translate("MainWindow", "&About", None)
         )
+        self.actionModeTMS.setText(
+            QCoreApplication.translate("MainWindow", "TMS", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.actionModeTMS.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Transcranial magnetic stimulation, place coils", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(shortcut)
+        self.actionModeTMS.setShortcut(
+            QCoreApplication.translate("MainWindow", "Ctrl+1", None)
+        )
+        # endif // QT_CONFIG(shortcut)
+        self.actionModeTDCS.setText(
+            QCoreApplication.translate("MainWindow", "tDCS", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.actionModeTDCS.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Transcranial direct current stimulation, place electrodes",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(shortcut)
+        self.actionModeTDCS.setShortcut(
+            QCoreApplication.translate("MainWindow", "Ctrl+2", None)
+        )
+        # endif // QT_CONFIG(shortcut)
         self.indexGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Tissue index", None)
         )
@@ -1419,21 +1678,27 @@ class Ui_MainWindow(object):
             self.sideTabs.indexOf(self.modelTab),
             QCoreApplication.translate("MainWindow", "Model", None),
         )
-        self.modeGroup.setTitle(QCoreApplication.translate("MainWindow", "Type", None))
-        self.tmsRadio.setText(
-            QCoreApplication.translate("MainWindow", "TMS coils", None)
+        self.coilPlacementGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Placement", None)
         )
-        self.tdcsRadio.setText(
-            QCoreApplication.translate("MainWindow", "tDCS electrodes", None)
-        )
-        self.surfaceLabel.setText(
+        self.coilSurfaceLabel.setText(
             QCoreApplication.translate("MainWindow", "Place on", None)
         )
         # if QT_CONFIG(tooltip)
-        self.surfaceCombo.setToolTip(
+        self.coilSurfaceCombo.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Surface the coils sit above and are dragged over", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.alignLabel.setText(
+            QCoreApplication.translate("MainWindow", "Align to", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.alignCombo.setToolTip(
             QCoreApplication.translate(
                 "MainWindow",
-                "Surface that coils and electrodes snap to and are dragged on",
+                "The coil axis follows the surface normal of this tissue when a coil is oriented, dragged or aimed",
                 None,
             )
         )
@@ -1484,7 +1749,9 @@ class Ui_MainWindow(object):
         # if QT_CONFIG(tooltip)
         self.autoOrientButton.setToolTip(
             QCoreApplication.translate(
-                "MainWindow", "Point the coil axis along the surface normal", None
+                "MainWindow",
+                "Point the coil axis along the normal of the Align to tissue",
+                None,
             )
         )
         # endif // QT_CONFIG(tooltip)
@@ -1526,6 +1793,21 @@ class Ui_MainWindow(object):
         self.aimButton.setText(
             QCoreApplication.translate("MainWindow", "Pick target", None)
         )
+        self.electrodePlacementGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Placement", None)
+        )
+        self.electrodeSurfaceLabel.setText(
+            QCoreApplication.translate("MainWindow", "Place on", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.electrodeSurfaceCombo.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Surface the electrodes are imprinted on, current flows in through it",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.electrodeHint.setText(
             QCoreApplication.translate(
                 "MainWindow", "Electrodes are held at a fixed voltage", None
@@ -1656,6 +1938,18 @@ class Ui_MainWindow(object):
         self.saveC.setText(QCoreApplication.translate("MainWindow", "c", None))
         self.saveJn.setText(QCoreApplication.translate("MainWindow", "Jn", None))
         self.savePot.setText(QCoreApplication.translate("MainWindow", "Pot", None))
+        # if QT_CONFIG(tooltip)
+        self.computeSlices.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "E-field on the slice planes, shown in the Slices tab",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.computeSlices.setText(
+            QCoreApplication.translate("MainWindow", "Compute E-field slices", None)
+        )
         self.runButton.setText(QCoreApplication.translate("MainWindow", "Run", None))
         self.cancelButton.setText(
             QCoreApplication.translate("MainWindow", "Cancel", None)
@@ -1738,8 +2032,8 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Current (mA)", None)
         )
         self.electrodeSummary.setText("")
-        self.convergenceButton.setText(
-            QCoreApplication.translate("MainWindow", "Convergence", None)
+        self.exportFieldsButton.setText(
+            QCoreApplication.translate("MainWindow", "Export fields...", None)
         )
         # if QT_CONFIG(tooltip)
         self.plotWindowsButton.setToolTip(
@@ -1758,8 +2052,66 @@ class Ui_MainWindow(object):
             self.sideTabs.indexOf(self.resultsTab),
             QCoreApplication.translate("MainWindow", "Results", None),
         )
+        self.viewTabs.setTabText(
+            self.viewTabs.indexOf(self.sceneTab),
+            QCoreApplication.translate("MainWindow", "3D view", None),
+        )
+        self.viewTabs.setTabText(
+            self.viewTabs.indexOf(self.convergenceTab),
+            QCoreApplication.translate("MainWindow", "Convergence", None),
+        )
+        self.slicePlaneLabel.setText(
+            QCoreApplication.translate("MainWindow", "Plane", None)
+        )
+        self.slicePlane.setItemText(
+            0, QCoreApplication.translate("MainWindow", "XY", None)
+        )
+        self.slicePlane.setItemText(
+            1, QCoreApplication.translate("MainWindow", "XZ", None)
+        )
+        self.slicePlane.setItemText(
+            2, QCoreApplication.translate("MainWindow", "YZ", None)
+        )
+        self.slicePlane.setItemText(
+            3, QCoreApplication.translate("MainWindow", "All", None)
+        )
+
+        self.sliceInfo.setText("")
+        # if QT_CONFIG(tooltip)
+        self.computeSlicesButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Compute the E-field on the slice planes set in the stimulation tab",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.computeSlicesButton.setText(
+            QCoreApplication.translate("MainWindow", "Compute slices", None)
+        )
+        self.viewTabs.setTabText(
+            self.viewTabs.indexOf(self.slicesTab),
+            QCoreApplication.translate("MainWindow", "Slices", None),
+        )
+        self.distributionInfo.setText(
+            QCoreApplication.translate(
+                "MainWindow", "Field and tissue picked in the Results tab", None
+            )
+        )
+        self.distributionLog.setText(
+            QCoreApplication.translate("MainWindow", "Log counts", None)
+        )
+        self.viewTabs.setTabText(
+            self.viewTabs.indexOf(self.distributionTab),
+            QCoreApplication.translate("MainWindow", "Distribution", None),
+        )
+        self.viewTabs.setTabText(
+            self.viewTabs.indexOf(self.electrodesTab),
+            QCoreApplication.translate("MainWindow", "Electrodes", None),
+        )
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", "&File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("MainWindow", "&Edit", None))
+        self.menuMode.setTitle(QCoreApplication.translate("MainWindow", "&Mode", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", "&View", None))
         self.menuRun.setTitle(QCoreApplication.translate("MainWindow", "&Run", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", "&Help", None))
