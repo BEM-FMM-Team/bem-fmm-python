@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "tissue_index": "",
+  "mode": "tdcs",
+  "skin": "skin",
+  "planes": [0.0, 0.0, 0.0],
+  "coils": [],
+  "electrodes": [
+    {"name": "E0", "center": [-0.01555, 0.06522, 0.05704], "radius": 0.015, "voltage": 1.0},
+    {"name": "E1", "center": [-0.00658, -0.01988, 0.07759], "radius": 0.015, "voltage": 1.0},
+    {"name": "E2", "center": [-0.07540, 0.01289, 0.02813], "radius": 0.015, "voltage": 1.0},
+    {"name": "E3", "center": [-0.03954, 0.01764, 0.06408], "radius": 0.015, "voltage": -1.0}
+  ]
+}
