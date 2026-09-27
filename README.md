@@ -56,11 +56,14 @@ python -m uv pip install -e .
 Everything is one command, `bemfmm` (or `python -m bemfmm`):
 
 ```bash
-bemfmm gui                          # the graphical interface
+bemfmm gui                          # the graphical interface, last used mode
+bemfmm gui --mode tdcs              # start in tDCS mode
 bemfmm tms -s c -s E -s En          # default coil on the default head model
 bemfmm tdcs -s c -s E -s En         # default four electrode montage
 bemfmm tms --setup setup.json       # coils saved from the gui
 bemfmm tdcs --setup setup.json --tissue-index my_model/tissue_index.yaml
+bemfmm tms --setup setup.json --slices   # also save E-field slices
+bemfmm slices __output__ --planes 30 -12 54   # slices for a saved result, mm
 bemfmm show __output__              # plot windows for a saved result
 bemfmm sphere                       # three layer sphere in a uniform field
 bemfmm dipole                       # primary field of a dipole on a skull
@@ -71,14 +74,23 @@ bemfmm export-matlab --out CombinedMesh.mat
 
 ### The gui
 
-One window with four tabs, left to right:
+The window is always in TMS or tDCS mode, switched with the two buttons at the left of the toolbar
+(Ctrl+1, Ctrl+2). The mode is in the window title and the status bar, and the run button says what it runs.
+
+The side panel has four tabs:
 
 - **Model**: open a tissue index, edit conductivities and which tissue is outside which, add or remove shells, then Apply to reload the model or Save as to write a new index
-- **Stimulation**: TMS coils or tDCS electrodes on a chosen surface (skin by default). Coils can be moved with the position fields, dragged over the surface, auto oriented, flipped, twisted, and aimed at a point on any tissue. Electrodes have a position, radius and voltage
+- **Coils** (TMS): coils placed on a chosen surface (skin by default). Coils can be moved with the position fields, dragged over the surface, auto oriented, flipped, twisted, and aimed at a point on any tissue. Align to picks the tissue whose normal sets the coil axis, the Place on surface by default
+- **Electrodes** (tDCS): electrodes on their own Place on surface, the skin unless changed. Each has a position, radius and voltage
 - **Solve**: solver settings and the output folder. Runs in the background with progress, the log and a Cancel button
-- **Results**: any field on any tissue in the 3D view, percentiles, electrode currents, convergence, and the classic plot windows
+- **Results**: any field on any tissue in the 3D view, percentiles, electrode currents, field export and the classic plot windows
 
-Setups (`.json`) hold the coils, electrodes, slice planes and the tissue index they were made on.
+Next to the 3D view are the result tabs: Convergence, Slices (E-field on the three slice planes), Distribution
+and Electrodes (tDCS currents). The plots have the matplotlib toolbar for zooming and saving and can be popped out
+into their own windows. Edit > Settings has the theme (system, light or dark), the name of the skin tissue, the
+start mode and the output folder.
+
+Setups (`.json`) hold the coils, electrodes, slice planes, the mode, the placement surface and the tissue index they were made on.
 
 ### From python
 
@@ -123,7 +135,8 @@ shells:
 | `Jn` | outward normal current density just inside the surface (A/m^2) |
 | `Pot` | surface potential, tDCS only (V) |
 
-`--save-format mat|npz|csv|pkl` with `--save` also exports single fields.
+`--save-format mat|npz|csv|pkl` with `--save` also exports single fields, and so does Export fields in the gui.
+`slices.npz` holds the E-field slices when a run computed them.
 
 ## Sphere model
 
@@ -151,10 +164,13 @@ src/bemfmm/
   solvers/        tms, tdcs and uniform field solvers
   results.py      result files
   charge/, mesh/  the BEM-FMM engine
-  plot/           plot windows
+  plot/           plot windows and E-field slices
   gui/            the gui, *.ui files are edited with Qt Designer
   cli.py          the bemfmm command
 ```
+
+The full documentation is in `docs/` (`cd docs && make html`): a user guide for the gui and the command line,
+the Python API, file formats, the method and notes for developers.
 
 After editing a `.ui` file regenerate its python module, for example
 `pyside6-uic src/bemfmm/gui/main_window.ui -o src/bemfmm/gui/ui_main_window.py`.

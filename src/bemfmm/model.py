@@ -100,9 +100,11 @@ class HeadModel:
     """
     Combined surface mesh of all tissue shells listed in a tissue index
 
-    The tissue index is a yaml file with
+    The tissue index is a yaml file with::
+
         shells:
             TissueName: [condin, "TissueOutside", "file.stl"]
+
     where TissueOutside is another TissueName or FreeSpace and the stl path is
     relative to the index
     """

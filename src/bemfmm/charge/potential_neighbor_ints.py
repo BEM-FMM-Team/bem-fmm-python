@@ -26,7 +26,7 @@ def potential_neighbor_ints(
 
     Only the observation facets in rows are computed, which is all the
     voltage electrodes need. Row k of the result corrects the plain FMM
-    potential at facet rows[k]:
+    potential at facet rows[k]::
 
         PC[k, j] = 1/(4pi) * (<Is_j(1/r)>_k - A_j / |C_k - C_j|)
 

@@ -28,6 +28,22 @@ bemfmm.gui.main\_window module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.gui.plots module
+-----------------------
+
+.. automodule:: bemfmm.gui.plots
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+bemfmm.gui.settings module
+--------------------------
+
+.. automodule:: bemfmm.gui.settings
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.gui.solve\_runner module
 -------------------------------
 
@@ -44,6 +60,14 @@ bemfmm.gui.stimulation module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.gui.theme module
+-----------------------
+
+.. automodule:: bemfmm.gui.theme
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.gui.ui\_coil\_params module
 ----------------------------------
 
@@ -52,10 +76,26 @@ bemfmm.gui.ui\_coil\_params module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.gui.ui\_export\_dialog module
+------------------------------------
+
+.. automodule:: bemfmm.gui.ui_export_dialog
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.gui.ui\_main\_window module
 ----------------------------------
 
 .. automodule:: bemfmm.gui.ui_main_window
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+bemfmm.gui.ui\_settings\_dialog module
+--------------------------------------
+
+.. automodule:: bemfmm.gui.ui_settings_dialog
    :members:
    :show-inheritance:
    :undoc-members:
