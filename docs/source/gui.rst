@@ -112,7 +112,9 @@ Solver settings:
 - **Potential integrals**: tDCS only, nearest facets integrated exactly for the
   potential on the electrodes (32)
 - **Max iterations** and **Tolerance**: when GMRES stops. The defaults are
-  20 and 1e-4 for TMS, 50 and 1e-6 for tDCS
+  20 and 1e-4 for TMS, 50 and 1e-6 for tDCS. Tolerance is typed and shown in
+  scientific notation (``1e-6``, ``2.5e-7``), the arrows step by a factor of
+  ten
 - **Conservation weight**: weight of the term that keeps the total charge
   (TMS) or the total electrode current (tDCS) at zero
 

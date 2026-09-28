@@ -920,21 +920,15 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QDoubleSpinBox" name="relres">
+             <widget class="SciSpinBox" name="relres">
               <property name="toolTip">
                <string>Stop when the relative residual is below this</string>
-              </property>
-              <property name="decimals">
-               <number>10</number>
               </property>
               <property name="minimum">
                <double>0.000000000001000</double>
               </property>
               <property name="maximum">
                <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.000100000000000</double>
               </property>
               <property name="value">
                <double>0.000100000000000</double>
@@ -1973,6 +1967,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SciSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>bemfmm.gui.widgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -108,6 +108,14 @@ bemfmm.gui.viewport module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.gui.widgets module
+-------------------------
+
+.. automodule:: bemfmm.gui.widgets
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 Module contents
 ---------------
 

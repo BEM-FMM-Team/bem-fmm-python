@@ -80,6 +80,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from bemfmm.gui.widgets import SciSpinBox
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -825,12 +827,10 @@ class Ui_MainWindow(object):
 
         self.solverLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.relresLabel)
 
-        self.relres = QDoubleSpinBox(self.solverGroup)
+        self.relres = SciSpinBox(self.solverGroup)
         self.relres.setObjectName("relres")
-        self.relres.setDecimals(10)
         self.relres.setMinimum(0.000000000001000)
         self.relres.setMaximum(1.000000000000000)
-        self.relres.setSingleStep(0.000100000000000)
         self.relres.setValue(0.000100000000000)
 
         self.solverLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.relres)

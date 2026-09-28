@@ -65,6 +65,8 @@ The gui
 - ``theme.py`` and ``style.qss``: light and dark themes, the stylesheet is a
   template filled from ``theme.COLORS``
 - ``settings.py`` and ``dialogs.py``: saved preferences and the dialogs
+- ``widgets.py``: custom widgets, used in the ``.ui`` files by promoting a
+  standard widget in Qt Designer (``SciSpinBox`` for tolerances)
 
 After editing a ``.ui`` file regenerate its module and format it::
 

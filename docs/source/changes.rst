@@ -38,6 +38,9 @@ GUI
 - Electrodes are drawn as the skin facets the tDCS solver will imprint for
   them, with their edges, instead of a flat disk that cut into curved skin.
   The patch follows the electrode while it is dragged or resized.
+- Tolerance in the Solve tab is shown and typed in scientific notation and its
+  arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
+  zero.
 
 Command line
 
