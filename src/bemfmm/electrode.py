@@ -2,6 +2,8 @@ import copy
 
 import numpy as np
 
+from bemfmm.mesh import mesh_imprint
+
 
 class Electrode:
     """
@@ -66,3 +68,34 @@ def electrode_disk(center, normal, radius, lift=1e-4, res=40):
     )
 
     return P, t
+
+
+def imprint_patch(P, t, normals, center, radius, margin, lift=1e-4):
+    """
+    Facets of the surface (P, t) inside the electrode, cut the same way the
+    tDCS solver imprints the skin. Only facets with a vertex within radius +
+    margin are imprinted, margin should be at least the longest edge. Returns
+    (P, t) lifted along the facet normals, or None when no facet is inside
+    """
+    near_vertex = np.linalg.norm(P - center, axis=1) < radius + margin
+    near = near_vertex[t].any(axis=1)
+    if not near.any():
+        return None
+
+    used, tl = np.unique(t[near], return_inverse=True)
+    Pi, ti, ni, indicator = mesh_imprint(
+        P[used], tl.reshape(-1, 3), normals[near], center, radius
+    )
+    inside = indicator == 1
+    if not inside.any():
+        return None
+
+    used, ti = np.unique(ti[inside], return_inverse=True)
+    ti = ti.reshape(-1, 3)
+    Pi = Pi[used]
+
+    # move every vertex along the mean normal of its facets
+    vn = np.zeros_like(Pi)
+    np.add.at(vn, ti.ravel(), np.repeat(ni[inside], 3, axis=0))
+    vn /= np.linalg.norm(vn, axis=1, keepdims=True)
+    return Pi + lift * vn, ti

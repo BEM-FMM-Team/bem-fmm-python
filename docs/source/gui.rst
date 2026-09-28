@@ -90,7 +90,8 @@ Electrodes tab (tDCS)
   set in Settings) and can be changed to any tissue. Changing it moves the
   existing electrodes onto the new surface.
 - **Add electrode** adds a disk electrode. New ones alternate between +1 V
-  and -1 V.
+  and -1 V. The 3D view draws the skin facets the solver will imprint for it,
+  so on curved or folded skin it shows the exact patch that carries current.
 - **Selected electrode**: position (snapped to the surface), radius in mm and
   voltage. **Drag** moves it in the 3D view like a coil.
 

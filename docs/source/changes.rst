@@ -35,6 +35,9 @@ GUI
   previous behavior. With another tissue, for example gm, the coil axis follows
   the gm normal at the target and the coil is moved out along that normal to
   the set distance above the skin.
+- Electrodes are drawn as the skin facets the tDCS solver will imprint for
+  them, with their edges, instead of a flat disk that cut into curved skin.
+  The patch follows the electrode while it is dragged or resized.
 
 Command line
 
@@ -53,6 +56,8 @@ Library
   ``draw_efield_slice`` and the tissue outlines are drawn as one collection per
   tissue, which is much faster for large models.
 - Setups store ``mode`` and ``skin``. Older setups still open.
+- ``electrode.imprint_patch`` imprints one electrode on the facets of a surface
+  near it, the same cut as the solver in a few ms.
 
 The numerics of all solvers are unchanged.
 

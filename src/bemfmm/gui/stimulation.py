@@ -10,7 +10,7 @@ from bemfmm.coils.rotation import (
     vector_to_quat,
     xyz_to_quat,
 )
-from bemfmm.electrode import Electrode
+from bemfmm.electrode import Electrode, imprint_patch
 from bemfmm.mesh import mesh_normals, mesh_tricenter
 
 from .viewport import COIL_COLOR, SELECTED_COLOR, electrode_color
@@ -26,6 +26,7 @@ class Surface:
 
     def __init__(self, P, t):
         P, t = np.asarray(P), np.asarray(t)
+        self.P, self.t = P, t
         self.normals = mesh_normals(P, t)
         self.centers = mesh_tricenter(P, t)
         self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
@@ -33,6 +34,9 @@ class Surface:
         self.v0 = P[t[:, 0]]
         self.e1 = P[t[:, 1]] - self.v0
         self.e2 = P[t[:, 2]] - self.v0
+        self.longest_edge = np.linalg.norm(
+            np.concatenate((self.e1, self.e2, self.e2 - self.e1)), axis=1
+        ).max()
 
     def nearest(self, xyz):
         distances, indices = self.nn.kneighbors(np.reshape(xyz, (1, -1)))
@@ -54,6 +58,11 @@ class Surface:
         if not np.any(hit):
             return None
         return origin + direction * distance[hit].min()
+
+    def imprint(self, center, radius):
+        return imprint_patch(
+            self.P, self.t, self.normals, center, radius, self.longest_edge
+        )
 
 
 class Stimulation:
@@ -168,15 +177,17 @@ class Stimulation:
             self.viewport.update_mesh(key, coil.cad_P, coil.centerline)
 
     def draw_electrode(self, electrode, new=False):
+        # the skin the solver will imprint, the disk if no facet is inside
         key = f"electrode:{electrode.id}"
-        P, t = electrode.disk()
+        patch = self.surface.imprint(electrode.center, electrode.radius)
+        P, t = patch if patch is not None else electrode.disk()
         if new:
             color = electrode_color(electrode.voltage)
             if key == self.selected:
                 color = SELECTED_COLOR
-            self.viewport.add_mesh(key, P, t, color, self.electrode_alpha)
+            self.viewport.add_mesh(key, P, t, color, self.electrode_alpha, edges=True)
         else:
-            self.viewport.update_mesh(key, P)
+            self.viewport.update_mesh(key, P, t=t)
 
     def select(self, key):
         if self.selected is not None:

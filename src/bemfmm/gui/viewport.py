@@ -183,10 +183,12 @@ class Viewport:
             self.picker.AddPickList(self.surfaces[name].actor)
 
     # coils and electrodes
-    def add_mesh(self, key, P, t, color, alpha=1.0, arrow=None):
+    def add_mesh(self, key, P, t, color, alpha=1.0, arrow=None, edges=False):
         from vedo import Mesh
 
         mesh = Mesh([P, t]).color(color).alpha(alpha)
+        if edges:
+            mesh.linewidth(0.3).linecolor("black")
         mesh.name = key
         self.actors[key] = mesh
         self.plt.add(mesh)
@@ -210,8 +212,14 @@ class Viewport:
         if key in self.arrows:
             self.arrows[key].actor.SetVisibility(visible)
 
-    def update_mesh(self, key, P, arrow=None):
-        self.actors[key].points = P
+    def update_mesh(self, key, P, arrow=None, t=None):
+        from vedo import Mesh
+
+        if t is None:
+            self.actors[key].points = P
+        else:
+            # new topology, the actor keeps its name, color and alpha
+            self.actors[key]._update(Mesh([P, t]).dataset)
         if arrow is not None:
             self._set_arrow(key, arrow)
         self.render()

@@ -73,3 +73,59 @@ def test_aim_follows_the_align_tissue(sphere):
     np.testing.assert_allclose(
         coil.com, hit + normal * (0.020 + coil.bottom_to_com), atol=1e-9
     )
+
+
+class Recorder(Quiet):
+    # keeps the last mesh drawn for every key
+    def __init__(self):
+        self.meshes = {}
+
+    def add_mesh(self, key, P, t, *args, **kwargs):
+        self.meshes[key] = (P, t)
+
+    def update_mesh(self, key, P, arrow=None, t=None):
+        self.meshes[key] = (P, t)
+
+
+def test_electrode_shows_the_imprint(sphere):
+    # same facets the solver imprints, see TDCS_FACETS in test_solvers.py
+    view = Recorder()
+    stim = Stimulation(view)
+    stim.set_surface(*sphere.surface("skin"))
+
+    placed = [([0, 0, 0.042], 0.008, 240), ([0.042, 0, 0], 0.006, 18)]
+    for center, radius, facets in placed:
+        id = stim.add_electrode(radius)
+        stim.move_electrode(id, np.array(center))
+        P, t = view.meshes[f"electrode:{id}"]
+        assert len(t) == facets
+
+        # on the skin sphere and inside the electrode, less the lift
+        center = stim.electrodes[id].center
+        np.testing.assert_allclose(np.linalg.norm(P, axis=1), 0.042, rtol=5e-3)
+        assert np.linalg.norm(P - center, axis=1).max() < radius + 2e-4
+
+
+@pytest.mark.parametrize("radius", [1e-4, 0.002, 0.008, 0.015])
+def test_electrode_imprint_matches_solver(sphere, radius):
+    from bemfmm.solvers.tdcs import imprint_electrodes
+
+    view = Recorder()
+    stim = Stimulation(view)
+    stim.set_surface(*sphere.surface("skin"))
+    id = stim.add_electrode(radius)
+    electrode = stim.electrodes[id]
+
+    *_, indicator = imprint_electrodes(
+        sphere.P,
+        sphere.t,
+        sphere.normals,
+        sphere.condin,
+        sphere.condout,
+        sphere.interface,
+        sphere.tissue_id("skin"),
+        electrode.center[None, :],
+        np.array([radius]),
+    )
+    _, t = view.meshes[f"electrode:{id}"]
+    assert len(t) == np.sum(indicator == 1)
