@@ -4,14 +4,21 @@ Getting started
 Install
 -------
 
-You need Python 3.11 or newer. The run scripts in the repository root set
-everything up the first time they are started:
+The run scripts in the repository root set everything up the first time they
+are started. They install `uv <https://docs.astral.sh/uv/>`_ and Python 3.13
+when they are missing, and use an installed Python 3.11 or newer when that
+fails:
 
 - Windows: ``run.bat`` (double click it or start it from a terminal).
-  ``run_no3d.bat`` opens the same program without the 3D view, for remote
-  desktop sessions without a usable OpenGL driver.
-- Linux and MacOS: ``run.command``. On Linux install
-  `uv <https://docs.astral.sh/uv/getting-started/installation/>`_ first.
+- Linux and MacOS: ``run.command``.
+
+``run_no3d.bat`` and ``run_no3d.command`` open the same program without the 3D
+view, for remote desktop sessions without a usable OpenGL driver. Arguments
+are passed on to ``bemfmm gui``, for example ``run.bat --mode tdcs``.
+
+The environment is kept in ``.venv`` and set up again when ``pyproject.toml``
+changed, for example after a ``git pull`` that changed the dependencies. To
+start over, delete ``.venv``.
 
 To install by hand, in the repository root::
 

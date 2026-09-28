@@ -2,215 +2,104 @@
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
-set VENV_DIR=%~dp0.venv
-set INDEX_URL=https://pandecode.github.io/FMM3D/simple/
-set EXTRA_INDEX_URL=https://pypi.org/simple
+rem sets up .venv on the first run (or when pyproject.toml changed) and starts
+rem the gui, arguments are passed to "bemfmm gui"
 
-echo [bem-fmm-python installer]
+set "VENV_DIR=%~dp0.venv"
+set "PYTHON=%VENV_DIR%\Scripts\python.exe"
+set "PY_VERSION=3.13"
+set "INDEX_URL=https://pandecode.github.io/FMM3D/simple/"
+set "EXTRA_INDEX_URL=https://pypi.org/simple"
+set "VENV_CHECK=import filecmp, sys, bemfmm.cli; sys.exit(not filecmp.cmp(*sys.argv[1:], shallow=False))"
+
+echo [bem-fmm-python]
 echo WORKDIR: %~dp0
 
-rem Check if venv already exists and is valid
-if exist "%VENV_DIR%" (
-    echo -- .venv already exists --
-    if exist "%VENV_DIR%\Scripts\python.exe" (
-        if exist "%VENV_DIR%\Scripts\bemfmm.exe" (
-            echo venv is valid
-            call "%VENV_DIR%\Scripts\activate.bat"
-            goto run_app
-        )
-    )
-    echo venv is bricked, removing...
-    rmdir /s /q "%VENV_DIR%"
+rem the venv is usable when it imports bemfmm and was installed from this
+rem pyproject.toml, a copy is kept in the venv after every install
+if exist "%PYTHON%" (
+    "%PYTHON%" -c "%VENV_CHECK%" "%~dp0pyproject.toml" "%VENV_DIR%\pyproject.toml" >nul 2>&1
+    if !errorlevel! equ 0 goto run_app
+    echo -- .venv is out of date, rebuilding it --
 )
-
-set UV_EXE=
+if exist "%VENV_DIR%" rmdir /s /q "%VENV_DIR%"
 
 echo.
-echo -- checking for uv --
-
-rem try to find uv in PATH
-for /f "delims=" %%A in ('where uv 2^>nul') do set UV_EXE=%%A
-if defined UV_EXE (
-    "%UV_EXE%" --version
-    if errorlevel 1 set UV_EXE=
-)
-
-rem try common installation directories
+echo -- looking for uv --
+call :find_uv
 if not defined UV_EXE (
-    if exist "%USERPROFILE%\.local\bin\uv.exe" (
-        set UV_EXE=%USERPROFILE%\.local\bin\uv.exe
-        echo found uv at %USERPROFILE%\.local\bin\uv.exe
-    )
-)
-
-if not defined UV_EXE (
-    if exist "%USERPROFILE%\.cargo\bin\uv.exe" (
-        set UV_EXE=%USERPROFILE%\.cargo\bin\uv.exe
-        echo found uv at %USERPROFILE%\.cargo\bin\uv.exe
-    )
-)
-
-if not defined UV_EXE (
-    echo uv not found, attempting to find python...
-)
-
-rem if uv not found, try to install it via pip from Python
-if not defined UV_EXE (
-    set PYEXE=
-    where py >nul 2>&1 && set PYEXE=py -3
-    if not defined PYEXE (
-        where python >nul 2>&1 && set PYEXE=python
-    )
-    if not defined PYEXE (
-        where python3 >nul 2>&1 && set PYEXE=python3
-    )
-
-    rem ERROR WARN TODO something here is wrong, i think pyexe is not set right
-    if defined PYEXE (
-        echo.
-        echo -- attempting uv install via pip --
-        %PYEXE% --version
-        echo running: %PYEXE% -m pip install uv
-        %PYEXE% -m pip install uv
-
-        for /f "delims=" %%A in ('%PYEXE% -m site --user-scripts') do set USER_SCRIPTS=%%A
-        if exist "!USER_SCRIPTS!\uv.exe" (
-            set UV_EXE=!USER_SCRIPTS!\uv.exe
-            echo uv installed to !USER_SCRIPTS!\uv.exe
-            "!UV_EXE!" --version
-        ) else (
-            echo uv install via pip did not result in executable
-        )
-    )
-)
-
-rem if still no uv, try to download it directly
-if not defined UV_EXE (
-    set PYEXE=
-    where py >nul 2>&1 && set PYEXE=py -3
-    if not defined PYEXE (
-        where python >nul 2>&1 && set PYEXE=python
-    )
-    if not defined PYEXE (
-        where python3 >nul 2>&1 && set PYEXE=python3
-    )
-
-    if defined PYEXE (
-        echo.
-        echo -- attempting direct download from github --
-        set UV_TEMP=%temp%\uv_install
-        if exist "!UV_TEMP!" rmdir /s /q "!UV_TEMP!" 2>nul
-        mkdir "!UV_TEMP!"
-        echo temp dir: !UV_TEMP!
-        echo downloading uv-x86_64-pc-windows-msvc.zip...
-
-        %PYEXE% -c "import urllib.request; urllib.request.urlretrieve('https://github.com/astral-sh/uv/releases/download/0.11.2/uv-x86_64-pc-windows-msvc.zip', r'!UV_TEMP!\uv.zip')"
-
-        if exist "!UV_TEMP!\uv.zip" (
-            echo extracting...
-            powershell -Command "Expand-Archive -Path '!UV_TEMP!\uv.zip' -DestinationPath '!UV_TEMP!' -Force"
-            if exist "!UV_TEMP!\uv.exe" (
-                set UV_EXE=!UV_TEMP!\uv.exe
-                echo extracted: !UV_EXE!
-                "!UV_EXE!" --version
-            )
-        ) else (
-            echo download failed
-        )
-    )
-)
-
-echo.
-echo -- setting up venv --
-
-rem try to use uv if available
-if defined UV_EXE (
-    echo creating venv with uv...
-    "%UV_EXE%" venv "%VENV_DIR%"
-    if errorlevel 1 (
-        echo uv venv creation failed
-        set UV_EXE=
-    ) else (
-        echo venv created
-    )
+    echo uv not found, installing it with the official installer
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://astral.sh/uv/install.ps1 | iex"
+    call :find_uv
 )
 
 if defined UV_EXE (
-    echo installing dependencies with uv...
-    "%UV_EXE%" pip install ^
-        --index-url %INDEX_URL% --extra-index-url %EXTRA_INDEX_URL% ^
-        --python "%VENV_DIR%\Scripts\python.exe" -e "%~dp0."
-    if errorlevel 1 (
-        echo uv pip install failed, falling back
-        set UV_EXE=
-    ) else (
-        echo dependencies installed
-        call "%VENV_DIR%\Scripts\activate.bat"
-        goto run_app
+    echo using !UV_EXE!
+    "!UV_EXE!" venv --python %PY_VERSION% "%VENV_DIR%"
+    if !errorlevel! equ 0 (
+        "!UV_EXE!" pip install --python "%PYTHON%" ^
+            --index-url %INDEX_URL% --extra-index-url %EXTRA_INDEX_URL% -e "%~dp0."
+        if !errorlevel! equ 0 goto installed
     )
+    echo uv could not set up .venv, trying python
+    rem uv venvs have no pip
+    if exist "%VENV_DIR%" rmdir /s /q "%VENV_DIR%"
 )
-
-:runtime_fallback
 
 echo.
-echo -- fallback: standard python venv --
-
-set PYEXE=
-where py >nul 2>&1 && set PYEXE=py -3
+echo -- looking for python 3.11 or newer --
+call :find_python
 if not defined PYEXE (
-    where python >nul 2>&1 && set PYEXE=python
+    echo error: neither uv nor python 3.11+ could be found or installed
+    echo install python from https://www.python.org/downloads/ and run this again
+    goto fail
 )
-if not defined PYEXE (
-    where python3 >nul 2>&1 && set PYEXE=python3
+echo using !PYEXE!
+!PYEXE! -m venv "%VENV_DIR%"
+if !errorlevel! neq 0 (
+    echo error: could not create .venv
+    goto fail
 )
-
-if not defined PYEXE (
-    echo error: no python interpreter found
-    exit /b 1
-)
-
-echo using python: %PYEXE%
-%PYEXE% --version
-
-if not exist "%VENV_DIR%\Scripts\python.exe" (
-    echo creating venv with python...
-    %PYEXE% -m venv "%VENV_DIR%"
-    if errorlevel 1 (
-        echo failed to create venv
-        exit /b 1
-    )
-    echo venv created
-)
-
-echo installing dependencies...
-"%VENV_DIR%\Scripts\python.exe" -m pip install --disable-pip-version-check ^
+"%PYTHON%" -m pip install --disable-pip-version-check ^
     --index-url %INDEX_URL% --extra-index-url %EXTRA_INDEX_URL% -e "%~dp0."
-if errorlevel 1 (
-    echo dependency install failed
-    exit /b 1
+if !errorlevel! neq 0 (
+    echo error: could not install the dependencies
+    goto fail
 )
+
+:installed
+copy /y "%~dp0pyproject.toml" "%VENV_DIR%\pyproject.toml" >nul
 echo dependencies installed
 
-call "%VENV_DIR%\Scripts\activate.bat"
-
 :run_app
-
 echo.
-echo -- running app --
+echo -- running bemfmm gui --
+"%PYTHON%" -m bemfmm gui %*
+if !errorlevel! neq 0 goto fail
+exit /b 0
 
-if exist "%VENV_DIR%\Scripts\bemfmm.exe" (
-    echo running bemfmm.exe
-    "%VENV_DIR%\Scripts\bemfmm.exe" gui %*
+:fail
+echo.
+echo something went wrong, the messages above say what
+pause
+exit /b 1
 
-    if %errorlevel%==0 (
-        exit /b 0
+:find_uv
+rem the built in PATH search, where.exe is not on every system
+set "UV_EXE="
+for %%X in (uv.exe) do set "UV_EXE=%%~$PATH:X"
+if not defined UV_EXE if exist "%USERPROFILE%\.local\bin\uv.exe" set "UV_EXE=%USERPROFILE%\.local\bin\uv.exe"
+if not defined UV_EXE if exist "%USERPROFILE%\.cargo\bin\uv.exe" set "UV_EXE=%USERPROFILE%\.cargo\bin\uv.exe"
+exit /b 0
+
+:find_python
+rem the first interpreter that runs and is new enough, the Microsoft Store
+rem "python" stub fails the version check
+set "PYEXE="
+for %%P in ("py -%PY_VERSION%" "py -3" "python" "python3") do (
+    if not defined PYEXE (
+        %%~P -c "import sys; sys.exit(sys.version_info < (3, 11))" >nul 2>&1
+        if !errorlevel! equ 0 set "PYEXE=%%~P"
     )
-
-    echo exe failed, running module directly...
 )
-
-echo running module directly...
-"%VENV_DIR%\Scripts\python.exe" -m bemfmm gui %*
-exit /b %errorlevel%
-
-endlocal
+exit /b 0

@@ -62,6 +62,21 @@ Library
 - ``electrode.imprint_patch`` imprints one electrode on the facets of a surface
   near it, the same cut as the solver in a few ms.
 
+Run scripts
+
+- ``run.bat`` and ``run.command`` install uv with its official installer when
+  it is missing and let uv provide Python 3.13, so no Python has to be
+  installed first. Without uv they use an installed Python 3.11 or newer.
+- ``.venv`` is set up again when it no longer imports ``bemfmm`` or was
+  installed from a different ``pyproject.toml``.
+- ``run_no3d.bat`` calls ``run.bat --no-3d``, and ``run_no3d.command`` is new.
+- Fixed in ``run.bat``: variables set inside blocks were read before they were
+  set, so installing uv through pip never worked and a failed start was
+  reported as a success. Falling back from uv to pip reused a venv without pip.
+  Errors now keep the window open.
+- ``.gitattributes`` keeps ``.bat`` files CRLF, which ``cmd.exe`` needs for
+  reliable labels.
+
 The numerics of all solvers are unchanged.
 
 Refactor

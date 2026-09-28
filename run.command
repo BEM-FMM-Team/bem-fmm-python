@@ -1,179 +1,119 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
+# sets up .venv on the first run (or when pyproject.toml changed) and starts
+# the gui, arguments are passed to "bemfmm gui"
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 
 VENV_DIR="$SCRIPT_DIR/.venv"
+PYTHON="$VENV_DIR/bin/python"
+PY_VERSION="3.13"
 INDEX_URL="https://pandecode.github.io/FMM3D/simple/"
 EXTRA_INDEX_URL="https://pypi.org/simple"
+VENV_CHECK="import filecmp, sys, bemfmm.cli; sys.exit(not filecmp.cmp(*sys.argv[1:], shallow=False))"
 
-echo "[bem-fmm-python installer]"
-echo "WORKDIR: $SCRIPT_DIR"
-
-# Check if venv already exists and is valid
-if [ -d "$VENV_DIR" ]; then
-    echo "-- .venv already exists --"
-    if [ -x "$VENV_DIR/bin/python" ] && [ -x "$VENV_DIR/bin/bemfmm" ]; then
-        echo "venv is valid"
-        # shellcheck disable=SC1091
-        source "$VENV_DIR/bin/activate"
-        RUN_APP=1
-    else
-        echo "venv is bricked, removing..."
-        rm -rf "$VENV_DIR"
-    fi
-fi
-
-UV_EXE=""
-
-if [ -z "${RUN_APP:-}" ]; then
-
+fail() {
     echo
-    echo "-- checking for uv --"
+    echo "error: $1"
+    # keeps a terminal opened by double clicking readable
+    if [ -t 0 ]; then
+        read -r -p "press enter to close"
+    fi
+    exit 1
+}
 
-    # try to find uv in PATH
+find_uv() {
+    UV_EXE=""
     if command -v uv >/dev/null 2>&1; then
         UV_EXE="$(command -v uv)"
-        "$UV_EXE" --version || UV_EXE=""
-    fi
-
-    # try common installation directories
-    if [ -z "$UV_EXE" ] && [ -x "$HOME/.local/bin/uv" ]; then
+    elif [ -x "$HOME/.local/bin/uv" ]; then
         UV_EXE="$HOME/.local/bin/uv"
-        echo "found uv at $HOME/.local/bin/uv"
-    fi
-
-    if [ -z "$UV_EXE" ] && [ -x "$HOME/.cargo/bin/uv" ]; then
+    elif [ -x "$HOME/.cargo/bin/uv" ]; then
         UV_EXE="$HOME/.cargo/bin/uv"
-        echo "found uv at $HOME/.cargo/bin/uv"
     fi
+}
 
-    # Probe for homebrew and try installing uv with it
-    BREW_EXE=""
-    if [ -z "$UV_EXE" ]; then
-        echo
-        echo "-- probing for homebrew --"
-
-        if command -v brew >/dev/null 2>&1; then
-            BREW_EXE="$(command -v brew)"
-        elif [ -x "/opt/homebrew/bin/brew" ]; then
-            BREW_EXE="/opt/homebrew/bin/brew" # silicon default prefix
-        elif [ -x "/usr/local/bin/brew" ]; then
-            BREW_EXE="/usr/local/bin/brew" # intel default prefix
+find_python() {
+    PYEXE=""
+    for candidate in "python$PY_VERSION" python3 python; do
+        if command -v "$candidate" >/dev/null 2>&1 &&
+            "$candidate" -c "import sys; sys.exit(sys.version_info < (3, 11))" 2>/dev/null; then
+            PYEXE="$(command -v "$candidate")"
+            return
         fi
+    done
+}
 
-        if [ -n "$BREW_EXE" ]; then
-            echo "found homebrew at $BREW_EXE"
-            "$BREW_EXE" --version
+venv_is_current() {
+    # imports bemfmm and was installed from this pyproject.toml, a copy is
+    # kept in the venv after every install
+    [ -x "$PYTHON" ] &&
+        "$PYTHON" -c "$VENV_CHECK" "$SCRIPT_DIR/pyproject.toml" "$VENV_DIR/pyproject.toml" 2>/dev/null
+}
 
-            echo "attempting: brew install uv"
-            "$BREW_EXE" install uv
+install_with_uv() {
+    "$UV_EXE" venv --python "$PY_VERSION" "$VENV_DIR" &&
+        "$UV_EXE" pip install --python "$PYTHON" \
+            --index-url "$INDEX_URL" --extra-index-url "$EXTRA_INDEX_URL" -e "$SCRIPT_DIR"
+}
 
-            BREW_PREFIX="$("$BREW_EXE" --prefix 2>/dev/null || echo "")"
-            if [ -n "$BREW_PREFIX" ] && [ -x "$BREW_PREFIX/bin/uv" ]; then
-                UV_EXE="$BREW_PREFIX/bin/uv"
-                echo "uv installed via homebrew: $UV_EXE"
-                "$UV_EXE" --version
-            else
-                echo "brew install uv did not result in executable"
-            fi
-        else
-            echo "homebrew not found"
-        fi
-    fi
+install_with_python() {
+    "$PYEXE" -m venv "$VENV_DIR" &&
+        "$PYTHON" -m pip install --disable-pip-version-check \
+            --index-url "$INDEX_URL" --extra-index-url "$EXTRA_INDEX_URL" -e "$SCRIPT_DIR"
+}
 
-    if [ -z "$UV_EXE" ]; then
-        echo "uv not found, will fall back to standard venv"
+echo "[bem-fmm-python]"
+echo "WORKDIR: $SCRIPT_DIR"
+
+if ! venv_is_current; then
+    if [ -d "$VENV_DIR" ]; then
+        echo "-- .venv is out of date, rebuilding it --"
+        rm -rf "$VENV_DIR"
     fi
 
     echo
-    echo "-- setting up venv --"
+    echo "-- looking for uv --"
+    find_uv
+    if [ -z "$UV_EXE" ]; then
+        echo "uv not found, installing it with the official installer"
+        if command -v curl >/dev/null 2>&1; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+        elif command -v wget >/dev/null 2>&1; then
+            wget -qO- https://astral.sh/uv/install.sh | sh
+        fi
+        find_uv
+    fi
 
-    # try to use uv if available
+    installed=""
     if [ -n "$UV_EXE" ]; then
-        echo "creating venv with uv..."
-        if "$UV_EXE" venv "$VENV_DIR"; then
-            echo "venv created"
+        echo "using $UV_EXE"
+        if install_with_uv; then
+            installed=1
         else
-            echo "uv venv creation failed"
-            UV_EXE=""
+            echo "uv could not set up .venv, trying python"
+            # uv venvs have no pip
+            rm -rf "$VENV_DIR"
         fi
     fi
 
-    if [ -n "$UV_EXE" ]; then
-        echo "installing dependencies with uv..."
-        if "$UV_EXE" pip install \
-            --index-url "$INDEX_URL" --extra-index-url "$EXTRA_INDEX_URL" \
-            --python "$VENV_DIR/bin/python" -e "$SCRIPT_DIR"; then
-            echo "dependencies installed"
-            # shellcheck disable=SC1091
-            source "$VENV_DIR/bin/activate"
-            RUN_APP=1
-        else
-            echo "uv pip install failed, falling back"
-            UV_EXE=""
-        fi
-    fi
-
-    # fallback: standard python venv
-    if [ -z "${RUN_APP:-}" ]; then
+    if [ -z "$installed" ]; then
         echo
-        echo "-- fallback: standard python venv --"
-
-        if command -v python3 >/dev/null 2>&1; then
-            PYEXE="python3"
-        elif command -v python >/dev/null 2>&1; then
-            PYEXE="python"
-        else
-            PYEXE=""
-        fi
-
+        echo "-- looking for python 3.11 or newer --"
+        find_python
         if [ -z "$PYEXE" ]; then
-            echo "error: no python interpreter found"
-            exit 1
+            fail "neither uv nor python 3.11+ could be found or installed, install python from https://www.python.org/downloads/"
         fi
-
-        echo "using python: $PYEXE"
-        $PYEXE --version
-
-        if [ ! -x "$VENV_DIR/bin/python" ]; then
-            echo "creating venv with python..."
-            if ! $PYEXE -m venv "$VENV_DIR"; then
-                echo "failed to create venv"
-                exit 1
-            fi
-            echo "venv created"
-        fi
-
-        echo "installing dependencies..."
-        if ! "$VENV_DIR/bin/python" -m pip install --disable-pip-version-check \
-            --index-url "$INDEX_URL" --extra-index-url "$EXTRA_INDEX_URL" -e "$SCRIPT_DIR"; then
-            echo "dependency install failed"
-            exit 1
-        fi
-        echo "dependencies installed"
-
-        # shellcheck disable=SC1091
-        source "$VENV_DIR/bin/activate"
+        echo "using $PYEXE"
+        install_with_python || fail "could not set up .venv with $PYEXE"
     fi
 
-fi # end of "if RUN_APP not already set"
-
-# run app
-echo
-echo "-- running app --"
-
-if [ -x "$VENV_DIR/bin/bemfmm" ]; then
-    echo "running bemfmm gui"
-    "$VENV_DIR/bin/bemfmm" gui "$@"
-    status=$?
-    if [ $status -eq 0 ]; then
-        exit 0
-    fi
-    echo "binary failed, running module directly..."
+    cp "$SCRIPT_DIR/pyproject.toml" "$VENV_DIR/pyproject.toml"
+    echo "dependencies installed"
 fi
 
-echo "running module directly..."
-"$VENV_DIR/bin/python" -m bemfmm gui "$@"
-exit $?
+echo
+echo "-- running bemfmm gui --"
+"$PYTHON" -m bemfmm gui "$@" || fail "bemfmm gui exited with an error"

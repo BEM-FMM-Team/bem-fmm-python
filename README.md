@@ -6,7 +6,8 @@ on layered head models.
 ## Setup and Running
 
 Download the repo (clone or download the zip and extract it).
-Install `python3.11+`.
+The run scripts install [uv](https://docs.astral.sh/uv/) and Python 3.13 when they are missing,
+and use an installed `python3.11+` when that fails.
 
 > Note
 The charge engine only runs once per model + coil/electrode configuration, results are cached in `./__compute_cache__/` until that directory is removed.
@@ -21,19 +22,19 @@ Either enable the group policy "Use hardware graphics adapters for all Remote De
 or run `run_no3d.bat`, which opens the same program without the 3D view. Everything except dragging in the view still works,
 so setups made on a local machine can be opened and solved on the server.
 
+When something fails the window stays open until a key is pressed, so the messages can be read.
+
 ### MacOS* (intel and arm)
 
 Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
 May need to by pass apple's security.
 
-The 3D view does not open on MacOS yet, `bemfmm gui --no-3d` and the command line solvers work.
+The 3D view does not open on MacOS yet, `run_no3d.command` (`bemfmm gui --no-3d`) and the command line solvers work.
 lfmm3d calls are slower on MacOS for this version.
 
 ### Linux
 
-Install [uv]( https://docs.astral.sh/uv/getting-started/installation/) and ensure it is on the `$PATH`. Then
-
-Run the `run.command` or proceed with the `Programs` section.
+Run `run.command` (`run_no3d.command` without the 3D view) or proceed with the `Programs` section.
 
 ##### Nix
 
@@ -43,6 +44,9 @@ There is a devShell that will place you in an isolated environment to run everyt
 ## Programs
 
 `run.bat`/`run.command` tries to abstract away the installation complexity.
+They set up `.venv` on the first run and set it up again when `pyproject.toml` changed,
+for example after a `git pull` that changed the dependencies.
+Arguments are passed on to `bemfmm gui`, for example `run.bat --mode tdcs`.
 To set up an environment by hand:
 
 ```bash
