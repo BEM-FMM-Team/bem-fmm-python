@@ -1,7 +1,7 @@
 import numpy as np
 from fmm3dpy import lfmm3d
 
-from bemfmm.constants import mu0, eps0
+from bemfmm.constants import eps0, mu0
 
 from ..my_types import Mx3, StrCoil
 

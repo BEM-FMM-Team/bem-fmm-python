@@ -106,15 +106,16 @@ def meshplaneint_axis_nonmanifold(
         cross12 = d1 * d2 < 0
         cross20 = d2 * d0 < 0
 
-        # Interpolation parameters (safe: no on-plane vertex so denominators != 0)
+        # edges that do not cross can have d_i == d_j, their nan points are
+        # never picked below
         with np.errstate(invalid="ignore", divide="ignore"):
             a01 = d0 / (d0 - d1)
             a12 = d1 / (d1 - d2)
             a20 = d2 / (d2 - d0)
 
-        P01 = V0 + a01[:, None] * (V1 - V0)  # (Ng, 3)
-        P12 = V1 + a12[:, None] * (V2 - V1)
-        P20 = V2 + a20[:, None] * (V0 - V2)
+            P01 = V0 + a01[:, None] * (V1 - V0)  # (Ng, 3)
+            P12 = V1 + a12[:, None] * (V2 - V1)
+            P20 = V2 + a20[:, None] * (V0 - V2)
 
         # Build a (Ng, 2, 3) array: pick the 2 crossing edge points per triangle
         # Exactly one of the three cases (01+12), (01+20), (12+20) is true.

@@ -1,8 +1,9 @@
 import numpy as np
-from bemfmm.mesh.mesh_rotate2 import mesh_rotate2
-from bemfmm.mesh.meshwire import meshwire
-from bemfmm.mesh.mesh_surface import mesh_surface
 from vedo import Mesh, Plotter
+
+from bemfmm.mesh.mesh_rotate2 import mesh_rotate2
+from bemfmm.mesh.mesh_surface import mesh_surface
+from bemfmm.mesh.meshwire import meshwire
 
 
 def MagVenture_C_B60(a0, b0, height, thickness, M, flag, sk):

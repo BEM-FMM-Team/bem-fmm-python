@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy
 from scipy.sparse import coo_matrix
-import matplotlib.pyplot as plt
 
 
 def plot_sparse(

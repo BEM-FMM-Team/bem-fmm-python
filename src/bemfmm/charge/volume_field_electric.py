@@ -1,9 +1,9 @@
 import numpy as np
-from fmm3dpy import lfmm3d
-from scipy.spatial import cKDTree
 
 # pyrefly: ignore [missing-import]
 from cbemfmm import potint2
+from fmm3dpy import lfmm3d
+from scipy.spatial import cKDTree
 
 # from .potint2 import potint2
 

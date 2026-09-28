@@ -140,14 +140,6 @@ bemfmm.mesh.mesh\_surface module
    :show-inheritance:
    :undoc-members:
 
-bemfmm.mesh.mesh\_surface\_old module
--------------------------------------
-
-.. automodule:: bemfmm.mesh.mesh_surface_old
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 bemfmm.mesh.mesh\_tri module
 ----------------------------
 

@@ -5,7 +5,6 @@ import numpy as np
 from bemfmm.mesh.mesh_tri import mesh_tri
 from bemfmm.my_types import FaceCenters, f32, vec2f32, vec3f32
 
-from ..lib import vecnorm
 from ..my_types import VertexIndices, Vertices
 from .inc_field_electric_plain import inc_field_electric_plain
 from .inc_field_electric_plain_dipoles import inc_field_electric_plain_dipoles

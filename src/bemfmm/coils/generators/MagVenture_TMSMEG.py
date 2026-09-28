@@ -1,6 +1,7 @@
 import numpy as np
-from bemfmm.mesh.meshcoil import meshcoil
 from vedo import Mesh, Plotter
+
+from bemfmm.mesh.meshcoil import meshcoil
 
 
 def MagVenture_TMSMEG(a, M, N, flag, sk):

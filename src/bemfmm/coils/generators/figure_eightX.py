@@ -1,7 +1,8 @@
 import numpy as np
-from bemfmm.mesh.meshwire import meshwire
-from bemfmm.mesh.mesh_surface import mesh_surface
 from vedo import Mesh, Plotter
+
+from bemfmm.mesh.mesh_surface import mesh_surface
+from bemfmm.mesh.meshwire import meshwire
 
 
 def figure_eightX(a0, b0, z_scale, z_shift, height, thickness, M, flag, sk):

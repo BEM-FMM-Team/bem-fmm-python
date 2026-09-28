@@ -1,7 +1,8 @@
 import numpy as np
+from vedo import Mesh, Plotter
+
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
-from vedo import Mesh, Plotter
 
 
 def MagVenture_Cool_B35(turns, a0, a, b, M, flag, sk):

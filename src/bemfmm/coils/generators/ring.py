@@ -1,7 +1,8 @@
 import numpy as np
-from bemfmm.mesh.meshwire import meshwire
+from vedo import Lines, Mesh, Plotter, Points
+
 from bemfmm.mesh.mesh_surface import mesh_surface
-from vedo import Points, Plotter, Lines, Mesh
+from bemfmm.mesh.meshwire import meshwire
 
 
 def ring_gen(radius, diameter, M, flag, sk):

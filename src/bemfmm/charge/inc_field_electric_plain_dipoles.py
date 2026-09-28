@@ -1,8 +1,6 @@
 import numpy as np
 from fmm3dpy import lfmm3d
 
-from ..lib import disp
-
 
 def inc_field_electric_plain_dipoles(
     strdipolePplus=None,
