@@ -116,4 +116,20 @@ fi
 
 echo
 echo "-- running bemfmm gui --"
-"$PYTHON" -m bemfmm gui "$@" || fail "bemfmm gui exited with an error"
+# bemfmm creates this file once the window and its 3D view are up
+READY_FILE="$VENV_DIR/gui-ready"
+rm -f "$READY_FILE"
+BEMFMM_READY_FILE="$READY_FILE" "$PYTHON" -m bemfmm gui "$@" && exit 0
+
+no_3d=""
+for arg in "$@"; do
+    if [ "$arg" = "--no-3d" ]; then
+        no_3d=1
+    fi
+done
+if [ ! -e "$READY_FILE" ] && [ -z "$no_3d" ]; then
+    echo
+    echo "-- the window did not open, trying again without the 3D view --"
+    "$PYTHON" -m bemfmm gui --no-3d "$@" && exit 0
+fi
+fail "bemfmm gui exited with an error"

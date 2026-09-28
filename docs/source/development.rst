@@ -60,6 +60,9 @@ The gui
   and undo
 - ``viewport.py``: the 3D view (vedo), and a stand in when there is no OpenGL
 - ``plots.py``: embedded matplotlib panels that can pop out
+- ``app.py``: starts the window. With ``BEMFMM_READY_FILE`` set it creates
+  that file after the first render of the shown window, the run scripts retry
+  with ``--no-3d`` when it is missing after a failed start
 - ``solve_runner.py``: runs ``bemfmm`` commands in a child process and reads
   their progress
 - ``theme.py`` and ``style.qss``: light and dark themes, the stylesheet is a

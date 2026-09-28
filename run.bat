@@ -74,9 +74,23 @@ echo dependencies installed
 :run_app
 echo.
 echo -- running bemfmm gui --
+rem bemfmm creates this file once the window and its 3D view are up
+set "READY_FILE=%VENV_DIR%\gui-ready"
+if exist "%READY_FILE%" del "%READY_FILE%"
+set "BEMFMM_READY_FILE=%READY_FILE%"
 "%PYTHON%" -m bemfmm gui %*
-if !errorlevel! neq 0 goto fail
-exit /b 0
+if !errorlevel! equ 0 exit /b 0
+set "BEMFMM_READY_FILE="
+
+set "NO_3D="
+for %%A in (%*) do if /i "%%~A"=="--no-3d" set "NO_3D=1"
+if not exist "%READY_FILE%" if not defined NO_3D (
+    echo.
+    echo -- the window did not open, trying again without the 3D view --
+    "%PYTHON%" -m bemfmm gui --no-3d %*
+    if !errorlevel! equ 0 exit /b 0
+)
+goto fail
 
 :fail
 echo.

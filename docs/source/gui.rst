@@ -214,4 +214,5 @@ The 3D view needs OpenGL, which remote desktop sessions often do not have. On a
 Windows server with a GPU, enable the group policy "Use hardware graphics
 adapters for all Remote Desktop Services sessions". Otherwise start with
 ``--no-3d`` (``run_no3d.bat``). Everything except dragging and picking in the
-3D view still works, including all result plots.
+3D view still works, including all result plots. ``run.bat`` and
+``run.command`` do this by themselves when the window fails to open.

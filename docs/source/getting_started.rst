@@ -13,8 +13,10 @@ fails:
 - Linux and MacOS: ``run.command``.
 
 ``run_no3d.bat`` and ``run_no3d.command`` open the same program without the 3D
-view, for remote desktop sessions without a usable OpenGL driver. Arguments
-are passed on to ``bemfmm gui``, for example ``run.bat --mode tdcs``.
+view, for remote desktop sessions without a usable OpenGL driver. When the
+window does not open with the 3D view, ``run.bat`` and ``run.command`` start
+it again without it. Arguments are passed on to ``bemfmm gui``, for example
+``run.bat --mode tdcs``.
 
 The environment is kept in ``.venv`` and set up again when ``pyproject.toml``
 changed, for example after a ``git pull`` that changed the dependencies. To

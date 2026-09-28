@@ -76,6 +76,9 @@ Run scripts
   Errors now keep the window open.
 - ``.gitattributes`` keeps ``.bat`` files CRLF, which ``cmd.exe`` needs for
   reliable labels.
+- When ``bemfmm gui`` fails before its window and 3D view are up, for example
+  on a remote desktop without OpenGL, the run scripts start it again with
+  ``--no-3d``. A crash after the window was up is reported, not restarted.
 
 The numerics of all solvers are unchanged.
 
