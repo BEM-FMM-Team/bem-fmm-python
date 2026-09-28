@@ -80,7 +80,8 @@ the selected one.
   surface, click again to drop it
 - **Aim at**: pick a tissue, press **Pick target**, click a point on that
   tissue and press **Place coil**. The coil goes the set distance above the
-  Place on surface, oriented as described under Align to
+  Place on surface, oriented as described under Align to. Selecting another
+  coil, undo or switching mode before **Place coil** cancels the pick
 
 Electrodes tab (tDCS)
 ---------------------

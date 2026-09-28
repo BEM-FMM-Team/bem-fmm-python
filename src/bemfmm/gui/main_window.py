@@ -134,6 +134,7 @@ class MainWindow(QMainWindow):
         self.edit_session = None
         self.base_rot = None
         self.target_point = None
+        self.aim_id = None  # coil the picked target is for
         self.display = {}
         self.run_started = datetime.now()
 
@@ -765,6 +766,8 @@ class MainWindow(QMainWindow):
         return None if item is None else item.data(Qt.UserRole)
 
     def stop_modes(self):
+        # leaving target picking any other way than Place coil cancels it
+        self.target_point = None
         for button in (
             self.ui.moveCoilButton,
             self.ui.moveElectrodeButton,
@@ -931,16 +934,17 @@ class MainWindow(QMainWindow):
 
     def aim_toggled(self, checked):
         ui = self.ui
-        id = self.current_id(ui.coilList)
         if checked:
             if ui.moveCoilButton.isChecked():
                 ui.moveCoilButton.setChecked(False)
             self.target_point = None
+            self.aim_id = self.current_id(ui.coilList)
             self.viewport.start_target_pick(ui.targetCombo.currentText())
             ui.aimButton.setText("Place coil")
             self.statusBar().showMessage(
-                f"Click a point on {ui.targetCombo.currentText()}, then press "
-                f"Place coil to set it along the {ui.alignCombo.currentText()} normal"
+                f"Click a point on {ui.targetCombo.currentText()} for "
+                f"{self.aim_coil_name()}, then press Place coil to set it along "
+                f"the {ui.alignCombo.currentText()} normal"
             )
             return
 
@@ -948,18 +952,25 @@ class MainWindow(QMainWindow):
         self.viewport.stop_target_pick()
         self.apply_display()
         self.statusBar().clearMessage()
-        if self.target_point is None or id is None:
+        id, point = self.aim_id, self.target_point
+        self.aim_id = self.target_point = None
+        if point is None or id not in self.stim.coils:
             return
         self.discrete_edit()
-        self.stim.aim_coil(id, self.target_point, ui.coilDistance.value() / 1000)
+        self.stim.aim_coil(id, point, ui.coilDistance.value() / 1000)
         self.base_rot = self.stim.coils[id].rot
-        self.target_point = None
         self.refresh_coil_editor()
+
+    def aim_coil_name(self):
+        coil = self.stim.coils.get(self.aim_id)
+        return coil.name if coil else "the coil"
 
     def target_picked(self, point):
         self.target_point = point
         self.statusBar().showMessage(
-            "Target {:.1f}, {:.1f}, {:.1f} mm, press Place coil".format(*point * 1000)
+            "Target {:.1f}, {:.1f}, {:.1f} mm, press Place coil to move {}".format(
+                *point * 1000, self.aim_coil_name()
+            )
         )
 
     # electrodes

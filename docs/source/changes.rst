@@ -41,6 +41,9 @@ GUI
 - Tolerance in the Solve tab is shown and typed in scientific notation and its
   arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
   zero.
+- Fixed: picking an Aim at target and then selecting another coil moved that
+  coil to the target. Anything but Place coil now cancels the pick, and the
+  status bar names the coil the target is for.
 
 Command line
 
