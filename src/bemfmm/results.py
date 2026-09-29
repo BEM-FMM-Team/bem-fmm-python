@@ -18,7 +18,7 @@ FIELD_LABELS = {
     "Emag": ("E-field magnitude", "V/m"),
     "En": ("Normal E-field", "V/m"),
     "Jn": ("Normal current density", "A/m^2"),
-    "c": ("Surface charge density / eps0", "V/m"),
+    "c": ("Charge", "V/m"),
     "Pot": ("Potential", "V"),
 }
 

@@ -2,6 +2,7 @@ from pathlib import Path
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
+    QComboBox,
     QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
@@ -10,7 +11,7 @@ from PySide6.QtWidgets import (
     QSpinBox,
 )
 
-from bemfmm.coils import COIL_PARAMS
+from bemfmm.coils import CHOICES, COIL_LABELS, COIL_PARAMS, param_info
 from bemfmm.results import FIELD_LABELS
 
 from .settings import START_MODES, Settings
@@ -29,21 +30,32 @@ class CoilParamsDialog(QDialog):
         super().__init__(parent)
         self.ui = Ui_CoilParamsDialog()
         self.ui.setupUi(self)
-        self.setWindowTitle(f"{coil_type} parameters")
+        self.setWindowTitle(f"{COIL_LABELS.get(coil_type, coil_type)} parameters")
 
         self.params = COIL_PARAMS[coil_type]
         self.entries = {}
+        self.scales = {}  # lengths are stored in m and shown in mm
         for name, info in self.params.items():
-            if info["type"] is int:
+            label, unit, tip = param_info(coil_type, name)
+            self.scales[name] = 1000.0 if unit.startswith("mm") else 1.0
+            if name in CHOICES:
+                widget = QComboBox()
+                for value, text in CHOICES[name].items():
+                    widget.addItem(text, value)
+            elif info["type"] is int:
                 widget = QSpinBox()
-                widget.setRange(0, 100000)
+                widget.setRange(1, 100000)
             else:
                 widget = QDoubleSpinBox()
-                widget.setDecimals(6)
+                widget.setDecimals(3)
                 widget.setRange(-1000.0, 1000.0)
-                widget.setSingleStep(0.0005)
+                widget.setSingleStep(0.1 if unit else 1.0)
+                if unit:
+                    widget.setSuffix(f" {unit}")
+            widget.setToolTip(tip)
             self.entries[name] = widget
-            self.ui.form.addRow(name, widget)
+            self.ui.form.addRow(label, widget)
+            self.ui.form.labelForField(widget).setToolTip(tip)
 
         self.restore_defaults()
         self.ui.buttonBox.button(
@@ -52,10 +64,26 @@ class CoilParamsDialog(QDialog):
 
     def restore_defaults(self):
         for name, widget in self.entries.items():
-            widget.setValue(self.params[name]["default"])
+            default = self.params[name]["default"]
+            if isinstance(widget, QComboBox):
+                widget.setCurrentIndex(widget.findData(default))
+            else:
+                widget.setValue(default * self.scales[name])
 
     def values(self):
-        return {name: widget.value() for name, widget in self.entries.items()}
+        values = {}
+        for name, widget in self.entries.items():
+            default = self.params[name]["default"]
+            if isinstance(widget, QComboBox):
+                values[name] = widget.currentData()
+            elif isinstance(widget, QSpinBox):
+                values[name] = widget.value()
+            elif widget.value() == round(default * self.scales[name], 3):
+                # unchanged, the default exactly and not the mm round trip
+                values[name] = default
+            else:
+                values[name] = widget.value() / self.scales[name]
+        return values
 
 
 class SettingsDialog(QDialog):
@@ -114,8 +142,9 @@ class ExportDialog(QDialog):
         for name in ["E"] + list(FIELD_LABELS):
             if name not in result.fields:
                 continue
-            label = "E-field vector" if name == "E" else FIELD_LABELS[name][0]
-            item = QListWidgetItem(f"{name}  ({label})")
+            label = "E-field" if name == "E" else FIELD_LABELS[name][0]
+            item = QListWidgetItem(label)
+            item.setToolTip(f"Saved as {name}.<format>")
             item.setData(Qt.UserRole, name)
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if name in ("E", "En") else Qt.Unchecked)

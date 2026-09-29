@@ -103,7 +103,7 @@ class Ui_CoilParamsDialog(object):
         )
         self.description.setText(
             QCoreApplication.translate(
-                "CoilParamsDialog", "Lengths are in meters", None
+                "CoilParamsDialog", "Hover over a parameter for what it sets.", None
             )
         )
 

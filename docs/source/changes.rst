@@ -77,6 +77,11 @@ GUI
   undoing back to it.
 - The Plot windows button in the Results tab is now Open in separate windows,
   since the same plots are in the tabs next to the 3D view.
+- The gui shows plain names instead of variable names. Coil parameters have
+  labels and are in mm, the cross-section shape (``flag``) and the current
+  distribution (``sk``) are picked from lists, coil types have readable names,
+  and the exported fields read E-field, Charge and so on instead of ``E`` and
+  ``c``. The file names of exported fields are unchanged.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.

@@ -8,7 +8,7 @@ from scipy.spatial.transform import Rotation as R
 from bemfmm.lib import get_asset_path
 from bemfmm.mesh import mesh_rotate1, mesh_rotate2
 
-from .generators import GENERATORS
+from .generators import COIL_LABELS, GENERATORS
 from .rotation import vector_to_quat
 
 TEMPLATE_DIR = Path(__file__).resolve().parent / "templates"
@@ -102,7 +102,7 @@ def make_coil(coil_type, params):
 
     coil = Coil()
     coil.type = coil_type
-    coil.name = coil_type
+    coil.name = COIL_LABELS.get(coil_type, coil_type)
     coil.params = dict(params)
 
     coil.Ewire = mesh_data["Ewire"]
