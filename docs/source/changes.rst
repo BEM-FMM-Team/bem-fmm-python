@@ -49,6 +49,10 @@ GUI
   table, and a table undone back to the loaded model no longer blocks runs.
 - Fixed: switching between TMS and tDCS reset Max iterations and Tolerance to
   their defaults. Each mode now keeps its own values.
+- Fixed: electrodes kept the coordinates of the previous model when another
+  one was loaded, and the solver then snapped them to whatever skin was
+  nearest. They are now moved onto the new surface, and coils whose height
+  above their surface changed by more than 5 mm are reported.
 
 Command line
 

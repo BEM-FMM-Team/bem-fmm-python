@@ -44,6 +44,10 @@ always be repeated.
 While the Model tab is open, Undo and Redo step through the table edits. Undoing
 back to the loaded model clears the edited state, so Apply is not needed.
 
+When another model is loaded, electrodes are moved onto its surface (one undo
+step). Coils keep their pose, and a message lists every coil whose height above
+its surface changed by more than 5 mm.
+
 **Display** turns tissues on and off in the 3D view and sets their opacity.
 
 Coils tab (TMS)

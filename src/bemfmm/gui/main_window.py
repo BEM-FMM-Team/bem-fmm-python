@@ -52,7 +52,7 @@ from .dialogs import CoilParamsDialog, ExportDialog, SettingsDialog
 from .plots import PlotPanel
 from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
-from .stimulation import Stimulation
+from .stimulation import Stimulation, Surface
 from .ui_main_window import Ui_MainWindow
 from .viewport import NullViewport, Viewport
 
@@ -65,6 +65,10 @@ MATLAB_FILTER = "MATLAB (*.mat);;All Files (*)"
 IMAGE_FILTER = "PNG image (*.png);;JPEG image (*.jpg);;All Files (*)"
 
 MODE_NAMES = {"tms": "TMS", "tdcs": "tDCS"}
+
+# a coil whose height above its surface changes more than this when another
+# model is loaded is reported
+COIL_MOVED = 5e-3  # m
 
 # max iterations and tolerance per mode, the command line defaults
 SOLVER_DEFAULTS = {
@@ -424,6 +428,7 @@ class MainWindow(QMainWindow):
 
     def apply_model(self, index_path):
         start = datetime.now()
+        heights = self.coil_heights() if self.model is not None else {}
         try:
             with busy():
                 self.statusBar().showMessage(f"Loading {index_path}")
@@ -469,8 +474,10 @@ class MainWindow(QMainWindow):
         self.fill_display(self.surface)
         self.apply_surfaces()
         self.stim.redraw()
+        self.snap_electrodes()
         self.refresh_lists()
         self.show_planes()
+        self.check_coils(heights)
 
         seconds = (datetime.now() - start).total_seconds()
         summary = f"{len(names)} tissues, {model.num_facets:,} facets"
@@ -479,6 +486,52 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"Model loaded in {seconds:.1f} s", 5000)
         self.update_solve_summary()
         return True
+
+    def coil_heights(self):
+        # signed distance of every coil center above its placement surface
+        if not self.stim.coils:
+            return {}
+        surface = Surface(*self.model.surface(self.ui.coilSurfaceCombo.currentText()))
+        heights = {}
+        for id, coil in self.stim.coils.items():
+            _, center, normal = surface.nearest(coil.com)
+            heights[id] = float(np.dot(coil.com - center, normal))
+        return heights
+
+    def snap_electrodes(self):
+        # electrode centers from another model are put back on the surface
+        if not self.stim.electrodes:
+            return
+        name = self.ui.electrodeSurfaceCombo.currentText()
+        self.stim.set_surface(*self.model.surface(name))
+        moved = [
+            id
+            for id, electrode in self.stim.electrodes.items()
+            if not np.allclose(self.stim.nearest(electrode.center)[1], electrode.center)
+        ]
+        if moved:
+            self.discrete_edit()
+            for id in moved:
+                self.stim.move_electrode(id, self.stim.electrodes[id].center)
+        self.apply_surfaces()
+
+    def check_coils(self, before):
+        after = self.coil_heights()
+        moved = [
+            f"{self.stim.coils[id].name}: {1000 * before[id]:.0f} mm, "
+            f"now {1000 * after[id]:.0f} mm"
+            for id in before
+            if id in after and abs(after[id] - before[id]) > COIL_MOVED
+        ]
+        if moved:
+            QMessageBox.information(
+                self,
+                "Coils",
+                "The height of these coils above "
+                f"{self.ui.coilSurfaceCombo.currentText()} changed with the new "
+                "model:\n\n" + "\n".join(moved) + "\n\nSet their Distance or "
+                "press Auto orient to seat them on the new surface.",
+            )
 
     def update_index_label(self):
         if self.index_dirty:
@@ -1229,6 +1282,8 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Could not open the setup", str(error))
             return
 
+        # the items of the old setup are not carried over to the setup's model
+        self.stim.clear()
         index = Path(scene.tissue_index) if scene.tissue_index else None
         if index is not None and index != self.index_file:
             if index.is_file():
@@ -1253,7 +1308,6 @@ class MainWindow(QMainWindow):
             self.updating = False
             self.apply_surfaces()
 
-        self.stim.clear()
         for coil in scene.coils:
             self.stim.insert_coil(coil)
         electrode_surface = self.ui.electrodeSurfaceCombo.currentText()
