@@ -15,7 +15,7 @@ def run(tissue_index=None, setup=None, no_3d=False, mode=None):
 
     app = QApplication.instance() or QApplication(sys.argv)
     app.setApplicationName("BEM-FMM")
-    app.setOrganizationName("WPI")
+    app.setOrganizationName("BEM-FMM Team")
     app.setStyle("Fusion")
 
     from .main_window import MainWindow
