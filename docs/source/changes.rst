@@ -45,10 +45,14 @@ GUI
   off outside the Results tab. The result stays in the view on the Model and
   Solve tabs and steps aside only on the Coils/Electrodes tab.
 - Twist is read from the coil pose, so the box no longer jumps back to 0 after
-  another edit, and changing Distance, Auto orient, Drag and Aim at keep the
+  another edit, and changing Distance, Auto orient, dragging and Aim at keep the
   twist instead of resetting the coil to its default turn about the axis.
 - Results open on the tissue picked last, ``gm`` at first, for TMS and tDCS
   alike (TMS results used to open on ``wm``).
+- Coils and electrodes are moved by pressing on them in the 3D view, moving
+  the mouse and releasing. The Drag buttons, which picked an item up on one
+  click and dropped it on the next, are gone. Dragging on empty space still
+  turns the camera.
 - Delete or Backspace removes the selected coil or electrode from anywhere on
   the Coils/Electrodes tab or after a click in the 3D view, not only while
   its list has focus.

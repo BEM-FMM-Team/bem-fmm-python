@@ -1,5 +1,5 @@
 import numpy as np
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 """
@@ -96,8 +96,8 @@ class Viewport:
         self.picker.PickFromListOn()
         self.pick_surface = None
 
-        self.drag_key = None
-        self.dragging = False
+        self.drag_key = None  # item being moved
+        self.grab = None  # (key, x, y) of a press on an item
         self.target_surface = None
         self.target_marker = None
 
@@ -109,8 +109,10 @@ class Viewport:
         self.press2d = None
 
         self.plt.add_callback("LeftButtonPress", self._on_click)
-        self.plt.add_callback("MouseMove", self._on_move)
         self.plt.show(interactive=False)
+        # presses on coils and electrodes are handled before vtk sees them
+        self.mouse_filter = MouseFilter(self)
+        self.widget.installEventFilter(self.mouse_filter)
         # the camera style grabs the mouse on press, so the button release only
         # reaches it and shows up here as the end of its interaction
         style = self.plt.interactor.GetInteractorStyle()
@@ -248,8 +250,8 @@ class Viewport:
     def remove_mesh(self, key):
         self.plt.remove(self.actors.pop(key, None))
         self.plt.remove(self.arrows.pop(key, None))
-        if self.drag_key == key:
-            self.stop_drag()
+        if self.grab is not None and self.grab[0] == key:
+            self.grab = self.drag_key = None
         self.render()
 
     def clear_meshes(self):
@@ -268,16 +270,6 @@ class Viewport:
         self.render()
 
     # interaction
-    def start_drag(self, key):
-        self.drag_key = key
-        self.dragging = False
-
-    def stop_drag(self):
-        if self.dragging and self.on_drag_end:
-            self.on_drag_end()
-        self.drag_key = None
-        self.dragging = False
-
     def start_target_pick(self, name):
         self.target_surface = name
         for surface_name, mesh in self.surfaces.items():
@@ -294,15 +286,7 @@ class Viewport:
 
         name = getattr(event.actor, "name", None)
         self.press2d = event.picked2d
-        if self.dragging:
-            self.dragging = False
-            if self.on_drag_end:
-                self.on_drag_end()
-        elif self.drag_key is not None and name == self.drag_key:
-            self.dragging = True
-            if self.on_drag_begin:
-                self.on_drag_begin()
-        elif self.target_surface is not None:
+        if self.target_surface is not None:
             if name != f"tissue:{self.target_surface}":
                 return
             point = np.array(event.picked3d)
@@ -314,10 +298,10 @@ class Viewport:
                 self.on_target(point)
 
     def _on_release(self, *_):
-        # a click on a coil or electrode selects it, on anything else clears
-        # the selection, drag and target picking use the clicks themselves
+        # a click on empty space or a tissue clears the selection, target
+        # picking uses the clicks itself
         press, self.press2d = self.press2d, None
-        if press is None or self.drag_key is not None or self.target_surface:
+        if press is None or self.target_surface:
             return
         event = self.plt.fill_event(pos=self.plt.interactor.GetEventPosition())
         (x0, y0), (x1, y1) = press, event.picked2d
@@ -328,14 +312,53 @@ class Viewport:
         if self.on_select:
             self.on_select(name if kind in ("coil", "electrode") else None)
 
-    def _on_move(self, event):
-        if not self.dragging:
-            return
-        x, y = event.picked2d
-        if not self.picker.Pick(x, y, 0, self.plt.renderer):
-            return
-        if self.on_drag:
-            self.on_drag(np.array(self.picker.GetPickPosition()))
+    def _display(self, event):
+        # qt widget coordinates to vtk display coordinates
+        scale = self.widget.devicePixelRatioF()
+        pos = event.position()
+        iren = self.plt.interactor
+        iren.SetEventInformationFlipY(round(pos.x() * scale), round(pos.y() * scale))
+        return iren.GetEventPosition()
+
+    def _on_mouse(self, event):
+        # press on a coil or electrode selects it, moving with the button down
+        # drags it over the pick surface, release drops it. Returns True for
+        # the events it used, those never reach vtk and so never turn the camera
+        kind = event.type()
+        if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            if self.target_surface is not None:
+                return False
+            x, y = self._display(event)
+            name = getattr(self.plt.fill_event(pos=(x, y)).actor, "name", None)
+            if not isinstance(name, str) or name.split(":")[0] not in (
+                "coil",
+                "electrode",
+            ):
+                return False
+            if self.on_select:
+                self.on_select(name)
+            self.grab = (name, x, y)
+            return True
+        if self.grab is None:
+            return False
+        if kind == QEvent.MouseMove:
+            key, x0, y0 = self.grab
+            x, y = self._display(event)
+            if self.drag_key is None:
+                if abs(x - x0) + abs(y - y0) <= CLICK_TOLERANCE:
+                    return True
+                self.drag_key = key
+                if self.on_drag_begin:
+                    self.on_drag_begin()
+            if self.picker.Pick(x, y, 0, self.plt.renderer) and self.on_drag:
+                self.on_drag(np.array(self.picker.GetPickPosition()))
+            return True
+        if kind == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
+            if self.drag_key is not None and self.on_drag_end:
+                self.on_drag_end()
+            self.grab = self.drag_key = None
+            return True
+        return False
 
     # slice planes
     def set_planes(self, planes):
@@ -405,3 +428,13 @@ class Viewport:
 
     def close(self):
         self.plt.close()
+
+
+class MouseFilter(QObject):
+    # Viewport is not a QObject, this passes the 3D widget's mouse events to it
+    def __init__(self, viewport):
+        super().__init__(viewport.widget)
+        self.viewport = viewport
+
+    def eventFilter(self, watched, event):
+        return self.viewport._on_mouse(event)

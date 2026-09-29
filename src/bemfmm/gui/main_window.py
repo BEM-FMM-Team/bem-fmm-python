@@ -86,7 +86,9 @@ NO_3D_MESSAGE = (
     "and runs can be solved and inspected from the side panel."
 )
 
-VIEWER_KEYS = """Left drag         rotate
+VIEWER_KEYS = """Left click        select a coil or electrode
+Drag an item      move it over the surface
+Left drag         rotate
 Shift + left drag pan
 Right drag        zoom
 Scroll            zoom
@@ -274,8 +276,6 @@ class MainWindow(QMainWindow):
 
         if not self.viewport.available:
             for widget in (
-                ui.moveCoilButton,
-                ui.moveElectrodeButton,
                 ui.aimButton,
                 ui.showResultButton,
             ):
@@ -349,7 +349,6 @@ class MainWindow(QMainWindow):
         ui.coilDIdt.valueChanged.connect(self.coil_dIdt_edited)
         ui.autoOrientButton.clicked.connect(self.auto_orient)
         ui.flipButton.clicked.connect(self.flip_coil)
-        ui.moveCoilButton.toggled.connect(self.drag_toggled)
         ui.aimButton.toggled.connect(self.aim_toggled)
 
         ui.addElectrodeButton.clicked.connect(self.add_electrode)
@@ -363,7 +362,6 @@ class MainWindow(QMainWindow):
             box.valueChanged.connect(self.electrode_position_edited)
         ui.electrodeRadius.valueChanged.connect(self.electrode_radius_edited)
         ui.electrodeVoltage.valueChanged.connect(self.electrode_voltage_edited)
-        ui.moveElectrodeButton.toggled.connect(self.drag_toggled)
 
         for box in (ui.planeX, ui.planeY, ui.planeZ):
             box.valueChanged.connect(self.planes_edited)
@@ -893,12 +891,8 @@ class MainWindow(QMainWindow):
                 self.delete_electrode()
 
     def escape(self):
-        # leaves drag or target picking first, then clears the selection
-        ui = self.ui
-        if any(
-            b.isChecked()
-            for b in (ui.moveCoilButton, ui.moveElectrodeButton, ui.aimButton)
-        ):
+        # leaves target picking first, then clears the selection
+        if self.ui.aimButton.isChecked():
             self.stop_modes()
         else:
             self.stim_list().setCurrentRow(-1)
@@ -913,13 +907,8 @@ class MainWindow(QMainWindow):
     def stop_modes(self):
         # leaving target picking any other way than Place coil cancels it
         self.target_point = None
-        for button in (
-            self.ui.moveCoilButton,
-            self.ui.moveElectrodeButton,
-            self.ui.aimButton,
-        ):
-            if button.isChecked():
-                button.setChecked(False)
+        if self.ui.aimButton.isChecked():
+            self.ui.aimButton.setChecked(False)
 
     # coils
     def add_coil(self):
@@ -1075,8 +1064,6 @@ class MainWindow(QMainWindow):
     def aim_toggled(self, checked):
         ui = self.ui
         if checked:
-            if ui.moveCoilButton.isChecked():
-                ui.moveCoilButton.setChecked(False)
             self.target_point = None
             self.aim_id = self.current_id(ui.coilList)
             self.viewport.start_target_pick(ui.targetCombo.currentText())
@@ -1194,24 +1181,7 @@ class MainWindow(QMainWindow):
         self.stim.set_voltage(id, self.ui.electrodeVoltage.value())
         self.update_solve_summary()
 
-    # dragging
-    def drag_toggled(self, checked):
-        ui = self.ui
-        if self.tms:
-            id, key = self.current_id(ui.coilList), "coil"
-        else:
-            id, key = self.current_id(ui.electrodeList), "electrode"
-        if checked and id is not None:
-            if ui.aimButton.isChecked():
-                ui.aimButton.setChecked(False)
-            self.viewport.start_drag(f"{key}:{id}")
-            self.statusBar().showMessage(
-                f"Click the {key} to pick it up, click again to drop it"
-            )
-        else:
-            self.viewport.stop_drag()
-            self.statusBar().clearMessage()
-
+    # dragging, done in the 3D view
     def drag_begin(self):
         self.discrete_edit()
         self.ui.coilEditor.setEnabled(False)

@@ -81,13 +81,15 @@ space in the view or the list, or pressing Esc, clears the selection.
 
 - **Position** (mm) and **Rotation** (degrees, x y z) of the coil center
 - **Twist**: rotation about the coil axis, in degrees. It is part of the pose,
-  so moving the coil, changing Distance, Auto orient, Drag and Aim at keep it
+  so moving the coil, changing Distance, Auto orient, dragging and Aim at keep
+  it
 - **Distance**: from the bottom of the coil to the surface, in mm
 - **dI/dt** in A/us
 - **Auto orient**: points the axis along the Align to normal, keeping the twist
 - **Flip**: turns the coil over
-- **Drag**: press it, click the coil in the 3D view, move the mouse over the
-  surface, click again to drop it
+- **Dragging**: press on the coil in the 3D view, move the mouse and release.
+  The coil follows the Place on surface under the mouse, the same way Aim at
+  and Auto orient place it
 - **Aim at**: pick a tissue, press **Pick target**, click a point on that
   tissue and press **Place coil**. The coil goes the set distance above the
   Place on surface, oriented as described under Align to. Selecting another
@@ -104,7 +106,7 @@ Electrodes tab (tDCS)
   and -1 V. The 3D view draws the skin facets the solver will imprint for it,
   so on curved or folded skin it shows the exact patch that carries current.
 - **Selected electrode**: position (snapped to the surface), radius in mm and
-  voltage. **Drag** moves it in the 3D view like a coil.
+  voltage. Drag it in the 3D view like a coil.
 
 A run needs at least two electrodes at different voltages, the current enters
 through some and leaves through the others. The Solve tab says what is missing
@@ -194,7 +196,8 @@ screen. Closing that window, or pressing **Dock**, puts it back.
 
 ========================= ==================================
 Left click                select a coil or electrode, empty space clears
-Esc                       leave Drag or Pick target, else clear the selection
+Drag a coil or electrode  move it over the surface
+Esc                       leave Pick target, else clear the selection
 Delete, Backspace         remove the selected coil or electrode
 Left drag                 rotate
 Shift + left drag         pan

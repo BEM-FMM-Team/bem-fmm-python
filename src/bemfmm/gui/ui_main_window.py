@@ -491,12 +491,6 @@ class Ui_MainWindow(object):
 
         self.coilActionLayout.addWidget(self.flipButton)
 
-        self.moveCoilButton = QPushButton(self.coilEditor)
-        self.moveCoilButton.setObjectName("moveCoilButton")
-        self.moveCoilButton.setCheckable(True)
-
-        self.coilActionLayout.addWidget(self.moveCoilButton)
-
         self.coilEditorLayout.setLayout(
             5, QFormLayout.ItemRole.SpanningRole, self.coilActionLayout
         )
@@ -679,24 +673,6 @@ class Ui_MainWindow(object):
 
         self.electrodeEditorLayout.setWidget(
             2, QFormLayout.ItemRole.FieldRole, self.electrodeVoltage
-        )
-
-        self.electrodeActionLayout = QHBoxLayout()
-        self.electrodeActionLayout.setObjectName("electrodeActionLayout")
-        self.electrodeActionSpacer = QSpacerItem(
-            20, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
-        )
-
-        self.electrodeActionLayout.addItem(self.electrodeActionSpacer)
-
-        self.moveElectrodeButton = QPushButton(self.electrodeEditor)
-        self.moveElectrodeButton.setObjectName("moveElectrodeButton")
-        self.moveElectrodeButton.setCheckable(True)
-
-        self.electrodeActionLayout.addWidget(self.moveElectrodeButton)
-
-        self.electrodeEditorLayout.setLayout(
-            3, QFormLayout.ItemRole.SpanningRole, self.electrodeActionLayout
         )
 
         self.electrodePageLayout.addWidget(self.electrodeEditor)
@@ -1759,18 +1735,6 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Auto orient", None)
         )
         self.flipButton.setText(QCoreApplication.translate("MainWindow", "Flip", None))
-        # if QT_CONFIG(tooltip)
-        self.moveCoilButton.setToolTip(
-            QCoreApplication.translate(
-                "MainWindow",
-                "Click the coil in the 3D view, move it over the surface, click again to drop it",
-                None,
-            )
-        )
-        # endif // QT_CONFIG(tooltip)
-        self.moveCoilButton.setText(
-            QCoreApplication.translate("MainWindow", "Drag", None)
-        )
         self.targetLabel.setText(
             QCoreApplication.translate("MainWindow", "Aim at", None)
         )
@@ -1833,18 +1797,6 @@ class Ui_MainWindow(object):
         )
         self.electrodeVoltageLabel.setText(
             QCoreApplication.translate("MainWindow", "Voltage (V)", None)
-        )
-        # if QT_CONFIG(tooltip)
-        self.moveElectrodeButton.setToolTip(
-            QCoreApplication.translate(
-                "MainWindow",
-                "Click the electrode in the 3D view, move it over the surface, click again to drop it",
-                None,
-            )
-        )
-        # endif // QT_CONFIG(tooltip)
-        self.moveElectrodeButton.setText(
-            QCoreApplication.translate("MainWindow", "Drag", None)
         )
         self.planesGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Slice planes (mm)", None)

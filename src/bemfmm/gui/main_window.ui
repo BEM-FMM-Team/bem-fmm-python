@@ -470,19 +470,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item>
-                   <widget class="QPushButton" name="moveCoilButton">
-                    <property name="toolTip">
-                     <string>Click the coil in the 3D view, move it over the surface, click again to drop it</string>
-                    </property>
-                    <property name="text">
-                     <string>Drag</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </item>
                 <item row="6" column="0">
@@ -713,36 +700,6 @@
                 </item>
                 <item row="2" column="1">
                  <widget class="QDoubleSpinBox" name="electrodeVoltage"/>
-                </item>
-                <item row="3" column="0" colspan="2">
-                 <layout class="QHBoxLayout" name="electrodeActionLayout">
-                  <item>
-                   <spacer name="electrodeActionSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Orientation::Horizontal</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>10</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item>
-                   <widget class="QPushButton" name="moveElectrodeButton">
-                    <property name="toolTip">
-                     <string>Click the electrode in the 3D view, move it over the surface, click again to drop it</string>
-                    </property>
-                    <property name="text">
-                     <string>Drag</string>
-                    </property>
-                    <property name="checkable">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
                 </item>
                </layout>
               </widget>
