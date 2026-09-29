@@ -368,13 +368,9 @@ class MainWindow(QMainWindow):
             box.valueChanged.connect(self.planes_edited)
         ui.showPlanes.toggled.connect(self.show_planes)
 
-        for widget, slot in (
-            (ui.coilList, self.delete_coil),
-            (ui.electrodeList, self.delete_electrode),
-        ):
-            shortcut = QShortcut(QKeySequence.Delete, widget)
-            shortcut.setContext(Qt.WidgetShortcut)
-            shortcut.activated.connect(slot)
+        # Backspace is the delete key on Mac keyboards, text fields keep both
+        for key in (QKeySequence.Delete, QKeySequence(Qt.Key_Backspace)):
+            QShortcut(key, self).activated.connect(self.delete_selected)
 
         # a click on empty space in a list clears its selection
         for widget in (ui.coilList, ui.electrodeList):
@@ -884,6 +880,16 @@ class MainWindow(QMainWindow):
         for row in range(widget.count()):
             if widget.item(row).data(Qt.UserRole) == id:
                 widget.setCurrentRow(row)
+
+    def delete_selected(self):
+        # on the Coils/Electrodes tab, or after a click in the 3D view
+        focus = QApplication.focusWidget()
+        in_view = focus is not None and self.ui.viewPort.isAncestorOf(focus)
+        if in_view or self.ui.sideTabs.currentWidget() is self.ui.stimulationTab:
+            if self.tms:
+                self.delete_coil()
+            else:
+                self.delete_electrode()
 
     def escape(self):
         # leaves drag or target picking first, then clears the selection

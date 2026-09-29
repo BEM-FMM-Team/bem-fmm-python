@@ -72,8 +72,9 @@ Coils tab (TMS)
 - ``template: <name>`` for the templates in ``src/bemfmm/coils/templates``,
   and **Template file...** for any other strcoil ``.mat`` file
 
-The list holds the coils of the setup. Double click to rename, Delete removes
-the selected one. Clicking a coil in the 3D view selects it, clicking empty
+The list holds the coils of the setup. Double click to rename. Delete (or
+Backspace) removes the selected one while this tab is open or after a click in
+the 3D view. Clicking a coil in the 3D view selects it, clicking empty
 space in the view or the list, or pressing Esc, clears the selection.
 
 **Selected coil**
@@ -189,6 +190,7 @@ screen. Closing that window, or pressing **Dock**, puts it back.
 ========================= ==================================
 Left click                select a coil or electrode, empty space clears
 Esc                       leave Drag or Pick target, else clear the selection
+Delete, Backspace         remove the selected coil or electrode
 Left drag                 rotate
 Shift + left drag         pan
 Right drag or scroll      zoom

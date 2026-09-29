@@ -41,6 +41,9 @@ GUI
 - Coils and electrodes are selected by clicking them in the 3D view. Clicking
   empty space in the view or the list, or Esc, clears the selection, so
   nothing has to stay highlighted.
+- Delete or Backspace removes the selected coil or electrode from anywhere on
+  the Coils/Electrodes tab or after a click in the 3D view, not only while
+  its list has focus.
 - Tolerance in the Solve tab is shown and typed in scientific notation and its
   arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
   zero.
