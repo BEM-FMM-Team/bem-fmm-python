@@ -92,19 +92,24 @@ Slices
 
 .. code-block:: python
 
+    from bemfmm.planes import Plane, axis_planes
     from bemfmm.plot.results import compute_slices
     from bemfmm.plot.slice import draw_efield_slice, load_slices, save_slices
 
-    slices = compute_slices(result, (0.030, -0.012, 0.054), "gm", coils=[coil])
-    save_slices("run01/slices.npz", slices, (0.030, -0.012, 0.054), result.tissues)
+    # the axis planes through a point, and the plane y = x
+    planes = axis_planes((0.030, -0.012, 0.054)) + [Plane((1, -1, 0), (0, 0, 0))]
+    slices = compute_slices(result, planes, "gm", coils=[coil])
+    save_slices("run01/slices.npz", planes, slices, result.tissues)
 
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
-    draw_efield_slice(fig, ax, slices["XZ"], result.tissues, color="black")
+    draw_efield_slice(fig, ax, slices[1], result.tissues, color="black")
     fig.savefig("xz.png")
 
-The planes are x, y, z in meters. The color range comes from the field on the
-named tissue. For TMS pass the coils, so the primary field is included.
+A ``Plane`` is a normal, of any length, and a point on it in meters.
+``compute_slices`` returns one slice per plane. The color range comes from the
+field on the named tissue. For TMS pass the coils, so the primary field is
+included.
 
 Setups
 ------

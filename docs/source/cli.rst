@@ -63,7 +63,14 @@ Slices
 ::
 
     bemfmm slices __output__                    at the planes of the saved setup
-    bemfmm slices run01 --planes 30 -12 54      planes at x, y, z in mm
+    bemfmm slices run01 --planes 30 -12 54      axis planes through x, y, z in mm
+    bemfmm slices run01 --plane 1,-1,0,0,0,0 --plane 0,0,1,0,0,20
+
+``--plane`` is one plane by its normal and a point on it in mm, six numbers
+separated by commas, and can be given more than once. The example is the plane
+y = x and the plane z = 20 mm. Without ``--plane`` or ``--planes`` the planes
+come from the run's ``setup.json``, else the axis planes through the point where
+the coil axis meets the white matter (TMS) or through the origin (tDCS).
 
 The slices are saved next to the result as ``slices.npz`` and are shown by the
 gui and by ``bemfmm show``. They take a few seconds on the sphere and about a

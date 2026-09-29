@@ -42,6 +42,7 @@ from bemfmm.model import (
     read_index,
     write_index,
 )
+from bemfmm.planes import Plane, format_vector, parse_vector, same_planes
 from bemfmm.plot.slice import load_slices
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
@@ -246,8 +247,10 @@ class MainWindow(QMainWindow):
         spin(ui.electrodeRadius, 0.5, 50.0, 2, 0.5)
         spin(ui.electrodeVoltage, -100.0, 100.0, 3, 0.1)
 
-        for box in (ui.planeX, ui.planeY, ui.planeZ):
-            spin(box, -300.0, 300.0, 2, 1.0)
+        header = ui.planeTable.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Stretch)
+        ui.planeTable.verticalHeader().setVisible(False)
+        ui.planeTable.setMaximumHeight(130)
 
         for box in (ui.rangeMin, ui.rangeMax):
             spin(box, -1e12, 1e12, 4, 1.0)
@@ -272,7 +275,6 @@ class MainWindow(QMainWindow):
         ui.progressBar.setTextVisible(False)
         ui.electrodeResultGroup.setVisible(False)
         ui.viewTabs.setTabVisible(ui.viewTabs.indexOf(ui.electrodesTab), False)
-        ui.slicePlane.setCurrentText("All")
 
         if not self.viewport.available:
             for widget in (
@@ -363,8 +365,9 @@ class MainWindow(QMainWindow):
         ui.electrodeRadius.valueChanged.connect(self.electrode_radius_edited)
         ui.electrodeVoltage.valueChanged.connect(self.electrode_voltage_edited)
 
-        for box in (ui.planeX, ui.planeY, ui.planeZ):
-            box.valueChanged.connect(self.planes_edited)
+        ui.planeTable.itemChanged.connect(self.plane_edited)
+        ui.addPlaneButton.clicked.connect(self.add_plane)
+        ui.removePlaneButton.clicked.connect(self.remove_plane)
         ui.showPlanes.toggled.connect(self.show_planes)
 
         # Backspace is the delete key on Mac keyboards, text fields keep both
@@ -479,6 +482,7 @@ class MainWindow(QMainWindow):
         self.stim.redraw()
         self.snap_electrodes()
         self.refresh_lists()
+        self.refresh_planes()
         self.show_planes()
         self.check_coils(heights)
 
@@ -1206,25 +1210,61 @@ class MainWindow(QMainWindow):
         self.refresh_electrode_editor()
 
     # planes
-    def planes_edited(self):
-        if self.updating:
-            return
-        ui = self.ui
-        self.begin_edit("planes")
-        self.stim.planes = (
-            ui.planeX.value() / 1000,
-            ui.planeY.value() / 1000,
-            ui.planeZ.value() / 1000,
-        )
+    def set_planes(self, planes):
+        # one undo step for every change of the plane list
+        self.discrete_edit()
+        self.stim.planes = planes
+        self.refresh_planes()
         self.show_planes()
 
+    def plane_edited(self, item):
+        # a typed normal or point, a bad one puts the last good plane back
+        if self.updating:
+            return
+        table, row = self.ui.planeTable, item.row()
+        try:
+            normal = parse_vector(table.item(row, 0).text())
+            point = [v / 1000 for v in parse_vector(table.item(row, 1).text())]
+            plane = Plane(normal, point)
+        except ValueError as error:
+            self.statusBar().showMessage(f"Plane {row + 1}: {error}", 5000)
+            self.refresh_planes()
+            return
+        planes = list(self.stim.planes)
+        planes[row] = plane
+        self.set_planes(planes)
+
+    def add_plane(self):
+        # a copy of the selected plane to edit, or the z = 0 plane
+        row = self.ui.planeTable.currentRow()
+        planes = list(self.stim.planes)
+        planes.append(
+            planes[row] if 0 <= row < len(planes) else Plane((0, 0, 1), (0, 0, 0))
+        )
+        self.set_planes(planes)
+        self.ui.planeTable.setCurrentCell(len(planes) - 1, 0)
+
+    def remove_plane(self):
+        row = self.ui.planeTable.currentRow()
+        if not 0 <= row < len(self.stim.planes):
+            return
+        planes = list(self.stim.planes)
+        del planes[row]
+        self.set_planes(planes)
+
     def refresh_planes(self):
-        ui = self.ui
+        # normals as typed, points in mm
+        table = self.ui.planeTable
         self.updating = True
-        ui.planeX.setValue(self.stim.planes[0] * 1000)
-        ui.planeY.setValue(self.stim.planes[1] * 1000)
-        ui.planeZ.setValue(self.stim.planes[2] * 1000)
+        table.setRowCount(0)
+        for row, plane in enumerate(self.stim.planes):
+            table.insertRow(row)
+            table.setItem(row, 0, QTableWidgetItem(format_vector(plane.normal)))
+            point = [1000 * v for v in plane.point]
+            table.setItem(row, 1, QTableWidgetItem(format_vector(point)))
+            table.item(row, 0).setToolTip(plane.name())
         self.updating = False
+        self.update_slice_info()
 
     def show_planes(self):
         shown = self.ui.showPlanes.isChecked()
@@ -1651,6 +1691,7 @@ class MainWindow(QMainWindow):
         ui.showResultButton.setEnabled(self.viewport.available)
 
         self.slices = self.read_slices()
+        self.fill_slice_planes()
         self.update_slice_info()
         for panel in self.plots.values():
             panel.refresh()
@@ -1759,13 +1800,26 @@ class MainWindow(QMainWindow):
 
     def draw_slices(self, figure):
         color = theme.COLORS[self.theme]["text"]
+        index = self.ui.slicePlane.currentIndex()
+        count = len(self.slices["slices"]) if self.slices else 0
         plots.draw_slices(
             figure,
             self.slices,
-            self.ui.slicePlane.currentText(),
+            index if 0 <= index < count else None,
             color,
             self.ui.sliceColormap.currentText(),
         )
+
+    def fill_slice_planes(self):
+        # one entry per computed slice, then All
+        combo = self.ui.slicePlane
+        combo.blockSignals(True)
+        combo.clear()
+        if self.slices:
+            combo.addItems([p.name() for p in self.slices["planes"]])
+            combo.addItem("All")
+            combo.setCurrentIndex(combo.count() - 1)
+        combo.blockSignals(False)
 
     def read_slices(self):
         path = self.result_dir / "slices.npz"
@@ -1782,29 +1836,35 @@ class MainWindow(QMainWindow):
         return data
 
     def update_slice_info(self):
-        if self.slices is None:
+        if self.result is None:
+            text = ""
+        elif self.slices is None:
             text = "Not computed for this result"
+        elif not same_planes(self.slices["planes"], self.stim.planes):
+            text = "The planes changed since these slices, press Compute slices"
         else:
-            text = "Planes at x {:.1f}, y {:.1f}, z {:.1f} mm".format(
-                *(p * 1000 for p in self.slices["planes"])
-            )
+            n = len(self.slices["planes"])
+            text = f"{n} plane{'s' * (n != 1)}"
         self.ui.sliceInfo.setText(text)
 
     def compute_slices(self):
         if self.result is None or self.runner.running:
             return
-        planes = [f"{p * 1000:.6g}" for p in self.stim.planes]
+        if not self.stim.planes:
+            QMessageBox.information(self, "Slices", "Add a slice plane first.")
+            return
+        args = ["slices", self.result_dir]
+        for plane in self.stim.planes:
+            point = [1000 * v for v in plane.point]
+            args += ["--plane", ",".join(repr(v) for v in (*plane.normal, *point))]
         self.ui.sliceInfo.setText("Computing slices")
         self.set_running(True)
-        self.runner.start(
-            ["slices", self.result_dir, "--planes", *planes],
-            self.result_dir,
-            job="slices",
-        )
+        self.runner.start(args, self.result_dir, job="slices")
 
     def slices_finished(self, ok):
         if ok and self.result is not None:
             self.slices = self.read_slices()
+            self.fill_slice_planes()
             self.update_slice_info()
             self.plots["slices"].refresh()
         else:

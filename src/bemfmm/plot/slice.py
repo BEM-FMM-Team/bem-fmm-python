@@ -4,9 +4,8 @@ from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 
 from ..my_types import EfieldSlice
-from .compute_efield_overlay import _PLANE_CONFIG
+from ..planes import Plane, axis_planes
 
-SLICE_PLANES = ("XY", "XZ", "YZ")
 SLICE_CMAP = "viridis"
 SLICE_ARRAYS = ("E_mag", "E_grid", "mask", "u", "v", "points_2d", "edges", "ci")
 
@@ -62,7 +61,12 @@ def draw_efield_slice(
 
     ax.set_xlabel(cfg["xlabel"], color=color)
     ax.set_ylabel(cfg["ylabel"], color=color)
-    ax.set_title(f"Total E-field [V/m] in the {result.plane} plane", color=color)
+    # the plane on its own line, names of tilted planes are long
+    ax.set_title(
+        f"Total E-field [V/m]\n{result.plane}",
+        color=color,
+        fontsize=min(12, legend_size + 2),
+    )
     ax.set_aspect("equal")
     ax.tick_params(colors=color)
     for spine in ax.spines.values():
@@ -100,118 +104,59 @@ def plot_efield_slice(
     plt.show()
 
 
-def save_slices(path, slices: dict[str, EfieldSlice], xyz, tissue_list, created=""):
+def save_slices(path, planes, slices, tissue_list, created=""):
     """
-    created is the time stamp of the result the slices belong to, so stale
-    slices next to a newer result can be told apart
+    planes and slices are lists of the same length. created is the time stamp
+    of the result the slices belong to, so stale slices next to a newer result
+    can be told apart
     """
     arrays = {
-        "planes": np.asarray(xyz, dtype=float),
+        "planes": np.array([[*p.normal, *p.point] for p in planes], dtype=float),
         "tissues": np.array(tissue_list, dtype=str),
         "created": np.array(created),
     }
-    for plane, result in slices.items():
+    for i, result in enumerate(slices):
         for name in SLICE_ARRAYS:
-            arrays[f"{plane}_{name}"] = getattr(result, name)
-        arrays[f"{plane}_limits"] = np.array([result.th1l, result.th2l, result.scale])
+            arrays[f"s{i}_{name}"] = getattr(result, name)
+        arrays[f"s{i}_limits"] = np.array([result.th1l, result.th2l, result.scale])
     np.savez_compressed(path, **arrays)
     return path
 
 
 def load_slices(path):
     """
-    Slices written by save_slices, a dict with the EfieldSlice per plane and the
-    planes, tissues and created stamp they were saved with
+    Slices written by save_slices: the planes, the EfieldSlice of each, the
+    tissues and the created stamp. Files from before arbitrary planes, with the
+    x, y, z of three axis planes, still load
     """
     with np.load(path) as data:
-        slices = {}
-        for plane in SLICE_PLANES:
-            if f"{plane}_limits" not in data:
+        stored = data["planes"]
+        if stored.shape == (3,):
+            planes = axis_planes(stored)
+            keys = ["YZ", "XZ", "XY"]
+        else:
+            planes = [Plane(row[:3], row[3:]) for row in stored]
+            keys = [f"s{i}" for i in range(len(planes))]
+
+        found, slices = [], []
+        for plane, key in zip(planes, keys):
+            if f"{key}_limits" not in data:
                 continue
-            th1l, th2l, scale = data[f"{plane}_limits"]
-            slices[plane] = EfieldSlice(
-                **{name: data[f"{plane}_{name}"] for name in SLICE_ARRAYS},
-                th1l=float(th1l),
-                th2l=float(th2l),
-                scale=float(scale),
-                plane=plane,
-                cfg=_PLANE_CONFIG[plane],
+            th1l, th2l, scale = data[f"{key}_limits"]
+            found.append(plane)
+            slices.append(
+                EfieldSlice(
+                    **{name: data[f"{key}_{name}"] for name in SLICE_ARRAYS},
+                    th1l=float(th1l),
+                    th2l=float(th2l),
+                    scale=float(scale),
+                    plane=plane.name(),
+                    cfg=plane.labels(),
+                )
             )
         return {
+            "planes": found,
             "slices": slices,
-            "planes": tuple(float(p) for p in data["planes"]),
             "tissues": [str(t) for t in data["tissues"]],
             "created": str(data["created"]),
         }
-
-
-def plot_slices(
-    P,
-    t,
-    center,
-    area,
-    normals,
-    c,
-    interface,
-    tissue_list,
-    xyz,
-    coils,
-    th1,
-    th2,
-):
-    X = xyz[0]
-    Y = xyz[1]
-    Z = xyz[2]
-
-    # # Testing to compare to matlab code
-    # X       = +29.4641*1e-3
-    # Y       = -0.0*1e-3
-    # Z       = +51.6425*1e-3
-
-    from .compute_efield_overlay import compute_efield_overlay_worker
-
-    compute_efield_overlay_worker(
-        P=P,
-        t=t,
-        centers=center,
-        area=area,
-        normals=normals,
-        c=c,
-        plane="XY",
-        val=Z,
-        interface=interface,
-        tissue_list=tissue_list,
-        coils=coils,
-        th1=th1,
-        th2=th2,
-    )
-    compute_efield_overlay_worker(
-        P=P,
-        t=t,
-        centers=center,
-        area=area,
-        normals=normals,
-        c=c,
-        plane="XZ",
-        val=Y,
-        interface=interface,
-        tissue_list=tissue_list,
-        coils=coils,
-        th1=th1,
-        th2=th2,
-    )
-    compute_efield_overlay_worker(
-        P=P,
-        t=t,
-        centers=center,
-        area=area,
-        normals=normals,
-        c=c,
-        plane="YZ",
-        val=X,
-        interface=interface,
-        tissue_list=tissue_list,
-        coils=coils,
-        th1=th1,
-        th2=th2,
-    )

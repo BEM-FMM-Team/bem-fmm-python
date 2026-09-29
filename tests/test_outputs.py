@@ -7,8 +7,13 @@ from matplotlib.figure import Figure
 from scipy.io import loadmat
 
 from bemfmm.my_types import EfieldSlice
-from bemfmm.plot.compute_efield_overlay import _PLANE_CONFIG
-from bemfmm.plot.slice import draw_efield_slice, load_slices, save_slices
+from bemfmm.planes import Plane, axis_planes
+from bemfmm.plot.slice import (
+    SLICE_ARRAYS,
+    draw_efield_slice,
+    load_slices,
+    save_slices,
+)
 from bemfmm.results import Result
 
 
@@ -48,10 +53,10 @@ def test_export_all_facets_csv(tmp_path):
     np.testing.assert_array_equal(np.loadtxt(path, delimiter=","), [1.0, 2.0])
 
 
-def test_slices_roundtrip(tmp_path):
-    rng = np.random.default_rng(1)
+def fake_slice(plane, seed=1):
+    rng = np.random.default_rng(seed)
     grid = np.log10(rng.random((8, 8)) * 10 + 1)
-    data = EfieldSlice(
+    return EfieldSlice(
         E_mag=rng.random(64),
         E_grid=grid,
         mask=np.ones(64, dtype=bool),
@@ -63,25 +68,49 @@ def test_slices_roundtrip(tmp_path):
         points_2d=rng.random((4, 2)) * 0.02,
         edges=np.array([[0, 1], [1, 2], [2, 3]]),
         ci=np.array([0, 0, 1]),
-        plane="XZ",
-        cfg=_PLANE_CONFIG["XZ"],
+        plane=plane.name(),
+        cfg=plane.labels(),
     )
+
+
+def test_slices_roundtrip(tmp_path):
+    planes = [Plane((0, 1, 0), (0, 0.01, 0)), Plane((1, -1, 0), (0, 0, 0.002))]
+    slices = [fake_slice(p, seed) for seed, p in enumerate(planes)]
     path = tmp_path / "slices.npz"
-    save_slices(path, {"XZ": data}, (0.0, 0.01, 0.0), ["skin", "gm"], "stamp")
+    save_slices(path, planes, slices, ["skin", "gm"], "stamp")
     again = load_slices(path)
 
-    assert list(again["slices"]) == ["XZ"]
-    assert again["planes"] == (0.0, 0.01, 0.0)
+    assert again["planes"] == planes
     assert again["tissues"] == ["skin", "gm"]
     assert again["created"] == "stamp"
-    loaded = again["slices"]["XZ"]
-    for name in ("E_mag", "E_grid", "mask", "u", "v", "points_2d", "edges", "ci"):
-        np.testing.assert_array_equal(getattr(loaded, name), getattr(data, name))
-    assert (loaded.th1l, loaded.th2l, loaded.scale) == (data.th1l, data.th2l, 0.2)
-    assert loaded.cfg == _PLANE_CONFIG["XZ"]
+    for loaded, data in zip(again["slices"], slices):
+        for name in SLICE_ARRAYS:
+            np.testing.assert_array_equal(getattr(loaded, name), getattr(data, name))
+        assert (loaded.th1l, loaded.th2l, loaded.scale) == (data.th1l, data.th2l, 0.2)
+        assert (loaded.plane, loaded.cfg) == (data.plane, data.cfg)
+    assert again["slices"][0].cfg == {"xlabel": "x, mm", "ylabel": "z, mm"}
+    assert again["slices"][1].cfg == {"xlabel": "u, mm", "ylabel": "v, mm"}
 
     figure = Figure()
     ax = figure.add_subplot()
-    draw_efield_slice(figure, ax, loaded, again["tissues"], levels=20, color="black")
-    assert ax.get_title() == "Total E-field [V/m] in the XZ plane"
+    draw_efield_slice(figure, ax, again["slices"][0], again["tissues"], levels=20)
+    assert ax.get_title() == "Total E-field [V/m]\nXZ at y = 10.0 mm"
     assert len(ax.collections) >= 2  # contours and the tissue outlines
+
+
+def test_old_slices_file(tmp_path):
+    # slices.npz from before arbitrary planes: x, y, z and one key set per plane
+    data = fake_slice(Plane((0, 1, 0), (0, 0.01, 0)))
+    arrays = {f"XZ_{name}": getattr(data, name) for name in SLICE_ARRAYS}
+    arrays["XZ_limits"] = np.array([data.th1l, data.th2l, data.scale])
+    path = tmp_path / "slices.npz"
+    np.savez(
+        path,
+        planes=np.array([0.0, 0.01, 0.0]),
+        tissues=np.array(["skin", "gm"]),
+        created=np.array("stamp"),
+        **arrays,
+    )
+    again = load_slices(path)
+    assert again["planes"] == [axis_planes((0.0, 0.01, 0.0))[1]]
+    np.testing.assert_array_equal(again["slices"][0].E_grid, data.E_grid)

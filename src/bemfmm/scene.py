@@ -4,8 +4,9 @@ from pathlib import Path
 
 from bemfmm.coils import Coil
 from bemfmm.electrode import Electrode
+from bemfmm.planes import Plane, as_planes, default_planes
 
-SCENE_VERSION = 1
+SCENE_VERSION = 2
 
 
 @dataclass
@@ -20,10 +21,14 @@ class Scene:
 
     coils: list[Coil] = field(default_factory=list)
     electrodes: list[Electrode] = field(default_factory=list)
-    planes: tuple[float, float, float] = (0.0, 0.0, 0.0)
+    planes: list[Plane] = field(default_factory=default_planes)
     tissue_index: str = ""
     mode: str = ""
     skin: str = ""
+
+    def __post_init__(self):
+        # setups before version 2 hold the x, y, z of three axis planes
+        self.planes = as_planes(self.planes)
 
     def to_dict(self):
         return {
@@ -31,7 +36,7 @@ class Scene:
             "tissue_index": str(self.tissue_index),
             "mode": self.mode,
             "skin": self.skin,
-            "planes": [float(p) for p in self.planes],
+            "planes": [p.to_dict() for p in self.planes],
             "coils": [coil.to_dict() for coil in self.coils],
             "electrodes": [electrode.to_dict() for electrode in self.electrodes],
         }
@@ -46,7 +51,7 @@ class Scene:
         return cls(
             coils=[Coil.from_dict(c) for c in d.get("coils", [])],
             electrodes=[Electrode.from_dict(e) for e in d.get("electrodes", [])],
-            planes=tuple(d.get("planes", (0.0, 0.0, 0.0))),
+            planes=d.get("planes", default_planes()),
             tissue_index=d.get("tissue_index", ""),
             mode=d.get("mode", ""),
             skin=d.get("skin", ""),

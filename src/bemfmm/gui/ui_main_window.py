@@ -18,9 +18,9 @@ from PySide6.QtCore import (
     QPoint,
     QRect,
     QSize,
+    Qt,
     QTime,
     QUrl,
-    Qt,
 )
 from PySide6.QtGui import (
     QAction,
@@ -72,9 +72,9 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
     QStatusBar,
-    QTabWidget,
     QTableWidget,
     QTableWidgetItem,
+    QTabWidget,
     QToolBar,
     QVBoxLayout,
     QWidget,
@@ -687,47 +687,6 @@ class Ui_MainWindow(object):
 
         self.stimulationLayout.addWidget(self.stimStack)
 
-        self.planesGroup = QGroupBox(self.stimulationTab)
-        self.planesGroup.setObjectName("planesGroup")
-        self.planesLayout = QHBoxLayout(self.planesGroup)
-        self.planesLayout.setObjectName("planesLayout")
-        self.planeXLabel = QLabel(self.planesGroup)
-        self.planeXLabel.setObjectName("planeXLabel")
-
-        self.planesLayout.addWidget(self.planeXLabel)
-
-        self.planeX = QDoubleSpinBox(self.planesGroup)
-        self.planeX.setObjectName("planeX")
-
-        self.planesLayout.addWidget(self.planeX)
-
-        self.planeYLabel = QLabel(self.planesGroup)
-        self.planeYLabel.setObjectName("planeYLabel")
-
-        self.planesLayout.addWidget(self.planeYLabel)
-
-        self.planeY = QDoubleSpinBox(self.planesGroup)
-        self.planeY.setObjectName("planeY")
-
-        self.planesLayout.addWidget(self.planeY)
-
-        self.planeZLabel = QLabel(self.planesGroup)
-        self.planeZLabel.setObjectName("planeZLabel")
-
-        self.planesLayout.addWidget(self.planeZLabel)
-
-        self.planeZ = QDoubleSpinBox(self.planesGroup)
-        self.planeZ.setObjectName("planeZ")
-
-        self.planesLayout.addWidget(self.planeZ)
-
-        self.showPlanes = QCheckBox(self.planesGroup)
-        self.showPlanes.setObjectName("showPlanes")
-
-        self.planesLayout.addWidget(self.showPlanes)
-
-        self.stimulationLayout.addWidget(self.planesGroup)
-
         self.stimulationSpacer = QSpacerItem(
             20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
         )
@@ -1237,6 +1196,49 @@ class Ui_MainWindow(object):
         self.slicesTab.setObjectName("slicesTab")
         self.slicesTabLayout = QVBoxLayout(self.slicesTab)
         self.slicesTabLayout.setObjectName("slicesTabLayout")
+        self.planesGroup = QGroupBox(self.slicesTab)
+        self.planesGroup.setObjectName("planesGroup")
+        self.planesLayout = QHBoxLayout(self.planesGroup)
+        self.planesLayout.setObjectName("planesLayout")
+        self.planeTable = QTableWidget(self.planesGroup)
+        if self.planeTable.columnCount() < 2:
+            self.planeTable.setColumnCount(2)
+        __qtablewidgetitem8 = QTableWidgetItem()
+        self.planeTable.setHorizontalHeaderItem(0, __qtablewidgetitem8)
+        __qtablewidgetitem9 = QTableWidgetItem()
+        self.planeTable.setHorizontalHeaderItem(1, __qtablewidgetitem9)
+        self.planeTable.setObjectName("planeTable")
+        self.planeTable.setColumnCount(2)
+
+        self.planesLayout.addWidget(self.planeTable)
+
+        self.planeButtons = QVBoxLayout()
+        self.planeButtons.setObjectName("planeButtons")
+        self.addPlaneButton = QPushButton(self.planesGroup)
+        self.addPlaneButton.setObjectName("addPlaneButton")
+
+        self.planeButtons.addWidget(self.addPlaneButton)
+
+        self.removePlaneButton = QPushButton(self.planesGroup)
+        self.removePlaneButton.setObjectName("removePlaneButton")
+
+        self.planeButtons.addWidget(self.removePlaneButton)
+
+        self.showPlanes = QCheckBox(self.planesGroup)
+        self.showPlanes.setObjectName("showPlanes")
+
+        self.planeButtons.addWidget(self.showPlanes)
+
+        self.planeButtonsSpacer = QSpacerItem(
+            20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.planeButtons.addItem(self.planeButtonsSpacer)
+
+        self.planesLayout.addLayout(self.planeButtons)
+
+        self.slicesTabLayout.addWidget(self.planesGroup)
+
         self.sliceControls = QHBoxLayout()
         self.sliceControls.setObjectName("sliceControls")
         self.slicePlaneLabel = QLabel(self.slicesTab)
@@ -1245,10 +1247,6 @@ class Ui_MainWindow(object):
         self.sliceControls.addWidget(self.slicePlaneLabel)
 
         self.slicePlane = QComboBox(self.slicesTab)
-        self.slicePlane.addItem("")
-        self.slicePlane.addItem("")
-        self.slicePlane.addItem("")
-        self.slicePlane.addItem("")
         self.slicePlane.setObjectName("slicePlane")
 
         self.sliceControls.addWidget(self.slicePlane)
@@ -1814,13 +1812,6 @@ class Ui_MainWindow(object):
         self.electrodeVoltageLabel.setText(
             QCoreApplication.translate("MainWindow", "Voltage (V)", None)
         )
-        self.planesGroup.setTitle(
-            QCoreApplication.translate("MainWindow", "Slice planes (mm)", None)
-        )
-        self.planeXLabel.setText(QCoreApplication.translate("MainWindow", "X", None))
-        self.planeYLabel.setText(QCoreApplication.translate("MainWindow", "Y", None))
-        self.planeZLabel.setText(QCoreApplication.translate("MainWindow", "Z", None))
-        self.showPlanes.setText(QCoreApplication.translate("MainWindow", "Show", None))
         self.sideTabs.setTabText(
             self.sideTabs.indexOf(self.stimulationTab),
             QCoreApplication.translate("MainWindow", "Stimulation", None),
@@ -2028,22 +2019,38 @@ class Ui_MainWindow(object):
             self.viewTabs.indexOf(self.convergenceTab),
             QCoreApplication.translate("MainWindow", "Convergence", None),
         )
+        self.planesGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Slice planes", None)
+        )
+        ___qtablewidgetitem8 = self.planeTable.horizontalHeaderItem(0)
+        ___qtablewidgetitem8.setText(
+            QCoreApplication.translate("MainWindow", "Normal", None)
+        )
+        ___qtablewidgetitem9 = self.planeTable.horizontalHeaderItem(1)
+        ___qtablewidgetitem9.setText(
+            QCoreApplication.translate("MainWindow", "Through (mm)", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.planeTable.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "A plane by its normal and a point on it in mm, for example 1, -1, 0 and 0, 0, 0 for y = x",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.addPlaneButton.setText(
+            QCoreApplication.translate("MainWindow", "Add", None)
+        )
+        self.removePlaneButton.setText(
+            QCoreApplication.translate("MainWindow", "Remove", None)
+        )
+        self.showPlanes.setText(
+            QCoreApplication.translate("MainWindow", "Show in 3D view", None)
+        )
         self.slicePlaneLabel.setText(
             QCoreApplication.translate("MainWindow", "Plane", None)
         )
-        self.slicePlane.setItemText(
-            0, QCoreApplication.translate("MainWindow", "XY", None)
-        )
-        self.slicePlane.setItemText(
-            1, QCoreApplication.translate("MainWindow", "XZ", None)
-        )
-        self.slicePlane.setItemText(
-            2, QCoreApplication.translate("MainWindow", "YZ", None)
-        )
-        self.slicePlane.setItemText(
-            3, QCoreApplication.translate("MainWindow", "All", None)
-        )
-
         self.sliceColormapLabel.setText(
             QCoreApplication.translate("MainWindow", "Colormap", None)
         )

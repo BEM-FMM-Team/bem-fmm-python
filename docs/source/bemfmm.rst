@@ -82,6 +82,14 @@ bemfmm.my\_types module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.planes module
+--------------------
+
+.. automodule:: bemfmm.planes
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.results module
 ---------------------
 

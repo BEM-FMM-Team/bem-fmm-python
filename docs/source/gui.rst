@@ -115,12 +115,6 @@ and Run refuses until it is fixed.
 Anodes are drawn red, cathodes blue, the selected item cyan. Electrodes are
 selected and deselected in the 3D view the same way as coils.
 
-Slice planes
-------------
-
-The x, y and z positions (mm) of the three planes used for the E-field slices.
-**Show** draws them in the 3D view.
-
 Solve tab
 ---------
 
@@ -179,13 +173,30 @@ The tabs on the right:
 - **3D view**: the model, coils, electrodes and the field on a tissue.
   **Snapshot** in the toolbar (File > Save 3D view image) saves it as an image.
 - **Convergence**: relative residual per GMRES iteration, with the tolerance.
-- **Slices**: the total E-field on the three slice planes with the tissue
-  outlines, one plane or all three. **Compute slices** computes them for the
-  current slice planes if the run did not. **Colormap** picks the colors,
-  ``viridis`` by default
+- **Slices**: the total E-field on the slice planes with the tissue outlines,
+  one plane or all of them. **Compute slices** computes them for the planes in
+  the table, when the run did not or after the planes were changed.
+  **Colormap** picks the colors, ``viridis`` by default. See below for the
+  planes
 - **Distribution**: histogram of the field and tissue picked in the Results
   tab, with the median and 99th percentile.
 - **Electrodes**: tDCS only, the current of every electrode.
+
+Slice planes
+------------
+
+The table in the Slices tab lists the planes, by default the planes through
+the origin normal to x, y and z. Each row is a plane by its **Normal** and a
+point it goes **Through** (mm), typed as three numbers separated by commas or
+spaces. The normal need not be of unit length, so ``1, -1, 0`` through
+``0, 0, 0`` is the plane y = x. A plane normal to an axis is plotted in the
+other two world coordinates, any other plane in in-plane coordinates u
+(horizontal) and v (up where the plane allows).
+
+**Add** copies the selected plane, or adds z = 0, and **Remove** deletes it.
+Undo and Redo include the planes, and they are saved with the setup. **Show in
+3D view** draws them over the model. When the table no longer matches the
+computed slices the tab says so, and **Compute slices** brings them up to date.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,
 subplot spacing, axis settings and save (png, pdf, svg and more). **Pop out**

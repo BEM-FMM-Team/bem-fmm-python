@@ -11,6 +11,7 @@ from bemfmm.coils.rotation import (
 )
 from bemfmm.electrode import Electrode, imprint_patch
 from bemfmm.mesh import mesh_normals, mesh_tricenter
+from bemfmm.planes import default_planes
 
 from .viewport import COIL_COLOR, SELECTED_COLOR, electrode_color
 
@@ -75,7 +76,7 @@ class Stimulation:
         self.viewport = viewport
         self.coils = {}
         self.electrodes = {}
-        self.planes = (0.0, 0.0, 0.0)
+        self.planes = default_planes()
         self.next_id = 0
 
         self.undo_stack = []
@@ -148,7 +149,7 @@ class Stimulation:
     def clear(self):
         self.coils = {}
         self.electrodes = {}
-        self.planes = (0.0, 0.0, 0.0)
+        self.planes = default_planes()
         self.undo_stack.clear()
         self.redo_stack.clear()
         self.redraw()

@@ -61,6 +61,12 @@ GUI
 - Tolerance in the Solve tab is shown and typed in scientific notation and its
   arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
   zero.
+- Slices can be on any list of planes instead of the three axis planes, each
+  plane typed as a normal and a point in a table in the Slices tab (the plane
+  y = x is normal ``1, -1, 0`` through ``0, 0, 0``). The default is still the
+  planes through the origin normal to x, y and z. The table moved from the
+  Coils/Electrodes tab next to the slices, and the tab says when the computed
+  slices no longer match the table.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.
@@ -79,8 +85,8 @@ GUI
 
 Command line
 
-- ``bemfmm slices RESULT [--planes X Y Z]`` computes E-field slices for a saved
-  result into ``slices.npz``.
+- ``bemfmm slices RESULT [--planes X Y Z] [--plane NX,NY,NZ,PX,PY,PZ ...]``
+  computes E-field slices for a saved result into ``slices.npz``.
 - ``bemfmm tms`` and ``bemfmm tdcs`` take ``--slices``.
 - ``bemfmm tdcs --skin`` defaults to the surface stored in the setup.
 - ``bemfmm show`` uses saved slices instead of computing them again.
@@ -100,6 +106,10 @@ Library
   ``draw_efield_slice`` and the tissue outlines are drawn as one collection per
   tissue, which is much faster for large models.
 - Setups store ``mode`` and ``skin``. Older setups still open.
+- ``bemfmm.planes.Plane`` is a slice plane by its normal and a point.
+  ``compute_slices`` takes a list of them and returns a list of slices,
+  ``compute_efield_overlay`` takes one, and setups store them (version 2).
+  ``slices.npz`` stores any number of planes, older files still load.
 - ``electrode.imprint_patch`` imprints one electrode on the facets of a surface
   near it, the same cut as the solver in a few ms.
 

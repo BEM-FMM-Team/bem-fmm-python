@@ -27,11 +27,14 @@ A ``.json`` file written by the gui (File > Save setup) and read by
 .. code-block:: json
 
     {
-      "version": 1,
+      "version": 2,
       "tissue_index": "C:/models/subject01/tissue_index.yaml",
       "mode": "tdcs",
       "skin": "skin",
-      "planes": [0.0, 0.0, 0.01],
+      "planes": [
+        {"normal": [0.0, 0.0, 1.0], "point": [0.0, 0.0, 0.01]},
+        {"normal": [1.0, -1.0, 0.0], "point": [0.0, 0.0, 0.0]}
+      ],
       "coils": [
         {"name": "figure_eight 1", "type": "figure_eight", "params": {"...": "..."},
          "com": [0.046, -0.012, 0.083], "rot": [0.13, 0.13, 0.39, 0.90],
@@ -46,6 +49,8 @@ A ``.json`` file written by the gui (File > Save setup) and read by
 Lengths are in meters, ``rot`` is a quaternion (x, y, z, w) and ``dIdt`` is in
 A/s. ``mode`` is the kind of study the setup was made for and ``skin`` the
 surface the coils and electrodes sit on, both may be missing in older setups.
+``planes`` are the slice planes, each a normal and a point on it. Setups before
+version 2 stored the x, y, z of the three axis planes, they still open.
 Coils are stored by type and parameters and rebuilt when the setup is read, a
 ``template`` coil stores the path of its ``.mat`` file.
 
@@ -90,13 +95,15 @@ tDCS results also store ``electrodes``, the electrode number of every facet
 Slices
 ------
 
-``slices.npz`` holds, for each plane ``XY``, ``XZ`` and ``YZ``, the grid
-axes ``<plane>_u`` and ``<plane>_v``, the field on the grid (``<plane>_E_mag``
-and the log scaled ``<plane>_E_grid``), the color limits and the tissue
-outlines (``<plane>_points_2d``, ``<plane>_edges``, ``<plane>_ci``). ``planes``
-has the plane positions in meters, ``tissues`` the tissue names and ``created``
+``slices.npz`` holds ``planes``, one row per plane with its normal and a point
+on it in meters (N x 6), and for plane number ``i`` the grid axes ``s<i>_u``
+and ``s<i>_v``, the field on the grid (``s<i>_E_mag`` and the log scaled
+``s<i>_E_grid``), the color limits and the tissue outlines
+(``s<i>_points_2d``, ``s<i>_edges``, ``s<i>_ci``). The grid and outlines are in
+the plane's own coordinates. ``tissues`` has the tissue names and ``created``
 the date of the result the slices belong to. Load it with
-``bemfmm.plot.slice.load_slices``.
+``bemfmm.plot.slice.load_slices``, which also reads the older files keyed
+``XY``, ``XZ`` and ``YZ``.
 
 Exported fields
 ---------------

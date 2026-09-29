@@ -368,13 +368,10 @@ class Viewport:
             self.plt.remove(plane)
         self.planes = []
         if planes is not None:
-            x, y, z = planes
             s = (self.size, self.size)
-            self.planes = [
-                Plane(pos=(x, 0, 0), normal=(1, 0, 0), s=s),
-                Plane(pos=(0, y, 0), normal=(0, 1, 0), s=s),
-                Plane(pos=(0, 0, z), normal=(0, 0, 1), s=s),
-            ]
+            for plane in planes:
+                origin, _, _, normal = plane.frame()
+                self.planes.append(Plane(pos=origin, normal=normal, s=s))
             for plane in self.planes:
                 plane.alpha(0.35).color("cyan")
                 self.plt.add(plane)

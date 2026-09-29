@@ -13,7 +13,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from bemfmm.plot.slice import SLICE_PLANES, draw_efield_slice
+from bemfmm.plot.slice import draw_efield_slice
 
 from .viewport import electrode_color
 
@@ -181,24 +181,25 @@ def draw_currents(figure, electrodes):
     ax.set_ylabel("Current (mA)")
 
 
-def draw_slices(figure, data, plane, color, cmap):
-    if data is None:
+def draw_slices(figure, data, index, color, cmap):
+    # the slice at index, or all of them when index is None
+    if data is None or not data["slices"]:
         return draw_message(figure, "No slices for this result, press Compute slices")
     slices = data["slices"]
-    wanted = SLICE_PLANES if plane == "All" else (plane,)
-    planes = [p for p in wanted if p in slices]
-    if not planes:
-        return draw_message(figure, f"No {plane} slice in this result")
-    if len(planes) == 1:
+    if index is not None and 0 <= index < len(slices):
+        slices = [slices[index]]
+    if len(slices) == 1:
         axes, legend_size = [figure.add_subplot()], 10
     else:
-        axes, legend_size = figure.subplots(2, 2).ravel(), 7
-        axes[-1].set_axis_off()
-    for ax, name in zip(axes, planes):
+        rows = -(-len(slices) // 2)
+        axes, legend_size = figure.subplots(rows, 2).ravel(), 7
+        for ax in axes[len(slices) :]:
+            ax.set_axis_off()
+    for ax, data_slice in zip(axes, slices):
         draw_efield_slice(
             figure,
             ax,
-            slices[name],
+            data_slice,
             data["tissues"],
             color=color,
             legend_size=legend_size,

@@ -1,77 +1,10 @@
 import time
-from dataclasses import dataclass
-from multiprocessing import Process
-from typing import Literal
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 from bemfmm.charge.inc_field_electric import inc_field_electric
 from bemfmm.my_types import EfieldSlice
-
-_PLANE_CONFIG = {
-    "XY": dict(
-        meshplaneint_axis=2,
-        plane_normal=[0.0, 0.0, 1.0],
-        grid_axes=(0, 1),
-        fixed_axis=2,
-        pi_cols=[0, 1],
-        xlabel="x, mm",
-        ylabel="y, mm",
-    ),
-    "XZ": dict(
-        meshplaneint_axis=1,
-        plane_normal=[0.0, 1.0, 0.0],
-        grid_axes=(0, 2),
-        fixed_axis=1,
-        pi_cols=[0, 2],
-        xlabel="x, mm",
-        ylabel="z, mm",
-    ),
-    "YZ": dict(
-        meshplaneint_axis=0,
-        plane_normal=[1.0, 0.0, 0.0],
-        grid_axes=(1, 2),
-        fixed_axis=0,
-        pi_cols=[1, 2],
-        xlabel="y, mm",
-        ylabel="z, mm",
-    ),
-}
-
-
-def compute_efield_overlay_worker(
-    P,
-    t,
-    centers,
-    area,
-    normals,
-    c,
-    plane,
-    val,
-    interface,
-    tissue_list,
-    coils,
-    th1,
-    th2,
-):
-    result = compute_efield_overlay(
-        P=P,
-        t=t,
-        centers=centers,
-        area=area,
-        normals=normals,
-        c=c,
-        plane=plane,
-        val=val,
-        interface=interface,
-        coils=coils,
-        th1=th1,
-        th2=th2,
-    )
-    from bemfmm.plot import plot_efield_slice
-
-    Process(target=plot_efield_slice, args=(result, tissue_list)).start()
+from bemfmm.planes import Plane
 
 
 def compute_efield_overlay(
@@ -81,8 +14,7 @@ def compute_efield_overlay(
     area: np.ndarray,
     normals: np.ndarray,
     c: np.ndarray,
-    plane: Literal["XY"] | Literal["XZ"] | Literal["YZ"],
-    val: float,
+    plane: Plane,
     th1: float = 1,
     th2: float = 0,
     Ms: int = 200,
@@ -92,32 +24,32 @@ def compute_efield_overlay(
     INNER_IDX: list | int | None = None,
     coils: list = [],
 ) -> EfieldSlice:
+    """
+    Total E-field on an Ms x Ms grid covering the model in plane, with the
+    tissue outlines where the plane cuts the surfaces. Grid and outlines are in
+    the plane's own coordinates (Plane.frame), which for a plane normal to an
+    axis are the other two world coordinates
+    """
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
-
-    if plane not in _PLANE_CONFIG:
-        raise ValueError(
-            f"plane must be one of {list(_PLANE_CONFIG.keys())}, got '{plane}'"
-        )
-
-    cfg = _PLANE_CONFIG[plane]
-    a0, a1 = cfg["grid_axes"]
-    fa = cfg["fixed_axis"]
-    pi_cols = cfg["pi_cols"]
 
     if not isinstance(INNER_IDX, (list, tuple, np.ndarray)):
         INNER_IDX = [INNER_IDX] if INNER_IDX is not None else [0]
 
-    u = np.linspace(P[:, a0].min(), P[:, a0].max(), Ms)
-    v = np.linspace(P[:, a1].min(), P[:, a1].max(), Ms)
+    # the mesh in plane coordinates (e1, e2, n), the plane is at n = offset.
+    # The origin has no in-plane part, so it only shifts the n coordinate. In
+    # the mesh's own precision an axis plane is then exactly the old axis slice
+    origin, e1, e2, n = plane.frame()
+    offset = float(np.dot(n, origin))
+    Q = P @ np.column_stack((e1, e2, n)).astype(P.dtype)
+
+    u = np.linspace(Q[:, 0].min(), Q[:, 0].max(), Ms)
+    v = np.linspace(Q[:, 1].min(), Q[:, 1].max(), Ms)
     G0, G1 = np.meshgrid(u, v)
+    points_2d_obs = np.column_stack((G0.ravel(), G1.ravel()))
+    points_obs = origin + np.outer(G0.ravel(), e1) + np.outer(G1.ravel(), e2)
 
-    points_obs = np.zeros((Ms**2, 3))
-    points_obs[:, a0] = G0.ravel()
-    points_obs[:, a1] = G1.ravel()
-    points_obs[:, fa] = val
-
-    planeABCD = np.array([*cfg["plane_normal"], -val])
+    planeABCD = np.array([*n, -np.dot(n, origin)])
 
     t0 = time.perf_counter()
     Esec = volume_field_electric(
@@ -135,16 +67,16 @@ def compute_efield_overlay(
     print(f"E-field computation: {time.perf_counter() - t0:.3f}s")
 
     Pi, edges, _, ci, _, _ = meshplaneint_axis_nonmanifold(
-        P, t, axis=cfg["meshplaneint_axis"], val=val, tol=1e-5, compTri=interface[:, 1]
+        Q, t, axis=2, val=offset, tol=1e-5, compTri=interface[:, 1]
     )
-    points_2d = Pi[:, pi_cols]
+    points_2d = Pi[:, :2]
 
     idx_mask = np.zeros(len(ci), dtype=bool)
     for inner_idx in INNER_IDX:
         idx_mask |= ci == inner_idx
 
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
-    mask = _ray_cast_inside(points_obs[:, pi_cols], Pinner, einner)
+    mask = _ray_cast_inside(points_2d_obs, Pinner, einner)
 
     E_plot = E_mag.copy()
 
@@ -187,8 +119,8 @@ def compute_efield_overlay(
         points_2d=points_2d,
         edges=edges,
         ci=ci,
-        plane=plane,
-        cfg=cfg,
+        plane=plane.name(),
+        cfg=plane.labels(),
     )
 
 

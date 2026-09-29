@@ -5,6 +5,7 @@ import vedo
 
 from bemfmm.constants import eps0
 from bemfmm.mesh import mesh_areas, mesh_tricenter
+from bemfmm.planes import axis_planes, default_planes
 from bemfmm.results import Result
 
 from .compute_efield_overlay import compute_efield_overlay
@@ -12,7 +13,7 @@ from .electrodes import plot_electrode_worker
 from .fields import plot_fields
 from .patch import plot_worker
 from .residual import plot_residual
-from .slice import SLICE_PLANES, plot_efield_slice
+from .slice import plot_efield_slice
 
 
 def tissue_or_last(result: Result, tissue):
@@ -20,25 +21,25 @@ def tissue_or_last(result: Result, tissue):
     return tissue if tissue in result.tissues else result.tissues[-1]
 
 
-def default_planes(result: Result, coils, tissue="wm"):
-    # through the point where the first coil axis meets the tissue
+def coil_planes(result: Result, coils, tissue="wm"):
+    # the axis planes through the point where the first coil axis meets tissue
     t = result.t[result.facets(tissue_or_last(result, tissue))]
     i = vedo.Mesh([result.P, t]).intersect_with_line(*coils[0].centerline)
-    return i[0] if len(i) > 0 else [0.5, 0.5, 0.5]
+    return axis_planes(i[0] if len(i) > 0 else [0.5, 0.5, 0.5])
 
 
-def compute_slices(result: Result, xyz, th_tissue="gm", coils=(), progress=None):
-    # Threshold to min and max of Emag on th_tissue
+def compute_slices(result: Result, planes, th_tissue="gm", coils=(), progress=None):
+    # one EfieldSlice per plane, thresholds at min and max of Emag on th_tissue
     th_tissue = tissue_or_last(result, th_tissue)
     Emag = result.fields["Emag"][result.facets(th_tissue)]
     center = mesh_tricenter(result.P, result.t)
     area = mesh_areas(result.P, result.t)
 
-    slices = {}
-    for i, (plane, val) in enumerate(zip(SLICE_PLANES, (xyz[2], xyz[1], xyz[0]))):
+    slices = []
+    for i, plane in enumerate(planes):
         if progress:
-            progress("slices", i, len(SLICE_PLANES))
-        slices[plane] = compute_efield_overlay(
+            progress("slices", i, len(planes))
+        data = compute_efield_overlay(
             P=result.P,
             t=result.t,
             centers=center,
@@ -46,21 +47,21 @@ def compute_slices(result: Result, xyz, th_tissue="gm", coils=(), progress=None)
             normals=result.normals,
             c=result.fields["c"].reshape((-1, 1)),
             plane=plane,
-            val=val,
             interface=result.interface,
             coils=list(coils),
             th1=np.nanmax(Emag),
             th2=np.nanmin(Emag),
         )
+        slices.append(data)
     if progress:
-        progress("slices", len(SLICE_PLANES), len(SLICE_PLANES))
+        progress("slices", len(planes), len(planes))
     return slices
 
 
-def show_slices(result: Result, xyz, th_tissue, coils=(), slices=None):
+def show_slices(result: Result, planes, th_tissue, coils=(), slices=None):
     if slices is None:
-        slices = compute_slices(result, xyz, th_tissue, coils)
-    for data in slices.values():
+        slices = compute_slices(result, planes, th_tissue, coils)
+    for data in slices:
         Process(target=plot_efield_slice, args=(data, result.tissues)).start()
 
 
@@ -92,11 +93,13 @@ def show_tms(
         f["Jn"].reshape((-1, 1)),
     )
 
-    xyz = default_planes(result, coils, plot_tissue) if planes is None else planes
-    show_slices(result, xyz, slice_tissue, coils, slices)
+    if planes is None:
+        planes = coil_planes(result, coils, plot_tissue)
+    show_slices(result, planes, slice_tissue, coils, slices)
 
 
 def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin", slices=None):
+    planes = default_planes() if planes is None else planes
     plot_residual(result.resvec)
 
     f = result.fields

@@ -62,17 +62,18 @@ def save_fields(result, output_dir, save_format, save):
 
 
 def write_slices(result, output_dir, planes, coils=(), progress=None):
-    from bemfmm.plot.results import compute_slices, default_planes
+    from bemfmm.planes import default_planes
+    from bemfmm.plot.results import coil_planes, compute_slices
     from bemfmm.plot.slice import save_slices
 
     if planes is None:
-        planes = default_planes(result, coils) if coils else (0.0, 0.0, 0.0)
+        planes = coil_planes(result, coils) if coils else default_planes()
     start = perf_counter()
     slices = compute_slices(result, planes, "gm", coils, progress)
     path = save_slices(
         output_dir / "slices.npz",
-        slices,
         planes,
+        slices,
         result.tissues,
         result.info.get("created", ""),
     )
@@ -201,7 +202,7 @@ def tdcs(
 
     scene = Scene.load(setup) if setup else None
     if scene is None:
-        electrodes, planes = default_electrodes(), (0.0, 0.0, 0.0)
+        electrodes, planes = default_electrodes(), None
         print("Using Default electrodes")
     else:
         electrodes, planes = scene.electrodes, scene.planes
@@ -229,10 +230,8 @@ def tdcs(
         print(
             f"{e['name']:<12} {e['voltage']:>9.4f} {e['solved_voltage']:>12.4f} {e['current'] * 1e3:>14.4f}"
         )
-    print(
-        f"""Total current (should be ~0): {info['total_current'] * 1e3:.4e} mA
-Power loss: {info['power']:.4e} W"""
-    )
+    print(f"""Total current (should be ~0): {info['total_current'] * 1e3:.4e} mA
+Power loss: {info['power']:.4e} W""")
 
     output_dir = output_path(output_dir)
     print(f"Saved result to {result.save(output_dir)}")
@@ -300,7 +299,6 @@ def show(
         show_tms(res, coils, planes, plot_tissue or "wm", slices=slices)
     elif res.kind == "tdcs":
         skin = res.info["options"]["skin"]
-        planes = planes or (0.0, 0.0, 0.0)
         show_tdcs(res, planes, plot_tissue or "gm", skin, slices)
     else:
         show_uniform(res, plot_tissue or "gm")
@@ -311,22 +309,39 @@ def show(
 def slices_command(
     result: str = typer.Argument(..., help="Result folder or its result.json"),
     planes: Optional[tuple[float, float, float]] = typer.Option(
-        None, help="x y z of the slice planes in mm, from the setup by default"
+        None, help="x y z in mm, the three axis planes through that point"
+    ),
+    plane: Optional[list[str]] = typer.Option(
+        None,
+        help="'nx,ny,nz,px,py,pz', a plane by its normal and a point on it in "
+        "mm, can be given more than once",
     ),
     progress: bool = typer.Option(False, hidden=True),
 ):
-    """Compute E-field slices for a saved result, saved next to it."""
+    """Compute E-field slices for a saved result, saved next to it.
+
+    The planes are --plane, else --planes, else the ones in the run's setup.
+    """
     from bemfmm.coils import Coil
+    from bemfmm.planes import axis_planes, parse_plane
     from bemfmm.results import Result
     from bemfmm.scene import Scene
+
+    try:
+        plane = [parse_plane(p) for p in plane or []]
+    except ValueError as e:
+        typer.echo(f"error: --plane {e}", err=True)
+        raise typer.Exit(1)
 
     path = Path(result)
     directory = path if path.is_dir() else path.parent
     res = Result.load(directory)
     coils = [Coil.from_dict(d) for d in res.info.get("coils", [])]
 
-    if planes:
-        planes = tuple(p * 1e-3 for p in planes)
+    if plane:
+        planes = plane
+    elif planes:
+        planes = axis_planes([p * 1e-3 for p in planes])
     elif (directory / "setup.json").is_file():
         planes = Scene.load(directory / "setup.json").planes
     else:
