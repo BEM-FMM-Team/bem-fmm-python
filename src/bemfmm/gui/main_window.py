@@ -42,7 +42,7 @@ from bemfmm.model import (
     read_index,
     write_index,
 )
-from bemfmm.planes import Plane, format_vector, parse_vector, same_planes
+from bemfmm.planes import Plane, axis_planes, same_planes
 from bemfmm.plot.slice import load_slices
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
@@ -148,6 +148,9 @@ class MainWindow(QMainWindow):
         self.index_dirty = False
         self.temp_dir = Path(tempfile.mkdtemp(prefix="bemfmm-"))
 
+        self.set_model_box(np.full(3, -0.1), np.full(3, 0.1))
+        self.drag_plane = None  # plane as it was when its handle was grabbed
+
         self.setup_path = None
         self.setup_dirty = False
         self.saved_items = setup_items(Scene())  # as last saved or opened
@@ -176,6 +179,10 @@ class MainWindow(QMainWindow):
         self.viewport.on_drag_end = self.drag_end
         self.viewport.on_target = self.target_picked
         self.viewport.on_select = self.item_clicked
+        self.viewport.on_plane_drag_begin = self.plane_drag_begin
+        self.viewport.on_plane_drag = self.plane_drag
+        self.viewport.on_plane_drag_end = self.plane_drag_end
+        self.viewport.on_point = self.plane_point_picked
 
         self.stim = Stimulation(self.viewport)
         self.runner = SolveRunner(self)
@@ -254,10 +261,9 @@ class MainWindow(QMainWindow):
         spin(ui.electrodeRadius, 0.5, 50.0, 2, 0.5)
         spin(ui.electrodeVoltage, -100.0, 100.0, 3, 0.1)
 
-        header = ui.planeTable.horizontalHeader()
-        header.setSectionResizeMode(QHeaderView.Stretch)
-        ui.planeTable.verticalHeader().setVisible(False)
-        ui.planeTable.setMaximumHeight(130)
+        for box in (ui.planeNx, ui.planeNy, ui.planeNz):
+            spin(box, -100.0, 100.0, 3, 0.1)
+        spin(ui.planeOffset, -1000.0, 1000.0, 1, 1.0)
 
         for box in (ui.rangeMin, ui.rangeMax):
             spin(box, -1e12, 1e12, 4, 1.0)
@@ -372,9 +378,23 @@ class MainWindow(QMainWindow):
         ui.electrodeRadius.valueChanged.connect(self.electrode_radius_edited)
         ui.electrodeVoltage.valueChanged.connect(self.electrode_voltage_edited)
 
-        ui.planeTable.itemChanged.connect(self.plane_edited)
+        ui.planeList.currentRowChanged.connect(self.plane_selected)
         ui.addPlaneButton.clicked.connect(self.add_plane)
         ui.removePlaneButton.clicked.connect(self.remove_plane)
+        ui.resetPlanesButton.clicked.connect(self.reset_planes)
+        for button, axis in (
+            (ui.planeYZButton, 0),
+            (ui.planeXZButton, 1),
+            (ui.planeXYButton, 2),
+        ):
+            button.clicked.connect(lambda _, axis=axis: self.plane_to_axis(axis))
+        for box in (ui.planeNx, ui.planeNy, ui.planeNz):
+            box.valueChanged.connect(self.plane_normal_edited)
+        ui.planeOffsetSlider.valueChanged.connect(self.plane_offset_slid)
+        ui.planeOffsetSlider.sliderReleased.connect(self.plane_slide_end)
+        ui.planeOffset.valueChanged.connect(self.plane_offset_edited)
+        ui.pickPlaneButton.toggled.connect(self.pick_plane_toggled)
+        ui.planeComputeButton.clicked.connect(self.compute_slices)
         ui.showPlanes.toggled.connect(self.show_planes)
 
         # Backspace is the delete key on Mac keyboards, text fields keep both
@@ -455,6 +475,8 @@ class MainWindow(QMainWindow):
         self.model = model
         names = model.names
         ui = self.ui
+        P = np.vstack([model.surface(name)[0] for name in names])
+        self.set_model_box(P.min(axis=0), P.max(axis=0))
 
         skin = self.settings["skin"]
         if skin not in names:
@@ -895,7 +917,10 @@ class MainWindow(QMainWindow):
                 widget.setCurrentRow(row)
 
     def delete_selected(self):
-        # on the Coils/Electrodes tab, or after a click in the 3D view
+        # the selected plane on the Planes tab, else the selected coil or
+        # electrode on its tab or after a click in the 3D view
+        if self.ui.sideTabs.currentWidget() is self.ui.planesTab:
+            return self.remove_plane()
         focus = QApplication.focusWidget()
         in_view = focus is not None and self.ui.viewPort.isAncestorOf(focus)
         if in_view or self.ui.sideTabs.currentWidget() is self.ui.stimulationTab:
@@ -905,8 +930,8 @@ class MainWindow(QMainWindow):
                 self.delete_electrode()
 
     def escape(self):
-        # leaves target picking first, then clears the selection
-        if self.ui.aimButton.isChecked():
+        # leaves target or point picking first, then clears the selection
+        if self.ui.aimButton.isChecked() or self.ui.pickPlaneButton.isChecked():
             self.stop_modes()
         else:
             self.stim_list().setCurrentRow(-1)
@@ -923,6 +948,7 @@ class MainWindow(QMainWindow):
         self.target_point = None
         if self.ui.aimButton.isChecked():
             self.ui.aimButton.setChecked(False)
+        self.ui.pickPlaneButton.setChecked(False)
 
     # coils
     def add_coil(self):
@@ -1219,65 +1245,178 @@ class MainWindow(QMainWindow):
         self.refresh_electrode_editor()
 
     # planes
-    def set_planes(self, planes):
-        # one undo step for every change of the plane list
-        self.discrete_edit()
+    def set_model_box(self, low, high):
+        # the model's bounding box, the planes are centered in it and move
+        # across it
+        self.model_center = (low + high) / 2
+        self.model_corners = np.array(
+            [
+                (x, y, z)
+                for x in (low[0], high[0])
+                for y in (low[1], high[1])
+                for z in (low[2], high[2])
+            ]
+        )
+
+    def current_plane(self):
+        row = self.ui.planeList.currentRow()
+        return row if 0 <= row < len(self.stim.planes) else None
+
+    def set_planes(self, planes, row=None, continuous=False):
+        # one undo step per change, a slider or handle drag is a single one
+        if continuous:
+            self.begin_edit(("plane", row))
+        else:
+            self.discrete_edit()
         self.stim.planes = planes
-        self.refresh_planes()
+        self.refresh_planes(row)
         self.show_planes()
 
-    def plane_edited(self, item):
-        # a typed normal or point, a bad one puts the last good plane back
-        if self.updating:
-            return
-        table, row = self.ui.planeTable, item.row()
-        try:
-            normal = parse_vector(table.item(row, 0).text())
-            point = [v / 1000 for v in parse_vector(table.item(row, 1).text())]
-            plane = Plane(normal, point)
-        except ValueError as error:
-            self.statusBar().showMessage(f"Plane {row + 1}: {error}", 5000)
-            self.refresh_planes()
+    def replace_plane(self, plane, continuous=False):
+        row = self.current_plane()
+        if row is None:
             return
         planes = list(self.stim.planes)
         planes[row] = plane
-        self.set_planes(planes)
+        self.set_planes(planes, row, continuous)
 
     def add_plane(self):
-        # a copy of the selected plane to edit, or the z = 0 plane
-        row = self.ui.planeTable.currentRow()
+        # a copy of the selected plane to move, or the XY plane through the
+        # model center
+        row = self.current_plane()
         planes = list(self.stim.planes)
-        planes.append(
-            planes[row] if 0 <= row < len(planes) else Plane((0, 0, 1), (0, 0, 0))
-        )
-        self.set_planes(planes)
-        self.ui.planeTable.setCurrentCell(len(planes) - 1, 0)
+        if row is None:
+            planes.append(Plane((0, 0, 1), self.model_center))
+        else:
+            planes.append(planes[row])
+        self.set_planes(planes, len(planes) - 1)
 
     def remove_plane(self):
-        row = self.ui.planeTable.currentRow()
-        if not 0 <= row < len(self.stim.planes):
+        row = self.current_plane()
+        if row is None:
             return
         planes = list(self.stim.planes)
         del planes[row]
-        self.set_planes(planes)
+        self.set_planes(planes, min(row, len(planes) - 1))
 
-    def refresh_planes(self):
-        # normals as typed, points in mm
-        table = self.ui.planeTable
+    def reset_planes(self):
+        self.set_planes(axis_planes(self.model_center), 0)
+
+    def plane_to_axis(self, axis):
+        # normal to x, y or z, through the same point
+        row = self.current_plane()
+        if row is not None:
+            self.replace_plane(Plane(np.eye(3)[axis], self.stim.planes[row].point))
+
+    def plane_normal_edited(self):
+        row = self.current_plane()
+        if self.updating or row is None:
+            return
+        ui = self.ui
+        normal = (ui.planeNx.value(), ui.planeNy.value(), ui.planeNz.value())
+        if not any(normal):
+            self.statusBar().showMessage("The normal of a plane cannot be zero", 5000)
+            self.refresh_plane_editor()
+            return
+        self.replace_plane(Plane(normal, self.stim.planes[row].point))
+
+    def plane_offset_slid(self, value):
+        # the slider is in tenths of a mm
+        if not self.updating:
+            self.move_plane_to(value / 10000, continuous=True)
+
+    def plane_slide_end(self):
+        self.edit_session = None
+
+    def plane_offset_edited(self, value):
+        if not self.updating:
+            self.move_plane_to(value / 1000)
+
+    def move_plane_to(self, offset, continuous=False):
+        row = self.current_plane()
+        if row is None:
+            return
+        plane = self.stim.planes[row]
+        self.replace_plane(plane.moved(offset - plane.offset()), continuous)
+
+    def plane_drag_begin(self):
+        row = self.current_plane()
+        self.drag_plane = self.stim.planes[row] if row is not None else None
+
+    def plane_drag(self, distance):
+        if self.drag_plane is not None:
+            self.replace_plane(self.drag_plane.moved(distance), continuous=True)
+
+    def plane_drag_end(self):
+        self.drag_plane = None
+        self.edit_session = None
+
+    def pick_plane_toggled(self, checked):
+        if checked:
+            self.viewport.start_point_pick()
+            self.statusBar().showMessage(
+                "Click a point on a surface to put the plane through it, Esc cancels"
+            )
+        else:
+            self.viewport.stop_point_pick()
+            self.statusBar().clearMessage()
+
+    def plane_point_picked(self, point):
+        row = self.current_plane()
+        if row is not None:
+            self.replace_plane(Plane(self.stim.planes[row].normal, point))
+        self.ui.pickPlaneButton.setChecked(False)
+
+    def plane_selected(self, row):
+        if self.updating:
+            return
+        self.edit_session = None
+        self.refresh_plane_editor()
+        self.show_planes()
+
+    def refresh_planes(self, row=None):
+        ui = self.ui
+        if row is None:
+            row = ui.planeList.currentRow()
         self.updating = True
-        table.setRowCount(0)
-        for row, plane in enumerate(self.stim.planes):
-            table.insertRow(row)
-            table.setItem(row, 0, QTableWidgetItem(format_vector(plane.normal)))
-            point = [1000 * v for v in plane.point]
-            table.setItem(row, 1, QTableWidgetItem(format_vector(point)))
-            table.item(row, 0).setToolTip(plane.name())
+        ui.planeList.clear()
+        ui.planeList.addItems([plane.name() for plane in self.stim.planes])
+        ui.planeList.setCurrentRow(min(max(row, 0), len(self.stim.planes) - 1))
         self.updating = False
+        self.refresh_plane_editor()
         self.update_slice_info()
 
-    def show_planes(self):
-        shown = self.ui.showPlanes.isChecked()
-        self.viewport.set_planes(self.stim.planes if shown else None)
+    def refresh_plane_editor(self):
+        ui = self.ui
+        row = self.current_plane()
+        ui.planeEditGroup.setEnabled(row is not None)
+        ui.removePlaneButton.setEnabled(row is not None)
+        if row is None:
+            return
+        plane = self.stim.planes[row]
+        offset = plane.offset()
+        low, high = plane.extent(self.model_corners)
+        self.updating = True
+        for box, value in zip((ui.planeNx, ui.planeNy, ui.planeNz), plane.normal):
+            box.setValue(value)
+        slider = ui.planeOffsetSlider
+        slider.setRange(round(min(low, offset) * 1e4), round(max(high, offset) * 1e4))
+        slider.setSingleStep(10)
+        slider.setPageStep(100)
+        slider.setValue(round(offset * 1e4))
+        ui.planeOffset.setValue(offset * 1e3)
+        self.updating = False
+
+    def show_planes(self, *_):
+        # always on the Planes tab, elsewhere when asked for
+        on_tab = self.ui.sideTabs.currentWidget() is self.ui.planesTab
+        shown = on_tab or self.ui.showPlanes.isChecked()
+        self.viewport.set_planes(
+            self.stim.planes if shown else None,
+            self.model_center,
+            self.current_plane(),
+            handle=on_tab,
+        )
 
     # setup files
     def mark_dirty(self):
@@ -1605,13 +1744,13 @@ class MainWindow(QMainWindow):
         ui.runButton.setEnabled(not running)
         ui.actionRun.setEnabled(not running)
         ui.actionSphere.setEnabled(not running)
-        ui.computeSlicesButton.setEnabled(not running and self.result is not None)
+        self.enable_compute_slices(not running and self.result is not None)
 
     def solve_progress(self, stage, done, total):
         ui = self.ui
         label = STAGES.get(stage, stage)
         if self.runner.job == "slices":
-            ui.sliceInfo.setText(f"Computing slices, {done} of {total} done")
+            self.set_slice_info(f"Computing slices, {done} of {total} done")
             return
         if total > 0:
             ui.progressBar.setRange(0, total)
@@ -1738,7 +1877,7 @@ class MainWindow(QMainWindow):
             ui.actionExportFields,
         ):
             widget.setEnabled(True)
-        ui.computeSlicesButton.setEnabled(not self.runner.running)
+        self.enable_compute_slices(not self.runner.running)
         ui.viewTabs.setTabVisible(
             ui.viewTabs.indexOf(ui.electrodesTab), bool(electrodes)
         )
@@ -1820,7 +1959,14 @@ class MainWindow(QMainWindow):
         )
 
     def tab_changed(self, index):
+        ui = self.ui
+        planes_tab = ui.sideTabs.currentWidget() is ui.planesTab
+        if planes_tab:
+            ui.viewTabs.setCurrentWidget(ui.sceneTab)
+        else:
+            ui.pickPlaneButton.setChecked(False)
         self.show_result_toggled()
+        self.show_planes()
 
     def show_result_toggled(self, *_):
         if self.field_shown():
@@ -1889,6 +2035,15 @@ class MainWindow(QMainWindow):
             return None
         return data
 
+    def set_slice_info(self, text):
+        # shown under the plot and on the Planes tab
+        self.ui.sliceInfo.setText(text)
+        self.ui.planeSliceInfo.setText(text)
+
+    def enable_compute_slices(self, enabled):
+        self.ui.computeSlicesButton.setEnabled(enabled)
+        self.ui.planeComputeButton.setEnabled(enabled)
+
     def update_slice_info(self):
         if self.result is None:
             text = ""
@@ -1899,7 +2054,7 @@ class MainWindow(QMainWindow):
         else:
             n = len(self.slices["planes"])
             text = f"{n} plane{'s' * (n != 1)}"
-        self.ui.sliceInfo.setText(text)
+        self.set_slice_info(text)
 
     def compute_slices(self):
         if self.result is None or self.runner.running:
@@ -1911,7 +2066,7 @@ class MainWindow(QMainWindow):
         for plane in self.stim.planes:
             point = [1000 * v for v in plane.point]
             args += ["--plane", ",".join(repr(v) for v in (*plane.normal, *point))]
-        self.ui.sliceInfo.setText("Computing slices")
+        self.set_slice_info("Computing slices")
         self.set_running(True)
         self.runner.start(args, self.result_dir, job="slices")
 
@@ -1922,7 +2077,7 @@ class MainWindow(QMainWindow):
             self.update_slice_info()
             self.plots["slices"].refresh()
         else:
-            self.ui.sliceInfo.setText("Slices failed, the log is in the Solve tab")
+            self.set_slice_info("Slices failed, the log is in the Solve tab")
 
     def export_fields(self):
         if self.result is None:

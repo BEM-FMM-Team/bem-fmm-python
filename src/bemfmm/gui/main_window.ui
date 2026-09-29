@@ -736,6 +736,265 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="planesTab">
+        <attribute name="title">
+         <string>Planes</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="planesTabLayout">
+         <item>
+          <widget class="QGroupBox" name="planeListGroup">
+           <property name="title">
+            <string>Slice planes</string>
+           </property>
+           <layout class="QVBoxLayout" name="planeListLayout">
+            <item>
+             <widget class="QListWidget" name="planeList">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>140</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="planeListButtons">
+              <item>
+               <widget class="QPushButton" name="addPlaneButton">
+                <property name="toolTip">
+                 <string>Add a copy of the selected plane</string>
+                </property>
+                <property name="text">
+                 <string>Add</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="removePlaneButton">
+                <property name="text">
+                 <string>Remove</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetPlanesButton">
+                <property name="toolTip">
+                 <string>The planes through the model center normal to x, y and z</string>
+                </property>
+                <property name="text">
+                 <string>Defaults</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="planeListButtonsSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="planeEditGroup">
+           <property name="title">
+            <string>Selected plane</string>
+           </property>
+           <layout class="QFormLayout" name="planeEditLayout">
+            <item row="0" column="0">
+             <widget class="QLabel" name="planeOrientationLabel">
+              <property name="text">
+               <string>Orientation</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <layout class="QHBoxLayout" name="planeOrientationLayout">
+              <item>
+               <widget class="QPushButton" name="planeYZButton">
+                <property name="toolTip">
+                 <string>Normal to x</string>
+                </property>
+                <property name="text">
+                 <string>YZ</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="planeXZButton">
+                <property name="toolTip">
+                 <string>Normal to y</string>
+                </property>
+                <property name="text">
+                 <string>XZ</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="planeXYButton">
+                <property name="toolTip">
+                 <string>Normal to z</string>
+                </property>
+                <property name="text">
+                 <string>XY</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="planeNormalLabel">
+              <property name="text">
+               <string>Normal</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <layout class="QHBoxLayout" name="planeNormalLayout">
+              <item>
+               <widget class="QDoubleSpinBox" name="planeNx">
+                <property name="toolTip">
+                 <string>x of the normal, any length, for example 1, -1, 0 for the plane y = x</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="planeNy">
+                <property name="toolTip">
+                 <string>y of the normal</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="planeNz">
+                <property name="toolTip">
+                 <string>z of the normal</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="planeOffsetLabel">
+              <property name="text">
+               <string>Position</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="planeOffsetLayout">
+              <item>
+               <widget class="QSlider" name="planeOffsetSlider">
+                <property name="toolTip">
+                 <string>Moves the plane along its normal across the model</string>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="planeOffset">
+                <property name="toolTip">
+                 <string>Signed distance of the plane from the origin along its normal</string>
+                </property>
+                <property name="suffix">
+                 <string> mm</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <widget class="QPushButton" name="pickPlaneButton">
+              <property name="toolTip">
+               <string>Click a point on a surface in the 3D view to put the plane through it</string>
+              </property>
+              <property name="text">
+               <string>Through a picked point</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="planesHelp">
+           <property name="text">
+            <string>Drag the arrow in the 3D view to move the selected plane along its normal.</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="planeSliceLayout">
+           <item>
+            <widget class="QLabel" name="planeSliceInfo">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="planeComputeButton">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="toolTip">
+              <string>Compute the E-field on these planes for the loaded result</string>
+             </property>
+             <property name="text">
+              <string>Compute slices</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="showPlanes">
+           <property name="text">
+            <string>Show the planes on the other tabs</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="planesSpacer">
+           <property name="orientation">
+            <enum>Qt::Orientation::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
        <widget class="QWidget" name="solveTab">
         <attribute name="title">
          <string>Solve</string>
@@ -1438,73 +1697,6 @@
         </attribute>
         <layout class="QVBoxLayout" name="slicesTabLayout">
          <item>
-          <widget class="QGroupBox" name="planesGroup">
-           <property name="title">
-            <string>Slice planes</string>
-           </property>
-           <layout class="QHBoxLayout" name="planesLayout">
-            <item>
-             <widget class="QTableWidget" name="planeTable">
-              <property name="toolTip">
-               <string>A plane by its normal and a point on it in mm, for example 1, -1, 0 and 0, 0, 0 for y = x</string>
-              </property>
-              <property name="columnCount">
-               <number>2</number>
-              </property>
-              <column>
-               <property name="text">
-                <string>Normal</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Through (mm)</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" name="planeButtons">
-              <item>
-               <widget class="QPushButton" name="addPlaneButton">
-                <property name="text">
-                 <string>Add</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="removePlaneButton">
-                <property name="text">
-                 <string>Remove</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="showPlanes">
-                <property name="text">
-                 <string>Show in 3D view</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="planeButtonsSpacer">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>0</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <layout class="QHBoxLayout" name="sliceControls">
            <item>
             <widget class="QLabel" name="slicePlaneLabel">
@@ -1576,7 +1768,7 @@
               <bool>false</bool>
              </property>
              <property name="toolTip">
-              <string>Compute the E-field on the slice planes set in the stimulation tab</string>
+              <string>Compute the E-field on the slice planes set in the Planes tab</string>
              </property>
              <property name="text">
               <string>Compute slices</string>

@@ -62,6 +62,20 @@ class Plane:
         origin = np.dot(self.point, n) * n
         return origin, e1, e2, n
 
+    def offset(self):
+        # signed distance from the origin along the unit normal
+        return float(np.dot(self.unit_normal(), self.point))
+
+    def moved(self, distance):
+        # the same plane moved along its unit normal
+        point = np.asarray(self.point) + distance * self.unit_normal()
+        return Plane(self.normal, point)
+
+    def extent(self, points):
+        # smallest and largest offset of a plane with this normal through points
+        values = np.asarray(points) @ self.unit_normal()
+        return float(values.min()), float(values.max())
+
     def labels(self):
         # axis labels of the in-plane coordinates
         k = self.axis()

@@ -694,6 +694,184 @@ class Ui_MainWindow(object):
         self.stimulationLayout.addItem(self.stimulationSpacer)
 
         self.sideTabs.addTab(self.stimulationTab, "")
+        self.planesTab = QWidget()
+        self.planesTab.setObjectName("planesTab")
+        self.planesTabLayout = QVBoxLayout(self.planesTab)
+        self.planesTabLayout.setObjectName("planesTabLayout")
+        self.planeListGroup = QGroupBox(self.planesTab)
+        self.planeListGroup.setObjectName("planeListGroup")
+        self.planeListLayout = QVBoxLayout(self.planeListGroup)
+        self.planeListLayout.setObjectName("planeListLayout")
+        self.planeList = QListWidget(self.planeListGroup)
+        self.planeList.setObjectName("planeList")
+        self.planeList.setMaximumSize(QSize(16777215, 140))
+
+        self.planeListLayout.addWidget(self.planeList)
+
+        self.planeListButtons = QHBoxLayout()
+        self.planeListButtons.setObjectName("planeListButtons")
+        self.addPlaneButton = QPushButton(self.planeListGroup)
+        self.addPlaneButton.setObjectName("addPlaneButton")
+
+        self.planeListButtons.addWidget(self.addPlaneButton)
+
+        self.removePlaneButton = QPushButton(self.planeListGroup)
+        self.removePlaneButton.setObjectName("removePlaneButton")
+
+        self.planeListButtons.addWidget(self.removePlaneButton)
+
+        self.resetPlanesButton = QPushButton(self.planeListGroup)
+        self.resetPlanesButton.setObjectName("resetPlanesButton")
+
+        self.planeListButtons.addWidget(self.resetPlanesButton)
+
+        self.planeListButtonsSpacer = QSpacerItem(
+            0, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.planeListButtons.addItem(self.planeListButtonsSpacer)
+
+        self.planeListLayout.addLayout(self.planeListButtons)
+
+        self.planesTabLayout.addWidget(self.planeListGroup)
+
+        self.planeEditGroup = QGroupBox(self.planesTab)
+        self.planeEditGroup.setObjectName("planeEditGroup")
+        self.planeEditLayout = QFormLayout(self.planeEditGroup)
+        self.planeEditLayout.setObjectName("planeEditLayout")
+        self.planeOrientationLabel = QLabel(self.planeEditGroup)
+        self.planeOrientationLabel.setObjectName("planeOrientationLabel")
+
+        self.planeEditLayout.setWidget(
+            0, QFormLayout.ItemRole.LabelRole, self.planeOrientationLabel
+        )
+
+        self.planeOrientationLayout = QHBoxLayout()
+        self.planeOrientationLayout.setObjectName("planeOrientationLayout")
+        self.planeYZButton = QPushButton(self.planeEditGroup)
+        self.planeYZButton.setObjectName("planeYZButton")
+
+        self.planeOrientationLayout.addWidget(self.planeYZButton)
+
+        self.planeXZButton = QPushButton(self.planeEditGroup)
+        self.planeXZButton.setObjectName("planeXZButton")
+
+        self.planeOrientationLayout.addWidget(self.planeXZButton)
+
+        self.planeXYButton = QPushButton(self.planeEditGroup)
+        self.planeXYButton.setObjectName("planeXYButton")
+
+        self.planeOrientationLayout.addWidget(self.planeXYButton)
+
+        self.planeEditLayout.setLayout(
+            0, QFormLayout.ItemRole.FieldRole, self.planeOrientationLayout
+        )
+
+        self.planeNormalLabel = QLabel(self.planeEditGroup)
+        self.planeNormalLabel.setObjectName("planeNormalLabel")
+
+        self.planeEditLayout.setWidget(
+            1, QFormLayout.ItemRole.LabelRole, self.planeNormalLabel
+        )
+
+        self.planeNormalLayout = QHBoxLayout()
+        self.planeNormalLayout.setObjectName("planeNormalLayout")
+        self.planeNx = QDoubleSpinBox(self.planeEditGroup)
+        self.planeNx.setObjectName("planeNx")
+
+        self.planeNormalLayout.addWidget(self.planeNx)
+
+        self.planeNy = QDoubleSpinBox(self.planeEditGroup)
+        self.planeNy.setObjectName("planeNy")
+
+        self.planeNormalLayout.addWidget(self.planeNy)
+
+        self.planeNz = QDoubleSpinBox(self.planeEditGroup)
+        self.planeNz.setObjectName("planeNz")
+
+        self.planeNormalLayout.addWidget(self.planeNz)
+
+        self.planeEditLayout.setLayout(
+            1, QFormLayout.ItemRole.FieldRole, self.planeNormalLayout
+        )
+
+        self.planeOffsetLabel = QLabel(self.planeEditGroup)
+        self.planeOffsetLabel.setObjectName("planeOffsetLabel")
+
+        self.planeEditLayout.setWidget(
+            2, QFormLayout.ItemRole.LabelRole, self.planeOffsetLabel
+        )
+
+        self.planeOffsetLayout = QHBoxLayout()
+        self.planeOffsetLayout.setObjectName("planeOffsetLayout")
+        self.planeOffsetSlider = QSlider(self.planeEditGroup)
+        self.planeOffsetSlider.setObjectName("planeOffsetSlider")
+        self.planeOffsetSlider.setOrientation(Qt.Orientation.Horizontal)
+
+        self.planeOffsetLayout.addWidget(self.planeOffsetSlider)
+
+        self.planeOffset = QDoubleSpinBox(self.planeEditGroup)
+        self.planeOffset.setObjectName("planeOffset")
+
+        self.planeOffsetLayout.addWidget(self.planeOffset)
+
+        self.planeEditLayout.setLayout(
+            2, QFormLayout.ItemRole.FieldRole, self.planeOffsetLayout
+        )
+
+        self.pickPlaneButton = QPushButton(self.planeEditGroup)
+        self.pickPlaneButton.setObjectName("pickPlaneButton")
+        self.pickPlaneButton.setCheckable(True)
+
+        self.planeEditLayout.setWidget(
+            3, QFormLayout.ItemRole.FieldRole, self.pickPlaneButton
+        )
+
+        self.planesTabLayout.addWidget(self.planeEditGroup)
+
+        self.planesHelp = QLabel(self.planesTab)
+        self.planesHelp.setObjectName("planesHelp")
+        self.planesHelp.setWordWrap(True)
+
+        self.planesTabLayout.addWidget(self.planesHelp)
+
+        self.planeSliceLayout = QHBoxLayout()
+        self.planeSliceLayout.setObjectName("planeSliceLayout")
+        self.planeSliceInfo = QLabel(self.planesTab)
+        self.planeSliceInfo.setObjectName("planeSliceInfo")
+        sizePolicy1 = QSizePolicy(
+            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
+        )
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(
+            self.planeSliceInfo.sizePolicy().hasHeightForWidth()
+        )
+        self.planeSliceInfo.setSizePolicy(sizePolicy1)
+        self.planeSliceInfo.setWordWrap(True)
+
+        self.planeSliceLayout.addWidget(self.planeSliceInfo)
+
+        self.planeComputeButton = QPushButton(self.planesTab)
+        self.planeComputeButton.setObjectName("planeComputeButton")
+        self.planeComputeButton.setEnabled(False)
+
+        self.planeSliceLayout.addWidget(self.planeComputeButton)
+
+        self.planesTabLayout.addLayout(self.planeSliceLayout)
+
+        self.showPlanes = QCheckBox(self.planesTab)
+        self.showPlanes.setObjectName("showPlanes")
+
+        self.planesTabLayout.addWidget(self.showPlanes)
+
+        self.planesSpacer = QSpacerItem(
+            20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
+        )
+
+        self.planesTabLayout.addItem(self.planesSpacer)
+
+        self.sideTabs.addTab(self.planesTab, "")
         self.solveTab = QWidget()
         self.solveTab.setObjectName("solveTab")
         self.solveLayout = QVBoxLayout(self.solveTab)
@@ -1152,13 +1330,13 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.sideTabs)
         self.viewTabs = QTabWidget(self.splitter)
         self.viewTabs.setObjectName("viewTabs")
-        sizePolicy1 = QSizePolicy(
+        sizePolicy2 = QSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        sizePolicy1.setHorizontalStretch(1)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.viewTabs.sizePolicy().hasHeightForWidth())
-        self.viewTabs.setSizePolicy(sizePolicy1)
+        sizePolicy2.setHorizontalStretch(1)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.viewTabs.sizePolicy().hasHeightForWidth())
+        self.viewTabs.setSizePolicy(sizePolicy2)
         self.viewTabs.setDocumentMode(True)
         self.sceneTab = QWidget()
         self.sceneTab.setObjectName("sceneTab")
@@ -1167,13 +1345,13 @@ class Ui_MainWindow(object):
         self.sceneTabLayout.setContentsMargins(0, 0, 0, 0)
         self.viewPort = QWidget(self.sceneTab)
         self.viewPort.setObjectName("viewPort")
-        sizePolicy2 = QSizePolicy(
+        sizePolicy3 = QSizePolicy(
             QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
         )
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(1)
-        sizePolicy2.setHeightForWidth(self.viewPort.sizePolicy().hasHeightForWidth())
-        self.viewPort.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(1)
+        sizePolicy3.setHeightForWidth(self.viewPort.sizePolicy().hasHeightForWidth())
+        self.viewPort.setSizePolicy(sizePolicy3)
 
         self.sceneTabLayout.addWidget(self.viewPort)
 
@@ -1184,10 +1362,10 @@ class Ui_MainWindow(object):
         self.convergenceTabLayout.setObjectName("convergenceTabLayout")
         self.convergencePlot = QWidget(self.convergenceTab)
         self.convergencePlot.setObjectName("convergencePlot")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.convergencePlot.sizePolicy().hasHeightForWidth()
         )
-        self.convergencePlot.setSizePolicy(sizePolicy2)
+        self.convergencePlot.setSizePolicy(sizePolicy3)
 
         self.convergenceTabLayout.addWidget(self.convergencePlot)
 
@@ -1196,49 +1374,6 @@ class Ui_MainWindow(object):
         self.slicesTab.setObjectName("slicesTab")
         self.slicesTabLayout = QVBoxLayout(self.slicesTab)
         self.slicesTabLayout.setObjectName("slicesTabLayout")
-        self.planesGroup = QGroupBox(self.slicesTab)
-        self.planesGroup.setObjectName("planesGroup")
-        self.planesLayout = QHBoxLayout(self.planesGroup)
-        self.planesLayout.setObjectName("planesLayout")
-        self.planeTable = QTableWidget(self.planesGroup)
-        if self.planeTable.columnCount() < 2:
-            self.planeTable.setColumnCount(2)
-        __qtablewidgetitem8 = QTableWidgetItem()
-        self.planeTable.setHorizontalHeaderItem(0, __qtablewidgetitem8)
-        __qtablewidgetitem9 = QTableWidgetItem()
-        self.planeTable.setHorizontalHeaderItem(1, __qtablewidgetitem9)
-        self.planeTable.setObjectName("planeTable")
-        self.planeTable.setColumnCount(2)
-
-        self.planesLayout.addWidget(self.planeTable)
-
-        self.planeButtons = QVBoxLayout()
-        self.planeButtons.setObjectName("planeButtons")
-        self.addPlaneButton = QPushButton(self.planesGroup)
-        self.addPlaneButton.setObjectName("addPlaneButton")
-
-        self.planeButtons.addWidget(self.addPlaneButton)
-
-        self.removePlaneButton = QPushButton(self.planesGroup)
-        self.removePlaneButton.setObjectName("removePlaneButton")
-
-        self.planeButtons.addWidget(self.removePlaneButton)
-
-        self.showPlanes = QCheckBox(self.planesGroup)
-        self.showPlanes.setObjectName("showPlanes")
-
-        self.planeButtons.addWidget(self.showPlanes)
-
-        self.planeButtonsSpacer = QSpacerItem(
-            20, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding
-        )
-
-        self.planeButtons.addItem(self.planeButtonsSpacer)
-
-        self.planesLayout.addLayout(self.planeButtons)
-
-        self.slicesTabLayout.addWidget(self.planesGroup)
-
         self.sliceControls = QHBoxLayout()
         self.sliceControls.setObjectName("sliceControls")
         self.slicePlaneLabel = QLabel(self.slicesTab)
@@ -1269,13 +1404,8 @@ class Ui_MainWindow(object):
 
         self.sliceInfo = QLabel(self.slicesTab)
         self.sliceInfo.setObjectName("sliceInfo")
-        sizePolicy3 = QSizePolicy(
-            QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred
-        )
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.sliceInfo.sizePolicy().hasHeightForWidth())
-        self.sliceInfo.setSizePolicy(sizePolicy3)
+        sizePolicy1.setHeightForWidth(self.sliceInfo.sizePolicy().hasHeightForWidth())
+        self.sliceInfo.setSizePolicy(sizePolicy1)
 
         self.sliceControls.addWidget(self.sliceInfo)
 
@@ -1289,8 +1419,8 @@ class Ui_MainWindow(object):
 
         self.slicesPlot = QWidget(self.slicesTab)
         self.slicesPlot.setObjectName("slicesPlot")
-        sizePolicy2.setHeightForWidth(self.slicesPlot.sizePolicy().hasHeightForWidth())
-        self.slicesPlot.setSizePolicy(sizePolicy2)
+        sizePolicy3.setHeightForWidth(self.slicesPlot.sizePolicy().hasHeightForWidth())
+        self.slicesPlot.setSizePolicy(sizePolicy3)
 
         self.slicesTabLayout.addWidget(self.slicesPlot)
 
@@ -1303,10 +1433,10 @@ class Ui_MainWindow(object):
         self.distributionControls.setObjectName("distributionControls")
         self.distributionInfo = QLabel(self.distributionTab)
         self.distributionInfo.setObjectName("distributionInfo")
-        sizePolicy3.setHeightForWidth(
+        sizePolicy1.setHeightForWidth(
             self.distributionInfo.sizePolicy().hasHeightForWidth()
         )
-        self.distributionInfo.setSizePolicy(sizePolicy3)
+        self.distributionInfo.setSizePolicy(sizePolicy1)
 
         self.distributionControls.addWidget(self.distributionInfo)
 
@@ -1319,10 +1449,10 @@ class Ui_MainWindow(object):
 
         self.distributionPlot = QWidget(self.distributionTab)
         self.distributionPlot.setObjectName("distributionPlot")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.distributionPlot.sizePolicy().hasHeightForWidth()
         )
-        self.distributionPlot.setSizePolicy(sizePolicy2)
+        self.distributionPlot.setSizePolicy(sizePolicy3)
 
         self.distributionTabLayout.addWidget(self.distributionPlot)
 
@@ -1333,10 +1463,10 @@ class Ui_MainWindow(object):
         self.electrodesTabLayout.setObjectName("electrodesTabLayout")
         self.electrodesPlot = QWidget(self.electrodesTab)
         self.electrodesPlot.setObjectName("electrodesPlot")
-        sizePolicy2.setHeightForWidth(
+        sizePolicy3.setHeightForWidth(
             self.electrodesPlot.sizePolicy().hasHeightForWidth()
         )
-        self.electrodesPlot.setSizePolicy(sizePolicy2)
+        self.electrodesPlot.setSizePolicy(sizePolicy3)
 
         self.electrodesTabLayout.addWidget(self.electrodesPlot)
 
@@ -1816,6 +1946,143 @@ class Ui_MainWindow(object):
             self.sideTabs.indexOf(self.stimulationTab),
             QCoreApplication.translate("MainWindow", "Stimulation", None),
         )
+        self.planeListGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Slice planes", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.addPlaneButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Add a copy of the selected plane", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.addPlaneButton.setText(
+            QCoreApplication.translate("MainWindow", "Add", None)
+        )
+        self.removePlaneButton.setText(
+            QCoreApplication.translate("MainWindow", "Remove", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.resetPlanesButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "The planes through the model center normal to x, y and z",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.resetPlanesButton.setText(
+            QCoreApplication.translate("MainWindow", "Defaults", None)
+        )
+        self.planeEditGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Selected plane", None)
+        )
+        self.planeOrientationLabel.setText(
+            QCoreApplication.translate("MainWindow", "Orientation", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.planeYZButton.setToolTip(
+            QCoreApplication.translate("MainWindow", "Normal to x", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeYZButton.setText(QCoreApplication.translate("MainWindow", "YZ", None))
+        # if QT_CONFIG(tooltip)
+        self.planeXZButton.setToolTip(
+            QCoreApplication.translate("MainWindow", "Normal to y", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeXZButton.setText(QCoreApplication.translate("MainWindow", "XZ", None))
+        # if QT_CONFIG(tooltip)
+        self.planeXYButton.setToolTip(
+            QCoreApplication.translate("MainWindow", "Normal to z", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeXYButton.setText(QCoreApplication.translate("MainWindow", "XY", None))
+        self.planeNormalLabel.setText(
+            QCoreApplication.translate("MainWindow", "Normal", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.planeNx.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "x of the normal, any length, for example 1, -1, 0 for the plane y = x",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
+        self.planeNy.setToolTip(
+            QCoreApplication.translate("MainWindow", "y of the normal", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
+        self.planeNz.setToolTip(
+            QCoreApplication.translate("MainWindow", "z of the normal", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeOffsetLabel.setText(
+            QCoreApplication.translate("MainWindow", "Position", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.planeOffsetSlider.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Moves the plane along its normal across the model", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
+        self.planeOffset.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Signed distance of the plane from the origin along its normal",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeOffset.setSuffix(
+            QCoreApplication.translate("MainWindow", " mm", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.pickPlaneButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Click a point on a surface in the 3D view to put the plane through it",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.pickPlaneButton.setText(
+            QCoreApplication.translate("MainWindow", "Through a picked point", None)
+        )
+        self.planesHelp.setText(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Drag the arrow in the 3D view to move the selected plane along its normal.",
+                None,
+            )
+        )
+        self.planeSliceInfo.setText("")
+        # if QT_CONFIG(tooltip)
+        self.planeComputeButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Compute the E-field on these planes for the loaded result",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.planeComputeButton.setText(
+            QCoreApplication.translate("MainWindow", "Compute slices", None)
+        )
+        self.showPlanes.setText(
+            QCoreApplication.translate(
+                "MainWindow", "Show the planes on the other tabs", None
+            )
+        )
+        self.sideTabs.setTabText(
+            self.sideTabs.indexOf(self.planesTab),
+            QCoreApplication.translate("MainWindow", "Planes", None),
+        )
         self.solveSummary.setText(
             QCoreApplication.translate("MainWindow", "Nothing to solve yet", None)
         )
@@ -2021,35 +2288,6 @@ class Ui_MainWindow(object):
             self.viewTabs.indexOf(self.convergenceTab),
             QCoreApplication.translate("MainWindow", "Convergence", None),
         )
-        self.planesGroup.setTitle(
-            QCoreApplication.translate("MainWindow", "Slice planes", None)
-        )
-        ___qtablewidgetitem8 = self.planeTable.horizontalHeaderItem(0)
-        ___qtablewidgetitem8.setText(
-            QCoreApplication.translate("MainWindow", "Normal", None)
-        )
-        ___qtablewidgetitem9 = self.planeTable.horizontalHeaderItem(1)
-        ___qtablewidgetitem9.setText(
-            QCoreApplication.translate("MainWindow", "Through (mm)", None)
-        )
-        # if QT_CONFIG(tooltip)
-        self.planeTable.setToolTip(
-            QCoreApplication.translate(
-                "MainWindow",
-                "A plane by its normal and a point on it in mm, for example 1, -1, 0 and 0, 0, 0 for y = x",
-                None,
-            )
-        )
-        # endif // QT_CONFIG(tooltip)
-        self.addPlaneButton.setText(
-            QCoreApplication.translate("MainWindow", "Add", None)
-        )
-        self.removePlaneButton.setText(
-            QCoreApplication.translate("MainWindow", "Remove", None)
-        )
-        self.showPlanes.setText(
-            QCoreApplication.translate("MainWindow", "Show in 3D view", None)
-        )
         self.slicePlaneLabel.setText(
             QCoreApplication.translate("MainWindow", "Plane", None)
         )
@@ -2080,7 +2318,7 @@ class Ui_MainWindow(object):
         self.computeSlicesButton.setToolTip(
             QCoreApplication.translate(
                 "MainWindow",
-                "Compute the E-field on the slice planes set in the stimulation tab",
+                "Compute the E-field on the slice planes set in the Planes tab",
                 None,
             )
         )

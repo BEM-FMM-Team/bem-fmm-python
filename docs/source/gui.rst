@@ -115,6 +115,34 @@ and Run refuses until it is fixed.
 Anodes are drawn red, cathodes blue, the selected item cyan. Electrodes are
 selected and deselected in the 3D view the same way as coils.
 
+Planes tab
+----------
+
+The slice planes, next to the 3D view, which switches to show them. By default
+they are the planes through the origin normal to x, y and z.
+
+- The list names every plane, for example ``XY at z = 20.0 mm``. The selected
+  plane is drawn cyan, the others grey.
+- **Add** copies the selected plane, **Remove** (or Delete) removes it and
+  **Defaults** puts back the three axis planes through the center of the model.
+- **Orientation** turns the selected plane normal to x, y or z.
+- **Normal** is the plane's normal, of any length, so ``1, -1, 0`` is the plane
+  y = x.
+- **Position** moves the plane along its normal: drag the slider across the
+  model or type the signed distance from the origin in mm.
+- **Through a picked point**: click a point on a surface in the 3D view to put
+  the plane through it. Esc cancels.
+- In the 3D view the selected plane has an arrow at its edge. Drag the arrow to
+  move the plane along its normal. Dragging anywhere else turns the camera.
+
+A plane normal to an axis is plotted in the other two world coordinates, any
+other plane in in-plane coordinates u (horizontal) and v (up where the plane
+allows). Undo and Redo include the planes, a slider or arrow drag is one step,
+and the planes are saved with the setup. When the planes no longer match the
+computed slices the tab says so, and **Compute slices** here or in the Slices
+view brings them up to date. **Show the planes on the other tabs** keeps them in
+the 3D view after leaving the tab.
+
 Solve tab
 ---------
 
@@ -175,29 +203,12 @@ The tabs on the right:
   **Snapshot** in the toolbar (File > Save 3D view image) saves it as an image.
 - **Convergence**: relative residual per GMRES iteration, with the tolerance.
 - **Slices**: the total E-field on the slice planes with the tissue outlines,
-  one plane or all of them. **Compute slices** computes them for the planes in
-  the table, when the run did not or after the planes were changed.
-  **Colormap** picks the colors, ``viridis`` by default. See below for the
-  planes
+  one plane or all of them. **Compute slices** computes them for the planes set
+  in the Planes tab, when the run did not or after the planes were changed.
+  **Colormap** picks the colors, ``viridis`` by default
 - **Distribution**: histogram of the field and tissue picked in the Results
   tab, with the median and 99th percentile.
 - **Electrodes**: tDCS only, the current of every electrode.
-
-Slice planes
-------------
-
-The table in the Slices tab lists the planes, by default the planes through
-the origin normal to x, y and z. Each row is a plane by its **Normal** and a
-point it goes **Through** (mm), typed as three numbers separated by commas or
-spaces. The normal need not be of unit length, so ``1, -1, 0`` through
-``0, 0, 0`` is the plane y = x. A plane normal to an axis is plotted in the
-other two world coordinates, any other plane in in-plane coordinates u
-(horizontal) and v (up where the plane allows).
-
-**Add** copies the selected plane, or adds z = 0, and **Remove** deletes it.
-Undo and Redo include the planes, and they are saved with the setup. **Show in
-3D view** draws them over the model. When the table no longer matches the
-computed slices the tab says so, and **Compute slices** brings them up to date.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,
 subplot spacing, axis settings and save (png, pdf, svg and more). **Pop out**

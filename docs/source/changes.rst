@@ -61,12 +61,13 @@ GUI
 - Tolerance in the Solve tab is shown and typed in scientific notation and its
   arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
   zero.
-- Slices can be on any list of planes instead of the three axis planes, each
-  plane typed as a normal and a point in a table in the Slices tab (the plane
-  y = x is normal ``1, -1, 0`` through ``0, 0, 0``). The default is still the
-  planes through the origin normal to x, y and z. The table moved from the
-  Coils/Electrodes tab next to the slices, and the tab says when the computed
-  slices no longer match the table.
+- Slices can be on any list of planes instead of the three axis planes, set
+  by a normal and a position (the plane y = x is normal ``1, -1, 0``). The
+  default is still the planes through the origin normal to x, y and z.
+- The planes have their own Planes tab next to the 3D view: a list of planes,
+  orientation buttons, a position slider, a plane through a picked point, and
+  an arrow on the selected plane in the 3D view that drags it along its
+  normal. The tab says when the computed slices no longer match the planes.
 - Saving a setup while the model comes from applied but unsaved tissue edits
   offers to save the tissue index first, so the setup can point to it. It
   used to show the same notice on every save and write no tissue index.

@@ -108,6 +108,17 @@ class Viewport:
         self.on_select = None
         self.press2d = None
 
+        self.handle = None  # arrow that drags the selected slice plane
+        self.handle_length = 0.0
+        self.handle_picker = vtkCellPicker()
+        self.handle_picker.PickFromListOn()
+        self.plane_grab = None  # (press position, handle direction on screen)
+        self.point_pick = False
+        self.on_plane_drag_begin = None
+        self.on_plane_drag = None
+        self.on_plane_drag_end = None
+        self.on_point = None
+
         self.plt.add_callback("LeftButtonPress", self._on_click)
         self.plt.show(interactive=False)
         # presses on coils and electrodes are handled before vtk sees them
@@ -309,6 +320,10 @@ class Viewport:
             return
         name = getattr(event.actor, "name", None)
         kind = name.split(":", 1)[0] if isinstance(name, str) else ""
+        if self.point_pick:
+            if kind in ("tissue", "field") and self.on_point:
+                self.on_point(np.array(event.picked3d))
+            return
         if self.on_select:
             self.on_select(name if kind in ("coil", "electrode") else None)
 
@@ -325,10 +340,14 @@ class Viewport:
         # drags it over the pick surface, release drops it. Returns True for
         # the events it used, those never reach vtk and so never turn the camera
         kind = event.type()
+        if self.plane_grab is not None:
+            return self._on_plane_mouse(event)
         if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
-            if self.target_surface is not None:
+            if self.target_surface is not None or self.point_pick:
                 return False
             x, y = self._display(event)
+            if self._grab_handle(x, y):
+                return True
             name = getattr(self.plt.fill_event(pos=(x, y)).actor, "name", None)
             if not isinstance(name, str) or name.split(":")[0] not in (
                 "coil",
@@ -360,22 +379,97 @@ class Viewport:
             return True
         return False
 
-    # slice planes
-    def set_planes(self, planes):
-        from vedo import Plane
+    def _on_plane_mouse(self, event):
+        start, axis = self.plane_grab
+        kind = event.type()
+        if kind == QEvent.MouseMove:
+            # mouse travel along the handle, as a distance along the normal
+            moved = np.array(self._display(event), dtype=float) - start
+            distance = np.dot(moved, axis) / np.dot(axis, axis) * self.handle_length
+            if self.on_plane_drag:
+                self.on_plane_drag(distance)
+            return True
+        if kind == QEvent.MouseButtonRelease and event.button() == Qt.LeftButton:
+            self.plane_grab = None
+            if self.on_plane_drag_end:
+                self.on_plane_drag_end()
+            return True
+        return False
 
-        for plane in self.planes:
-            self.plt.remove(plane)
+    # slice planes
+    def set_planes(self, planes, center=(0, 0, 0), selected=None, handle=False):
+        """
+        Draws planes as squares around the point of each plane closest to
+        center, the selected one highlighted. With handle the selected plane
+        gets an arrow along its normal that drags it
+        """
+        from vedo import Arrow, Plane, Sphere
+
+        for actor in self.planes:
+            self.plt.remove(actor)
         self.planes = []
-        if planes is not None:
-            s = (self.size, self.size)
-            for plane in planes:
-                origin, _, _, normal = plane.frame()
-                self.planes.append(Plane(pos=origin, normal=normal, s=s))
-            for plane in self.planes:
-                plane.alpha(0.35).color("cyan")
-                self.plt.add(plane)
+        self.handle = None
+        center = np.asarray(center, dtype=float)
+        s = (self.size, self.size)
+        for i, plane in enumerate(planes or []):
+            n = plane.unit_normal()
+            pos = center - (np.dot(n, center) - plane.offset()) * n
+            actor = Plane(pos=pos, normal=n, s=s)
+            if i == selected:
+                actor.alpha(0.45).color("cyan")
+            else:
+                actor.alpha(0.2).color("grey")
+            # clicks go through the planes to what is behind them
+            actor.actor.PickableOff()
+            self.planes.append(actor)
+            if i == selected and handle:
+                # an arrow along the normal with a ball at its tip to grab, at
+                # the edge of the plane so the head does not hide it
+                _, e1, _, _ = plane.frame()
+                length = 0.3 * self.size
+                base = pos + 0.45 * self.size * e1
+                tip = base + length * n
+                self.handle = Arrow(base, tip, c="cyan")
+                ball = Sphere(tip, r=0.04 * length, c="cyan")
+                self.handle_length = length
+                self.planes += [self.handle, ball]
+        self.handle_picker.InitializePickList()
+        for actor in self.planes:
+            self.plt.add(actor)
+        if self.handle is not None:
+            # vedo arrows are not pickable by default
+            for actor in self.planes[-2:]:
+                actor.actor.PickableOn()
+                self.handle_picker.AddPickList(actor.actor)
         self.render()
+
+    def start_point_pick(self):
+        self.point_pick = True
+
+    def stop_point_pick(self):
+        self.point_pick = False
+
+    def _to_display(self, point):
+        renderer = self.plt.renderer
+        renderer.SetWorldPoint(*point, 1.0)
+        renderer.WorldToDisplay()
+        return np.array(renderer.GetDisplayPoint()[:2])
+
+    def _grab_handle(self, x, y):
+        # press on the plane handle, the drag moves along the handle's screen
+        # direction, which is lost when the normal points at the camera
+        if self.handle is None or not self.handle_picker.Pick(
+            x, y, 0, self.plt.renderer
+        ):
+            return False
+        base, tip = self.handle.base, self.handle.top
+        axis = self._to_display(tip) - self._to_display(base)
+        if np.dot(axis, axis) < 25:
+            return False
+        self.plane_grab = (np.array([x, y], dtype=float), axis)
+        if self.on_plane_drag_begin:
+            self.on_plane_drag_begin()
+        return True
 
     # results
     def show_field(self, P, t, values, cmap, vmin, vmax, label):
