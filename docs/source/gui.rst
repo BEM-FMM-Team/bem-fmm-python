@@ -80,10 +80,11 @@ space in the view or the list, or pressing Esc, clears the selection.
 **Selected coil**
 
 - **Position** (mm) and **Rotation** (degrees, x y z) of the coil center
-- **Twist**: rotation about the coil axis
+- **Twist**: rotation about the coil axis, in degrees. It is part of the pose,
+  so moving the coil, changing Distance, Auto orient, Drag and Aim at keep it
 - **Distance**: from the bottom of the coil to the surface, in mm
 - **dI/dt** in A/us
-- **Auto orient**: points the axis along the Align to normal
+- **Auto orient**: points the axis along the Align to normal, keeping the twist
 - **Flip**: turns the coil over
 - **Drag**: press it, click the coil in the 3D view, move the mouse over the
   surface, click again to drop it

@@ -4,10 +4,9 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
 from bemfmm.coils.rotation import (
-    axis_angle_to_quat,
+    axis_twist,
     flip_quaternion,
-    quat_multiply,
-    vector_to_quat,
+    twisted,
     xyz_to_quat,
 )
 from bemfmm.electrode import Electrode, imprint_patch
@@ -237,22 +236,24 @@ class Stimulation:
         coil.place(coil.com, xyz_to_quat(rxryrz))
         self.draw_coil(coil)
 
-    def twist_coil(self, id, twist, base_rot):
-        # rotation about the coil axis on top of base_rot
+    def twist_coil(self, id, twist):
+        # turns the coil about its own axis to twist degrees
         coil = self.coils[id]
-        q_twist = axis_angle_to_quat(np.array([0, 0, 1]), np.deg2rad(twist))
-        coil.place(coil.com, quat_multiply(base_rot, q_twist))
+        axis, _ = axis_twist(coil.rot)
+        coil.place(coil.com, twisted(axis, twist))
         self.draw_coil(coil)
 
     def auto_orient(self, id):
+        # points the axis along the surface normal, the twist stays
         coil = self.coils[id]
+        _, twist = axis_twist(coil.rot)
         if self.align is not None:
             com, normal = self.aligned_pose(coil.com, coil.distance, coil.bottom_to_com)
-            coil.place(com, vector_to_quat(normal))
+            coil.place(com, twisted(normal, twist))
             self.draw_coil(coil)
             return
         _, _, normal = self.nearest(coil.com)
-        coil.place(coil.com, vector_to_quat(normal))
+        coil.place(coil.com, twisted(normal, twist))
         self.draw_coil(coil)
 
     def flip_coil(self, id):
@@ -292,7 +293,7 @@ class Stimulation:
         if self.align is not None:
             coil.distance = distance
             com, normal = self.aligned_pose(target, distance, coil.bottom_to_com)
-            coil.place(com, vector_to_quat(normal))
+            coil.place(com, twisted(normal, axis_twist(coil.rot)[1]))
             self.draw_coil(coil)
             return
         coil.place(target)

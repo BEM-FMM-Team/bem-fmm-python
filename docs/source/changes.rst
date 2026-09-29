@@ -44,6 +44,9 @@ GUI
 - Show in 3D view keeps its state when switching tabs instead of being turned
   off outside the Results tab. The result stays in the view on the Model and
   Solve tabs and steps aside only on the Coils/Electrodes tab.
+- Twist is read from the coil pose, so the box no longer jumps back to 0 after
+  another edit, and changing Distance, Auto orient, Drag and Aim at keep the
+  twist instead of resetting the coil to its default turn about the axis.
 - Results open on the tissue picked last, ``gm`` at first, for TMS and tDCS
   alike (TMS results used to open on ``wm``).
 - Delete or Backspace removes the selected coil or electrode from anywhere on
@@ -80,6 +83,9 @@ Library
 
 - ``Result.export`` writes fields to mat, npz, csv or pkl files, for all facets
   or one tissue, optionally with the mesh. ``--save-format`` uses it.
+- ``coils.rotation.axis_twist`` splits a coil pose into its axis and the twist
+  about it, ``twisted`` builds it back. ``Stimulation.twist_coil`` takes the
+  twist alone.
 - ``electrode.montage_problem`` says why a set of electrodes cannot drive a
   current. ``tdcs.solve`` raises ``ValueError`` with it, and ``bemfmm tdcs``
   checks it before loading the model.

@@ -33,7 +33,7 @@ from bemfmm.coils import (
     load_template,
     make_coil,
 )
-from bemfmm.coils.rotation import quat_to_xyz
+from bemfmm.coils.rotation import axis_twist, quat_to_xyz
 from bemfmm.electrode import montage_problem
 from bemfmm.model import (
     HeadModel,
@@ -148,7 +148,6 @@ class MainWindow(QMainWindow):
 
         self.updating = False
         self.edit_session = None
-        self.base_rot = None
         self.target_point = None
         self.aim_id = None  # coil the picked target is for
         self.display = {}
@@ -990,7 +989,6 @@ class MainWindow(QMainWindow):
                 self.stim.select(None)
             return
         self.stim.select(f"coil:{id}")
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def refresh_coil_editor(self, twist=True):
@@ -1008,7 +1006,7 @@ class MainWindow(QMainWindow):
         ui.coilRY.setValue(ry)
         ui.coilRZ.setValue(rz)
         if twist:
-            ui.coilTwist.setValue(0)
+            ui.coilTwist.setValue(axis_twist(coil.rot)[1])
         ui.coilDistance.setValue(coil.distance * 1000)
         ui.coilDIdt.setValue(coil.dIdt * 1e-6)
         self.updating = False
@@ -1032,7 +1030,6 @@ class MainWindow(QMainWindow):
         self.stim.rotate_coil(
             id, np.array([ui.coilRX.value(), ui.coilRY.value(), ui.coilRZ.value()])
         )
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def coil_twist_edited(self):
@@ -1040,7 +1037,7 @@ class MainWindow(QMainWindow):
         if self.updating or id is None:
             return
         self.begin_edit(f"coil:{id}")
-        self.stim.twist_coil(id, self.ui.coilTwist.value(), self.base_rot)
+        self.stim.twist_coil(id, self.ui.coilTwist.value())
         self.refresh_coil_editor(twist=False)
 
     def coil_distance_edited(self):
@@ -1049,7 +1046,6 @@ class MainWindow(QMainWindow):
             return
         self.begin_edit(f"coil:{id}")
         self.stim.set_distance(id, self.ui.coilDistance.value() / 1000)
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def coil_dIdt_edited(self):
@@ -1066,7 +1062,6 @@ class MainWindow(QMainWindow):
             return
         self.discrete_edit()
         self.stim.auto_orient(id)
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def flip_coil(self):
@@ -1075,7 +1070,6 @@ class MainWindow(QMainWindow):
             return
         self.discrete_edit()
         self.stim.flip_coil(id)
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def aim_toggled(self, checked):
@@ -1104,7 +1098,6 @@ class MainWindow(QMainWindow):
             return
         self.discrete_edit()
         self.stim.aim_coil(id, point, ui.coilDistance.value() / 1000)
-        self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
 
     def aim_coil_name(self):
@@ -1238,9 +1231,6 @@ class MainWindow(QMainWindow):
         ui = self.ui
         ui.coilEditor.setEnabled(self.current_id(ui.coilList) is not None)
         ui.electrodeEditor.setEnabled(self.current_id(ui.electrodeList) is not None)
-        id = self.current_id(ui.coilList)
-        if id is not None:
-            self.base_rot = self.stim.coils[id].rot
         self.refresh_coil_editor()
         self.refresh_electrode_editor()
 
