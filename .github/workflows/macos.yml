@@ -39,7 +39,8 @@ jobs:
       # the 3D view is known not to open on MacOS, this step shows whether it
       # does without failing the job
       - name: Gui with the 3D view
-        continue-on-error: true
+        # continue-on-error: true
+        # MacOS needs PySide6 < 6.10 for the 3D view, this catches it breaking again
         env:
           BEMFMM_READY_FILE: ${{ runner.temp }}/gui-ready
         run: |
