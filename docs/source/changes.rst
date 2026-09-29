@@ -41,6 +41,11 @@ GUI
 - Coils and electrodes are selected by clicking them in the 3D view. Clicking
   empty space in the view or the list, or Esc, clears the selection, so
   nothing has to stay highlighted.
+- Show in 3D view keeps its state when switching tabs instead of being turned
+  off outside the Results tab. The result stays in the view on the Model and
+  Solve tabs and steps aside only on the Coils/Electrodes tab.
+- Results open on the tissue picked last, ``gm`` at first, for TMS and tDCS
+  alike (TMS results used to open on ``wm``).
 - Delete or Backspace removes the selected coil or electrode from anywhere on
   the Coils/Electrodes tab or after a click in the 3D view, not only while
   its list has focus.

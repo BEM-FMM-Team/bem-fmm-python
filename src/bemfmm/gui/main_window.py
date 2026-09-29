@@ -154,6 +154,8 @@ class MainWindow(QMainWindow):
         self.display = {}
         self.run_started = datetime.now()
         self.solver_settings = dict(SOLVER_DEFAULTS)
+        self.field_drawn = False
+        self.result_tissue = "gm"  # tissue results open on, the last one picked
         self.solver_mode = None  # mode the solver boxes currently hold
 
         if no_3d:
@@ -1639,9 +1641,10 @@ class MainWindow(QMainWindow):
                 ui.resultField.addItem(f"{label} ({unit})", name)
         ui.resultTissue.clear()
         ui.resultTissue.addItems(result.tissues)
-        default = "wm" if result.kind == "tms" else "gm"
-        if default in result.tissues:
-            ui.resultTissue.setCurrentText(default)
+        for tissue in (self.result_tissue, "gm"):
+            if tissue in result.tissues:
+                ui.resultTissue.setCurrentText(tissue)
+                break
         else:
             ui.resultTissue.setCurrentIndex(len(result.tissues) - 1)
         self.updating = False
@@ -1704,6 +1707,7 @@ class MainWindow(QMainWindow):
     def result_selection_changed(self):
         if self.updating:
             return
+        self.result_tissue = self.ui.resultTissue.currentText()
         name, values = self.result_values()
         if values is None:
             return
@@ -1731,7 +1735,7 @@ class MainWindow(QMainWindow):
             self.result_selection_changed()
 
     def update_result_view(self):
-        if self.updating or not self.ui.showResultButton.isChecked():
+        if self.updating or not self.field_shown():
             return
         name, values = self.result_values()
         if values is None:
@@ -1748,21 +1752,27 @@ class MainWindow(QMainWindow):
                 self.ui.rangeMax.value(),
                 unit,
             )
+        self.field_drawn = True
         self.statusBar().showMessage(f"{label} on {tissue}", 5000)
 
-    def tab_changed(self, index):
-        # the view shows results on the results tab and the scene elsewhere
-        button = self.ui.showResultButton
-        if not button.isEnabled():
-            return
-        button.setChecked(self.ui.sideTabs.widget(index) is self.ui.resultsTab)
+    def field_shown(self):
+        # the result is drawn when asked for, except while placing coils or
+        # electrodes, which needs the surfaces it hides
+        return (
+            self.ui.showResultButton.isChecked()
+            and self.ui.sideTabs.currentWidget() is not self.ui.stimulationTab
+        )
 
-    def show_result_toggled(self, checked):
-        if checked:
+    def tab_changed(self, index):
+        self.show_result_toggled()
+
+    def show_result_toggled(self, *_):
+        if self.field_shown():
             self.update_result_view()
-        else:
+        elif self.field_drawn:
             self.viewport.clear_field()
             self.apply_display()
+            self.field_drawn = False
 
     # result tabs
     def draw_convergence(self, figure):
