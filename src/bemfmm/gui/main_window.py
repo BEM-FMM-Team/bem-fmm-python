@@ -118,7 +118,10 @@ class MainWindow(QMainWindow):
         self.theme = "light"
 
         self.model = None
-        self.shells = {}
+        self.shells = {}  # what the tissue table shows
+        self.applied_shells = {}  # what the loaded model was built from
+        self.tissue_undo = []
+        self.tissue_redo = []
         self.index_file = None  # saved index the model came from
         self.index_dirty = False
         self.temp_dir = Path(tempfile.mkdtemp(prefix="bemfmm-"))
@@ -399,9 +402,13 @@ class MainWindow(QMainWindow):
         if not self.apply_model(path):
             return False
         self.shells = shells
+        self.fill_tissue_table()
+        # as the table rounds them, so an untouched table compares equal
+        self.shells = self.applied_shells = self.read_tissue_table()
+        self.tissue_undo.clear()
+        self.tissue_redo.clear()
         self.index_file = path
         self.index_dirty = False
-        self.fill_tissue_table()
         self.update_index_label()
         return True
 
@@ -518,10 +525,29 @@ class MainWindow(QMainWindow):
         return shells
 
     def tissue_edited(self):
+        # conductivity or outside changed in place
         if self.updating:
             return
-        self.index_dirty = True
+        self.commit_tissues(self.read_tissue_table())
+
+    def commit_tissues(self, shells, refill=False):
+        # one undo step per edit of the tissue table
+        self.tissue_undo.append(self.shells)
+        self.tissue_redo.clear()
+        self.set_tissues(shells, refill)
+
+    def set_tissues(self, shells, refill=True):
+        self.shells = shells
+        if refill:
+            self.fill_tissue_table()
+        self.index_dirty = shells != self.applied_shells
         self.update_index_label()
+
+    def undo_tissues(self, stack, other):
+        if not stack:
+            return
+        other.append(self.shells)
+        self.set_tissues(stack.pop())
 
     def tissue_name_edited(self, item):
         if self.updating or item.column() != 0:
@@ -532,9 +558,7 @@ class MainWindow(QMainWindow):
         shells = {}
         for name, (cond, outside, path) in self.read_tissue_table().items():
             shells[name] = (cond, new if outside == old else outside, path)
-        self.shells = shells
-        self.fill_tissue_table()
-        self.tissue_edited()
+        self.commit_tissues(shells, refill=True)
 
     def add_tissue(self):
         paths, _ = QFileDialog.getOpenFileNames(
@@ -549,9 +573,7 @@ class MainWindow(QMainWindow):
                 name += "_2"
             outside = list(shells)[-1] if shells else "FreeSpace"
             shells[name] = (0.3, outside, Path(path))
-        self.shells = shells
-        self.fill_tissue_table()
-        self.tissue_edited()
+        self.commit_tissues(shells, refill=True)
 
     def remove_tissue(self):
         row = self.ui.tissueTable.currentRow()
@@ -561,12 +583,11 @@ class MainWindow(QMainWindow):
         removed = list(shells)[row]
         _, removed_outside, _ = shells.pop(removed)
         # whatever was inside the removed tissue now sits in its outside
-        self.shells = {
+        shells = {
             name: (cond, removed_outside if outside == removed else outside, path)
             for name, (cond, outside, path) in shells.items()
         }
-        self.fill_tissue_table()
-        self.tissue_edited()
+        self.commit_tissues(shells, refill=True)
 
     def apply_index(self):
         shells = self.read_tissue_table()
@@ -577,7 +598,7 @@ class MainWindow(QMainWindow):
         path = self.temp_dir / "tissue_index.yaml"
         write_index(path, shells)
         if self.apply_model(path):
-            self.shells = shells
+            self.shells = self.applied_shells = shells
             self.index_file = None
             self.index_dirty = False
             self.update_index_label()
@@ -728,11 +749,16 @@ class MainWindow(QMainWindow):
         self.mark_dirty()
 
     def undo(self):
+        # on the Model tab undo is for the tissue table, elsewhere for the setup
+        if self.ui.sideTabs.currentWidget() is self.ui.modelTab:
+            return self.undo_tissues(self.tissue_undo, self.tissue_redo)
         self.stop_modes()
         if self.stim.undo():
             self.after_restore()
 
     def redo(self):
+        if self.ui.sideTabs.currentWidget() is self.ui.modelTab:
+            return self.undo_tissues(self.tissue_redo, self.tissue_undo)
         self.stop_modes()
         if self.stim.redo():
             self.after_restore()
@@ -1289,7 +1315,7 @@ class MainWindow(QMainWindow):
         if self.index_file is not None and not self.index_dirty:
             return str(self.index_file)
         path = run_dir / "tissue_index.yaml"
-        write_index(path, self.shells)
+        write_index(path, self.applied_shells)
         return str(path)
 
     def run(self):

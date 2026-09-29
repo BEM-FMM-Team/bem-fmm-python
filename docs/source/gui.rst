@@ -41,6 +41,9 @@ model with it, **Save as** writes it to a new tissue index. A run with applied
 but unsaved edits writes the edited index into the run folder, so the run can
 always be repeated.
 
+While the Model tab is open, Undo and Redo step through the table edits. Undoing
+back to the loaded model clears the edited state, so Apply is not needed.
+
 **Display** turns tissues on and off in the 3D view and sets their opacity.
 
 Coils tab (TMS)
@@ -189,7 +192,7 @@ Setups
 File > Save setup writes a ``.json`` file with the coils, electrodes, slice
 planes, the mode, the Place on surface and the tissue index. Opening it restores
 all of these. Undo and Redo (Ctrl+Z, Ctrl+Shift+Z) cover every change to coils,
-electrodes and planes.
+electrodes and planes, and on the Model tab the tissue table.
 
 Settings
 --------

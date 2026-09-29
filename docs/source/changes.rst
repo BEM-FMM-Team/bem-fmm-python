@@ -44,6 +44,9 @@ GUI
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.
+- Fixed: Ctrl+Z after a tissue table edit undid an unrelated coil or electrode
+  edit and left the table edited. On the Model tab Undo and Redo now act on the
+  table, and a table undone back to the loaded model no longer blocks runs.
 
 Command line
 
