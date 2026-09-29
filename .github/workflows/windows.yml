@@ -1,0 +1,65 @@
+name: Windows
+
+# the runners have no GPU and only OpenGL 1.1, like a remote desktop session,
+# so this runs the Mesa software renderer path
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e . pytest
+
+      - name: Tests
+        env:
+          PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+        run: pytest -q
+
+      - name: OpenGL setup
+        run: python -m bemfmm.softgl
+
+      - name: Offscreen render
+        run: python scripts/render_check.py render-windows.png
+
+      - name: Gui with the 3D view
+        shell: pwsh
+        run: |
+          $env:BEMFMM_READY_FILE = "$env:RUNNER_TEMP\gui-ready"
+          $gui = Start-Process python -ArgumentList "-m", "bemfmm", "gui" -PassThru -NoNewWindow
+          for ($i = 0; $i -lt 180; $i++) {
+            if ((Test-Path $env:BEMFMM_READY_FILE) -or $gui.HasExited) { break }
+            Start-Sleep 1
+          }
+          Start-Sleep 5
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          $image = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          [System.Drawing.Graphics]::FromImage($image).CopyFromScreen($bounds.Location, [System.Drawing.Point]::Empty, $bounds.Size)
+          $image.Save("$pwd\gui-windows.png")
+          Stop-Process -Id $gui.Id -Force -ErrorAction SilentlyContinue
+          if (-not (Test-Path $env:BEMFMM_READY_FILE)) { exit 1 }
+
+      - name: Upload images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: images-windows
+          path: "*.png"
+          if-no-files-found: ignore
