@@ -1,7 +1,9 @@
 """
-Regression tests on the three layer sphere. The TMS and tDCS reference numbers
-come from the code before the solvers moved into bemfmm.solvers, which the
-current code reproduces exactly. The solvers run without the cache
+Regression tests on the three layer sphere. The TMS reference numbers come from
+the code before the solvers moved into bemfmm.solvers, which the current code
+reproduces exactly. The tDCS ones come from the snap to the lowest facet index
+among ties, E0 and E1 sit on the poles where 8 skin facets are equally close.
+The solvers run without the cache
 """
 
 import numpy as np
@@ -17,7 +19,7 @@ from bemfmm.solvers import tdcs, tms, uniform
 RTOL = 1e-6
 
 TDCS_FACETS = [240, 240, 18]
-TDCS_CURRENTS = [5.874544095059621e-3, -8.088213867074044e-3, 2.221410145410115e-3]
+TDCS_CURRENTS = [5.842863368897759e-3, -8.121492182008439e-3, 2.286201112945014e-3]
 UNIFORM_NORM_C = 82.77419018858933
 
 
