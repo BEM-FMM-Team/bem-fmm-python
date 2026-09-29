@@ -19,7 +19,7 @@ May need to by pass windows security.
 
 Remote desktop sessions usually only offer OpenGL 1.1 and the 3D view needs 3.2.
 The program then downloads Mesa's software renderer once (a 16 MB download, into `.venv\mesa\`) and draws the 3D view on the CPU.
-`python -m bemfmm.softgl` does the same by hand and says which OpenGL the 3D view uses.
+`bemfmm opengl` does the same by hand and says which OpenGL the 3D view uses.
 On a server with a GPU, the group policy "Use hardware graphics adapters for all Remote Desktop Services sessions" is faster.
 `run_no3d.bat` opens the same program without the 3D view. Everything except dragging in the view still works,
 so setups made on a local machine can be opened and solved on the server.

@@ -366,6 +366,15 @@ def dipole():
     run()
 
 
+@app.command()
+def opengl():
+    """Say which OpenGL the 3D view uses, setting up Mesa on Windows when needed."""
+    if not softgl.setup():
+        sys.exit("no usable OpenGL, the 3D view will not open")
+    print(f"3D view uses {os.environ.get(softgl.ENV) or 'the system OpenGL'}")
+    print(softgl.opengl_works(os.environ.get(softgl.ENV))[1])
+
+
 @app.command("export-matlab")
 def export_matlab(
     tissue_index: Optional[str] = None,

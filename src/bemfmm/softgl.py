@@ -5,9 +5,7 @@ needs 3.2. Mesa's llvmpipe opengl32.dll (OpenGL 4.5 on the CPU) is downloaded
 once into the environment and loaded before vtk, so vtk uses it instead of the
 system one. A DLL that is already loaded is reused for every later load of the
 same name, which is what makes this work without copying files next to
-python.exe
-
-    python -m bemfmm.softgl     sets it up and says which OpenGL the gui uses
+python.exe. `bemfmm opengl` sets it up and says which OpenGL the gui uses
 """
 
 import hashlib
@@ -28,16 +26,56 @@ SEVENZR_SHA256 = "ad4c82fadcbdf93c03b4fc440f300509c7d60c5c2f4d183e35d9d70d695703
 
 ENV = "BEMFMM_OPENGL32"
 
-# exits 0 when vtk gets an OpenGL 3.2+ context, run in its own process since a
-# failed context can take the process down
+# draws a sphere offscreen and exits 0 when it shows up in the pixels. A real
+# render, SupportsOpenGL alone can pass where drawing then fails. Prints the
+# OpenGL in use and, on Windows, which opengl32.dll the name resolves to. Run
+# in its own process since a failed context can take the process down
 PROBE = """
+import sys
+
 import bemfmm
+import numpy as np
+from vtkmodules.util.numpy_support import vtk_to_numpy
 from vtkmodules.vtkCommonCore import vtkObject
-from vtkmodules.vtkRenderingCore import vtkRenderWindow
+from vtkmodules.vtkFiltersSources import vtkSphereSource
+from vtkmodules.vtkRenderingCore import (
+    vtkActor, vtkPolyDataMapper, vtkRenderer, vtkRenderWindow, vtkWindowToImageFilter,
+)
 import vtkmodules.vtkRenderingOpenGL2
 
 vtkObject.GlobalWarningDisplayOff()
-raise SystemExit(0 if vtkRenderWindow().SupportsOpenGL() else 1)
+sphere = vtkSphereSource()
+mapper = vtkPolyDataMapper()
+mapper.SetInputConnection(sphere.GetOutputPort())
+actor = vtkActor()
+actor.SetMapper(mapper)
+renderer = vtkRenderer()
+renderer.AddActor(actor)
+window = vtkRenderWindow()
+window.SetOffScreenRendering(1)
+window.SetSize(64, 64)
+window.AddRenderer(renderer)
+window.Render()
+grab = vtkWindowToImageFilter()
+grab.SetInput(window)
+grab.Update()
+pixels = vtk_to_numpy(grab.GetOutput().GetPointData().GetScalars())
+drawn = np.any(pixels != pixels[0], axis=-1).mean()
+
+for line in window.ReportCapabilities().splitlines():
+    if "renderer string" in line or "version string" in line:
+        print(line.strip())
+if sys.platform == "win32":
+    import ctypes
+
+    kernel32 = ctypes.WinDLL("kernel32")
+    kernel32.GetModuleHandleW.restype = ctypes.c_void_p
+    kernel32.GetModuleFileNameW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_uint]
+    path = ctypes.create_unicode_buffer(1024)
+    kernel32.GetModuleFileNameW(kernel32.GetModuleHandleW("opengl32.dll"), path, 1024)
+    print("opengl32.dll:", path.value)
+print(f"{drawn:.0%} of the pixels drawn")
+raise SystemExit(0 if drawn > 0.05 else 1)
 """
 
 
@@ -54,18 +92,33 @@ def load():
     import ctypes
 
     os.environ.setdefault("GALLIUM_DRIVER", "llvmpipe")
+    # its folder before System32 for anything that looks up opengl32.dll by
+    # name without finding the loaded one
+    ctypes.windll.kernel32.SetDllDirectoryW(str(Path(path).parent))
     ctypes.WinDLL(path)
 
 
 def opengl_works(opengl32=None):
+    """
+    Returns (works, what the probe printed)
+    """
     env = {k: v for k, v in os.environ.items() if k != ENV}
     if opengl32 is not None:
         env[ENV] = str(opengl32)
     try:
-        probe = subprocess.run([sys.executable, "-c", PROBE], env=env, timeout=120)
+        probe = subprocess.run(
+            [sys.executable, "-c", PROBE],
+            env=env,
+            timeout=120,
+            capture_output=True,
+            text=True,
+        )
     except subprocess.TimeoutExpired:
-        return False
-    return probe.returncode == 0
+        return False, "the probe did not finish in 120 s"
+    report = (probe.stdout + probe.stderr).strip()
+    if probe.returncode != 0:
+        report += f"\nprobe exit code {probe.returncode}"
+    return probe.returncode == 0, report.strip()
 
 
 def download(url, sha256, path):
@@ -95,15 +148,18 @@ def install(dll):
 def setup():
     """
     Returns True when the 3D view can run, loading Mesa first when the system
-    OpenGL is not enough. Only Windows is checked, elsewhere the system
-    OpenGL is used as it is
+    OpenGL cannot draw. Only Windows is checked, elsewhere the system OpenGL
+    is used as it is
     """
     if sys.platform != "win32" or os.environ.get(ENV):
         return True
-    if opengl_works():
+    works, report = opengl_works()
+    if works:
         return True
 
-    print("-- OpenGL 3.2 is not available, using Mesa's software renderer --")
+    print("-- the system OpenGL cannot draw the 3D view --")
+    print(report)
+    print("-- using Mesa's software renderer --")
     dll = dll_path()
     try:
         if not dll.exists():
@@ -111,16 +167,12 @@ def setup():
     except (OSError, RuntimeError, subprocess.CalledProcessError) as e:
         print(f"could not set up Mesa: {e}")
         return False
-    if not opengl_works(dll):
-        print(f"{dll} did not give an OpenGL 3.2 context either")
+    works, report = opengl_works(dll)
+    print(report)
+    if not works:
+        print(f"{dll} cannot draw the 3D view either")
         return False
 
     os.environ[ENV] = str(dll)
     load()
     return True
-
-
-if __name__ == "__main__":
-    if not setup():
-        raise SystemExit("no usable OpenGL, the 3D view will not open")
-    print(f"3D view uses {os.environ.get(ENV) or 'the system OpenGL'}")

@@ -33,7 +33,7 @@ jobs:
         run: pytest -q
 
       - name: OpenGL setup
-        run: python -m bemfmm.softgl
+        run: bemfmm opengl
 
       - name: Offscreen render
         run: python scripts/render_check.py render-windows.png
