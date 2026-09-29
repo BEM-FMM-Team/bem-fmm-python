@@ -193,20 +193,25 @@ def tdcs(
     progress: bool = typer.Option(False, hidden=True),
 ):
     """Solve tDCS for the electrodes in a setup, or the default montage."""
+    from bemfmm.electrode import montage_problem
     from bemfmm.model import HeadModel
     from bemfmm.plot.results import show_tdcs
     from bemfmm.scene import Scene
     from bemfmm.solvers.tdcs import TDCSOptions, default_electrodes, solve
 
     scene = Scene.load(setup) if setup else None
-    model = HeadModel.load(resolve_index(tissue_index, scene))
-
     if scene is None:
         electrodes, planes = default_electrodes(), (0.0, 0.0, 0.0)
         print("Using Default electrodes")
     else:
         electrodes, planes = scene.electrodes, scene.planes
         print(f"Using electrodes from {setup}")
+    problem = montage_problem(electrodes)
+    if problem:
+        typer.echo(f"error: {problem}", err=True)
+        raise typer.Exit(1)
+
+    model = HeadModel.load(resolve_index(tissue_index, scene))
     skin = skin or (scene.skin if scene else "") or "skin"
 
     start = perf_counter()

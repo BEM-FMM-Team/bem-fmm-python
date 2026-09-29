@@ -53,7 +53,9 @@ Options shared by ``tms`` and ``tdcs``:
     Facets integrated exactly for the potential on the electrodes.
 
 After a solve ``tdcs`` prints a table of the set and solved voltage and the
-current of every electrode, with the current balance and power.
+current of every electrode, with the current balance and power. A setup with
+fewer than two electrodes, or with all of them at the same voltage, stops with
+an error before the model is loaded.
 
 Slices
 ------

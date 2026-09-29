@@ -12,7 +12,7 @@ from bemfmm.charge import (
     surface_field_electric_plain,
     surface_field_lhs_v,
 )
-from bemfmm.electrode import Electrode
+from bemfmm.electrode import Electrode, montage_problem
 from bemfmm.fgmres import fgmres
 from bemfmm.lib import cache
 from bemfmm.mesh import (
@@ -228,8 +228,9 @@ def solve(
     mesh with Result.electrodes marking the electrode facets
     """
     options = options or TDCSOptions()
-    if len(electrodes) == 0:
-        raise ValueError("Place at least one electrode")
+    problem = montage_problem(electrodes)
+    if problem:
+        raise ValueError(problem)
     timings = {}
 
     names = [e.name for e in electrodes]

@@ -44,6 +44,28 @@ class Electrode:
         return electrode
 
 
+def montage_problem(electrodes):
+    """
+    Why a set of electrodes cannot drive a current, None when it can. Current
+    enters and leaves through the electrodes, so it needs at least two of them
+    at different voltages
+    """
+    if len(electrodes) == 0:
+        return "Add electrodes first."
+    if len(electrodes) == 1:
+        return (
+            "A tDCS run needs at least two electrodes, the current has to leave "
+            "the head through another one."
+        )
+    voltages = {float(e.voltage) for e in electrodes}
+    if len(voltages) == 1:
+        return (
+            f"All electrodes are at {voltages.pop():g} V, so no current flows. "
+            "Give at least one a different voltage."
+        )
+    return None
+
+
 def electrode_disk(center, normal, radius, lift=1e-4, res=40):
     # Builds a filled disk (points + triangle fan) tangent to normal at center,
     # lifted slightly off the surface so it does not z-fight with the skin mesh

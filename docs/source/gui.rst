@@ -103,6 +103,10 @@ Electrodes tab (tDCS)
 - **Selected electrode**: position (snapped to the surface), radius in mm and
   voltage. **Drag** moves it in the 3D view like a coil.
 
+A run needs at least two electrodes at different voltages, the current enters
+through some and leaves through the others. The Solve tab says what is missing
+and Run refuses until it is fixed.
+
 Anodes are drawn red, cathodes blue, the selected item cyan.
 
 Slice planes

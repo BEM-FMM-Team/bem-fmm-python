@@ -34,6 +34,7 @@ from bemfmm.coils import (
     make_coil,
 )
 from bemfmm.coils.rotation import quat_to_xyz
+from bemfmm.electrode import montage_problem
 from bemfmm.model import (
     HeadModel,
     check_shells,
@@ -1368,11 +1369,12 @@ class MainWindow(QMainWindow):
             n = len(self.stim.coils)
             text = f"TMS with {n} coil{'s' * (n != 1)} over {surface}"
         else:
-            voltages = [e.voltage for e in self.stim.electrodes.values()]
-            n = len(voltages)
+            electrodes = list(self.stim.electrodes.values())
+            n = len(electrodes)
             text = f"tDCS with {n} electrode{'s' * (n != 1)} on {surface}"
-            if n and max(voltages) == min(voltages):
-                text += ", all at the same voltage so no current will flow"
+            problem = montage_problem(electrodes) if n else None
+            if problem:
+                text += f". {problem}"
         self.ui.solveSummary.setText(text)
 
     def browse_output(self):
@@ -1410,8 +1412,9 @@ class MainWindow(QMainWindow):
                 return
         else:
             kind = "tdcs"
-            if not self.stim.electrodes:
-                QMessageBox.information(self, "Run", "Add electrodes first.")
+            problem = montage_problem(list(self.stim.electrodes.values()))
+            if problem:
+                QMessageBox.information(self, "Run", problem)
                 return
             outside = self.model.outside[self.model.tissue_id(surface)]
             if outside != "FreeSpace":

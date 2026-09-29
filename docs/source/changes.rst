@@ -53,6 +53,9 @@ GUI
   one was loaded, and the solver then snapped them to whatever skin was
   nearest. They are now moved onto the new surface, and coils whose height
   above their surface changed by more than 5 mm are reported.
+- Fixed: a tDCS run with one electrode, or with all electrodes at the same
+  voltage, was solved and gave meaningless currents. The gui refuses to run it
+  and says why.
 
 Command line
 
@@ -66,6 +69,9 @@ Library
 
 - ``Result.export`` writes fields to mat, npz, csv or pkl files, for all facets
   or one tissue, optionally with the mesh. ``--save-format`` uses it.
+- ``electrode.montage_problem`` says why a set of electrodes cannot drive a
+  current. ``tdcs.solve`` raises ``ValueError`` with it, and ``bemfmm tdcs``
+  checks it before loading the model.
 - ``plot.results.compute_slices``, ``plot.slice.draw_efield_slice``,
   ``save_slices`` and ``load_slices``. ``plot_efield_slice`` draws with
   ``draw_efield_slice`` and the tissue outlines are drawn as one collection per
