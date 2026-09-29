@@ -16,9 +16,12 @@ import tempfile
 import urllib.request
 from pathlib import Path
 
-# a single self contained opengl32.dll, llvmpipe only
-MESA_URL = "https://github.com/mmozeiko/build-mesa/releases/download/26.1.4/mesa-llvmpipe-x64-26.1.4.7z"
-MESA_SHA256 = "39dcd7ec4f91f803eb7947d2f0e82cf25e6bff7dd2321991bf6f9c09a6d9e82e"
+# a single self contained opengl32.dll, llvmpipe only. Mesa 25.3.6 up to
+# 26.1.5 draws nothing for vtk's per cell colors (gl_PrimitiveID without a
+# geometry shader), fixed in 26.1.6 and 26.2.0
+MESA_VERSION = "26.2.3"
+MESA_URL = f"https://github.com/mmozeiko/build-mesa/releases/download/{MESA_VERSION}/mesa-llvmpipe-x64-{MESA_VERSION}.7z"
+MESA_SHA256 = "bd0d817fbf33a7ec41aa770841eb83cc609f7c67fef7c8b56fde901a5b80a8ee"
 # the release is a .7z with the BCJ2 filter, which neither python nor the tar
 # that comes with Windows can unpack
 SEVENZR_URL = "https://github.com/ip7z/7zip/releases/download/26.03/7zr.exe"
@@ -80,7 +83,9 @@ raise SystemExit(0 if drawn > 0.05 else 1)
 
 
 def dll_path():
-    return Path(sys.prefix) / "mesa" / "opengl32.dll"
+    # a folder per version, a new version is downloaded instead of the old one
+    # being reused
+    return Path(sys.prefix) / "mesa" / MESA_VERSION / "opengl32.dll"
 
 
 def load():
