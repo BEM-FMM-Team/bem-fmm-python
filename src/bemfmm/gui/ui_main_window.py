@@ -18,9 +18,9 @@ from PySide6.QtCore import (
     QPoint,
     QRect,
     QSize,
-    Qt,
     QTime,
     QUrl,
+    Qt,
 )
 from PySide6.QtGui import (
     QAction,
@@ -72,9 +72,9 @@ from PySide6.QtWidgets import (
     QSplitter,
     QStackedWidget,
     QStatusBar,
+    QTabWidget,
     QTableWidget,
     QTableWidgetItem,
-    QTabWidget,
     QToolBar,
     QVBoxLayout,
     QWidget,
@@ -1997,12 +1997,14 @@ class Ui_MainWindow(object):
         # if QT_CONFIG(tooltip)
         self.plotWindowsButton.setToolTip(
             QCoreApplication.translate(
-                "MainWindow", "Surface and slice plots in separate windows", None
+                "MainWindow",
+                "Opens this result in the plot windows of bemfmm show, outside this window. The tabs next to the 3D view show the same plots",
+                None,
             )
         )
         # endif // QT_CONFIG(tooltip)
         self.plotWindowsButton.setText(
-            QCoreApplication.translate("MainWindow", "Plot windows", None)
+            QCoreApplication.translate("MainWindow", "Open in separate windows", None)
         )
         self.openFolderButton.setText(
             QCoreApplication.translate("MainWindow", "Open folder", None)

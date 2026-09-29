@@ -74,6 +74,8 @@ GUI
   coils or electrodes, so slice plane changes were lost. They now ask when the
   coils, electrodes or planes differ from the saved setup, and not after
   undoing back to it.
+- The Plot windows button in the Results tab is now Open in separate windows,
+  since the same plots are in the tabs next to the 3D view.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.

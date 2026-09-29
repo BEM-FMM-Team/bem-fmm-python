@@ -161,9 +161,10 @@ every electrode, with the current balance (should be close to zero) and the
 power.
 
 **Export fields...** writes chosen fields, for all facets or one tissue, as
-``mat``, ``npz`` or ``csv``, optionally with the mesh. **Plot windows** opens
-the separate plot windows of ``bemfmm show``. **Open folder** opens the run
-folder.
+``mat``, ``npz`` or ``csv``, optionally with the mesh. **Open in separate
+windows** opens the result in the plot windows of ``bemfmm show``, outside the
+main window. They show the same plots as the result tabs, which can also be
+popped out one by one. **Open folder** opens the run folder.
 
 Result views
 ------------

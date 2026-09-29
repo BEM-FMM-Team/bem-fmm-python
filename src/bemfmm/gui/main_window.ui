@@ -1338,10 +1338,10 @@
               <bool>false</bool>
              </property>
              <property name="toolTip">
-              <string>Surface and slice plots in separate windows</string>
+              <string>Opens this result in the plot windows of bemfmm show, outside this window. The tabs next to the 3D view show the same plots</string>
              </property>
              <property name="text">
-              <string>Plot windows</string>
+              <string>Open in separate windows</string>
              </property>
             </widget>
            </item>
