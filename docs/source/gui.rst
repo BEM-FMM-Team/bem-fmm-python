@@ -229,6 +229,17 @@ planes, the mode, the Place on surface and the tissue index. Opening it restores
 all of these. Undo and Redo (Ctrl+Z, Ctrl+Shift+Z) cover every change to coils,
 electrodes and planes, and on the Model tab the tissue table.
 
+The setup points to the tissue index of the model in use. When that model was
+built from applied tissue edits that are in no file, saving the setup offers
+**Save tissue index...** first, next to the setup by default, so the setup can
+point to it. **Save setup only** saves it without a tissue index. Edits in the
+tissue table that were not applied are not part of the model, so they are not
+saved with the setup.
+
+New, Open and closing the window ask to save when the coils, electrodes or
+planes differ from the saved setup. Undoing back to the saved setup does not
+count as a change.
+
 Settings
 --------
 

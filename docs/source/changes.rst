@@ -67,6 +67,13 @@ GUI
   planes through the origin normal to x, y and z. The table moved from the
   Coils/Electrodes tab next to the slices, and the tab says when the computed
   slices no longer match the table.
+- Saving a setup while the model comes from applied but unsaved tissue edits
+  offers to save the tissue index first, so the setup can point to it. It
+  used to show the same notice on every save and write no tissue index.
+- Fixed: closing the window, New and Open only asked to save when there were
+  coils or electrodes, so slice plane changes were lost. They now ask when the
+  coils, electrodes or planes differ from the saved setup, and not after
+  undoing back to it.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.

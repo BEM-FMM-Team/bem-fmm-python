@@ -125,6 +125,12 @@ def spin(box, low, high, decimals, step):
     box.setKeyboardTracking(False)
 
 
+def setup_items(scene):
+    # the parts of a setup that edits change, to tell if it needs saving
+    d = scene.to_dict()
+    return {key: d[key] for key in ("coils", "electrodes", "planes")}
+
+
 class MainWindow(QMainWindow):
     def __init__(self, tissue_index=None, setup=None, no_3d=False, mode=None):
         super().__init__()
@@ -144,6 +150,7 @@ class MainWindow(QMainWindow):
 
         self.setup_path = None
         self.setup_dirty = False
+        self.saved_items = setup_items(Scene())  # as last saved or opened
 
         self.result = None
         self.result_dir = None
@@ -846,7 +853,9 @@ class MainWindow(QMainWindow):
         self.refresh_lists()
         self.refresh_planes()
         self.show_planes()
-        self.mark_dirty()
+        # undone back to the saved setup is not an unsaved change
+        self.setup_dirty = self.setup_changed()
+        self.update_title()
 
     def refresh_lists(self):
         self.updating = True
@@ -1280,8 +1289,19 @@ class MainWindow(QMainWindow):
         dirty = "*" if self.setup_dirty else ""
         self.setWindowTitle(f"{name}{dirty} - {MODE_NAMES[self.mode]} - BEM-FMM")
 
+    def setup_changed(self):
+        return setup_items(self.scene()) != self.saved_items
+
+    def setup_saved(self, path):
+        # the setup on screen is now the one in path, None for a new one
+        self.setup_path = Path(path) if path else None
+        self.saved_items = setup_items(self.scene())
+        self.setup_dirty = False
+        self.update_title()
+
     def confirm_discard(self):
-        if not self.setup_dirty or not (self.stim.coils or self.stim.electrodes):
+        # coils, electrodes or planes that differ from the saved setup
+        if not self.setup_changed():
             return True
         reply = QMessageBox.question(
             self,
@@ -1295,7 +1315,8 @@ class MainWindow(QMainWindow):
         return reply == QMessageBox.Discard
 
     def scene(self):
-        index = self.index_file if not self.index_dirty else None
+        # the model in use, tissue edits not yet applied are not part of it
+        index = self.index_file
         return Scene(
             coils=list(self.stim.coils.values()),
             electrodes=list(self.stim.electrodes.values()),
@@ -1310,12 +1331,10 @@ class MainWindow(QMainWindow):
             return
         self.stop_modes()
         self.stim.clear()
-        self.setup_path = None
-        self.setup_dirty = False
         self.refresh_lists()
         self.refresh_planes()
         self.show_planes()
-        self.update_title()
+        self.setup_saved(None)
 
     def open_setup_dialog(self):
         if not self.confirm_discard():
@@ -1369,15 +1388,13 @@ class MainWindow(QMainWindow):
         self.apply_surfaces()
         self.stim.planes = scene.planes
 
-        self.setup_path = Path(path)
-        self.setup_dirty = False
         self.refresh_lists()
         for widget in (self.ui.coilList, self.ui.electrodeList):
             if widget.count():
                 widget.setCurrentRow(0)
         self.refresh_planes()
         self.show_planes()
-        self.update_title()
+        self.setup_saved(path)
 
     def save_setup(self):
         if self.setup_path is None:
@@ -1393,22 +1410,59 @@ class MainWindow(QMainWindow):
         return self.write_setup(Path(path))
 
     def write_setup(self, path):
-        if self.index_file is None or self.index_dirty:
-            QMessageBox.information(
-                self,
-                "Tissue index not saved",
-                "The tissues were edited but not saved, the setup will not "
-                "point to a tissue index. Use Save as in the Model tab to keep them.",
-            )
+        path = Path(path)
+        if self.index_file is None and not self.save_applied_index(path.parent):
+            return False
         try:
             self.scene().save(path)
         except OSError as error:
             QMessageBox.warning(self, "Could not save the setup", str(error))
             return False
-        self.setup_path = Path(path)
-        self.setup_dirty = False
-        self.update_title()
-        self.statusBar().showMessage(f"Saved {path}", 5000)
+        self.setup_saved(path)
+        message = f"Saved {path}"
+        if self.index_dirty:
+            message += ", the tissue edits not applied are not in it"
+        self.statusBar().showMessage(message, 8000)
+        return True
+
+    def save_applied_index(self, folder):
+        """
+        The model was built from applied tissue edits that are in no file, so a
+        setup cannot point to it. Offers to save them as a tissue index first.
+        False when the user cancels
+        """
+        box = QMessageBox(
+            QMessageBox.Question,
+            "Tissue index not saved",
+            "The model was built from tissue edits that are not saved in a "
+            "tissue index, so the setup cannot point to it. Save the tissue "
+            "index first?",
+            QMessageBox.Cancel,
+            self,
+        )
+        save = box.addButton("Save tissue index...", QMessageBox.AcceptRole)
+        box.addButton("Save setup only", QMessageBox.DestructiveRole)
+        box.setDefaultButton(save)
+        box.exec()
+        if box.clickedButton() is box.button(QMessageBox.Cancel):
+            return False
+        if box.clickedButton() is not save:
+            return True
+        path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save tissue index",
+            str(Path(folder) / "tissue_index.yaml"),
+            INDEX_FILTER,
+        )
+        if not path:
+            return False
+        try:
+            write_index(path, self.applied_shells)
+        except OSError as error:
+            QMessageBox.warning(self, "Could not save the tissue index", str(error))
+            return False
+        self.index_file = Path(path)
+        self.update_index_label()
         return True
 
     # solve
