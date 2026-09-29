@@ -47,6 +47,8 @@ GUI
 - Fixed: Ctrl+Z after a tissue table edit undid an unrelated coil or electrode
   edit and left the table edited. On the Model tab Undo and Redo now act on the
   table, and a table undone back to the loaded model no longer blocks runs.
+- Fixed: switching between TMS and tDCS reset Max iterations and Tolerance to
+  their defaults. Each mode now keeps its own values.
 
 Command line
 

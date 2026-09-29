@@ -44,6 +44,8 @@ from bemfmm.model import (
 from bemfmm.plot.slice import load_slices
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
+from bemfmm.solvers.tdcs import TDCSOptions
+from bemfmm.solvers.tms import TMSOptions
 
 from . import plots, theme
 from .dialogs import CoilParamsDialog, ExportDialog, SettingsDialog
@@ -63,6 +65,12 @@ MATLAB_FILTER = "MATLAB (*.mat);;All Files (*)"
 IMAGE_FILTER = "PNG image (*.png);;JPEG image (*.jpg);;All Files (*)"
 
 MODE_NAMES = {"tms": "TMS", "tdcs": "tDCS"}
+
+# max iterations and tolerance per mode, the command line defaults
+SOLVER_DEFAULTS = {
+    "tms": (TMSOptions.iter, TMSOptions.relres),
+    "tdcs": (TDCSOptions.iter, TDCSOptions.relres),
+}
 
 OTHER_TEMPLATE = "Template file..."
 DEFAULT_COIL = "default (bundled coil)"
@@ -140,6 +148,8 @@ class MainWindow(QMainWindow):
         self.aim_id = None  # coil the picked target is for
         self.display = {}
         self.run_started = datetime.now()
+        self.solver_settings = dict(SOLVER_DEFAULTS)
+        self.solver_mode = None  # mode the solver boxes currently hold
 
         if no_3d:
             self.viewport = NullViewport(self.ui.viewPort, NO_3D_MESSAGE)
@@ -668,8 +678,16 @@ class MainWindow(QMainWindow):
         )
         ui.numNeighborsP.setVisible(not tms)
         ui.numNeighborsPLabel.setVisible(not tms)
-        ui.iterations.setValue(20 if tms else 50)
-        ui.relres.setValue(1e-4 if tms else 1e-6)
+        # each mode keeps its own iterations and tolerance
+        if self.solver_mode is not None:
+            self.solver_settings[self.solver_mode] = (
+                ui.iterations.value(),
+                ui.relres.value(),
+            )
+        iterations, relres = self.solver_settings[mode]
+        ui.iterations.setValue(iterations)
+        ui.relres.setValue(relres)
+        self.solver_mode = mode
         ui.runButton.setText(f"Run {label}")
         ui.actionRun.setText(f"Run {label}")
         ui.actionRun.setIconText(f"Run {label}")
