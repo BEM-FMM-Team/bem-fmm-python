@@ -112,5 +112,98 @@ COIL_PARAMS = {
 }
 
 
+# names shown in the gui
+COIL_LABELS = {
+    "ring": "Ring",
+    "figure_eight": "Figure-eight",
+    "figure_eightX": "Figure-eight, curved wings",
+    "MagVenture_Cool_B35": "MagVenture Cool B35",
+    "MagVenture_C_B60": "MagVenture C B60",
+    "MagVenture_Cool40_Rat": "MagVenture Cool40 Rat",
+    "MagVenture_D_B80": "MagVenture D B80",
+    "MagVenture_MRiB91": "MagVenture MRiB91",
+    "MagVenture_TMSMEG": "MagVenture TMSMEG",
+}
+
+# how the gui shows a parameter: label, unit and help. Lengths are stored in m
+# and shown in mm, flag and sk are picked from CHOICES
+PARAM_INFO = {
+    "radius": ("Loop radius", "mm", "Radius of the loop, to the center of the wire"),
+    "diameter": (
+        "Wire size",
+        "mm",
+        "Width and height of the wire cross-section",
+    ),
+    "a0": ("Spiral start radius", "mm", "Radius where the spiral winding starts"),
+    "b0": (
+        "Spiral growth",
+        "mm/rad",
+        "How much the spiral radius grows per radian of winding",
+    ),
+    "a": (
+        "Wire height",
+        "mm",
+        "Size of the wire cross-section along the coil axis",
+    ),
+    "b": (
+        "Wire width",
+        "mm",
+        "Size of the wire cross-section across the coil axis",
+    ),
+    "height": (
+        "Wire height",
+        "mm",
+        "Size of the wire cross-section along the coil axis",
+    ),
+    "thickness": (
+        "Wire width",
+        "mm",
+        "Size of the wire cross-section across the coil axis",
+    ),
+    "z_scale": (
+        "Wing bend height",
+        "mm",
+        "How far the wings bend out of the plane of the coil",
+    ),
+    "z_shift": (
+        "Wing bend position",
+        "",
+        "Where along the winding each wing bends, in points of the winding path",
+    ),
+    "turns": ("Turns", "", "Number of turns of the spiral"),
+    "M": (
+        "Cross-section edges",
+        "",
+        "Edges around the wire cross-section in the model, more is finer and slower",
+    ),
+    "N": ("Edges per turn", "", "Edges along each turn of the loop"),
+    "flag": ("Wire cross-section", "", "Shape of the wire cross-section"),
+    "sk": ("Current distribution", "", "Where the current flows inside the wire"),
+}
+
+CHOICES = {
+    "flag": {1: "Elliptical", 2: "Rectangular"},
+    "sk": {1: "Skin effect, near the wire surface", 0: "Uniform, Litz wire"},
+}
+
+# parameters that mean something else for one coil
+COIL_PARAM_INFO = {
+    ("MagVenture_TMSMEG", "a"): (
+        "Wire size",
+        "mm",
+        "Width and height of the wire cross-section",
+    ),
+    ("MagVenture_Cool_B35", "a0"): (
+        "Spiral start radius",
+        "mm",
+        "Radius where the spiral winding starts, it ends at 23 mm",
+    ),
+}
+
+
+def param_info(coil_type, name):
+    return COIL_PARAM_INFO.get((coil_type, name), PARAM_INFO[name])
+
+
 def default_params(coil_type):
     return {name: info["default"] for name, info in COIL_PARAMS[coil_type].items()}

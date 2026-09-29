@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
 )
 
 from bemfmm.coils import (
+    COIL_LABELS,
     COIL_TYPES,
     default_coil,
     list_templates,
@@ -269,11 +270,13 @@ class MainWindow(QMainWindow):
             spin(box, -1e12, 1e12, 4, 1.0)
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
 
-        ui.coilTypeCombo.addItem(DEFAULT_COIL)
-        ui.coilTypeCombo.addItems(COIL_TYPES)
+        # shown by name, the item data is what add_coil builds
+        ui.coilTypeCombo.addItem(DEFAULT_COIL, DEFAULT_COIL)
+        for coil_type in COIL_TYPES:
+            ui.coilTypeCombo.addItem(COIL_LABELS[coil_type], coil_type)
         for name in list_templates():
-            ui.coilTypeCombo.addItem(f"template: {name}")
-        ui.coilTypeCombo.addItem(OTHER_TEMPLATE)
+            ui.coilTypeCombo.addItem(f"template: {name}", f"template: {name}")
+        ui.coilTypeCombo.addItem(OTHER_TEMPLATE, OTHER_TEMPLATE)
 
         header = ui.tissueTable.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -954,7 +957,7 @@ class MainWindow(QMainWindow):
     def add_coil(self):
         if self.model is None:
             return
-        name = self.ui.coilTypeCombo.currentText()
+        name = self.ui.coilTypeCombo.currentData()
         try:
             if name == DEFAULT_COIL:
                 coil = default_coil()

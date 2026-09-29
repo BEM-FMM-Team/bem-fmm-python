@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="description">
      <property name="text">
-      <string>Lengths are in meters</string>
+      <string>Hover over a parameter for what it sets.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

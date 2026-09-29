@@ -67,8 +67,12 @@ Coils tab (TMS)
 
 - ``default (bundled coil)``: the coil and pose used by ``bemfmm tms``
   without a setup
-- the coil generators (``figure_eight``, ``ring``, MagVenture models and
-  others), each with its own parameters
+- the coil generators (Ring, Figure-eight, MagVenture models and others).
+  Adding one opens its parameters: sizes in mm, the number of edges the wire
+  is modeled with, the **Wire cross-section** (elliptical or rectangular) and
+  the **Current distribution** (skin effect, the current near the wire
+  surface, or uniform as in Litz wire). Hover over a parameter for what it
+  sets
 - ``template: <name>`` for the templates in ``src/bemfmm/coils/templates``,
   and **Template file...** for any other strcoil ``.mat`` file
 

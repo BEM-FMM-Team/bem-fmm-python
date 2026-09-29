@@ -1205,8 +1205,11 @@
              <layout class="QGridLayout" name="exportFieldsLayout">
               <item row="0" column="0">
                <widget class="QCheckBox" name="saveE">
+                <property name="toolTip">
+                 <string>Saved as E.&lt;format&gt;</string>
+                </property>
                 <property name="text">
-                 <string>E</string>
+                 <string>E-field</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -1215,25 +1218,21 @@
               </item>
               <item row="0" column="1">
                <widget class="QCheckBox" name="saveEmag">
-                <property name="text">
-                 <string>Emag</string>
+                <property name="toolTip">
+                 <string>Saved as Emag.&lt;format&gt;</string>
                 </property>
-               </widget>
-              </item>
-              <item row="0" column="2">
-               <widget class="QCheckBox" name="saveEn">
                 <property name="text">
-                 <string>En</string>
-                </property>
-                <property name="checked">
-                 <bool>true</bool>
+                 <string>E-field magnitude</string>
                 </property>
                </widget>
               </item>
               <item row="1" column="0">
-               <widget class="QCheckBox" name="saveC">
+               <widget class="QCheckBox" name="saveEn">
+                <property name="toolTip">
+                 <string>Saved as En.&lt;format&gt;</string>
+                </property>
                 <property name="text">
-                 <string>c</string>
+                 <string>Normal E-field</string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -1241,16 +1240,35 @@
                </widget>
               </item>
               <item row="1" column="1">
-               <widget class="QCheckBox" name="saveJn">
+               <widget class="QCheckBox" name="saveC">
+                <property name="toolTip">
+                 <string>Surface charge density divided by eps0 (V/m), saved as c.&lt;format&gt;</string>
+                </property>
                 <property name="text">
-                 <string>Jn</string>
+                 <string>Charge</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QCheckBox" name="savePot">
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="saveJn">
+                <property name="toolTip">
+                 <string>Saved as Jn.&lt;format&gt;</string>
+                </property>
                 <property name="text">
-                 <string>Pot</string>
+                 <string>Normal current density</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QCheckBox" name="savePot">
+                <property name="toolTip">
+                 <string>Saved as Pot.&lt;format&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Potential</string>
                 </property>
                </widget>
               </item>

@@ -1034,23 +1034,23 @@ class Ui_MainWindow(object):
         self.saveEn.setObjectName("saveEn")
         self.saveEn.setChecked(True)
 
-        self.exportFieldsLayout.addWidget(self.saveEn, 0, 2, 1, 1)
+        self.exportFieldsLayout.addWidget(self.saveEn, 1, 0, 1, 1)
 
         self.saveC = QCheckBox(self.outputGroup)
         self.saveC.setObjectName("saveC")
         self.saveC.setChecked(True)
 
-        self.exportFieldsLayout.addWidget(self.saveC, 1, 0, 1, 1)
+        self.exportFieldsLayout.addWidget(self.saveC, 1, 1, 1, 1)
 
         self.saveJn = QCheckBox(self.outputGroup)
         self.saveJn.setObjectName("saveJn")
 
-        self.exportFieldsLayout.addWidget(self.saveJn, 1, 1, 1, 1)
+        self.exportFieldsLayout.addWidget(self.saveJn, 2, 0, 1, 1)
 
         self.savePot = QCheckBox(self.outputGroup)
         self.savePot.setObjectName("savePot")
 
-        self.exportFieldsLayout.addWidget(self.savePot, 1, 2, 1, 1)
+        self.exportFieldsLayout.addWidget(self.savePot, 2, 1, 1, 1)
 
         self.outputLayout.setLayout(
             2, QFormLayout.ItemRole.FieldRole, self.exportFieldsLayout
@@ -2158,12 +2158,54 @@ class Ui_MainWindow(object):
         self.exportFieldsLabel.setText(
             QCoreApplication.translate("MainWindow", "Fields", None)
         )
-        self.saveE.setText(QCoreApplication.translate("MainWindow", "E", None))
-        self.saveEmag.setText(QCoreApplication.translate("MainWindow", "Emag", None))
-        self.saveEn.setText(QCoreApplication.translate("MainWindow", "En", None))
-        self.saveC.setText(QCoreApplication.translate("MainWindow", "c", None))
-        self.saveJn.setText(QCoreApplication.translate("MainWindow", "Jn", None))
-        self.savePot.setText(QCoreApplication.translate("MainWindow", "Pot", None))
+        # if QT_CONFIG(tooltip)
+        self.saveE.setToolTip(
+            QCoreApplication.translate("MainWindow", "Saved as E.<format>", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.saveE.setText(QCoreApplication.translate("MainWindow", "E-field", None))
+        # if QT_CONFIG(tooltip)
+        self.saveEmag.setToolTip(
+            QCoreApplication.translate("MainWindow", "Saved as Emag.<format>", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.saveEmag.setText(
+            QCoreApplication.translate("MainWindow", "E-field magnitude", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.saveEn.setToolTip(
+            QCoreApplication.translate("MainWindow", "Saved as En.<format>", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.saveEn.setText(
+            QCoreApplication.translate("MainWindow", "Normal E-field", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.saveC.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Surface charge density divided by eps0 (V/m), saved as c.<format>",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.saveC.setText(QCoreApplication.translate("MainWindow", "Charge", None))
+        # if QT_CONFIG(tooltip)
+        self.saveJn.setToolTip(
+            QCoreApplication.translate("MainWindow", "Saved as Jn.<format>", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.saveJn.setText(
+            QCoreApplication.translate("MainWindow", "Normal current density", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.savePot.setToolTip(
+            QCoreApplication.translate("MainWindow", "Saved as Pot.<format>", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.savePot.setText(
+            QCoreApplication.translate("MainWindow", "Potential", None)
+        )
         # if QT_CONFIG(tooltip)
         self.computeSlices.setToolTip(
             QCoreApplication.translate(
