@@ -47,6 +47,8 @@ GUI
 - Twist is read from the coil pose, so the box no longer jumps back to 0 after
   another edit, and changing Distance, Auto orient, dragging and Aim at keep the
   twist instead of resetting the coil to its default turn about the axis.
+- The slices use ``viridis`` instead of ``jet``, and the Slices tab has a
+  Colormap choice (viridis, plasma, inferno, cividis, hot, jet).
 - Results open on the tissue picked last, ``gm`` at first, for TMS and tDCS
   alike (TMS results used to open on ``wm``).
 - Coils and electrodes are moved by pressing on them in the 3D view, moving

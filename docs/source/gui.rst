@@ -181,7 +181,8 @@ The tabs on the right:
 - **Convergence**: relative residual per GMRES iteration, with the tolerance.
 - **Slices**: the total E-field on the three slice planes with the tissue
   outlines, one plane or all three. **Compute slices** computes them for the
-  current slice planes if the run did not.
+  current slice planes if the run did not. **Colormap** picks the colors,
+  ``viridis`` by default
 - **Distribution**: histogram of the field and tissue picked in the Results
   tab, with the median and 99th percentile.
 - **Electrodes**: tDCS only, the current of every electrode.

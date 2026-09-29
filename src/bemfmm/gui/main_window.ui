@@ -1517,6 +1517,47 @@
             </widget>
            </item>
            <item>
+            <widget class="QLabel" name="sliceColormapLabel">
+             <property name="text">
+              <string>Colormap</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="sliceColormap">
+             <item>
+              <property name="text">
+               <string>viridis</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>plasma</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>inferno</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>cividis</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>hot</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>jet</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="sliceInfo">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">

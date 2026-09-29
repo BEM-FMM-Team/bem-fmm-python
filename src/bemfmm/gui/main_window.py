@@ -396,6 +396,7 @@ class MainWindow(QMainWindow):
         ui.openFolderButton.clicked.connect(self.open_result_folder)
         ui.computeSlicesButton.clicked.connect(self.compute_slices)
         ui.slicePlane.currentIndexChanged.connect(self.plots["slices"].refresh)
+        ui.sliceColormap.currentIndexChanged.connect(self.plots["slices"].refresh)
         ui.distributionLog.toggled.connect(self.plots["distribution"].refresh)
 
         QGuiApplication.styleHints().colorSchemeChanged.connect(
@@ -1758,7 +1759,13 @@ class MainWindow(QMainWindow):
 
     def draw_slices(self, figure):
         color = theme.COLORS[self.theme]["text"]
-        plots.draw_slices(figure, self.slices, self.ui.slicePlane.currentText(), color)
+        plots.draw_slices(
+            figure,
+            self.slices,
+            self.ui.slicePlane.currentText(),
+            color,
+            self.ui.sliceColormap.currentText(),
+        )
 
     def read_slices(self):
         path = self.result_dir / "slices.npz"

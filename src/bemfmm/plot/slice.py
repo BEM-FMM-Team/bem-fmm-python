@@ -7,6 +7,7 @@ from ..my_types import EfieldSlice
 from .compute_efield_overlay import _PLANE_CONFIG
 
 SLICE_PLANES = ("XY", "XZ", "YZ")
+SLICE_CMAP = "viridis"
 SLICE_ARRAYS = ("E_mag", "E_grid", "mask", "u", "v", "points_2d", "edges", "ci")
 
 
@@ -18,6 +19,7 @@ def draw_efield_slice(
     levels: int = 200,
     color: str = "white",
     legend_size: float = 11,
+    cmap: str = SLICE_CMAP,
 ):
     """
     Draws one slice into ax, color is used for the labels and ticks outside the
@@ -32,7 +34,7 @@ def draw_efield_slice(
             result.v,
             result.E_grid,
             levels=np.linspace(result.th2l, result.th1l, levels),
-            cmap="jet",
+            cmap=cmap,
             extend="both",
         )
         cbar = fig.colorbar(cf, ax=ax)

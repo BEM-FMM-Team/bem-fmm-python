@@ -1253,6 +1253,22 @@ class Ui_MainWindow(object):
 
         self.sliceControls.addWidget(self.slicePlane)
 
+        self.sliceColormapLabel = QLabel(self.slicesTab)
+        self.sliceColormapLabel.setObjectName("sliceColormapLabel")
+
+        self.sliceControls.addWidget(self.sliceColormapLabel)
+
+        self.sliceColormap = QComboBox(self.slicesTab)
+        self.sliceColormap.addItem("")
+        self.sliceColormap.addItem("")
+        self.sliceColormap.addItem("")
+        self.sliceColormap.addItem("")
+        self.sliceColormap.addItem("")
+        self.sliceColormap.addItem("")
+        self.sliceColormap.setObjectName("sliceColormap")
+
+        self.sliceControls.addWidget(self.sliceColormap)
+
         self.sliceInfo = QLabel(self.slicesTab)
         self.sliceInfo.setObjectName("sliceInfo")
         sizePolicy3 = QSizePolicy(
@@ -2026,6 +2042,28 @@ class Ui_MainWindow(object):
         )
         self.slicePlane.setItemText(
             3, QCoreApplication.translate("MainWindow", "All", None)
+        )
+
+        self.sliceColormapLabel.setText(
+            QCoreApplication.translate("MainWindow", "Colormap", None)
+        )
+        self.sliceColormap.setItemText(
+            0, QCoreApplication.translate("MainWindow", "viridis", None)
+        )
+        self.sliceColormap.setItemText(
+            1, QCoreApplication.translate("MainWindow", "plasma", None)
+        )
+        self.sliceColormap.setItemText(
+            2, QCoreApplication.translate("MainWindow", "inferno", None)
+        )
+        self.sliceColormap.setItemText(
+            3, QCoreApplication.translate("MainWindow", "cividis", None)
+        )
+        self.sliceColormap.setItemText(
+            4, QCoreApplication.translate("MainWindow", "hot", None)
+        )
+        self.sliceColormap.setItemText(
+            5, QCoreApplication.translate("MainWindow", "jet", None)
         )
 
         self.sliceInfo.setText("")

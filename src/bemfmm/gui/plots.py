@@ -181,7 +181,7 @@ def draw_currents(figure, electrodes):
     ax.set_ylabel("Current (mA)")
 
 
-def draw_slices(figure, data, plane, color):
+def draw_slices(figure, data, plane, color, cmap):
     if data is None:
         return draw_message(figure, "No slices for this result, press Compute slices")
     slices = data["slices"]
@@ -202,4 +202,5 @@ def draw_slices(figure, data, plane, color):
             data["tissues"],
             color=color,
             legend_size=legend_size,
+            cmap=cmap,
         )
