@@ -5,8 +5,14 @@ from pathlib import Path
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QApplication
 
+from bemfmm import softgl
+
 
 def run(tissue_index=None, setup=None, no_3d=False, mode=None):
+    # before the main window imports vtk
+    if not no_3d:
+        no_3d = not softgl.setup()
+
     app = QApplication.instance() or QApplication(sys.argv)
     app.setApplicationName("BEM-FMM")
     app.setOrganizationName("WPI")

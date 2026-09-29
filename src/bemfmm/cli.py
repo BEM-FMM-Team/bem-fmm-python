@@ -6,6 +6,8 @@ from typing import Literal, Optional
 
 import typer
 
+from bemfmm import softgl
+
 app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
@@ -134,6 +136,8 @@ def tms(
     progress: bool = typer.Option(False, hidden=True),
 ):
     """Solve TMS for the coils in a setup, or the default coil."""
+    if plot:
+        softgl.setup()
     from bemfmm.coils import default_coil
     from bemfmm.model import HeadModel
     from bemfmm.plot.results import show_tms
@@ -194,6 +198,8 @@ def tdcs(
     progress: bool = typer.Option(False, hidden=True),
 ):
     """Solve tDCS for the electrodes in a setup, or the default montage."""
+    if plot:
+        softgl.setup()
     from bemfmm.electrode import montage_problem
     from bemfmm.model import HeadModel
     from bemfmm.plot.results import show_tdcs
@@ -255,6 +261,8 @@ def sphere(
     progress: bool = typer.Option(False, hidden=True),
 ):
     """Three layer sphere in a uniform field, a check of the charge engine."""
+    if plot:
+        softgl.setup()
     from bemfmm.model import HeadModel, sphere_index
     from bemfmm.plot.results import show_uniform
     from bemfmm.solvers.uniform import UniformOptions, solve
@@ -278,6 +286,7 @@ def show(
     plot_tissue: Optional[str] = None,
 ):
     """Open the plot windows for a saved result."""
+    softgl.setup()
     from bemfmm.coils import Coil
     from bemfmm.plot.results import show_tdcs, show_tms, show_uniform
     from bemfmm.results import Result
@@ -355,6 +364,15 @@ def dipole():
     from bemfmm.examples.dipole import run
 
     run()
+
+
+@app.command()
+def opengl():
+    """Say which OpenGL the 3D view uses, setting up Mesa on Windows when needed."""
+    if not softgl.setup():
+        sys.exit("no usable OpenGL, the 3D view will not open")
+    print(f"3D view uses {os.environ.get(softgl.ENV) or 'the system OpenGL'}")
+    print(softgl.opengl_works(os.environ.get(softgl.ENV))[1])
 
 
 @app.command("export-matlab")

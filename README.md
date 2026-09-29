@@ -17,9 +17,11 @@ The charge engine only runs once per model + coil/electrode configuration, resul
 Run the `run.bat` script either by double clicking or Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
 May need to by pass windows security.
 
-Remote desktop sessions usually do not have the OpenGL version the 3D view needs.
-Either enable the group policy "Use hardware graphics adapters for all Remote Desktop Services sessions" on a server with a GPU,
-or run `run_no3d.bat`, which opens the same program without the 3D view. Everything except dragging in the view still works,
+Remote desktop sessions usually only offer OpenGL 1.1 and the 3D view needs 3.2.
+The program then downloads Mesa's software renderer once (a 16 MB download, into `.venv\mesa\`) and draws the 3D view on the CPU.
+`bemfmm opengl` does the same by hand and says which OpenGL the 3D view uses.
+On a server with a GPU, the group policy "Use hardware graphics adapters for all Remote Desktop Services sessions" is faster.
+`run_no3d.bat` opens the same program without the 3D view. Everything except dragging in the view still works,
 so setups made on a local machine can be opened and solved on the server.
 When the window does not open because of the 3D view, `run.bat` starts it again without the 3D view by itself.
 
@@ -30,8 +32,8 @@ When something fails the window stays open until a key is pressed, so the messag
 Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
 May need to by pass apple's security.
 
-The 3D view does not open on MacOS yet, `run.command` then starts again without it (`run_no3d.command`, `bemfmm gui --no-3d`).
-The command line solvers work.
+MacOS uses PySide6 6.9.3, newer versions stop the 3D view from opening.
+When the 3D view still fails, `run.command` starts again without it (`run_no3d.command`, `bemfmm gui --no-3d`).
 lfmm3d calls are slower on MacOS for this version.
 
 ### Linux

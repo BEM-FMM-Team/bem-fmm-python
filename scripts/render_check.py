@@ -1,6 +1,7 @@
 """
 Renders the sphere model offscreen to a png and fails when nothing was drawn,
-a check that vtk can use OpenGL on this machine
+a check that vtk can use OpenGL on this machine. Sets up OpenGL the way the
+gui does, Mesa's software renderer on Windows without a usable driver
 
     python scripts/render_check.py out.png
 """
@@ -8,12 +9,18 @@ a check that vtk can use OpenGL on this machine
 import sys
 
 import numpy as np
-import vedo
 
-from bemfmm.lib import get_asset_path
+from bemfmm import softgl
 
 
 def main(out):
+    if not softgl.setup():
+        sys.exit("render_check: no usable OpenGL")
+    # both import vtk, which has to come after the setup
+    import vedo
+
+    from bemfmm.lib import get_asset_path
+
     mesh = vedo.Mesh(str(get_asset_path("sphere_3L/skin.stl"))).c("#e8c4a8")
     plt = vedo.Plotter(offscreen=True, size=(400, 400), bg="white")
     plt.show(mesh, interactive=False)

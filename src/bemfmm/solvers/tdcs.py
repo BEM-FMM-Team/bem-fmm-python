@@ -4,7 +4,6 @@ from time import perf_counter
 import numpy as np
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial.distance import cdist
-from sklearn.neighbors import NearestNeighbors
 
 from bemfmm.charge import (
     electrode_current,
@@ -75,10 +74,13 @@ def imprint_electrodes(
     Ps = P[used]
     ns = normals[skin]
 
+    # nearest skin facet, the lowest index among ties: on a symmetric mesh
+    # (the poles of the sphere) several facets are equally close and a plain
+    # nearest neighbor search picks one by rounding, which differs by platform
     centers_s = mesh_tricenter(Ps, ts)
-    knn = NearestNeighbors(n_neighbors=1).fit(centers_s)
-    _, ix = knn.kneighbors(centers)
-    elec_cen = centers_s[ix[:, 0]]
+    d = cdist(centers, centers_s)
+    ix = np.argmax(d <= d.min(axis=1, keepdims=True) * (1 + 1e-9), axis=1)
+    elec_cen = centers_s[ix]
 
     start = perf_counter()
     Pe, te, ne, indicator = mesh_imprint(Ps, ts, ns, elec_cen, radii)
