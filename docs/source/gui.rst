@@ -73,7 +73,8 @@ Coils tab (TMS)
   and **Template file...** for any other strcoil ``.mat`` file
 
 The list holds the coils of the setup. Double click to rename, Delete removes
-the selected one.
+the selected one. Clicking a coil in the 3D view selects it, clicking empty
+space in the view or the list, or pressing Esc, clears the selection.
 
 **Selected coil**
 
@@ -107,7 +108,8 @@ A run needs at least two electrodes at different voltages, the current enters
 through some and leaves through the others. The Solve tab says what is missing
 and Run refuses until it is fixed.
 
-Anodes are drawn red, cathodes blue, the selected item cyan.
+Anodes are drawn red, cathodes blue, the selected item cyan. Electrodes are
+selected and deselected in the 3D view the same way as coils.
 
 Slice planes
 ------------
@@ -185,6 +187,8 @@ screen. Closing that window, or pressing **Dock**, puts it back.
 ----------------------
 
 ========================= ==================================
+Left click                select a coil or electrode, empty space clears
+Esc                       leave Drag or Pick target, else clear the selection
 Left drag                 rotate
 Shift + left drag         pan
 Right drag or scroll      zoom

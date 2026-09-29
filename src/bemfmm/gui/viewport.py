@@ -20,6 +20,10 @@ TISSUE_COLORS = {
 FALLBACK_COLORS = ["#c7a17a", "#8fb3a3", "#b39ddb", "#e0b060", "#90a4ae"]
 
 COIL_COLOR = "orange"
+
+# pixels the mouse may move between press and release for a click, more is a
+# camera drag
+CLICK_TOLERANCE = 4
 SELECTED_COLOR = "cyan"
 
 # background gradient and text color of the 3D view
@@ -101,10 +105,16 @@ class Viewport:
         self.on_drag = None
         self.on_drag_end = None
         self.on_target = None
+        self.on_select = None
+        self.press2d = None
 
         self.plt.add_callback("LeftButtonPress", self._on_click)
         self.plt.add_callback("MouseMove", self._on_move)
         self.plt.show(interactive=False)
+        # the camera style grabs the mouse on press, so the button release only
+        # reaches it and shows up here as the end of its interaction
+        style = self.plt.interactor.GetInteractorStyle()
+        style.AddObserver("EndInteractionEvent", self._on_release)
 
     def render(self):
         self.plt.render()
@@ -230,6 +240,7 @@ class Viewport:
         if key in self.arrows:
             self.plt.remove(self.arrows[key])
         self.arrows[key] = Arrow(arrow[0], arrow[1], s=0.1 * 1e-3, c=self.text_color)
+        self.arrows[key].name = key
         self.plt.add(self.arrows[key])
         if key.split(":", 1)[0] in self.hidden:
             self.arrows[key].actor.SetVisibility(False)
@@ -282,6 +293,7 @@ class Viewport:
         from vedo import Sphere
 
         name = getattr(event.actor, "name", None)
+        self.press2d = event.picked2d
         if self.dragging:
             self.dragging = False
             if self.on_drag_end:
@@ -300,6 +312,21 @@ class Viewport:
             self.render()
             if self.on_target:
                 self.on_target(point)
+
+    def _on_release(self, *_):
+        # a click on a coil or electrode selects it, on anything else clears
+        # the selection, drag and target picking use the clicks themselves
+        press, self.press2d = self.press2d, None
+        if press is None or self.drag_key is not None or self.target_surface:
+            return
+        event = self.plt.fill_event(pos=self.plt.interactor.GetEventPosition())
+        (x0, y0), (x1, y1) = press, event.picked2d
+        if abs(x1 - x0) + abs(y1 - y0) > CLICK_TOLERANCE:
+            return
+        name = getattr(event.actor, "name", None)
+        kind = name.split(":", 1)[0] if isinstance(name, str) else ""
+        if self.on_select:
+            self.on_select(name if kind in ("coil", "electrode") else None)
 
     def _on_move(self, event):
         if not self.dragging:

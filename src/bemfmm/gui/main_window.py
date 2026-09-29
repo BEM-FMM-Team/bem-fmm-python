@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
-from PySide6.QtCore import QProcess, Qt, QUrl
+from PySide6.QtCore import QEvent, QProcess, Qt, QUrl
 from PySide6.QtGui import QDesktopServices, QGuiApplication, QKeySequence, QShortcut
 from PySide6.QtWidgets import (
     QAbstractSpinBox,
@@ -164,6 +164,7 @@ class MainWindow(QMainWindow):
         self.viewport.on_drag = self.drag_move
         self.viewport.on_drag_end = self.drag_end
         self.viewport.on_target = self.target_picked
+        self.viewport.on_select = self.item_clicked
 
         self.stim = Stimulation(self.viewport)
         self.runner = SolveRunner(self)
@@ -374,6 +375,11 @@ class MainWindow(QMainWindow):
             shortcut = QShortcut(QKeySequence.Delete, widget)
             shortcut.setContext(Qt.WidgetShortcut)
             shortcut.activated.connect(slot)
+
+        # a click on empty space in a list clears its selection
+        for widget in (ui.coilList, ui.electrodeList):
+            widget.viewport().installEventFilter(self)
+        QShortcut(QKeySequence(Qt.Key_Escape), self).activated.connect(self.escape)
 
         ui.sideTabs.currentChanged.connect(self.tab_changed)
 
@@ -862,6 +868,40 @@ class MainWindow(QMainWindow):
     def current_id(self, widget):
         item = widget.currentItem()
         return None if item is None else item.data(Qt.UserRole)
+
+    def stim_list(self):
+        return self.ui.coilList if self.tms else self.ui.electrodeList
+
+    def item_clicked(self, key):
+        # a click in the 3D view, key is None for anything but a coil or electrode
+        widget = self.stim_list()
+        if key is None:
+            widget.setCurrentRow(-1)
+            return
+        kind, id = key.split(":", 1)
+        if (kind == "coil") != self.tms:
+            return
+        for row in range(widget.count()):
+            if widget.item(row).data(Qt.UserRole) == id:
+                widget.setCurrentRow(row)
+
+    def escape(self):
+        # leaves drag or target picking first, then clears the selection
+        ui = self.ui
+        if any(
+            b.isChecked()
+            for b in (ui.moveCoilButton, ui.moveElectrodeButton, ui.aimButton)
+        ):
+            self.stop_modes()
+        else:
+            self.stim_list().setCurrentRow(-1)
+
+    def eventFilter(self, watched, event):
+        if event.type() == QEvent.MouseButtonPress:
+            for widget in (self.ui.coilList, self.ui.electrodeList):
+                if watched is widget.viewport() and widget.itemAt(event.pos()) is None:
+                    widget.setCurrentRow(-1)
+        return super().eventFilter(watched, event)
 
     def stop_modes(self):
         # leaving target picking any other way than Place coil cancels it
