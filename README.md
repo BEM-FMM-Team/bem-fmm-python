@@ -7,7 +7,7 @@ on layered head models.
 
 Download the repo (clone or download the zip and extract it).
 The run scripts install [uv](https://docs.astral.sh/uv/) and Python 3.13 when they are missing,
-and use an installed `python3.11+` when that fails.
+and use an installed `python3.11+` when that fails. Python 3.11 to 3.14 are supported.
 
 > Note
 The charge engine only runs once per model + coil/electrode configuration, results are cached in `./__compute_cache__/` until that directory is removed.
@@ -42,7 +42,7 @@ Run `run.command` (`run_no3d.command` without the 3D view) or proceed with the `
 
 ##### Nix
 
-`nix develop` gives a shell with Python 3.13, uv and the formatters. It sets up `.venv` from
+`nix develop` gives a shell with Python 3.14, uv and the formatters. It sets up `.venv` from
 `pyproject.toml` (again after `pyproject.toml` changed) and activates it, the Python packages
 come from PyPI and our index, not from nixpkgs. `nix fmt` formats the code.
 
