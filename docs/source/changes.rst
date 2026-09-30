@@ -20,7 +20,7 @@ GUI
 - The Slices tab shows the E-field on the three slice planes. Runs compute the
   slices when "Compute E-field slices" is ticked, older results can compute
   them with the Compute slices button.
-- Export fields dialog: chosen fields, all facets or one tissue, mat, npz or
+- Export results dialog: chosen quantities, all facets or one tissue, mat, npz or
   csv, optionally with the mesh.
 - File > Save 3D view image (Snapshot in the toolbar).
 - Settings dialog (Edit > Settings): theme (System, Light, Dark), the name of
@@ -81,9 +81,12 @@ GUI
   labels and are in mm, the cross-section shape (``flag``) and the current
   distribution (``sk``) are picked from lists, coil types have readable names,
   and the exported fields read E-field, Charge and so on instead of ``E`` and
-  ``c``. The file names of exported fields are unchanged.
+  ``c``. The file names of exported quantities are unchanged.
 - Show coils (Show electrodes) in the Results tab hides them over a result
   without removing them from the setup.
+- The gui calls the stored results quantities, since only the E-field and
+  current density are fields: the Quantity list in the Display solution group,
+  Export results, and Quantities under Also export.
 - Fixed: a tDCS result stayed in the Results tab and the 3D view after
   switching to TMS, and the other way round. Each mode now keeps its own last
   result.

@@ -166,7 +166,7 @@ Solver settings:
 Output:
 
 - **Folder** where the run folders are made
-- **Also export** writes the ticked fields as ``mat``, ``npz``, ``csv`` or
+- **Also export** writes the ticked quantities as ``mat``, ``npz``, ``csv`` or
   ``pkl`` files next to the result
 - **Compute E-field slices** also computes the slices after the solve
 
@@ -181,7 +181,8 @@ Shows the run (type, model, date, convergence and folder) and controls what the
 tDCS shows that mode's result, or none, and opening a TMS or tDCS result
 switches to its mode.
 
-- **Field** and **Tissue**: any stored field on any tissue. Results open on
+- **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
+  normal current density, charge, potential) on any tissue. Results open on
   the tissue picked last, ``gm`` at first
 - **Colormap** and **Range** (automatic or fixed)
 - the minimum, median, 99th percentile and maximum of the values shown
@@ -190,14 +191,14 @@ switches to its mode.
   Coils/Electrodes tab the view always shows the setup, since placing needs
   the surfaces the result hides
 - **Show coils** (**Show electrodes** in tDCS mode) draws them over the
-  result. Untick it to see the field under them, they are always shown while
+  result. Untick it to see the solution under them, they are always shown while
   placing
 
 For tDCS results the table lists the set and solved voltage and the current of
 every electrode, with the current balance (should be close to zero) and the
 power.
 
-**Export fields...** writes chosen fields, for all facets or one tissue, as
+**Export results...** writes chosen quantities, for all facets or one tissue, as
 ``mat``, ``npz`` or ``csv``, optionally with the mesh. **Open in separate
 windows** opens the result in the plot windows of ``bemfmm show``, outside the
 main window. They show the same plots as the result tabs, which can also be
@@ -208,14 +209,14 @@ Result views
 
 The tabs on the right:
 
-- **3D view**: the model, coils, electrodes and the field on a tissue.
+- **3D view**: the model, coils, electrodes and a quantity on a tissue.
   **Snapshot** in the toolbar (File > Save 3D view image) saves it as an image.
 - **Convergence**: relative residual per GMRES iteration, with the tolerance.
 - **Slices**: the total E-field on the slice planes with the tissue outlines,
   one plane or all of them. **Compute slices** computes them for the planes set
   in the Planes tab, when the run did not or after the planes were changed.
   **Colormap** picks the colors, ``viridis`` by default
-- **Distribution**: histogram of the field and tissue picked in the Results
+- **Distribution**: histogram of the quantity and tissue picked in the Results
   tab, with the median and 99th percentile.
 - **Electrodes**: tDCS only, the current of every electrode.
 

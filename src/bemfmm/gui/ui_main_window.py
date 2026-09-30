@@ -1622,7 +1622,7 @@ class Ui_MainWindow(object):
         )
         # endif // QT_CONFIG(shortcut)
         self.actionExportFields.setText(
-            QCoreApplication.translate("MainWindow", "&Export fields...", None)
+            QCoreApplication.translate("MainWindow", "&Export results...", None)
         )
         self.actionSaveImage.setText(
             QCoreApplication.translate("MainWindow", "Save 3D view &image...", None)
@@ -2164,7 +2164,7 @@ class Ui_MainWindow(object):
         )
 
         self.exportFieldsLabel.setText(
-            QCoreApplication.translate("MainWindow", "Fields", None)
+            QCoreApplication.translate("MainWindow", "Quantities", None)
         )
         # if QT_CONFIG(tooltip)
         self.saveE.setToolTip(
@@ -2254,9 +2254,11 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Folder", None)
         )
         self.resultFolder.setText(QCoreApplication.translate("MainWindow", "-", None))
-        self.showGroup.setTitle(QCoreApplication.translate("MainWindow", "Show", None))
+        self.showGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Display solution", None)
+        )
         self.resultFieldLabel.setText(
-            QCoreApplication.translate("MainWindow", "Field", None)
+            QCoreApplication.translate("MainWindow", "Quantity", None)
         )
         self.resultTissueLabel.setText(
             QCoreApplication.translate("MainWindow", "Tissue", None)
@@ -2319,7 +2321,7 @@ class Ui_MainWindow(object):
         )
         self.electrodeSummary.setText("")
         self.exportFieldsButton.setText(
-            QCoreApplication.translate("MainWindow", "Export fields...", None)
+            QCoreApplication.translate("MainWindow", "Export results...", None)
         )
         # if QT_CONFIG(tooltip)
         self.plotWindowsButton.setToolTip(
@@ -2392,7 +2394,7 @@ class Ui_MainWindow(object):
         )
         self.distributionInfo.setText(
             QCoreApplication.translate(
-                "MainWindow", "Field and tissue picked in the Results tab", None
+                "MainWindow", "Quantity and tissue picked in the Results tab", None
             )
         )
         self.distributionLog.setText(

@@ -45,7 +45,7 @@ A first TMS run
    the skin, over that point.
 4. Press **Run TMS** in the toolbar (or F5). The Solve tab shows progress and
    the solver log.
-5. When the run finishes the Results tab opens. The 3D view shows the field on
+5. When the run finishes the Results tab opens. The 3D view shows the E-field on
    the chosen tissue, and the Convergence, Slices and Distribution tabs next to
    the 3D view show the rest.
 
