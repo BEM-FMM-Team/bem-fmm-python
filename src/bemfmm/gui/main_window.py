@@ -73,11 +73,26 @@ MODE_NAMES = {"tms": "TMS", "tdcs": "tDCS"}
 # model is loaded is reported
 COIL_MOVED = 5e-3  # m
 
-# max iterations and tolerance per mode, the command line defaults
-SOLVER_DEFAULTS = {
-    "tms": (TMSOptions.iter, TMSOptions.relres),
-    "tdcs": (TDCSOptions.iter, TDCSOptions.relres),
+# solver presets per mode: neighbor integrals, potential integrals (tDCS
+# only), max iterations and tolerance. Default is the command line default
+SOLVER_PRESETS = {
+    "tms": {
+        "Default": (TMSOptions.num_neighbors, None, TMSOptions.iter, TMSOptions.relres),
+        "Accurate": (64, None, 50, 1e-6),
+        "Fast": (4, None, 20, 1e-3),
+    },
+    "tdcs": {
+        "Default": (
+            TDCSOptions.num_neighbors,
+            TDCSOptions.num_neighbors_p,
+            TDCSOptions.iter,
+            TDCSOptions.relres,
+        ),
+        "Accurate": (64, 512, 50, 1e-6),
+        "Fast": (4, 32, 20, 1e-3),
+    },
 }
+CUSTOM_PRESET = "Custom"
 
 OTHER_TEMPLATE = "Template file..."
 DEFAULT_COIL = "default (bundled coil)"
@@ -132,6 +147,19 @@ def setup_items(scene):
     return {key: d[key] for key in ("coils", "electrodes", "planes")}
 
 
+def preset_text(values):
+    num_neighbors, num_neighbors_p, iterations, relres = values
+    text = f"{num_neighbors} neighbor integrals"
+    if num_neighbors_p is not None:
+        text += f", {num_neighbors_p} potential integrals"
+    return f"{text}, {iterations} iterations, tolerance {relres:g}"
+
+
+def same_settings(a, b):
+    # tolerances compare by value, the box rounds them
+    return a[:3] == b[:3] and np.isclose(a[3], b[3], rtol=1e-9, atol=0)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, tissue_index=None, setup=None, no_3d=False, mode=None):
         super().__init__()
@@ -167,7 +195,7 @@ class MainWindow(QMainWindow):
         self.aim_id = None  # coil the picked target is for
         self.display = {}
         self.run_started = datetime.now()
-        self.solver_settings = dict(SOLVER_DEFAULTS)
+        self.solver_settings = {m: p["Default"] for m, p in SOLVER_PRESETS.items()}
         self.field_drawn = False
         self.result_tissue = "gm"  # tissue results open on, the last one picked
         self.solver_mode = None  # mode the solver boxes currently hold
@@ -414,6 +442,9 @@ class MainWindow(QMainWindow):
 
         # solve
         ui.browseOutputButton.clicked.connect(self.browse_output)
+        ui.presetCombo.activated.connect(self.preset_picked)
+        for box in (ui.numNeighbors, ui.numNeighborsP, ui.iterations, ui.relres):
+            box.valueChanged.connect(self.solver_edited)
         ui.runButton.clicked.connect(self.run)
         ui.cancelButton.clicked.connect(self.runner.cancel)
 
@@ -772,16 +803,20 @@ class MainWindow(QMainWindow):
         )
         ui.numNeighborsP.setVisible(not tms)
         ui.numNeighborsPLabel.setVisible(not tms)
-        # each mode keeps its own iterations and tolerance
+        # each mode keeps its own solver settings and presets
         if self.solver_mode is not None:
-            self.solver_settings[self.solver_mode] = (
-                ui.iterations.value(),
-                ui.relres.value(),
-            )
-        iterations, relres = self.solver_settings[mode]
-        ui.iterations.setValue(iterations)
-        ui.relres.setValue(relres)
+            self.solver_settings[self.solver_mode] = self.solver_values()
         self.solver_mode = mode
+        self.updating = True
+        ui.presetCombo.clear()
+        for name, values in SOLVER_PRESETS[mode].items():
+            ui.presetCombo.addItem(name)
+            ui.presetCombo.setItemData(
+                ui.presetCombo.count() - 1, preset_text(values), Qt.ToolTipRole
+            )
+        ui.presetCombo.addItem(CUSTOM_PRESET)
+        self.updating = False
+        self.set_solver_values(self.solver_settings[mode])
         ui.runButton.setText(f"Run {label}")
         ui.actionRun.setText(f"Run {label}")
         ui.actionRun.setIconText(f"Run {label}")
@@ -804,6 +839,50 @@ class MainWindow(QMainWindow):
             self.load_result(path)
         else:
             self.clear_result()
+
+    def solver_values(self):
+        ui = self.ui
+        return (
+            ui.numNeighbors.value(),
+            None if self.solver_mode == "tms" else ui.numNeighborsP.value(),
+            ui.iterations.value(),
+            ui.relres.value(),
+        )
+
+    def set_solver_values(self, values):
+        ui = self.ui
+        num_neighbors, num_neighbors_p, iterations, relres = values
+        self.updating = True
+        ui.numNeighbors.setValue(num_neighbors)
+        if num_neighbors_p is not None:
+            ui.numNeighborsP.setValue(num_neighbors_p)
+        ui.iterations.setValue(iterations)
+        ui.relres.setValue(relres)
+        self.updating = False
+        self.solver_edited()
+
+    def preset_picked(self, index):
+        name = self.ui.presetCombo.itemText(index)
+        presets = SOLVER_PRESETS[self.solver_mode]
+        if not self.updating and name in presets:
+            self.set_solver_values(presets[name])
+
+    def solver_edited(self, *_):
+        # the preset the boxes hold, Custom when they match none
+        if self.updating:
+            return
+        values = self.solver_values()
+        name = next(
+            (
+                name
+                for name, preset in SOLVER_PRESETS[self.solver_mode].items()
+                if same_settings(values, preset)
+            ),
+            CUSTOM_PRESET,
+        )
+        self.updating = True
+        self.ui.presetCombo.setCurrentText(name)
+        self.updating = False
 
     @property
     def mode(self):

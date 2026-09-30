@@ -886,11 +886,21 @@ class Ui_MainWindow(object):
         self.solverGroup.setObjectName("solverGroup")
         self.solverLayout = QFormLayout(self.solverGroup)
         self.solverLayout.setObjectName("solverLayout")
+        self.presetLabel = QLabel(self.solverGroup)
+        self.presetLabel.setObjectName("presetLabel")
+
+        self.solverLayout.setWidget(0, QFormLayout.ItemRole.LabelRole, self.presetLabel)
+
+        self.presetCombo = QComboBox(self.solverGroup)
+        self.presetCombo.setObjectName("presetCombo")
+
+        self.solverLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.presetCombo)
+
         self.numNeighborsLabel = QLabel(self.solverGroup)
         self.numNeighborsLabel.setObjectName("numNeighborsLabel")
 
         self.solverLayout.setWidget(
-            0, QFormLayout.ItemRole.LabelRole, self.numNeighborsLabel
+            1, QFormLayout.ItemRole.LabelRole, self.numNeighborsLabel
         )
 
         self.numNeighbors = QSpinBox(self.solverGroup)
@@ -900,14 +910,14 @@ class Ui_MainWindow(object):
         self.numNeighbors.setValue(4)
 
         self.solverLayout.setWidget(
-            0, QFormLayout.ItemRole.FieldRole, self.numNeighbors
+            1, QFormLayout.ItemRole.FieldRole, self.numNeighbors
         )
 
         self.numNeighborsPLabel = QLabel(self.solverGroup)
         self.numNeighborsPLabel.setObjectName("numNeighborsPLabel")
 
         self.solverLayout.setWidget(
-            1, QFormLayout.ItemRole.LabelRole, self.numNeighborsPLabel
+            2, QFormLayout.ItemRole.LabelRole, self.numNeighborsPLabel
         )
 
         self.numNeighborsP = QSpinBox(self.solverGroup)
@@ -917,14 +927,14 @@ class Ui_MainWindow(object):
         self.numNeighborsP.setValue(512)
 
         self.solverLayout.setWidget(
-            1, QFormLayout.ItemRole.FieldRole, self.numNeighborsP
+            2, QFormLayout.ItemRole.FieldRole, self.numNeighborsP
         )
 
         self.iterationsLabel = QLabel(self.solverGroup)
         self.iterationsLabel.setObjectName("iterationsLabel")
 
         self.solverLayout.setWidget(
-            2, QFormLayout.ItemRole.LabelRole, self.iterationsLabel
+            3, QFormLayout.ItemRole.LabelRole, self.iterationsLabel
         )
 
         self.iterations = QSpinBox(self.solverGroup)
@@ -933,12 +943,12 @@ class Ui_MainWindow(object):
         self.iterations.setMaximum(10000)
         self.iterations.setValue(20)
 
-        self.solverLayout.setWidget(2, QFormLayout.ItemRole.FieldRole, self.iterations)
+        self.solverLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.iterations)
 
         self.relresLabel = QLabel(self.solverGroup)
         self.relresLabel.setObjectName("relresLabel")
 
-        self.solverLayout.setWidget(3, QFormLayout.ItemRole.LabelRole, self.relresLabel)
+        self.solverLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.relresLabel)
 
         self.relres = SciSpinBox(self.solverGroup)
         self.relres.setObjectName("relres")
@@ -946,12 +956,12 @@ class Ui_MainWindow(object):
         self.relres.setMaximum(1.000000000000000)
         self.relres.setValue(0.000100000000000)
 
-        self.solverLayout.setWidget(3, QFormLayout.ItemRole.FieldRole, self.relres)
+        self.solverLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.relres)
 
         self.weightLabel = QLabel(self.solverGroup)
         self.weightLabel.setObjectName("weightLabel")
 
-        self.solverLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.weightLabel)
+        self.solverLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.weightLabel)
 
         self.weight = QDoubleSpinBox(self.solverGroup)
         self.weight.setObjectName("weight")
@@ -960,7 +970,7 @@ class Ui_MainWindow(object):
         self.weight.setSingleStep(0.050000000000000)
         self.weight.setValue(0.500000000000000)
 
-        self.solverLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.weight)
+        self.solverLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.weight)
 
         self.solveLayout.addWidget(self.solverGroup)
 
@@ -2097,6 +2107,18 @@ class Ui_MainWindow(object):
         self.solverGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Solver", None)
         )
+        self.presetLabel.setText(
+            QCoreApplication.translate("MainWindow", "Preset", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.presetCombo.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Fills in the solver settings below, Custom once one is changed",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.numNeighborsLabel.setText(
             QCoreApplication.translate("MainWindow", "Neighbor integrals", None)
         )
