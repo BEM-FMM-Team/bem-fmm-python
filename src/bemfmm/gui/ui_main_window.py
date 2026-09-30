@@ -1707,13 +1707,13 @@ class Ui_MainWindow(object):
         )
         # endif // QT_CONFIG(shortcut)
         self.actionModeTDCS.setText(
-            QCoreApplication.translate("MainWindow", "tDCS", None)
+            QCoreApplication.translate("MainWindow", "TES", None)
         )
         # if QT_CONFIG(tooltip)
         self.actionModeTDCS.setToolTip(
             QCoreApplication.translate(
                 "MainWindow",
-                "Transcranial direct current stimulation, place electrodes",
+                "Transcranial electrical stimulation, place electrodes",
                 None,
             )
         )

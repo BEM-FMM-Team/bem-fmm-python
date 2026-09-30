@@ -11,11 +11,12 @@ from bemfmm import softgl
 app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
-    help="Charge based BEM-FMM for TMS and tDCS",
+    help="Charge based BEM-FMM for TMS and TES",
 )
 
 SaveFormat = Literal["none", "csv", "mat", "npz", "pkl"]
-Mode = Literal["tms", "tdcs"]
+# tdcs is the old name of tes
+Mode = Literal["tms", "tes", "tdcs"]
 
 
 def resolve_index(tissue_index, scene):
@@ -107,7 +108,7 @@ def gui(
     tissue_index: Optional[str] = typer.Option(None, help="Tissue index to open"),
     setup: Optional[str] = typer.Option(None, help="Setup (.json) to open"),
     mode: Optional[Mode] = typer.Option(
-        None, help="Start in TMS or tDCS mode, the last one used by default"
+        None, help="Start in TMS or TES mode, the last one used by default"
     ),
     no_3d: bool = typer.Option(
         False, "--no-3d", help="Run without the 3D view, for remote desktops"
@@ -116,7 +117,8 @@ def gui(
     """Open the graphical interface."""
     from bemfmm.gui.app import run
 
-    sys.exit(run(tissue_index, setup, no_3d, mode))
+    # the gui keeps the mode as tms or tdcs
+    sys.exit(run(tissue_index, setup, no_3d, "tdcs" if mode == "tes" else mode))
 
 
 @app.command()
@@ -178,7 +180,7 @@ def tms(
 
 
 @app.command()
-def tdcs(
+def tes(
     setup: Optional[str] = typer.Option(None, help="Setup (.json) with electrodes"),
     tissue_index: Optional[str] = None,
     skin: Optional[str] = typer.Option(
@@ -197,7 +199,7 @@ def tdcs(
     plot: bool = True,
     progress: bool = typer.Option(False, hidden=True),
 ):
-    """Solve tDCS for the electrodes in a setup, or the default montage."""
+    """Solve TES for the electrodes in a setup, or the default montage."""
     if plot:
         softgl.setup()
     from bemfmm.electrode import montage_problem
@@ -251,6 +253,10 @@ Power loss: {info['power']:.4e} W""")
     if plot:
         show_tdcs(result, planes, plot_tissue, skin, slice_data)
     wait_for_windows(plot)
+
+
+# the old name, kept for scripts
+app.command("tdcs", hidden=True)(tes)
 
 
 @app.command()

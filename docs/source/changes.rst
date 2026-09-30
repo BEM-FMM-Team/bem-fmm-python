@@ -6,10 +6,14 @@ Unreleased
 
 GUI
 
-- The window is explicitly in TMS or tDCS mode. The mode is switched from the
+- tDCS is called TES (transcranial electrical stimulation) everywhere it is
+  shown: the mode buttons, the window title, messages, ``bemfmm tes`` and
+  ``bemfmm gui --mode tes``. ``bemfmm tdcs`` and ``--mode tdcs`` still work,
+  and setups and results keep the ``tdcs`` key, so older files open as before.
+- The window is explicitly in TMS or TES mode. The mode is switched from the
   toolbar or the Mode menu (Ctrl+1, Ctrl+2) and shown in the window title, the
   status bar and the name of the second tab. The run button says what it runs.
-  ``bemfmm gui --mode tms|tdcs`` picks the mode at start, otherwise the last
+  ``bemfmm gui --mode tms|tes`` picks the mode at start, otherwise the last
   one used is restored.
 - Only the coils or the electrodes of the current mode are shown in the 3D
   view.
@@ -35,7 +39,7 @@ GUI
   previous behavior. With another tissue, for example gm, the coil axis follows
   the gm normal at the target and the coil is moved out along that normal to
   the set distance above the skin.
-- Electrodes are drawn as the skin facets the tDCS solver will imprint for
+- Electrodes are drawn as the skin facets the TES solver will imprint for
   them, with their edges, instead of a flat disk that cut into curved skin.
   The patch follows the electrode while it is dragged or resized.
 - Coils and electrodes are selected by clicking them in the 3D view. Clicking
@@ -49,7 +53,7 @@ GUI
   twist instead of resetting the coil to its default turn about the axis.
 - The slices use ``viridis`` instead of ``jet``, and the Slices tab has a
   Colormap choice (viridis, plasma, inferno, cividis, hot, jet).
-- Results open on the tissue picked last, ``gm`` at first, for TMS and tDCS
+- Results open on the tissue picked last, ``gm`` at first, for TMS and TES
   alike (TMS results used to open on ``wm``).
 - Coils and electrodes are moved by pressing on them in the 3D view, moving
   the mouse and releasing. The Drag buttons, which picked an item up on one
@@ -88,9 +92,9 @@ GUI
   current density are fields: the Quantity list in the Display solution group,
   Export results, and Quantities under Also export.
 - Solver presets in the Solve tab (Default, Accurate, Fast) for TMS and
-  tDCS, and each mode keeps all of its solver settings, the neighbor
+  TES, and each mode keeps all of its solver settings, the neighbor
   integrals included.
-- Fixed: a tDCS result stayed in the Results tab and the 3D view after
+- Fixed: a TES result stayed in the Results tab and the 3D view after
   switching to TMS, and the other way round. Each mode now keeps its own last
   result.
 - Fixed: picking an Aim at target and then selecting another coil moved that
@@ -99,25 +103,25 @@ GUI
 - Fixed: Ctrl+Z after a tissue table edit undid an unrelated coil or electrode
   edit and left the table edited. On the Model tab Undo and Redo now act on the
   table, and a table undone back to the loaded model no longer blocks runs.
-- Fixed: switching between TMS and tDCS reset Max iterations and Tolerance to
+- Fixed: switching between TMS and TES reset Max iterations and Tolerance to
   their defaults. Each mode now keeps its own values.
 - Fixed: electrodes kept the coordinates of the previous model when another
   one was loaded, and the solver then snapped them to whatever skin was
   nearest. They are now moved onto the new surface, and coils whose height
   above their surface changed by more than 5 mm are reported.
-- Fixed: a tDCS run with one electrode, or with all electrodes at the same
+- Fixed: a TES run with one electrode, or with all electrodes at the same
   voltage, was solved and gave meaningless currents. The gui refuses to run it
   and says why.
 
 Command line
 
-- tDCS integrates the potential on the electrodes exactly over the nearest 512
+- TES integrates the potential on the electrodes exactly over the nearest 512
   facets instead of 32 (``--num-neighbors-p``, Potential integrals in the
   gui).
 - ``bemfmm slices RESULT [--planes X Y Z] [--plane NX,NY,NZ,PX,PY,PZ ...]``
   computes E-field slices for a saved result into ``slices.npz``.
-- ``bemfmm tms`` and ``bemfmm tdcs`` take ``--slices``.
-- ``bemfmm tdcs --skin`` defaults to the surface stored in the setup.
+- ``bemfmm tms`` and ``bemfmm tes`` take ``--slices``.
+- ``bemfmm tes --skin`` defaults to the surface stored in the setup.
 - ``bemfmm show`` uses saved slices instead of computing them again.
 
 Library
@@ -128,7 +132,7 @@ Library
   about it, ``twisted`` builds it back. ``Stimulation.twist_coil`` takes the
   twist alone.
 - ``electrode.montage_problem`` says why a set of electrodes cannot drive a
-  current. ``tdcs.solve`` raises ``ValueError`` with it, and ``bemfmm tdcs``
+  current. ``tdcs.solve`` raises ``ValueError`` with it, and ``bemfmm tes``
   checks it before loading the model.
 - ``plot.results.compute_slices``, ``plot.slice.draw_efield_slice``,
   ``save_slices`` and ``load_slices``. ``plot_efield_slice`` draws with

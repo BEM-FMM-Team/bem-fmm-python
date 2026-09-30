@@ -7,7 +7,7 @@ from bemfmm.mesh import mesh_imprint
 
 class Electrode:
     """
-    A tDCS electrode, a patch of skin within radius of center held at a fixed
+    A TES electrode, a patch of skin within radius of center held at a fixed
     voltage. Always sits on the skin surface
     """
 
@@ -54,7 +54,7 @@ def montage_problem(electrodes):
         return "Add electrodes first."
     if len(electrodes) == 1:
         return (
-            "A tDCS run needs at least two electrodes, the current has to leave "
+            "A TES run needs at least two electrodes, the current has to leave "
             "the head through another one."
         )
     voltages = {float(e.voltage) for e in electrodes}
@@ -95,7 +95,7 @@ def electrode_disk(center, normal, radius, lift=1e-4, res=40):
 def imprint_patch(P, t, normals, center, radius, margin, lift=1e-4):
     """
     Facets of the surface (P, t) inside the electrode, cut the same way the
-    tDCS solver imprints the skin. Only facets with a vertex within radius +
+    TES solver imprints the skin. Only facets with a vertex within radius +
     margin are imprinted, margin should be at least the longest edge. Returns
     (P, t) lifted along the facet normals, or None when no facet is inside
     """

@@ -3,7 +3,7 @@ The graphical interface
 
 Start it with ``bemfmm gui``. Options::
 
-    bemfmm gui --mode tdcs                          start in tDCS mode
+    bemfmm gui --mode tes                           start in TES mode
     bemfmm gui --tissue-index my_model/tissue_index.yaml
     bemfmm gui --setup study/setup.json             open a saved setup
     bemfmm gui --no-3d                              no 3D view, for remote desktops
@@ -11,13 +11,13 @@ Start it with ``bemfmm gui``. Options::
 The window has a side panel with four tabs on the left and the result views on
 the right.
 
-TMS or tDCS
+TMS or TES
 -----------
 
 The program is always in one of two modes, and the mode is shown in four
 places: the two buttons at the left of the toolbar, the window title, the badge
 in the status bar and the name of the second tab (**Coils** or **Electrodes**).
-The run button says **Run TMS** or **Run tDCS**.
+The run button says **Run TMS** or **Run TES**.
 
 Switch with the toolbar buttons, the Mode menu, or Ctrl+1 and Ctrl+2. Coils and
 electrodes are both kept while switching. Only the ones of the current mode are
@@ -99,7 +99,7 @@ space in the view or the list, or pressing Esc, clears the selection.
   Place on surface, oriented as described under Align to. Selecting another
   coil, undo or switching mode before **Place coil** cancels the pick
 
-Electrodes tab (tDCS)
+Electrodes tab (TES)
 ---------------------
 
 - **Place on**: the surface the electrodes are imprinted on, where current
@@ -155,27 +155,27 @@ Solver settings:
 - **Preset** fills in the settings below:
 
   ========= ========================== ==================================
-  Preset    TMS                        tDCS
+  Preset    TMS                        TES
   ========= ========================== ==================================
   Default   4, 20 iterations, 1e-4     4, 512, 50 iterations, 1e-6
   Accurate  64, 50 iterations, 1e-6    64, 512, 50 iterations, 1e-6
   Fast      4, 20 iterations, 1e-3     4, 32, 20 iterations, 1e-3
   ========= ========================== ==================================
 
-  The numbers are the neighbor integrals, the potential integrals (tDCS),
+  The numbers are the neighbor integrals, the potential integrals (TES),
   the max iterations and the tolerance. Default is what the command line
   uses, Fast is for benchmarking and quick checks. Changing any of them
   shows **Custom**.
 - **Neighbor integrals**: nearest facets integrated exactly for the E-field (4)
-- **Potential integrals**: tDCS only, nearest facets integrated exactly for the
+- **Potential integrals**: TES only, nearest facets integrated exactly for the
   potential on the electrodes (512)
 - **Max iterations** and **Tolerance**: when GMRES stops. The defaults are
-  20 and 1e-4 for TMS, 50 and 1e-6 for tDCS. Each mode keeps its own
+  20 and 1e-4 for TMS, 50 and 1e-6 for TES. Each mode keeps its own
   settings while switching. Tolerance is typed and shown in
   scientific notation (``1e-6``, ``2.5e-7``), the arrows step by a factor of
   ten
 - **Conservation weight**: weight of the term that keeps the total charge
-  (TMS) or the total electrode current (tDCS) at zero
+  (TMS) or the total electrode current (TES) at zero
 
 Output:
 
@@ -192,7 +192,7 @@ Results tab
 
 Shows the run (type, model, date, convergence and folder) and controls what the
 3D view shows. Each mode keeps its own last result: switching between TMS and
-tDCS shows that mode's result, or none, and opening a TMS or tDCS result
+TES shows that mode's result, or none, and opening a TMS or TES result
 switches to its mode.
 
 - **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
@@ -204,11 +204,11 @@ switches to its mode.
   for every new result and keeps its state when switching tabs. On the
   Coils/Electrodes tab the view always shows the setup, since placing needs
   the surfaces the result hides
-- **Show coils** (**Show electrodes** in tDCS mode) draws them over the
+- **Show coils** (**Show electrodes** in TES mode) draws them over the
   result. Untick it to see the solution under them, they are always shown while
   placing
 
-For tDCS results the table lists the set and solved voltage and the current of
+For TES results the table lists the set and solved voltage and the current of
 every electrode, with the current balance (should be close to zero) and the
 power.
 
@@ -230,7 +230,7 @@ The tabs on the right:
   one plane or all of them. **Compute slices** computes them for the planes set
   in the Planes tab, when the run did not or after the planes were changed.
   **Colormap** picks the colors, ``viridis`` by default
-- **Electrodes**: tDCS only, the current of every electrode.
+- **Electrodes**: TES only, the current of every electrode.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,
 subplot spacing, axis settings and save (png, pdf, svg and more). **Pop out**
@@ -284,7 +284,7 @@ Edit > Settings (Ctrl+,):
 - **Skin tissue**: the name of the scalp surface in your tissue indexes, used
   as the default Place on surface. ``skin`` unless your models call it
   something else.
-- **Start in**: the last used mode, TMS or tDCS.
+- **Start in**: the last used mode, TMS or TES.
 - **Output folder**: where run folders are made, ``__output__`` in the
   working folder when empty.
 - **Compute E-field slices after each run**: the default for the checkbox in

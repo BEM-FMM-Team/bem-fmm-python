@@ -154,7 +154,7 @@ def draw_convergence(figure, result):
 
 def draw_currents(figure, electrodes):
     if not electrodes:
-        return draw_message(figure, "Electrode currents are shown for tDCS results")
+        return draw_message(figure, "Electrode currents are shown for TES results")
     ax = figure.add_subplot()
     names = [e["name"] for e in electrodes]
     currents = [e["current"] * 1e3 for e in electrodes]

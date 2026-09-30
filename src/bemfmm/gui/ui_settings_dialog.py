@@ -234,7 +234,7 @@ class Ui_SettingsDialog(object):
             1, QCoreApplication.translate("SettingsDialog", "TMS", None)
         )
         self.startModeCombo.setItemText(
-            2, QCoreApplication.translate("SettingsDialog", "tDCS", None)
+            2, QCoreApplication.translate("SettingsDialog", "TES", None)
         )
 
         self.runsGroup.setTitle(

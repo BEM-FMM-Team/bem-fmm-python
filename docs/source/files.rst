@@ -22,7 +22,7 @@ Setup
 -----
 
 A ``.json`` file written by the gui (File > Save setup) and read by
-``bemfmm tms --setup`` and ``bemfmm tdcs --setup``:
+``bemfmm tms --setup`` and ``bemfmm tes --setup``:
 
 .. code-block:: json
 
@@ -47,7 +47,8 @@ A ``.json`` file written by the gui (File > Save setup) and read by
     }
 
 Lengths are in meters, ``rot`` is a quaternion (x, y, z, w) and ``dIdt`` is in
-A/s. ``mode`` is the kind of study the setup was made for and ``skin`` the
+A/s. ``mode`` is the kind of study the setup was made for, ``tms`` or ``tdcs``
+(TES, the key keeps its old name), and ``skin`` the
 surface the coils and electrodes sit on, both may be missing in older setups.
 ``planes`` are the slice planes, each a normal and a point on it. Setups before
 version 2 stored the x, y, z of the three axis planes, they still open.
@@ -71,7 +72,7 @@ Each run from the gui gets its own folder:
 ``result.json`` holds the kind of run, the tissue names, the solver options,
 the number of iterations and final residual, timings per stage, the date, the
 package version and git commit, and the fingerprint of the model it was solved
-on. tDCS results also list every electrode with its facets, set and solved
+on. TES results also list every electrode with its facets, set and solved
 voltage and current, the total current and the power. TMS results list the
 coils and how well the normal current is continuous across the surfaces
 (``current_conservation``, the norm of the jump in normal current times area).
@@ -86,10 +87,10 @@ coils and how well the normal current is continuous across the surfaces
 ``Emag``    magnitude of ``E`` (V/m)
 ``En``      normal component of the continuous E-field (V/m)
 ``Jn``      outward normal current density just inside the surface (A/m^2)
-``Pot``     surface potential, tDCS only (V)
+``Pot``     surface potential, TES only (V)
 =========== =========================================================
 
-tDCS results also store ``electrodes``, the electrode number of every facet
+TES results also store ``electrodes``, the electrode number of every facet
 (0 for none).
 
 Slices

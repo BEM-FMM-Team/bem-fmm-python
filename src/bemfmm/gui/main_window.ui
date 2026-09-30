@@ -2087,10 +2087,10 @@
      <bool>true</bool>
     </property>
     <property name="text">
-     <string>tDCS</string>
+     <string>TES</string>
     </property>
     <property name="toolTip">
-     <string>Transcranial direct current stimulation, place electrodes</string>
+     <string>Transcranial electrical stimulation, place electrodes</string>
     </property>
     <property name="shortcut">
      <string>Ctrl+2</string>

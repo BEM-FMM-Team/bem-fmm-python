@@ -67,13 +67,14 @@ TEMPLATE_FILTER = "Coil template (*.mat);;All Files (*)"
 MATLAB_FILTER = "MATLAB (*.mat);;All Files (*)"
 IMAGE_FILTER = "PNG image (*.png);;JPEG image (*.jpg);;All Files (*)"
 
-MODE_NAMES = {"tms": "TMS", "tdcs": "tDCS"}
+# "tdcs" stays the key in setups, results and settings, TES is shown
+MODE_NAMES = {"tms": "TMS", "tdcs": "TES"}
 
 # a coil whose height above its surface changes more than this when another
 # model is loaded is reported
 COIL_MOVED = 5e-3  # m
 
-# solver presets per mode: neighbor integrals, potential integrals (tDCS
+# solver presets per mode: neighbor integrals, potential integrals (TES
 # only), max iterations and tolerance. Default is the command line default
 SOLVER_PRESETS = {
     "tms": {
@@ -787,7 +788,7 @@ class MainWindow(QMainWindow):
 
     # stimulation
     def set_mode(self, tms):
-        # the gui is for one kind of study at a time, TMS or tDCS
+        # the gui is for one kind of study at a time, TMS or TES
         ui = self.ui
         mode = "tms" if tms else "tdcs"
         label = MODE_NAMES[mode]
@@ -1704,7 +1705,7 @@ class MainWindow(QMainWindow):
         else:
             electrodes = list(self.stim.electrodes.values())
             n = len(electrodes)
-            text = f"tDCS with {n} electrode{'s' * (n != 1)} on {surface}"
+            text = f"TES with {n} electrode{'s' * (n != 1)} on {surface}"
             problem = montage_problem(electrodes) if n else None
             if problem:
                 text += f". {problem}"
@@ -1744,7 +1745,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.information(self, "Run", "Add a coil first.")
                 return
         else:
-            kind = "tdcs"
+            kind = "tes"
             problem = montage_problem(list(self.stim.electrodes.values()))
             if problem:
                 QMessageBox.information(self, "Run", problem)
@@ -1905,11 +1906,11 @@ class MainWindow(QMainWindow):
         self.result = result
         self.result_dir = path if path.is_dir() else path.parent
         info = result.info
-        # a TMS or tDCS result belongs to its mode, the sphere check to any
+        # a TMS or TES result belongs to its mode, the sphere check to any
         mode = result.kind if result.kind in MODE_NAMES else self.mode
         self.mode_results[mode] = self.result_dir
 
-        kinds = {"tms": "TMS", "tdcs": "tDCS", "uniform": "Uniform field"}
+        kinds = {"tms": "TMS", "tdcs": "TES", "uniform": "Uniform field"}
         ui.resultKind.setText(
             f"{kinds.get(result.kind, result.kind)} on "
             f"{model_name(info.get('tissue_index', ''))}"
@@ -2308,7 +2309,7 @@ class MainWindow(QMainWindow):
             "About BEM-FMM",
             f"<b>BEM-FMM</b> {package_version()}<br><br>"
             "Charge based boundary element fast multipole method for "
-            "modeling TMS and tDCS.<br><br>(c) 2026 WPI",
+            "modeling TMS and TES.<br><br>(c) 2026 WPI",
         )
 
     def closeEvent(self, event):
