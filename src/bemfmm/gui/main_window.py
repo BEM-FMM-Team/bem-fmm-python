@@ -158,6 +158,7 @@ class MainWindow(QMainWindow):
 
         self.result = None
         self.result_dir = None
+        self.mode_results = {}  # result folder last shown in each mode
         self.slices = None
 
         self.updating = False
@@ -792,6 +793,17 @@ class MainWindow(QMainWindow):
         self.apply_surfaces()
         self.update_solve_summary()
         self.update_title()
+        self.show_mode_result(mode)
+
+    def show_mode_result(self, mode):
+        # each mode shows its own last result, or none
+        path = self.mode_results.get(mode)
+        if path == self.result_dir:
+            return
+        if path is not None and path.is_dir():
+            self.load_result(path)
+        else:
+            self.clear_result()
 
     @property
     def mode(self):
@@ -1818,6 +1830,9 @@ class MainWindow(QMainWindow):
         self.result = result
         self.result_dir = path if path.is_dir() else path.parent
         info = result.info
+        # a TMS or tDCS result belongs to its mode, the sphere check to any
+        mode = result.kind if result.kind in MODE_NAMES else self.mode
+        self.mode_results[mode] = self.result_dir
 
         kinds = {"tms": "TMS", "tdcs": "tDCS", "uniform": "Uniform field"}
         ui.resultKind.setText(
@@ -1895,6 +1910,46 @@ class MainWindow(QMainWindow):
         self.result_selection_changed()
         if self.viewport.available and not ui.showResultButton.isChecked():
             ui.showResultButton.setChecked(True)
+        if mode != self.mode:
+            # set_mode finds this result already shown
+            (ui.actionModeTMS if mode == "tms" else ui.actionModeTDCS).setChecked(True)
+
+    def clear_result(self):
+        # no result for this mode, the Results tab and views go back to empty
+        ui = self.ui
+        self.result = self.result_dir = self.slices = None
+        for label in (
+            ui.resultKind,
+            ui.resultCreated,
+            ui.resultConvergence,
+            ui.resultFolder,
+        ):
+            label.setText("-")
+        self.updating = True
+        ui.resultField.clear()
+        ui.resultTissue.clear()
+        self.updating = False
+        ui.resultStats.setText("")
+        ui.electrodeResultGroup.setVisible(False)
+        ui.viewTabs.setTabVisible(ui.viewTabs.indexOf(ui.electrodesTab), False)
+        for widget in (
+            ui.exportFieldsButton,
+            ui.plotWindowsButton,
+            ui.openFolderButton,
+            ui.actionExportFields,
+            ui.showResultButton,
+        ):
+            widget.setEnabled(False)
+        self.enable_compute_slices(False)
+        if self.field_drawn:
+            self.viewport.clear_field()
+            self.apply_display()
+            self.field_drawn = False
+            self.show_items()
+        self.fill_slice_planes()
+        self.update_slice_info()
+        for panel in self.plots.values():
+            panel.refresh()
 
     def result_values(self):
         name = self.ui.resultField.currentData()
