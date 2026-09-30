@@ -1197,7 +1197,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="exportFieldsLabel">
               <property name="text">
-               <string>Fields</string>
+               <string>Quantities</string>
               </property>
              </widget>
             </item>
@@ -1425,13 +1425,13 @@
          <item>
           <widget class="QGroupBox" name="showGroup">
            <property name="title">
-            <string>Show</string>
+            <string>Display solution</string>
            </property>
            <layout class="QFormLayout" name="showLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="resultFieldLabel">
               <property name="text">
-               <string>Field</string>
+               <string>Quantity</string>
               </property>
              </widget>
             </item>
@@ -1618,7 +1618,7 @@
               <bool>false</bool>
              </property>
              <property name="text">
-              <string>Export fields...</string>
+              <string>Export results...</string>
              </property>
             </widget>
            </item>
@@ -1836,7 +1836,7 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Field and tissue picked in the Results tab</string>
+              <string>Quantity and tissue picked in the Results tab</string>
              </property>
             </widget>
            </item>
@@ -2040,7 +2040,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Export fields...</string>
+    <string>&amp;Export results...</string>
    </property>
   </action>
   <action name="actionSaveImage">

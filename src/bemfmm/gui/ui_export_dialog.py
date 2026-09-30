@@ -161,17 +161,17 @@ class Ui_ExportDialog(object):
 
     def retranslateUi(self, ExportDialog):
         ExportDialog.setWindowTitle(
-            QCoreApplication.translate("ExportDialog", "Export fields", None)
+            QCoreApplication.translate("ExportDialog", "Export results", None)
         )
         self.description.setText(
             QCoreApplication.translate(
                 "ExportDialog",
-                "One file per field with a value per facet. Vector fields have three columns",
+                "One file per quantity with a value per facet. Vectors have three columns",
                 None,
             )
         )
         self.fieldsLabel.setText(
-            QCoreApplication.translate("ExportDialog", "Fields", None)
+            QCoreApplication.translate("ExportDialog", "Quantities", None)
         )
         self.tissueLabel.setText(
             QCoreApplication.translate("ExportDialog", "Facets", None)

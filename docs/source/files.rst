@@ -63,9 +63,9 @@ Each run from the gui gets its own folder:
 ``setup.json``          exactly what was solved
 ``tissue_index.yaml``   only when the tissues were edited but not saved
 ``result.json``         run information
-``result.npz``          mesh and per facet fields
+``result.npz``          mesh and per facet quantities
 ``slices.npz``          E-field slices, when they were computed
-``*.mat`` and others    fields exported with Also export or Export fields
+``*.mat`` and others    quantities exported with Also export or Export results
 ======================= ======================================================
 
 ``result.json`` holds the kind of run, the tissue names, the solver options,
@@ -78,7 +78,7 @@ coils and how well the normal current is continuous across the surfaces
 
 ``result.npz`` holds ``P`` and ``t`` (the combined mesh, 0 based), ``normals``,
 ``interface`` (inside and outside tissue of every facet), ``resvec`` and one
-``field_<name>`` array per field:
+``field_<name>`` array per quantity:
 
 =========== =========================================================
 ``c``       surface charge density divided by eps0 (V/m)
@@ -105,11 +105,11 @@ the date of the result the slices belong to. Load it with
 ``bemfmm.plot.slice.load_slices``, which also reads the older files keyed
 ``XY``, ``XZ`` and ``YZ``.
 
-Exported fields
----------------
+Exported quantities
+-------------------
 
-One file per field, named after it (``En.mat``, ``E_gm.mat`` when only one
-tissue was exported). Scalar fields are one column, ``E`` three. With the mesh
+One file per quantity, named after it (``En.mat``, ``E_gm.mat`` when only one
+tissue was exported). Scalars are one column, ``E`` three. With the mesh
 included, ``P`` is in meters and ``t`` counts from 1 in ``.mat`` files, from 0
 otherwise.
 

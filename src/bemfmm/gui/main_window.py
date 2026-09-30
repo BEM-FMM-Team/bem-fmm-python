@@ -84,7 +84,7 @@ DEFAULT_COIL = "default (bundled coil)"
 
 NO_3D_MESSAGE = (
     "The 3D view is off.\n\n"
-    "Coils and electrodes can still be placed with the position fields, "
+    "Coils and electrodes can still be placed with the position boxes, "
     "and runs can be solved and inspected from the side panel."
 )
 
@@ -2154,7 +2154,7 @@ class MainWindow(QMainWindow):
             return
         values = dialog.values()
         if not values["names"] and not values["mesh"]:
-            QMessageBox.information(self, "Export fields", "Nothing was picked.")
+            QMessageBox.information(self, "Export results", "Nothing was picked.")
             return
         try:
             with busy():
