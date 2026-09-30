@@ -6,6 +6,7 @@ Setup
 
 ::
 
+    nix develop                              or, without nix:
     python -m uv pip install -e ".[dev]"
     pytest                                   about 40 s, sphere model only
     python scripts/benchmark.py              timings and reference numbers
@@ -84,8 +85,9 @@ progress bar. Anything the command line can do, the gui can do the same way.
 Style
 -----
 
-Code is formatted with black and imports sorted with isort
-(``isort --profile black -p bemfmm``). Keep comments for what the code does not
+Code is formatted with black and imports sorted with isort, its settings are
+in ``pyproject.toml``. ``nix fmt`` runs both, and alejandra on the nix files.
+Keep comments for what the code does not
 say itself.
 
 Adding a coil generator
