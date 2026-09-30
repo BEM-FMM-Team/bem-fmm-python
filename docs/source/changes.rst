@@ -84,6 +84,9 @@ GUI
   ``c``. The file names of exported fields are unchanged.
 - Show coils (Show electrodes) in the Results tab hides them over a result
   without removing them from the setup.
+- Fixed: a tDCS result stayed in the Results tab and the 3D view after
+  switching to TMS, and the other way round. Each mode now keeps its own last
+  result.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.

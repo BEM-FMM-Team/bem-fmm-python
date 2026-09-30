@@ -177,7 +177,9 @@ Results tab
 -----------
 
 Shows the run (type, model, date, convergence and folder) and controls what the
-3D view shows:
+3D view shows. Each mode keeps its own last result: switching between TMS and
+tDCS shows that mode's result, or none, and opening a TMS or tDCS result
+switches to its mode.
 
 - **Field** and **Tissue**: any stored field on any tissue. Results open on
   the tissue picked last, ``gm`` at first
