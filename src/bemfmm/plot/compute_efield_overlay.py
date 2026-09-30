@@ -28,7 +28,9 @@ def compute_efield_overlay(
     Total E-field on an Ms x Ms grid covering the model in plane, with the
     tissue outlines where the plane cuts the surfaces. Grid and outlines are in
     the plane's own coordinates (Plane.frame), which for a plane normal to an
-    axis are the other two world coordinates
+    axis are the other two world coordinates. mask marks the grid points inside
+    the outline of tissue INNER_IDX (the outside of the skin), th1 and th2 are
+    the color limits. The color scale is applied when drawing (slice_image)
     """
     from bemfmm.charge import volume_field_electric
     from bemfmm.mesh import meshplaneint_axis_nonmanifold
@@ -78,44 +80,13 @@ def compute_efield_overlay(
     Pinner, einner = _compact_vertices(points_2d, edges[idx_mask, :].copy())
     mask = _ray_cast_inside(points_2d_obs, Pinner, einner)
 
-    E_plot = E_mag.copy()
-
-    # # Automatic scales (should probably set another way, is fine for now)
-    # th1 = np.nanmax(E_plot[mask])
-    # th2 = np.nanmin(E_plot[mask])
-
-    # Update mask after thresholds, so plots look good
-    mask[~mask] = True  # set all to true TEST outside the model
-
-    # # TEMP: For matlab comparison
-    # th1 = 100
-    # th2 = 0
-
-    # # TEMP: For matlab comparison, linear scale
-    # E_plot[~mask] = np.nan
-    # E_lm = np.full(Ms**2, np.nan)
-    # th1l = th1
-    # th2l = th2
-    # scale = 1
-    # E_lm[mask] = E_plot[mask]
-    # E_grid = E_lm.reshape(Ms, Ms)
-
-    # Log scale
-    E_plot[~mask] = np.nan
-    templ, th1l, th2l, scale = _log_modulus(E_plot[mask], th1, th2)
-    E_lm = np.full(Ms**2, np.nan)
-    E_lm[mask] = templ
-    E_grid = E_lm.reshape(Ms, Ms)
-
     return EfieldSlice(
         E_mag=E_mag,
-        E_grid=E_grid,
         mask=mask,
         u=u,
         v=v,
-        th1l=th1l,
-        th2l=th2l,
-        scale=scale,
+        th1=float(th1),
+        th2=float(th2),
         points_2d=points_2d,
         edges=edges,
         ci=ci,
@@ -157,17 +128,3 @@ def _ray_cast_inside(
 
     crossings = ((y1 > py) != (y2 > py)) & (px < x_int)
     return (crossings.sum(axis=1) % 2) == 1
-
-
-def _log_modulus(
-    temp: np.ndarray, th1: float, th2: float, factor: float = 0.01
-) -> tuple[np.ndarray, float, float, float]:
-    """John and Draper (1980) log-modulus transform"""
-    temp = np.clip(temp, th2, th1)
-    scale = factor * float(np.nanmax(np.abs(temp)))
-    if scale == 0:
-        return np.zeros_like(temp), 0.0, 0.0, 1.0
-    templ = np.sign(temp) * np.log10(np.abs(temp) / scale + 1)
-    th1l = np.sign(th1) * np.log10(abs(th1) / scale + 1)
-    th2l = np.sign(th2) * np.log10(abs(th2) / scale + 1) if th2 != 0 else 0.0
-    return templ, th1l, th2l, scale

@@ -98,13 +98,16 @@ Slices
 
 ``slices.npz`` holds ``planes``, one row per plane with its normal and a point
 on it in meters (N x 6), and for plane number ``i`` the grid axes ``s<i>_u``
-and ``s<i>_v``, the field on the grid (``s<i>_E_mag`` and the log scaled
-``s<i>_E_grid``), the color limits and the tissue outlines
+and ``s<i>_v``, the E-field magnitude on the grid in V/m (``s<i>_E_mag``),
+which grid points are inside the head (``s<i>_mask``), the color range
+``s<i>_range`` (lowest and highest value in V/m) and the tissue outlines
 (``s<i>_points_2d``, ``s<i>_edges``, ``s<i>_ci``). The grid and outlines are in
-the plane's own coordinates. ``tissues`` has the tissue names and ``created``
-the date of the result the slices belong to. Load it with
-``bemfmm.plot.slice.load_slices``, which also reads the older files keyed
-``XY``, ``XZ`` and ``YZ``.
+the plane's own coordinates. The log scale is applied when the slices are
+drawn. ``tissues`` has the tissue names and ``created`` the date of the result
+the slices belong to. Load it with ``bemfmm.plot.slice.load_slices``, which
+also reads older files: keyed ``XY``, ``XZ`` and ``YZ``, and with log scaled
+limits (``_limits``) instead of ``_range``. Their mask marks every point as
+inside, so the field outside the head is always drawn for them.
 
 Exported quantities
 -------------------

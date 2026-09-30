@@ -10,6 +10,10 @@ GUI
   shown: the mode buttons, the window title, messages, ``bemfmm tes`` and
   ``bemfmm gui --mode tes``. ``bemfmm tdcs`` and ``--mode tdcs`` still work,
   and setups and results keep the ``tdcs`` key, so older files open as before.
+- Slices no longer show a field in the air around the head for TES, where it
+  means nothing. TMS slices show it, the coil's own field, unless **Show
+  outside the head** in the Slices tab is unticked. ``slices.npz`` stores the
+  plain field and its range, the log scale is applied when drawing.
 - The window is explicitly in TMS or TES mode. The mode is switched from the
   toolbar or the Mode menu (Ctrl+1, Ctrl+2) and shown in the window title, the
   status bar and the name of the second tab. The run button says what it runs.

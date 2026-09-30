@@ -1420,6 +1420,12 @@ class Ui_MainWindow(object):
 
         self.sliceControls.addWidget(self.sliceColormap)
 
+        self.sliceOutside = QCheckBox(self.slicesTab)
+        self.sliceOutside.setObjectName("sliceOutside")
+        self.sliceOutside.setChecked(True)
+
+        self.sliceControls.addWidget(self.sliceOutside)
+
         self.sliceInfo = QLabel(self.slicesTab)
         self.sliceInfo.setObjectName("sliceInfo")
         sizePolicy1.setHeightForWidth(self.sliceInfo.sizePolicy().hasHeightForWidth())
@@ -2365,6 +2371,16 @@ class Ui_MainWindow(object):
             5, QCoreApplication.translate("MainWindow", "jet", None)
         )
 
+        # if QT_CONFIG(tooltip)
+        self.sliceOutside.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Also show the field in the air around the head", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.sliceOutside.setText(
+            QCoreApplication.translate("MainWindow", "Show outside the head", None)
+        )
         self.sliceInfo.setText("")
         # if QT_CONFIG(tooltip)
         self.computeSlicesButton.setToolTip(

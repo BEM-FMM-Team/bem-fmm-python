@@ -62,7 +62,9 @@ def show_slices(result: Result, planes, th_tissue, coils=(), slices=None):
     if slices is None:
         slices = compute_slices(result, planes, th_tissue, coils)
     for data in slices:
-        Process(target=plot_efield_slice, args=(data, result.tissues)).start()
+        # the field in the air only means something for TMS
+        args = (data, result.tissues, result.kind == "tms")
+        Process(target=plot_efield_slice, args=args).start()
 
 
 def show_tms(

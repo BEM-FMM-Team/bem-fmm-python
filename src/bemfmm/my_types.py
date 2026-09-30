@@ -61,14 +61,12 @@ class StrCoil:
 
 @dataclass
 class EfieldSlice:
-    E_mag: np.ndarray  # (Ms^2,) unmasked E-field magnitude
-    E_grid: np.ndarray  # (Ms, Ms) log-modulus values, NaN outside mask
-    mask: np.ndarray  # (Ms^2,) bool
+    E_mag: np.ndarray  # (Ms^2,) E-field magnitude on the grid, V/m
+    mask: np.ndarray  # (Ms^2,) bool, grid points inside the head
     u: np.ndarray  # (Ms,) horizontal axis coordinates
     v: np.ndarray  # (Ms,) vertical axis coordinates
-    th1l: float  # transformed upper colour limit
-    th2l: float  # transformed lower colour limit
-    scale: float  # log-modulus scale factor (for inverse mapping)
+    th1: float  # upper colour limit, V/m
+    th2: float  # lower colour limit, V/m
     points_2d: np.ndarray  # (K, 2) tissue boundary vertices
     edges: np.ndarray  # (E, 2) tissue boundary edge indices
     ci: np.ndarray  # (E,)   tissue label per edge

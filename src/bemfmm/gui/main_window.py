@@ -461,6 +461,7 @@ class MainWindow(QMainWindow):
         ui.computeSlicesButton.clicked.connect(self.compute_slices)
         ui.slicePlane.currentIndexChanged.connect(self.plots["slices"].refresh)
         ui.sliceColormap.currentIndexChanged.connect(self.plots["slices"].refresh)
+        ui.sliceOutside.toggled.connect(self.plots["slices"].refresh)
 
         QGuiApplication.styleHints().colorSchemeChanged.connect(
             self.system_theme_changed
@@ -1979,6 +1980,7 @@ class MainWindow(QMainWindow):
         ui.showResultButton.setEnabled(self.viewport.available)
 
         self.slices = self.read_slices()
+        ui.sliceOutside.setVisible(result.kind == "tms")
         self.fill_slice_planes()
         self.update_slice_info()
         for panel in self.plots.values():
@@ -2017,6 +2019,7 @@ class MainWindow(QMainWindow):
         ):
             widget.setEnabled(False)
         self.enable_compute_slices(False)
+        ui.sliceOutside.setVisible(False)
         if self.field_drawn:
             self.viewport.clear_field()
             self.apply_display()
@@ -2136,7 +2139,13 @@ class MainWindow(QMainWindow):
             index if 0 <= index < count else None,
             color,
             self.ui.sliceColormap.currentText(),
+            self.slice_outside(),
         )
+
+    def slice_outside(self):
+        # the field in the air is only drawn for TMS, and only when asked
+        tms = self.result is not None and self.result.kind == "tms"
+        return tms and self.ui.sliceOutside.isChecked()
 
     def fill_slice_planes(self):
         # one entry per computed slice, then All
