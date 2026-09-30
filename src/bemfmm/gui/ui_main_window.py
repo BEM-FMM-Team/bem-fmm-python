@@ -1443,38 +1443,6 @@ class Ui_MainWindow(object):
         self.slicesTabLayout.addWidget(self.slicesPlot)
 
         self.viewTabs.addTab(self.slicesTab, "")
-        self.distributionTab = QWidget()
-        self.distributionTab.setObjectName("distributionTab")
-        self.distributionTabLayout = QVBoxLayout(self.distributionTab)
-        self.distributionTabLayout.setObjectName("distributionTabLayout")
-        self.distributionControls = QHBoxLayout()
-        self.distributionControls.setObjectName("distributionControls")
-        self.distributionInfo = QLabel(self.distributionTab)
-        self.distributionInfo.setObjectName("distributionInfo")
-        sizePolicy1.setHeightForWidth(
-            self.distributionInfo.sizePolicy().hasHeightForWidth()
-        )
-        self.distributionInfo.setSizePolicy(sizePolicy1)
-
-        self.distributionControls.addWidget(self.distributionInfo)
-
-        self.distributionLog = QCheckBox(self.distributionTab)
-        self.distributionLog.setObjectName("distributionLog")
-
-        self.distributionControls.addWidget(self.distributionLog)
-
-        self.distributionTabLayout.addLayout(self.distributionControls)
-
-        self.distributionPlot = QWidget(self.distributionTab)
-        self.distributionPlot.setObjectName("distributionPlot")
-        sizePolicy3.setHeightForWidth(
-            self.distributionPlot.sizePolicy().hasHeightForWidth()
-        )
-        self.distributionPlot.setSizePolicy(sizePolicy3)
-
-        self.distributionTabLayout.addWidget(self.distributionPlot)
-
-        self.viewTabs.addTab(self.distributionTab, "")
         self.electrodesTab = QWidget()
         self.electrodesTab.setObjectName("electrodesTab")
         self.electrodesTabLayout = QVBoxLayout(self.electrodesTab)
@@ -2413,18 +2381,6 @@ class Ui_MainWindow(object):
         self.viewTabs.setTabText(
             self.viewTabs.indexOf(self.slicesTab),
             QCoreApplication.translate("MainWindow", "Slices", None),
-        )
-        self.distributionInfo.setText(
-            QCoreApplication.translate(
-                "MainWindow", "Quantity and tissue picked in the Results tab", None
-            )
-        )
-        self.distributionLog.setText(
-            QCoreApplication.translate("MainWindow", "Log counts", None)
-        )
-        self.viewTabs.setTabText(
-            self.viewTabs.indexOf(self.distributionTab),
-            QCoreApplication.translate("MainWindow", "Distribution", None),
         )
         self.viewTabs.setTabText(
             self.viewTabs.indexOf(self.electrodesTab),

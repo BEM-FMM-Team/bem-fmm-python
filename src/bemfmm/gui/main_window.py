@@ -231,9 +231,6 @@ class MainWindow(QMainWindow):
                 self.ui.convergencePlot, "Convergence", self.draw_convergence
             ),
             "slices": PlotPanel(self.ui.slicesPlot, "Slices", self.draw_slices),
-            "distribution": PlotPanel(
-                self.ui.distributionPlot, "Distribution", self.draw_distribution
-            ),
             "electrodes": PlotPanel(
                 self.ui.electrodesPlot, "Electrode currents", self.draw_currents
             ),
@@ -463,7 +460,6 @@ class MainWindow(QMainWindow):
         ui.computeSlicesButton.clicked.connect(self.compute_slices)
         ui.slicePlane.currentIndexChanged.connect(self.plots["slices"].refresh)
         ui.sliceColormap.currentIndexChanged.connect(self.plots["slices"].refresh)
-        ui.distributionLog.toggled.connect(self.plots["distribution"].refresh)
 
         QGuiApplication.styleHints().colorSchemeChanged.connect(
             self.system_theme_changed
@@ -2053,7 +2049,6 @@ class MainWindow(QMainWindow):
         if self.ui.autoRange.isChecked():
             self.set_range(low, high)
         self.update_result_view()
-        self.plots["distribution"].refresh()
 
     def set_range(self, low, high):
         self.updating = True
@@ -2125,20 +2120,6 @@ class MainWindow(QMainWindow):
     # result tabs
     def draw_convergence(self, figure):
         plots.draw_convergence(figure, self.result)
-
-    def draw_distribution(self, figure):
-        name, values = self.result_values()
-        if values is None:
-            return plots.draw_distribution(figure, None, "", "", "")
-        label, unit = FIELD_LABELS[name]
-        plots.draw_distribution(
-            figure,
-            values,
-            label,
-            unit,
-            self.ui.resultTissue.currentText(),
-            self.ui.distributionLog.isChecked(),
-        )
 
     def draw_currents(self, figure):
         electrodes = self.result.info.get("electrodes", []) if self.result else []

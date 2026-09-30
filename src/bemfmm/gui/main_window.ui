@@ -1834,47 +1834,6 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="distributionTab">
-        <attribute name="title">
-         <string>Distribution</string>
-        </attribute>
-        <layout class="QVBoxLayout" name="distributionTabLayout">
-         <item>
-          <layout class="QHBoxLayout" name="distributionControls">
-           <item>
-            <widget class="QLabel" name="distributionInfo">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Quantity and tissue picked in the Results tab</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="distributionLog">
-             <property name="text">
-              <string>Log counts</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QWidget" name="distributionPlot">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
        <widget class="QWidget" name="electrodesTab">
         <attribute name="title">
          <string>Electrodes</string>

@@ -230,8 +230,6 @@ The tabs on the right:
   one plane or all of them. **Compute slices** computes them for the planes set
   in the Planes tab, when the run did not or after the planes were changed.
   **Colormap** picks the colors, ``viridis`` by default
-- **Distribution**: histogram of the quantity and tissue picked in the Results
-  tab, with the median and 99th percentile.
 - **Electrodes**: tDCS only, the current of every electrode.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,

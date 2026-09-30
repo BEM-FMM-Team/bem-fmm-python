@@ -152,20 +152,6 @@ def draw_convergence(figure, result):
     ax.set_ylabel("Relative residual")
 
 
-def draw_distribution(figure, values, label, unit, tissue, log=False):
-    if values is None:
-        return draw_message(figure, "No result loaded")
-    ax = figure.add_subplot()
-    ax.hist(values, bins=100, log=log, alpha=0.85)
-    median, p99 = np.percentile(values, [50, 99])
-    ax.axvline(median, color="grey", linestyle="--", label=f"Median {median:.4g}")
-    ax.axvline(p99, color="#c8372d", linestyle=":", label=f"99th percentile {p99:.4g}")
-    ax.legend()
-    ax.set_title(f"{label} on {tissue}, {len(values):,} facets")
-    ax.set_xlabel(f"{label} ({unit})")
-    ax.set_ylabel("Facets")
-
-
 def draw_currents(figure, electrodes):
     if not electrodes:
         return draw_message(figure, "Electrode currents are shown for tDCS results")
