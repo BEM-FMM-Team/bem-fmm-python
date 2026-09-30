@@ -12,7 +12,9 @@ from bemfmm.plot.slice import (
     SLICE_ARRAYS,
     draw_efield_slice,
     load_slices,
+    log_modulus,
     save_slices,
+    slice_image,
 )
 from bemfmm.results import Result
 
@@ -55,16 +57,14 @@ def test_export_all_facets_csv(tmp_path):
 
 def fake_slice(plane, seed=1):
     rng = np.random.default_rng(seed)
-    grid = np.log10(rng.random((8, 8)) * 10 + 1)
+    E_mag = rng.random(64) * 10
     return EfieldSlice(
-        E_mag=rng.random(64),
-        E_grid=grid,
-        mask=np.ones(64, dtype=bool),
+        E_mag=E_mag,
+        mask=np.arange(64) % 3 > 0,
         u=np.linspace(-0.04, 0.04, 8),
         v=np.linspace(-0.04, 0.04, 8),
-        th1l=float(grid.max()),
-        th2l=float(grid.min()),
-        scale=0.2,
+        th1=float(E_mag.max()),
+        th2=float(E_mag.min()),
         points_2d=rng.random((4, 2)) * 0.02,
         edges=np.array([[0, 1], [1, 2], [2, 3]]),
         ci=np.array([0, 0, 1]),
@@ -86,7 +86,7 @@ def test_slices_roundtrip(tmp_path):
     for loaded, data in zip(again["slices"], slices):
         for name in SLICE_ARRAYS:
             np.testing.assert_array_equal(getattr(loaded, name), getattr(data, name))
-        assert (loaded.th1l, loaded.th2l, loaded.scale) == (data.th1l, data.th2l, 0.2)
+        assert (loaded.th1, loaded.th2) == (data.th1, data.th2)
         assert (loaded.plane, loaded.cfg) == (data.plane, data.cfg)
     assert again["slices"][0].cfg == {"xlabel": "x, mm", "ylabel": "z, mm"}
     assert again["slices"][1].cfg == {"xlabel": "u, mm", "ylabel": "v, mm"}
@@ -97,12 +97,21 @@ def test_slices_roundtrip(tmp_path):
     assert ax.get_title() == "Total E-field [V/m]\nXZ at y = 10.0 mm"
     assert len(ax.collections) >= 2  # contours and the tissue outlines
 
+    # without the outside, the grid points outside the head are left empty
+    grid, *_ = slice_image(again["slices"][0], outside=False)
+    assert np.all(np.isnan(grid.ravel()[~slices[0].mask]))
+    assert np.all(np.isfinite(grid.ravel()[slices[0].mask]))
+
 
 def test_old_slices_file(tmp_path):
-    # slices.npz from before arbitrary planes: x, y, z and one key set per plane
+    # slices.npz from before arbitrary planes: x, y, z and one key set per
+    # plane, with the log scaled grid and limits and no mask
     data = fake_slice(Plane((0, 1, 0), (0, 0.01, 0)))
     arrays = {f"XZ_{name}": getattr(data, name) for name in SLICE_ARRAYS}
-    arrays["XZ_limits"] = np.array([data.th1l, data.th2l, data.scale])
+    arrays["XZ_mask"] = np.ones(64, dtype=bool)
+    grid, th1l, th2l, scale = log_modulus(data.E_mag, data.th1, data.th2)
+    arrays["XZ_E_grid"] = grid
+    arrays["XZ_limits"] = np.array([th1l, th2l, scale])
     path = tmp_path / "slices.npz"
     np.savez(
         path,
@@ -113,4 +122,6 @@ def test_old_slices_file(tmp_path):
     )
     again = load_slices(path)
     assert again["planes"] == [axis_planes((0.0, 0.01, 0.0))[1]]
-    np.testing.assert_array_equal(again["slices"][0].E_grid, data.E_grid)
+    loaded = again["slices"][0]
+    np.testing.assert_allclose([loaded.th1, loaded.th2], [data.th1, data.th2])
+    np.testing.assert_allclose(slice_image(loaded)[0].ravel(), grid)

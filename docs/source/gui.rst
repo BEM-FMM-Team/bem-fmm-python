@@ -229,7 +229,9 @@ The tabs on the right:
 - **Slices**: the total E-field on the slice planes with the tissue outlines,
   one plane or all of them. **Compute slices** computes them for the planes set
   in the Planes tab, when the run did not or after the planes were changed.
-  **Colormap** picks the colors, ``viridis`` by default
+  **Colormap** picks the colors, ``viridis`` by default. Outside the head
+  only TMS has a field worth seeing, the coil's own: **Show outside the
+  head**, ticked by default, draws it, TES slices always leave the air black
 - **Electrodes**: TES only, the current of every electrode.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,

@@ -7,7 +7,40 @@ from ..my_types import EfieldSlice
 from ..planes import Plane, axis_planes
 
 SLICE_CMAP = "viridis"
-SLICE_ARRAYS = ("E_mag", "E_grid", "mask", "u", "v", "points_2d", "edges", "ci")
+SLICE_ARRAYS = ("E_mag", "mask", "u", "v", "points_2d", "edges", "ci")
+LOG_FACTOR = 0.01
+
+
+def log_modulus(
+    temp: np.ndarray, th1: float, th2: float, factor: float = LOG_FACTOR
+) -> tuple[np.ndarray, float, float, float]:
+    """John and Draper (1980) log-modulus transform"""
+    temp = np.clip(temp, th2, th1)
+    scale = factor * float(np.nanmax(np.abs(temp)))
+    if scale == 0:
+        return np.zeros_like(temp), 0.0, 0.0, 1.0
+    templ = np.sign(temp) * np.log10(np.abs(temp) / scale + 1)
+    th1l = np.sign(th1) * np.log10(abs(th1) / scale + 1)
+    th2l = np.sign(th2) * np.log10(abs(th2) / scale + 1) if th2 != 0 else 0.0
+    return templ, th1l, th2l, scale
+
+
+def slice_image(result: EfieldSlice, outside: bool = True):
+    """
+    The grid to draw on the log-modulus scale, its color limits and the
+    inverse of the scale for the colorbar labels. Cheap, so what is shown can
+    change without computing the slice again. outside False leaves the grid
+    points outside the head empty
+    """
+    values = result.E_mag.reshape(len(result.v), len(result.u))
+    if not outside:
+        values = np.where(result.mask.reshape(values.shape), values, np.nan)
+    grid, high, low, scale = log_modulus(values, result.th1, result.th2)
+
+    def to_field(x):
+        return scale * np.sign(x) * (10.0 ** np.abs(x) - 1)
+
+    return grid, low, high, to_field
 
 
 def draw_efield_slice(
@@ -19,28 +52,30 @@ def draw_efield_slice(
     color: str = "white",
     legend_size: float = 11,
     cmap: str = SLICE_CMAP,
+    outside: bool = True,
 ):
     """
     Draws one slice into ax, color is used for the labels and ticks outside the
-    plot. The plot itself stays black so the tissue outlines stand out
+    plot. The plot itself stays black so the tissue outlines stand out, and so
+    does the air around the head when outside is False
     """
     cfg = result.cfg
     ax.set_facecolor("black")
 
-    if np.any(np.isfinite(result.E_grid)):
+    grid, low, high, to_field = slice_image(result, outside)
+    if np.any(np.isfinite(grid)):
         cf = ax.contourf(
             result.u,
             result.v,
-            result.E_grid,
-            levels=np.linspace(result.th2l, result.th1l, levels),
+            grid,
+            levels=np.linspace(low, high, levels),
             cmap=cmap,
             extend="both",
         )
         cbar = fig.colorbar(cf, ax=ax)
-        cb_ticks = np.linspace(result.th2l, result.th1l, 11)
-        orig_vals = result.scale * np.sign(cb_ticks) * (10.0 ** np.abs(cb_ticks) - 1)
+        cb_ticks = np.linspace(low, high, 11)
         cbar.set_ticks(cb_ticks)
-        cbar.set_ticklabels([f"{v:.2g}" for v in orig_vals])
+        cbar.set_ticklabels([f"{v:.2g}" for v in to_field(cb_ticks)])
         cbar.set_label("E-field [V/m]", color=color)
         cbar.ax.tick_params(colors=color)
         cbar.ax.yaxis.label.set_color(color)
@@ -93,12 +128,12 @@ def draw_efield_slice(
 def plot_efield_slice(
     result: EfieldSlice,
     tissue_list: list | None = None,
+    outside: bool = True,
     levels: int = 200,
-    unit_convert: float = 1,
 ) -> tuple[plt.Figure, plt.Axes]:
     fig, ax = plt.subplots(figsize=(14, 10))
     fig.patch.set_facecolor("black")
-    draw_efield_slice(fig, ax, result, tissue_list, levels)
+    draw_efield_slice(fig, ax, result, tissue_list, levels, outside=outside)
 
     plt.tight_layout()
     plt.show()
@@ -118,7 +153,7 @@ def save_slices(path, planes, slices, tissue_list, created=""):
     for i, result in enumerate(slices):
         for name in SLICE_ARRAYS:
             arrays[f"s{i}_{name}"] = getattr(result, name)
-        arrays[f"s{i}_limits"] = np.array([result.th1l, result.th2l, result.scale])
+        arrays[f"s{i}_range"] = np.array([result.th2, result.th1])
     np.savez_compressed(path, **arrays)
     return path
 
@@ -126,8 +161,10 @@ def save_slices(path, planes, slices, tissue_list, created=""):
 def load_slices(path):
     """
     Slices written by save_slices: the planes, the EfieldSlice of each, the
-    tissues and the created stamp. Files from before arbitrary planes, with the
-    x, y, z of three axis planes, still load
+    tissues and the created stamp. Older files still load: from before
+    arbitrary planes, with the x, y, z of three axis planes, and from before
+    the color scale was applied when drawing, with log scaled limits and no
+    mask (all of the grid is shown)
     """
     with np.load(path) as data:
         stored = data["planes"]
@@ -140,16 +177,22 @@ def load_slices(path):
 
         found, slices = [], []
         for plane, key in zip(planes, keys):
-            if f"{key}_limits" not in data:
+            if f"{key}_range" in data:
+                th2, th1 = data[f"{key}_range"]
+            elif f"{key}_limits" in data:
+                # the log scaled limits and the scale factor, back to V/m
+                th1l, th2l, scale = data[f"{key}_limits"]
+                th1, th2 = (
+                    scale * np.sign(x) * (10.0 ** abs(x) - 1) for x in (th1l, th2l)
+                )
+            else:
                 continue
-            th1l, th2l, scale = data[f"{key}_limits"]
             found.append(plane)
             slices.append(
                 EfieldSlice(
                     **{name: data[f"{key}_{name}"] for name in SLICE_ARRAYS},
-                    th1l=float(th1l),
-                    th2l=float(th2l),
-                    scale=float(scale),
+                    th1=float(th1),
+                    th2=float(th2),
                     plane=plane.name(),
                     cfg=plane.labels(),
                 )

@@ -1795,6 +1795,19 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="sliceOutside">
+             <property name="toolTip">
+              <string>Also show the field in the air around the head</string>
+             </property>
+             <property name="text">
+              <string>Show outside the head</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="sliceInfo">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
