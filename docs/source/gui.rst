@@ -232,6 +232,16 @@ The tabs on the right:
   **Colormap** picks the colors, ``viridis`` by default. Outside the head
   only TMS has a field worth seeing, the coil's own: **Show outside the
   head**, ticked by default, draws it, TES slices always leave the air black
+
+  Below them, how the field is drawn, all without computing again:
+
+  - **Scale**: **Log** (the default) spreads out the low values with the
+    log-modulus transform, **Linear** shows the field as it is.
+  - **Log factor**: values below about this fraction of the highest one are
+    spread out, smaller spreads out more. 0.01 by default.
+  - **Range**: with **Auto** each slice uses the range of the field on the
+    tissue the slices were computed for. Untick it to set the lowest and
+    highest value in V/m for all slices at once, which makes them comparable.
 - **Electrodes**: TES only, the current of every electrode.
 
 Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,

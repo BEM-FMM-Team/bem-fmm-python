@@ -1836,6 +1836,102 @@
           </layout>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="sliceScaleControls">
+           <item>
+            <widget class="QLabel" name="sliceScaleLabel">
+             <property name="text">
+              <string>Scale</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="sliceScale">
+             <property name="toolTip">
+              <string>Log spreads out the low values, linear shows the field as it is</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>Log</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Linear</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="sliceLogFactorLabel">
+             <property name="text">
+              <string>Log factor</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="sliceLogFactor">
+             <property name="toolTip">
+              <string>Values below about this fraction of the highest one are spread out, smaller spreads out more</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="sliceRangeLabel">
+             <property name="text">
+              <string>Range</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="sliceAutoRange">
+             <property name="toolTip">
+              <string>Each slice uses the range of the field on the tissue it was computed for</string>
+             </property>
+             <property name="text">
+              <string>Auto</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="sliceMin">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="sliceMax">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="sliceRangeUnit">
+             <property name="text">
+              <string>V/m</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="sliceScaleSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QWidget" name="slicesPlot">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
