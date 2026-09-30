@@ -13,7 +13,7 @@ Setup
     python scripts/benchmark.py --head       adds the full head model
 
 The tests turn the cache off (``BEMFMM_NO_CACHE=1``) so they always solve. The
-TMS and tDCS reference numbers in ``tests/test_solvers.py`` come from the code
+TMS and TES reference numbers in ``tests/test_solvers.py`` come from the code
 before the refactor, which the current solvers reproduce to machine precision.
 If a change moves them, it changed the numerics.
 
@@ -28,7 +28,7 @@ Layout
     src/bemfmm/
       model.py        tissue index and the combined mesh (HeadModel)
       coils/          Coil, generators, templates, rotations
-      electrode.py    tDCS electrodes
+      electrode.py    TES electrodes
       scene.py        setup files
       solvers/        tms, tdcs and uniform, with common helpers
       results.py      Result, its files and exports
@@ -78,7 +78,7 @@ After editing a ``.ui`` file regenerate its module and format it::
     black src/bemfmm/gui/ui_main_window.py
 
 The solver never runs inside the gui process. The gui writes the setup into a
-new run folder and starts ``bemfmm tms`` or ``bemfmm tdcs`` with
+new run folder and starts ``bemfmm tms`` or ``bemfmm tes`` with
 ``--progress``, which prints lines like ``@progress solve 3 50`` for the
 progress bar. Anything the command line can do, the gui can do the same way.
 

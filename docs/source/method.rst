@@ -13,7 +13,7 @@ into one triangle mesh with N facets. Every facet knows its inside
 conductivity :math:`\sigma_{in}`, its outside conductivity
 :math:`\sigma_{out}` and its outward normal :math:`\mathbf{n}`.
 
-At the frequencies of TMS and tDCS the fields are quasi-static. The total
+At the frequencies of TMS and TES the fields are quasi-static. The total
 electric field is a known primary field plus the field of charges that build up
 on the tissue boundaries:
 
@@ -22,7 +22,7 @@ on the tissue boundaries:
     \mathbf{E} = \mathbf{E}_p + \mathbf{E}_s[\rho]
 
 For TMS :math:`\mathbf{E}_p = -\partial \mathbf{A} / \partial t` is induced by
-the coil current, for tDCS there is no primary field and the charges are driven
+the coil current, for TES there is no primary field and the charges are driven
 by the electrodes.
 
 Charge on the boundaries
@@ -92,7 +92,7 @@ with :math:`\mathbf{s}_j` the vector of element :math:`j` and
 side is the normal component at the facet centers. After the solve, the total
 field at the facet centers is the primary field plus the field of the charges.
 
-tDCS
+TES
 ----
 
 Each electrode is a disk on the skin. Before solving, the skin mesh is cut

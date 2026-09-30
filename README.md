@@ -1,6 +1,6 @@
 # BEM-FMM-Python
 
-Charge based boundary element fast multipole method for modeling TMS and tDCS
+Charge based boundary element fast multipole method for modeling TMS and TES
 on layered head models.
 
 ## Setup and Running
@@ -52,7 +52,7 @@ come from PyPI and our index, not from nixpkgs. `nix fmt` formats the code.
 `run.bat`/`run.command` tries to abstract away the installation complexity.
 They set up `.venv` on the first run and set it up again when `pyproject.toml` changed,
 for example after a `git pull` that changed the dependencies.
-Arguments are passed on to `bemfmm gui`, for example `run.bat --mode tdcs`.
+Arguments are passed on to `bemfmm gui`, for example `run.bat --mode tes`.
 To set up an environment by hand:
 
 ```bash
@@ -67,11 +67,11 @@ Everything is one command, `bemfmm` (or `python -m bemfmm`):
 
 ```bash
 bemfmm gui                          # the graphical interface, last used mode
-bemfmm gui --mode tdcs              # start in tDCS mode
+bemfmm gui --mode tes               # start in TES mode
 bemfmm tms -s c -s E -s En          # default coil on the default head model
-bemfmm tdcs -s c -s E -s En         # default four electrode montage
+bemfmm tes -s c -s E -s En          # default four electrode montage
 bemfmm tms --setup setup.json       # coils saved from the gui
-bemfmm tdcs --setup setup.json --tissue-index my_model/tissue_index.yaml
+bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
 bemfmm tms --setup setup.json --slices   # also save E-field slices
 bemfmm slices __output__ --planes 30 -12 54   # slices for a saved result, mm
 bemfmm show __output__              # plot windows for a saved result
@@ -84,19 +84,19 @@ bemfmm export-matlab --out CombinedMesh.mat
 
 ### The gui
 
-The window is always in TMS or tDCS mode, switched with the two buttons at the left of the toolbar
+The window is always in TMS or TES mode, switched with the two buttons at the left of the toolbar
 (Ctrl+1, Ctrl+2). The mode is in the window title and the status bar, and the run button says what it runs.
 
 The side panel has four tabs:
 
 - **Model**: open a tissue index, edit conductivities and which tissue is outside which, add or remove shells, then Apply to reload the model or Save as to write a new index
 - **Coils** (TMS): coils placed on a chosen surface (skin by default). Coils can be moved with the position fields, dragged over the surface, auto oriented, flipped, twisted, and aimed at a point on any tissue. Align to picks the tissue whose normal sets the coil axis, the Place on surface by default
-- **Electrodes** (tDCS): electrodes on their own Place on surface, the skin unless changed. Each has a position, radius and voltage
+- **Electrodes** (TES): electrodes on their own Place on surface, the skin unless changed. Each has a position, radius and voltage
 - **Solve**: solver settings and the output folder. Runs in the background with progress, the log and a Cancel button
 - **Results**: any field on any tissue in the 3D view, percentiles, electrode currents, field export and the classic plot windows
 
 Next to the 3D view are the result tabs: Convergence, Slices (E-field on the three slice planes), Distribution
-and Electrodes (tDCS currents). The plots have the matplotlib toolbar for zooming and saving and can be popped out
+and Electrodes (TES currents). The plots have the matplotlib toolbar for zooming and saving and can be popped out
 into their own windows. Edit > Settings has the theme (system, light or dark), the name of the skin tissue, the
 start mode and the output folder.
 
@@ -143,7 +143,7 @@ shells:
 | `E`, `Emag` | continuous E-field at facet centers and its magnitude (V/m) |
 | `En` | normal component of the continuous E-field (V/m) |
 | `Jn` | outward normal current density just inside the surface (A/m^2) |
-| `Pot` | surface potential, tDCS only (V) |
+| `Pot` | surface potential, TES only (V) |
 
 `--save-format mat|npz|csv|pkl` with `--save` also exports single fields, and so does Export fields in the gui.
 `slices.npz` holds the E-field slices when a run computed them.
@@ -152,7 +152,7 @@ shells:
 
 `src/bemfmm/assets/sphere_3L` is the three layer sphere (radii 42, 36, 28, 25 mm)
 used by `bemfmm sphere`, as stl files with a tissue index. It opens in the gui and
-works with every command, for example `bemfmm tdcs --tissue-index src/bemfmm/assets/sphere_3L/tissue_index.yaml`.
+works with every command, for example `bemfmm tes --tissue-index src/bemfmm/assets/sphere_3L/tissue_index.yaml`.
 `scripts/make_sphere_model.py` regenerates it.
 
 ## Tests and benchmark
@@ -169,7 +169,7 @@ python scripts/benchmark.py --head   # timings and reference numbers
 src/bemfmm/
   model.py        tissue index and the combined mesh (HeadModel)
   coils/          coil generators, templates and placement
-  electrode.py    tDCS electrodes
+  electrode.py    TES electrodes
   scene.py        setup files
   solvers/        tms, tdcs and uniform field solvers
   results.py      result files

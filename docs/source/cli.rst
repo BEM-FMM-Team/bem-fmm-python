@@ -7,7 +7,7 @@ Everything the program does is one command, ``bemfmm`` (or
 =================== ==================================================
 ``gui``             the graphical interface
 ``tms``             solve TMS for the coils in a setup, or the default coil
-``tdcs``            solve tDCS for the electrodes in a setup, or the default montage
+``tes``             solve TES for the electrodes in a setup, or the default montage
 ``slices``          E-field slices for a saved result
 ``show``            plot windows for a saved result
 ``sphere``          three layer sphere in a uniform field, a check of the engine
@@ -22,14 +22,14 @@ Solving
 
     bemfmm tms                                  default coil on the default head
     bemfmm tms --setup setup.json               coils from a setup
-    bemfmm tdcs --setup setup.json --tissue-index my_model/tissue_index.yaml
-    bemfmm tdcs --relres 1e-3 --iter 30         a quicker, looser solve
+    bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
+    bemfmm tes --relres 1e-3 --iter 30          a quicker, looser solve
 
-Options shared by ``tms`` and ``tdcs``:
+Options shared by ``tms`` and ``tes``:
 
 ``--setup``
     Setup file from the gui. Without it ``tms`` uses the default coil and
-    ``tdcs`` the default four electrode montage.
+    ``tes`` the default four electrode montage.
 ``--tissue-index``
     Model to solve on. Defaults to the index named in the setup, then to the
     default head.
@@ -44,7 +44,7 @@ Options shared by ``tms`` and ``tdcs``:
 ``--plot`` / ``--no-plot``
     Open the plot windows when done, ``--plot-tissue`` picks the tissue.
 
-``tdcs`` also has
+``tes`` also has
 
 ``--skin``
     Tissue the electrodes are imprinted on. Defaults to the Place on surface
@@ -53,7 +53,7 @@ Options shared by ``tms`` and ``tdcs``:
     Facets integrated exactly for the potential on the electrodes, 512 by
     default.
 
-After a solve ``tdcs`` prints a table of the set and solved voltage and the
+After a solve ``tes`` prints a table of the set and solved voltage and the
 current of every electrode, with the current balance and power. A setup with
 fewer than two electrodes, or with all of them at the same voltage, stops with
 an error before the model is loaded.
@@ -71,7 +71,7 @@ Slices
 separated by commas, and can be given more than once. The example is the plane
 y = x and the plane z = 20 mm. Without ``--plane`` or ``--planes`` the planes
 come from the run's ``setup.json``, else the axis planes through the point where
-the coil axis meets the white matter (TMS) or through the origin (tDCS).
+the coil axis meets the white matter (TMS) or through the origin (TES).
 
 The slices are saved next to the result as ``slices.npz`` and are shown by the
 gui and by ``bemfmm show``. They take a few seconds on the sphere and about a

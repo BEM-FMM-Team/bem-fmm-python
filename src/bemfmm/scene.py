@@ -12,7 +12,7 @@ SCENE_VERSION = 2
 @dataclass
 class Scene:
     """
-    Everything placed on a head model: coils for TMS, electrodes for tDCS and
+    Everything placed on a head model: coils for TMS, electrodes for TES and
     the slice planes used for plotting. Saved as json
 
     mode is "tms" or "tdcs", the kind of study the setup was made for, and skin

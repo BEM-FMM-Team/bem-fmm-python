@@ -16,7 +16,7 @@ fails. Python 3.11 to 3.14 are supported:
 view, for remote desktop sessions without a usable OpenGL driver. When the
 window does not open with the 3D view, ``run.bat`` and ``run.command`` start
 it again without it. Arguments are passed on to ``bemfmm gui``, for example
-``run.bat --mode tdcs``.
+``run.bat --mode tes``.
 
 The environment is kept in ``.venv`` and set up again when ``pyproject.toml``
 changed, for example after a ``git pull`` that changed the dependencies. To
@@ -49,21 +49,21 @@ A first TMS run
    the chosen tissue, and the Convergence and Slices tabs next to
    the 3D view show the rest.
 
-A first tDCS run
+A first TES run
 ----------------
 
-1. Switch to tDCS with the **tDCS** button in the toolbar (or Ctrl+2). The
+1. Switch to TES with the **TES** button in the toolbar (or Ctrl+2). The
    second tab becomes **Electrodes**.
 2. Press **Add electrode** twice. New electrodes alternate between +1 V and
    -1 V. Type a position for each one, it snaps to the skin.
-3. Press **Run tDCS**. The Results tab lists the solved voltage and current of
+3. Press **Run TES**. The Results tab lists the solved voltage and current of
    every electrode, and the Electrodes tab next to the 3D view plots the
    currents.
 
 Where results go
 ----------------
 
-Every run gets its own folder, ``tms-<date>-<time>`` or ``tdcs-<date>-<time>``,
+Every run gets its own folder, ``tms-<date>-<time>`` or ``tes-<date>-<time>``,
 inside the output folder (``__output__`` in the folder the program was started
 from, unless changed in Settings). The folder holds the setup that was solved,
 the result files and, if they were computed, the E-field slices. Open an older

@@ -46,7 +46,7 @@ TMS
 ``load_template(name)`` reads a strcoil template, ``COIL_TYPES`` lists the
 generators.
 
-tDCS
+TES
 ----
 
 .. code-block:: python
@@ -74,7 +74,7 @@ Every solver returns a ``Result``:
 
 .. code-block:: python
 
-    result.fields.keys()         # c, E, Emag, En, Jn and Pot for tDCS
+    result.fields.keys()         # c, E, Emag, En, Jn and Pot for TES
     result.on("Emag", "gm")      # values on one tissue
     result.info                  # settings, timings, iterations, currents
     result.resvec                # GMRES residual per iteration
