@@ -185,7 +185,7 @@ def tdcs(
         None, help="Tissue the electrodes sit on, from the setup or skin"
     ),
     num_neighbors: int = 4,
-    num_neighbors_p: int = 32,
+    num_neighbors_p: int = 512,
     iter: int = 50,
     relres: float = 1e-6,
     weight: float = 0.5,

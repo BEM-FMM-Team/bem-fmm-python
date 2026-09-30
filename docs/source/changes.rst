@@ -100,6 +100,9 @@ GUI
 
 Command line
 
+- tDCS integrates the potential on the electrodes exactly over the nearest 512
+  facets instead of 32 (``--num-neighbors-p``, Potential integrals in the
+  gui).
 - ``bemfmm slices RESULT [--planes X Y Z] [--plane NX,NY,NZ,PX,PY,PZ ...]``
   computes E-field slices for a saved result into ``slices.npz``.
 - ``bemfmm tms`` and ``bemfmm tdcs`` take ``--slices``.
