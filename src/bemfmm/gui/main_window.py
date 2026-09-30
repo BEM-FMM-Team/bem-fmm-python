@@ -424,6 +424,7 @@ class MainWindow(QMainWindow):
         ui.rangeMin.valueChanged.connect(self.update_result_view)
         ui.rangeMax.valueChanged.connect(self.update_result_view)
         ui.showResultButton.toggled.connect(self.show_result_toggled)
+        ui.showItemsCheck.toggled.connect(self.show_items)
         ui.exportFieldsButton.clicked.connect(self.export_fields)
         ui.plotWindowsButton.clicked.connect(self.open_plot_windows)
         ui.openFolderButton.clicked.connect(self.open_result_folder)
@@ -785,8 +786,8 @@ class MainWindow(QMainWindow):
         ui.actionRun.setIconText(f"Run {label}")
         self.mode_label.setText(f"{label} mode")
 
-        self.viewport.show_kind("coil", tms)
-        self.viewport.show_kind("electrode", not tms)
+        ui.showItemsCheck.setText("Show coils" if tms else "Show electrodes")
+        self.show_items()
         self.settings["mode"] = mode
         self.apply_surfaces()
         self.update_solve_summary()
@@ -1951,7 +1952,14 @@ class MainWindow(QMainWindow):
                 unit,
             )
         self.field_drawn = True
+        self.show_items()
         self.statusBar().showMessage(f"{label} on {tissue}", 5000)
+
+    def show_items(self, *_):
+        # the coils or electrodes of the mode, over a result only when asked
+        shown = not self.field_drawn or self.ui.showItemsCheck.isChecked()
+        self.viewport.show_kind("coil", self.tms and shown)
+        self.viewport.show_kind("electrode", not self.tms and shown)
 
     def field_shown(self):
         # the result is drawn when asked for, except while placing coils or
@@ -1978,6 +1986,7 @@ class MainWindow(QMainWindow):
             self.viewport.clear_field()
             self.apply_display()
             self.field_drawn = False
+            self.show_items()
 
     # result tabs
     def draw_convergence(self, figure):

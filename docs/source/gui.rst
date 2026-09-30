@@ -187,6 +187,9 @@ Shows the run (type, model, date, convergence and folder) and controls what the
   for every new result and keeps its state when switching tabs. On the
   Coils/Electrodes tab the view always shows the setup, since placing needs
   the surfaces the result hides
+- **Show coils** (**Show electrodes** in tDCS mode) draws them over the
+  result. Untick it to see the field under them, they are always shown while
+  placing
 
 For tDCS results the table lists the set and solved voltage and the current of
 every electrode, with the current balance (should be close to zero) and the

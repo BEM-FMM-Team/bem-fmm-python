@@ -82,6 +82,8 @@ GUI
   distribution (``sk``) are picked from lists, coil types have readable names,
   and the exported fields read E-field, Charge and so on instead of ``E`` and
   ``c``. The file names of exported fields are unchanged.
+- Show coils (Show electrodes) in the Results tab hides them over a result
+  without removing them from the setup.
 - Fixed: picking an Aim at target and then selecting another coil moved that
   coil to the target. Anything but Place coil now cancels the pick, and the
   status bar names the coil the target is for.
