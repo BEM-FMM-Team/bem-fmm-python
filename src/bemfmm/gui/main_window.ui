@@ -1058,7 +1058,7 @@
                <number>10000</number>
               </property>
               <property name="value">
-               <number>32</number>
+               <number>512</number>
               </property>
              </widget>
             </item>

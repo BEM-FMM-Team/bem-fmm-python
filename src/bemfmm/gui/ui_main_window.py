@@ -914,7 +914,7 @@ class Ui_MainWindow(object):
         self.numNeighborsP.setObjectName("numNeighborsP")
         self.numNeighborsP.setMinimum(1)
         self.numNeighborsP.setMaximum(10000)
-        self.numNeighborsP.setValue(32)
+        self.numNeighborsP.setValue(512)
 
         self.solverLayout.setWidget(
             1, QFormLayout.ItemRole.FieldRole, self.numNeighborsP

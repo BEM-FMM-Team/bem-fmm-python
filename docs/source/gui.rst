@@ -154,7 +154,7 @@ Solver settings:
 
 - **Neighbor integrals**: nearest facets integrated exactly for the E-field (4)
 - **Potential integrals**: tDCS only, nearest facets integrated exactly for the
-  potential on the electrodes (32)
+  potential on the electrodes (512)
 - **Max iterations** and **Tolerance**: when GMRES stops. The defaults are
   20 and 1e-4 for TMS, 50 and 1e-6 for tDCS, and each mode keeps its own
   values while switching. Tolerance is typed and shown in

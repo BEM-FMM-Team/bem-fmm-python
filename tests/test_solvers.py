@@ -18,6 +18,8 @@ from bemfmm.solvers import tdcs, tms, uniform
 
 RTOL = 1e-6
 
+# the references were made with 32 potential integrals, the default is higher
+TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors_p=32)
 TDCS_FACETS = [240, 240, 18]
 TDCS_CURRENTS = [5.842863368897759e-3, -8.121492182008439e-3, 2.286201112945014e-3]
 UNIFORM_NORM_C = 82.77419018858933
@@ -54,7 +56,7 @@ def test_tdcs_three_electrodes(sphere):
         Electrode("E1", [0, 0, -0.042], 0.008, -1.0),
         Electrode("E2", [0.042, 0, 0], 0.006, 0.5),
     ]
-    result = tdcs.solve(sphere, electrodes)
+    result = tdcs.solve(sphere, electrodes, TDCS_OPTIONS)
     info = result.info["electrodes"]
 
     assert [e["facets"] for e in info] == TDCS_FACETS
@@ -73,7 +75,7 @@ def test_tdcs_symmetric_pair(sphere):
         Electrode("A", [0, 0, 0.042], 0.008, 1.0),
         Electrode("C", [0, 0, -0.042], 0.008, -1.0),
     ]
-    result = tdcs.solve(sphere, electrodes)
+    result = tdcs.solve(sphere, electrodes, TDCS_OPTIONS)
     a, c = (e["current"] for e in result.info["electrodes"])
     np.testing.assert_allclose(a, -c, rtol=1e-6)
     np.testing.assert_allclose(result.info["power"], 2 * a, rtol=1e-6)

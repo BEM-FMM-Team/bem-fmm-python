@@ -50,7 +50,8 @@ Options shared by ``tms`` and ``tdcs``:
     Tissue the electrodes are imprinted on. Defaults to the Place on surface
     stored in the setup, then to ``skin``.
 ``--num-neighbors-p``
-    Facets integrated exactly for the potential on the electrodes.
+    Facets integrated exactly for the potential on the electrodes, 512 by
+    default.
 
 After a solve ``tdcs`` prints a table of the set and solved voltage and the
 current of every electrode, with the current balance and power. A setup with
