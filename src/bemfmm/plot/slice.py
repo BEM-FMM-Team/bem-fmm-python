@@ -25,17 +25,28 @@ def log_modulus(
     return templ, th1l, th2l, scale
 
 
-def slice_image(result: EfieldSlice, outside: bool = True):
+def slice_image(
+    result: EfieldSlice,
+    outside: bool = True,
+    log: bool = True,
+    factor: float = LOG_FACTOR,
+    limits: tuple[float, float] | None = None,
+):
     """
-    The grid to draw on the log-modulus scale, its color limits and the
-    inverse of the scale for the colorbar labels. Cheap, so what is shown can
-    change without computing the slice again. outside False leaves the grid
-    points outside the head empty
+    The grid to draw, its color limits and the map from the drawn values back
+    to V/m for the colorbar labels. Cheap, so what is shown can change without
+    computing the slice again. outside False leaves the grid points outside the
+    head empty. log uses the log-modulus scale, where a smaller factor spreads
+    out the low values more. limits is the (lowest, highest) value in V/m, the
+    range of the slice by default
     """
     values = result.E_mag.reshape(len(result.v), len(result.u))
     if not outside:
         values = np.where(result.mask.reshape(values.shape), values, np.nan)
-    grid, high, low, scale = log_modulus(values, result.th1, result.th2)
+    low, high = (result.th2, result.th1) if limits is None else limits
+    if not log:
+        return np.clip(values, low, high), low, high, lambda x: x
+    grid, high, low, scale = log_modulus(values, high, low, factor)
 
     def to_field(x):
         return scale * np.sign(x) * (10.0 ** np.abs(x) - 1)
@@ -53,17 +64,22 @@ def draw_efield_slice(
     legend_size: float = 11,
     cmap: str = SLICE_CMAP,
     outside: bool = True,
+    log: bool = True,
+    factor: float = LOG_FACTOR,
+    limits: tuple[float, float] | None = None,
 ):
     """
     Draws one slice into ax, color is used for the labels and ticks outside the
     plot. The plot itself stays black so the tissue outlines stand out, and so
-    does the air around the head when outside is False
+    does the air around the head when outside is False. See slice_image for
+    log, factor and limits
     """
     cfg = result.cfg
     ax.set_facecolor("black")
 
-    grid, low, high, to_field = slice_image(result, outside)
-    if np.any(np.isfinite(grid)):
+    grid, low, high, to_field = slice_image(result, outside, log, factor, limits)
+    # an empty range leaves only the outlines
+    if high > low and np.any(np.isfinite(grid)):
         cf = ax.contourf(
             result.u,
             result.v,
@@ -79,6 +95,15 @@ def draw_efield_slice(
         cbar.set_label("E-field [V/m]", color=color)
         cbar.ax.tick_params(colors=color)
         cbar.ax.yaxis.label.set_color(color)
+    elif not high > low:
+        ax.text(
+            0.5,
+            0.5,
+            "The range is empty",
+            color="white",
+            ha="center",
+            transform=ax.transAxes,
+        )
 
     n_tissues = len(tissue_list) if tissue_list else int(np.max(result.ci)) + 1
     tissue_colors = plt.cm.prism(np.linspace(0, 1, max(n_tissues, 1)))

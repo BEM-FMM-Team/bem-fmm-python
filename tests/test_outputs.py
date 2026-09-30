@@ -102,6 +102,14 @@ def test_slices_roundtrip(tmp_path):
     assert np.all(np.isnan(grid.ravel()[~slices[0].mask]))
     assert np.all(np.isfinite(grid.ravel()[slices[0].mask]))
 
+    # linear with a range set by hand, values outside it are clipped
+    grid, low, high, to_field = slice_image(slices[0], log=False, limits=(2, 5))
+    assert (low, high) == (2, 5) and grid.min() >= 2 and grid.max() <= 5
+    assert to_field(3.0) == 3.0
+    # on the log scale the colorbar labels map back to the range in V/m
+    grid, low, high, to_field = slice_image(slices[0], limits=(2, 5), factor=0.1)
+    np.testing.assert_allclose(to_field(np.array([low, high])), [2, 5])
+
 
 def test_old_slices_file(tmp_path):
     # slices.npz from before arbitrary planes: x, y, z and one key set per

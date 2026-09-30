@@ -1441,6 +1441,66 @@ class Ui_MainWindow(object):
 
         self.slicesTabLayout.addLayout(self.sliceControls)
 
+        self.sliceScaleControls = QHBoxLayout()
+        self.sliceScaleControls.setObjectName("sliceScaleControls")
+        self.sliceScaleLabel = QLabel(self.slicesTab)
+        self.sliceScaleLabel.setObjectName("sliceScaleLabel")
+
+        self.sliceScaleControls.addWidget(self.sliceScaleLabel)
+
+        self.sliceScale = QComboBox(self.slicesTab)
+        self.sliceScale.addItem("")
+        self.sliceScale.addItem("")
+        self.sliceScale.setObjectName("sliceScale")
+
+        self.sliceScaleControls.addWidget(self.sliceScale)
+
+        self.sliceLogFactorLabel = QLabel(self.slicesTab)
+        self.sliceLogFactorLabel.setObjectName("sliceLogFactorLabel")
+
+        self.sliceScaleControls.addWidget(self.sliceLogFactorLabel)
+
+        self.sliceLogFactor = QDoubleSpinBox(self.slicesTab)
+        self.sliceLogFactor.setObjectName("sliceLogFactor")
+
+        self.sliceScaleControls.addWidget(self.sliceLogFactor)
+
+        self.sliceRangeLabel = QLabel(self.slicesTab)
+        self.sliceRangeLabel.setObjectName("sliceRangeLabel")
+
+        self.sliceScaleControls.addWidget(self.sliceRangeLabel)
+
+        self.sliceAutoRange = QCheckBox(self.slicesTab)
+        self.sliceAutoRange.setObjectName("sliceAutoRange")
+        self.sliceAutoRange.setChecked(True)
+
+        self.sliceScaleControls.addWidget(self.sliceAutoRange)
+
+        self.sliceMin = QDoubleSpinBox(self.slicesTab)
+        self.sliceMin.setObjectName("sliceMin")
+        self.sliceMin.setEnabled(False)
+
+        self.sliceScaleControls.addWidget(self.sliceMin)
+
+        self.sliceMax = QDoubleSpinBox(self.slicesTab)
+        self.sliceMax.setObjectName("sliceMax")
+        self.sliceMax.setEnabled(False)
+
+        self.sliceScaleControls.addWidget(self.sliceMax)
+
+        self.sliceRangeUnit = QLabel(self.slicesTab)
+        self.sliceRangeUnit.setObjectName("sliceRangeUnit")
+
+        self.sliceScaleControls.addWidget(self.sliceRangeUnit)
+
+        self.sliceScaleSpacer = QSpacerItem(
+            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.sliceScaleControls.addItem(self.sliceScaleSpacer)
+
+        self.slicesTabLayout.addLayout(self.sliceScaleControls)
+
         self.slicesPlot = QWidget(self.slicesTab)
         self.slicesPlot.setObjectName("slicesPlot")
         sizePolicy3.setHeightForWidth(self.slicesPlot.sizePolicy().hasHeightForWidth())
@@ -2393,6 +2453,55 @@ class Ui_MainWindow(object):
         # endif // QT_CONFIG(tooltip)
         self.computeSlicesButton.setText(
             QCoreApplication.translate("MainWindow", "Compute slices", None)
+        )
+        self.sliceScaleLabel.setText(
+            QCoreApplication.translate("MainWindow", "Scale", None)
+        )
+        self.sliceScale.setItemText(
+            0, QCoreApplication.translate("MainWindow", "Log", None)
+        )
+        self.sliceScale.setItemText(
+            1, QCoreApplication.translate("MainWindow", "Linear", None)
+        )
+
+        # if QT_CONFIG(tooltip)
+        self.sliceScale.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Log spreads out the low values, linear shows the field as it is",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.sliceLogFactorLabel.setText(
+            QCoreApplication.translate("MainWindow", "Log factor", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.sliceLogFactor.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Values below about this fraction of the highest one are spread out, smaller spreads out more",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.sliceRangeLabel.setText(
+            QCoreApplication.translate("MainWindow", "Range", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.sliceAutoRange.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Each slice uses the range of the field on the tissue it was computed for",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.sliceAutoRange.setText(
+            QCoreApplication.translate("MainWindow", "Auto", None)
+        )
+        self.sliceRangeUnit.setText(
+            QCoreApplication.translate("MainWindow", "V/m", None)
         )
         self.viewTabs.setTabText(
             self.viewTabs.indexOf(self.slicesTab),

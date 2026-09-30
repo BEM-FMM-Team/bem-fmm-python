@@ -14,6 +14,9 @@ GUI
   means nothing. TMS slices show it, the coil's own field, unless **Show
   outside the head** in the Slices tab is unticked. ``slices.npz`` stores the
   plain field and its range, the log scale is applied when drawing.
+- The Slices tab sets how the slices are drawn: log or linear scale, the log
+  factor, and the range, automatic per slice or set by hand for all of them.
+  Changing them redraws without computing the slices again.
 - The window is explicitly in TMS or TES mode. The mode is switched from the
   toolbar or the Mode menu (Ctrl+1, Ctrl+2) and shown in the window title, the
   status bar and the name of the second tab. The run button says what it runs.

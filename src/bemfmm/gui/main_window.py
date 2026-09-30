@@ -44,7 +44,7 @@ from bemfmm.model import (
     write_index,
 )
 from bemfmm.planes import Plane, axis_planes, same_planes
-from bemfmm.plot.slice import load_slices
+from bemfmm.plot.slice import LOG_FACTOR, load_slices
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
 from bemfmm.solvers.tdcs import TDCSOptions
@@ -293,9 +293,11 @@ class MainWindow(QMainWindow):
             spin(box, -100.0, 100.0, 3, 0.1)
         spin(ui.planeOffset, -1000.0, 1000.0, 1, 1.0)
 
-        for box in (ui.rangeMin, ui.rangeMax):
+        for box in (ui.rangeMin, ui.rangeMax, ui.sliceMin, ui.sliceMax):
             spin(box, -1e12, 1e12, 4, 1.0)
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        spin(ui.sliceLogFactor, 0.0001, 1.0, 4, 0.005)
+        ui.sliceLogFactor.setValue(LOG_FACTOR)
 
         # shown by name, the item data is what add_coil builds
         ui.coilTypeCombo.addItem(DEFAULT_COIL, DEFAULT_COIL)
@@ -462,6 +464,11 @@ class MainWindow(QMainWindow):
         ui.slicePlane.currentIndexChanged.connect(self.plots["slices"].refresh)
         ui.sliceColormap.currentIndexChanged.connect(self.plots["slices"].refresh)
         ui.sliceOutside.toggled.connect(self.plots["slices"].refresh)
+        ui.sliceScale.currentIndexChanged.connect(self.slice_scale_changed)
+        ui.sliceLogFactor.valueChanged.connect(self.plots["slices"].refresh)
+        ui.sliceAutoRange.toggled.connect(self.slice_auto_range_toggled)
+        ui.sliceMin.valueChanged.connect(self.slice_range_changed)
+        ui.sliceMax.valueChanged.connect(self.slice_range_changed)
 
         QGuiApplication.styleHints().colorSchemeChanged.connect(
             self.system_theme_changed
@@ -2140,7 +2147,45 @@ class MainWindow(QMainWindow):
             color,
             self.ui.sliceColormap.currentText(),
             self.slice_outside(),
+            self.slice_scale(),
         )
+
+    def slice_scale(self):
+        # how the slices are drawn: log or linear, and the range
+        ui = self.ui
+        limits = None
+        if not ui.sliceAutoRange.isChecked():
+            limits = (ui.sliceMin.value(), ui.sliceMax.value())
+        return {
+            "log": ui.sliceScale.currentText() == "Log",
+            "factor": ui.sliceLogFactor.value(),
+            "limits": limits,
+        }
+
+    def slice_scale_changed(self):
+        self.ui.sliceLogFactor.setEnabled(self.ui.sliceScale.currentText() == "Log")
+        self.plots["slices"].refresh()
+
+    def slice_auto_range_toggled(self, checked):
+        self.ui.sliceMin.setEnabled(not checked)
+        self.ui.sliceMax.setEnabled(not checked)
+        self.set_slice_range()
+        self.plots["slices"].refresh()
+
+    def slice_range_changed(self):
+        if not self.updating and not self.ui.sliceAutoRange.isChecked():
+            self.plots["slices"].refresh()
+
+    def set_slice_range(self):
+        # with Auto the boxes show the range over all slices, a start for
+        # setting one by hand
+        if not self.ui.sliceAutoRange.isChecked() or not self.slices:
+            return
+        slices = self.slices["slices"]
+        self.updating = True
+        self.ui.sliceMin.setValue(min(s.th2 for s in slices))
+        self.ui.sliceMax.setValue(max(s.th1 for s in slices))
+        self.updating = False
 
     def slice_outside(self):
         # the field in the air is only drawn for TMS, and only when asked
@@ -2157,6 +2202,7 @@ class MainWindow(QMainWindow):
             combo.addItem("All")
             combo.setCurrentIndex(combo.count() - 1)
         combo.blockSignals(False)
+        self.set_slice_range()
 
     def read_slices(self):
         path = self.result_dir / "slices.npz"

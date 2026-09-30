@@ -109,8 +109,9 @@ Slices
 A ``Plane`` is a normal, of any length, and a point on it in meters.
 ``compute_slices`` returns one slice per plane. The color range comes from the
 field on the named tissue. For TMS pass the coils, so the primary field is
-included. ``draw_efield_slice(..., outside=False)`` leaves the air around the
-head empty.
+included. ``draw_efield_slice`` takes ``outside=False`` to leave the air
+around the head empty, ``log=False`` for a linear scale, ``factor`` for the
+log scale and ``limits=(low, high)`` in V/m.
 
 Setups
 ------
