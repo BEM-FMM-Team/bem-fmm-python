@@ -46,7 +46,7 @@ A first TMS run
 4. Press **Run TMS** in the toolbar (or F5). The Solve tab shows progress and
    the solver log.
 5. When the run finishes the Results tab opens. The 3D view shows the E-field on
-   the chosen tissue, and the Convergence, Slices and Distribution tabs next to
+   the chosen tissue, and the Convergence and Slices tabs next to
    the 3D view show the rest.
 
 A first tDCS run

@@ -13,7 +13,7 @@ GUI
   one used is restored.
 - Only the coils or the electrodes of the current mode are shown in the 3D
   view.
-- Results are in tabs next to the 3D view: Convergence, Slices, Distribution
+- Results are in tabs next to the 3D view: Convergence, Slices
   and Electrodes, drawn with matplotlib inside the window. Every plot has the
   matplotlib toolbar (zoom, pan, save) and can be popped out into its own
   window and docked back.
