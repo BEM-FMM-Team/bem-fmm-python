@@ -98,10 +98,8 @@ def charge_engine(
     conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
     solution_error = resvec[-1] / resvec[0]
 
-    print(
-        f"""conservation_law_error={conservation_law_error:.4e}
-solution_error={solution_error:.4e}"""
-    )
+    print(f"""conservation_law_error={conservation_law_error:.4e}
+solution_error={solution_error:.4e}""")
 
     return c, resvec
 
