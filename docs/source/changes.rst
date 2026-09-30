@@ -144,7 +144,7 @@ Library
 
 Run scripts
 
-- The nix devShell uses a plain Python 3.13 and installs everything into
+- The nix devShell uses a plain Python 3.14 and installs everything into
   ``.venv`` from ``pyproject.toml``, set up again when it changed. Before, the
   shell's own Python packages (napari and others) leaked into ``.venv`` and
   broke pytest, and the Qt plugins of nixpkgs clashed with PySide6. ``nix

@@ -7,7 +7,7 @@ Install
 The run scripts in the repository root set everything up the first time they
 are started. They install `uv <https://docs.astral.sh/uv/>`_ and Python 3.13
 when they are missing, and use an installed Python 3.11 or newer when that
-fails:
+fails. Python 3.11 to 3.14 are supported:
 
 - Windows: ``run.bat`` (double click it or start it from a terminal).
 - Linux and MacOS: ``run.command``.
