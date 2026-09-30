@@ -28,6 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install --index-url https://pandecode.github.io/FMM3D/simple/ --extra-index-url https://pypi.org/simple -e .
           pip install -e ".[dev]"
+          pip install uv
 
 
       - name: Build HTML docs (using script)
