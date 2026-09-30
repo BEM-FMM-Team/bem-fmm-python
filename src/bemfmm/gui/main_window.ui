@@ -1542,6 +1542,19 @@
               </property>
              </widget>
             </item>
+            <item row="6" column="0" colspan="2">
+             <widget class="QCheckBox" name="showItemsCheck">
+              <property name="toolTip">
+               <string>Draw the coils or electrodes over the result</string>
+              </property>
+              <property name="text">
+               <string>Show coils</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>

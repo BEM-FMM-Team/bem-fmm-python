@@ -1264,6 +1264,14 @@ class Ui_MainWindow(object):
             5, QFormLayout.ItemRole.SpanningRole, self.showResultButton
         )
 
+        self.showItemsCheck = QCheckBox(self.showGroup)
+        self.showItemsCheck.setObjectName("showItemsCheck")
+        self.showItemsCheck.setChecked(True)
+
+        self.showLayout.setWidget(
+            6, QFormLayout.ItemRole.SpanningRole, self.showItemsCheck
+        )
+
         self.resultsLayout.addWidget(self.showGroup)
 
         self.electrodeResultGroup = QGroupBox(self.resultsTab)
@@ -2279,6 +2287,16 @@ class Ui_MainWindow(object):
         self.resultStats.setText("")
         self.showResultButton.setText(
             QCoreApplication.translate("MainWindow", "Show in 3D view", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.showItemsCheck.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Draw the coils or electrodes over the result", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.showItemsCheck.setText(
+            QCoreApplication.translate("MainWindow", "Show coils", None)
         )
         self.electrodeResultGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Electrodes", None)
