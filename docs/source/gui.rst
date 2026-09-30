@@ -152,12 +152,26 @@ Solve tab
 
 Solver settings:
 
+- **Preset** fills in the settings below:
+
+  ========= ========================== ==================================
+  Preset    TMS                        tDCS
+  ========= ========================== ==================================
+  Default   4, 20 iterations, 1e-4     4, 512, 50 iterations, 1e-6
+  Accurate  64, 50 iterations, 1e-6    64, 512, 50 iterations, 1e-6
+  Fast      4, 20 iterations, 1e-3     4, 32, 20 iterations, 1e-3
+  ========= ========================== ==================================
+
+  The numbers are the neighbor integrals, the potential integrals (tDCS),
+  the max iterations and the tolerance. Default is what the command line
+  uses, Fast is for benchmarking and quick checks. Changing any of them
+  shows **Custom**.
 - **Neighbor integrals**: nearest facets integrated exactly for the E-field (4)
 - **Potential integrals**: tDCS only, nearest facets integrated exactly for the
   potential on the electrodes (512)
 - **Max iterations** and **Tolerance**: when GMRES stops. The defaults are
-  20 and 1e-4 for TMS, 50 and 1e-6 for tDCS, and each mode keeps its own
-  values while switching. Tolerance is typed and shown in
+  20 and 1e-4 for TMS, 50 and 1e-6 for tDCS. Each mode keeps its own
+  settings while switching. Tolerance is typed and shown in
   scientific notation (``1e-6``, ``2.5e-7``), the arrows step by a factor of
   ten
 - **Conservation weight**: weight of the term that keeps the total charge

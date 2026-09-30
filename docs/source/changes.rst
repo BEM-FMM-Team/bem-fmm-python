@@ -87,6 +87,9 @@ GUI
 - The gui calls the stored results quantities, since only the E-field and
   current density are fields: the Quantity list in the Display solution group,
   Export results, and Quantities under Also export.
+- Solver presets in the Solve tab (Default, Accurate, Fast) for TMS and
+  tDCS, and each mode keeps all of its solver settings, the neighbor
+  integrals included.
 - Fixed: a tDCS result stayed in the Results tab and the 3D view after
   switching to TMS, and the other way round. Each mode now keeps its own last
   result.
