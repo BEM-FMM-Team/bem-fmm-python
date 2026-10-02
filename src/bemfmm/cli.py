@@ -19,11 +19,25 @@ SaveFormat = Literal["none", "csv", "mat", "npz", "pkl"]
 Mode = Literal["tms", "tes", "tdcs"]
 
 
-def resolve_index(tissue_index, scene):
+def load_project(project):
+    from bemfmm.project import Project
+
+    if project is None:
+        return None
+    try:
+        return Project.load(project)
+    except (OSError, ValueError) as error:
+        typer.echo(f"error: {error}", err=True)
+        raise typer.Exit(1)
+
+
+def resolve_index(tissue_index, scene, project=None):
     from bemfmm.model import default_index
 
     if tissue_index:
         return Path(tissue_index)
+    if project is not None:
+        return project.index_path
     if scene is not None and scene.tissue_index:
         return Path(scene.tissue_index)
     return default_index()
@@ -37,6 +51,13 @@ def output_path(output_dir):
     f = open(output_dir / ".gitignore", "w")
     f.close()
     return output_dir
+
+
+def run_output(output_dir, project, kind):
+    # a writable project keeps its runs, one folder each
+    if output_dir is None and project is not None and not project.read_only:
+        output_dir = project.run_dir(kind)
+    return output_path(output_dir)
 
 
 def progress_printer(enabled):
@@ -124,6 +145,9 @@ def gui(
 @app.command()
 def tms(
     setup: Optional[str] = typer.Option(None, help="Setup (.json) with coils"),
+    project: Optional[str] = typer.Option(
+        None, help="Project folder, for its model and runs folder"
+    ),
     tissue_index: Optional[str] = None,
     num_neighbors: int = 4,
     iter: int = 20,  # for best results, set to 50
@@ -147,7 +171,8 @@ def tms(
     from bemfmm.solvers.tms import TMSOptions, solve
 
     scene = Scene.load(setup) if setup else None
-    model = HeadModel.load(resolve_index(tissue_index, scene))
+    project = load_project(project)
+    model = HeadModel.load(resolve_index(tissue_index, scene, project))
 
     if scene is None:
         coils, planes = [default_coil()], None
@@ -165,7 +190,7 @@ def tms(
     )
     print(f"Solved in {perf_counter() - start:.1f}s")
 
-    output_dir = output_path(output_dir)
+    output_dir = run_output(output_dir, project, "tms")
     print(f"Saved result to {result.save(output_dir)}")
     save_fields(result, output_dir, save_format, save)
     slice_data = None
@@ -182,9 +207,12 @@ def tms(
 @app.command()
 def tes(
     setup: Optional[str] = typer.Option(None, help="Setup (.json) with electrodes"),
+    project: Optional[str] = typer.Option(
+        None, help="Project folder, for its model and runs folder"
+    ),
     tissue_index: Optional[str] = None,
     skin: Optional[str] = typer.Option(
-        None, help="Tissue the electrodes sit on, from the setup or skin"
+        None, help="Tissue the electrodes sit on, from the setup, project or skin"
     ),
     num_neighbors: int = 4,
     num_neighbors_p: int = 512,
@@ -220,8 +248,10 @@ def tes(
         typer.echo(f"error: {problem}", err=True)
         raise typer.Exit(1)
 
-    model = HeadModel.load(resolve_index(tissue_index, scene))
-    skin = skin or (scene.skin if scene else "") or "skin"
+    project = load_project(project)
+    model = HeadModel.load(resolve_index(tissue_index, scene, project))
+    skin = skin or (scene.skin if scene else "") or (project and project.skin)
+    skin = skin or "skin"
 
     start = perf_counter()
     result = solve(
@@ -241,7 +271,7 @@ def tes(
     print(f"""Total current (should be ~0): {info['total_current'] * 1e3:.4e} mA
 Power loss: {info['power']:.4e} W""")
 
-    output_dir = output_path(output_dir)
+    output_dir = run_output(output_dir, project, "tes")
     print(f"Saved result to {result.save(output_dir)}")
     save_fields(result, output_dir, save_format, save)
     slice_data = None
@@ -383,6 +413,7 @@ def opengl():
 
 @app.command("export-matlab")
 def export_matlab(
+    project: Optional[str] = typer.Option(None, help="Project folder"),
     tissue_index: Optional[str] = None,
     out: str = typer.Option("CombinedMesh.mat", help="Output .mat file"),
 ):
@@ -390,9 +421,54 @@ def export_matlab(
     from bemfmm.export import export_matlab as export
     from bemfmm.model import HeadModel
 
-    model = HeadModel.load(resolve_index(tissue_index, None))
+    model = HeadModel.load(resolve_index(tissue_index, None, load_project(project)))
     export(model, out)
     print(f"Saved {out}")
+
+
+project_app = typer.Typer(no_args_is_help=True, help="Projects: a model and its work")
+app.add_typer(project_app, name="project")
+
+
+@project_app.command("info")
+def project_info(folder: str = typer.Argument(".", help="Project folder")):
+    """Show a project: its model, setups and runs."""
+    from bemfmm.model import read_index
+
+    project = load_project(folder)
+    print(f"{project.name}  ({project.root})")
+    if project.read_only:
+        print("read only, runs go to the output folder")
+    problems = project.problems()
+    for problem in problems:
+        print(f"problem: {problem}")
+    if not problems:
+        shells = read_index(project.index_path)
+        print(f"tissues: {', '.join(shells)}, skin is {project.skin}")
+    print(f"setups: {len(project.setups())}, runs: {len(project.runs())}")
+    if problems:
+        raise typer.Exit(1)
+
+
+@project_app.command("init")
+def project_init(
+    folder: str = typer.Argument(".", help="Folder with a tissue index"),
+    name: Optional[str] = typer.Option(None, help="Name, the folder name by default"),
+    skin: str = typer.Option("skin", help="Tissue coils and electrodes sit on"),
+):
+    """Make a folder with a tissue index a project, by writing project.yaml."""
+    from bemfmm.project import PROJECT_FILE, Project
+
+    project = Project(Path(folder), name=name or "", skin=skin)
+    if (project.root / PROJECT_FILE).exists():
+        typer.echo(f"error: {project.root / PROJECT_FILE} already exists", err=True)
+        raise typer.Exit(1)
+    problems = project.problems()
+    if problems:
+        typer.echo(f"error: {problems[0]}", err=True)
+        raise typer.Exit(1)
+    project.save()
+    print(f"Saved {project.root / PROJECT_FILE}")
 
 
 if __name__ == "__main__":

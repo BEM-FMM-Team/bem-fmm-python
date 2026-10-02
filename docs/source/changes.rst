@@ -4,6 +4,15 @@ Changes
 Unreleased
 ----------
 
+Projects
+
+- A project is a folder with a model, its setups and its runs, described by
+  ``project.yaml`` (name, tissue index, skin tissue). Any folder with a tissue
+  index already is one. ``bemfmm tms --project`` and ``bemfmm tes --project``
+  solve on its model and keep the result in its ``runs`` folder.
+  ``bemfmm project info`` shows a project, ``bemfmm project init`` writes its
+  ``project.yaml``. The bundled head and sphere are read only projects.
+
 GUI
 
 - tDCS is called TES (transcranial electrical stimulation) everywhere it is

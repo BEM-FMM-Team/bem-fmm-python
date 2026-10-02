@@ -27,6 +27,7 @@ Layout
 
     src/bemfmm/
       model.py        tissue index and the combined mesh (HeadModel)
+      project.py      project folders (Project)
       coils/          Coil, generators, templates, rotations
       electrode.py    TES electrodes
       scene.py        setup files
