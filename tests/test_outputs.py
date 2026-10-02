@@ -6,8 +6,10 @@ import numpy as np
 from matplotlib.figure import Figure
 from scipy.io import loadmat
 
+from bemfmm.mesh import meshplaneint_axis_nonmanifold
 from bemfmm.my_types import EfieldSlice
 from bemfmm.planes import Plane, axis_planes
+from bemfmm.plot.compute_efield_overlay import _ray_cast_inside
 from bemfmm.plot.slice import (
     SLICE_ARRAYS,
     draw_efield_slice,
@@ -133,3 +135,29 @@ def test_old_slices_file(tmp_path):
     loaded = again["slices"][0]
     np.testing.assert_allclose([loaded.th1, loaded.th2], [data.th1, data.th2])
     np.testing.assert_allclose(slice_image(loaded)[0].ravel(), grid)
+
+
+def test_tilted_plane_frame():
+    # drawn like the nearest axis plane (YZ: y to the right, z up), whichever
+    # way the normal points
+    for normal in [(-1.4, 0, 1), (1.4, 0, -1)]:
+        _, e1, e2, n = Plane(normal, (0, 0, 0.05)).frame()
+        np.testing.assert_allclose(e1, [0, 1, 0], atol=1e-12)
+        assert e2[2] > 0.8 and np.allclose(np.cross(e1, e2), n)
+
+
+def test_cut_through_mesh_edges():
+    # an octahedron cut at its equator, four mesh edges lie in the plane and
+    # must each give one segment, else the inside test flips. The cut stays at
+    # the plane, moving it off the vertices fails on a dense head mesh
+    P = np.array(
+        [[1, 0, 0], [0, 1, 0], [-1, 0, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]], float
+    )
+    ring = [(0, 1), (1, 2), (2, 3), (3, 0)]
+    t = np.array([[a, b, 4] for a, b in ring] + [[b, a, 5] for a, b in ring])
+    Pi, edges, *_, val = meshplaneint_axis_nonmanifold(P, t, axis=2, val=0.0)
+    assert val == 0.0 and np.all(Pi[:, 2] == 0)
+    assert len(edges) == 4
+    assert np.all(np.bincount(edges.ravel()) == 2)
+    inside = _ray_cast_inside(np.array([[0.0, 0.0], [0.2, 0.3], [2.0, 0.0]]), Pi, edges)
+    assert list(inside) == [True, True, False]
