@@ -1,0 +1,5 @@
+# bemfmm project, see the Files page of the docs
+version: 1
+name: Three layer sphere
+index: tissue_index.yaml
+skin: skin

@@ -1,0 +1,5 @@
+# bemfmm project, see the Files page of the docs
+version: 1
+name: Default head
+index: tissue_index.yaml
+skin: skin

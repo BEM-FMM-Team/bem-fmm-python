@@ -1,6 +1,35 @@
 Files
 =====
 
+Project
+-------
+
+A project is a folder with a head model and the work done on it:
+
+::
+
+    my_head/
+      project.yaml        name, tissue index and skin tissue
+      tissue_index.yaml
+      skin.stl, ...
+      setups/             setup files
+      runs/               one folder per run
+
+``project.yaml``:
+
+.. code-block:: yaml
+
+    version: 1
+    name: Subject 01
+    index: tissue_index.yaml
+    skin: skin
+
+``index`` is relative to the project folder, ``skin`` is the tissue coils and
+electrodes sit on. All keys but ``version`` may be left out, and so may the
+whole file: a folder with a ``tissue_index.yaml`` is a project named after the
+folder. The default head and the sphere that ship with the package are
+projects too, read only, so their runs go to the output folder.
+
 Tissue index
 ------------
 

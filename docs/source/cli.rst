@@ -11,6 +11,7 @@ Everything the program does is one command, ``bemfmm`` (or
 ``slices``          E-field slices for a saved result
 ``show``            plot windows for a saved result
 ``sphere``          three layer sphere in a uniform field, a check of the engine
+``project``         show a project, or make a model folder one
 ``export-matlab``   a tissue index as ``CombinedMesh.mat`` for the MATLAB scripts
 ``dipole``          primary field of a current dipole on a skull surface
 =================== ==================================================
@@ -23,6 +24,7 @@ Solving
     bemfmm tms                                  default coil on the default head
     bemfmm tms --setup setup.json               coils from a setup
     bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
+    bemfmm tms --project my_head                the model of a project, runs kept in it
     bemfmm tes --relres 1e-3 --iter 30          a quicker, looser solve
 
 Options shared by ``tms`` and ``tes``:
@@ -30,13 +32,19 @@ Options shared by ``tms`` and ``tes``:
 ``--setup``
     Setup file from the gui. Without it ``tms`` uses the default coil and
     ``tes`` the default four electrode montage.
+``--project``
+    Project folder (see :doc:`files`). Its model is solved on and the result
+    goes into its ``runs`` folder, as ``tms-<date>-<time>`` or
+    ``tes-<date>-<time>``. The bundled models are read only, their runs go to
+    ``--output-dir``.
 ``--tissue-index``
-    Model to solve on. Defaults to the index named in the setup, then to the
-    default head.
+    Model to solve on. Defaults to the project's, then to the index named in
+    the setup, then to the default head.
 ``--num-neighbors``, ``--iter``, ``--relres``, ``--weight``
     Solver settings, see the Solve tab in :doc:`gui`.
 ``--output-dir``
-    Where ``result.json`` and ``result.npz`` go, ``./__output__`` by default.
+    Where ``result.json`` and ``result.npz`` go. Defaults to a new folder in
+    the project's ``runs``, else ``./__output__``.
 ``--save-format`` and ``--save`` / ``-s``
     Also write single fields, for example ``--save-format mat -s E -s En``.
 ``--slices``
@@ -48,7 +56,7 @@ Options shared by ``tms`` and ``tes``:
 
 ``--skin``
     Tissue the electrodes are imprinted on. Defaults to the Place on surface
-    stored in the setup, then to ``skin``.
+    stored in the setup, then to the project's skin, then to ``skin``.
 ``--num-neighbors-p``
     Facets integrated exactly for the potential on the electrodes, 512 by
     default.
@@ -76,6 +84,19 @@ the coil axis meets the white matter (TMS) or through the origin (TES).
 The slices are saved next to the result as ``slices.npz`` and are shown by the
 gui and by ``bemfmm show``. They take a few seconds on the sphere and about a
 minute on the full head. TMS slices include the primary field of the coils.
+
+Projects
+--------
+
+::
+
+    bemfmm project info my_head                 name, tissues, setups and runs
+    bemfmm project init my_head --name "Subject 01" --skin scalp
+
+``init`` writes ``project.yaml`` into a folder that has a
+``tissue_index.yaml``. ``info`` also lists what keeps a project from being
+used, like a missing mesh or a skin tissue that is not in the model, and then
+exits with an error.
 
 Other commands
 --------------
