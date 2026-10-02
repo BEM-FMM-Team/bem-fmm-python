@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.solvers.tdcs &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.solvers.tdcs</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">time</span><span class="w"> </span><span class="kn">import</span> <span class="n">perf_counter</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.linalg</span><span class="w"> </span><span class="kn">import</span> <span class="n">lu_factor</span><span class="p">,</span> <span class="n">lu_solve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">cdist</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.charge</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">electrode_current</span><span class="p">,</span>
+    <span class="n">potential_neighbor_ints</span><span class="p">,</span>
+    <span class="n">surface_field_electric_plain</span><span class="p">,</span>
+    <span class="n">surface_field_lhs_v</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.electrode</span><span class="w"> </span><span class="kn">import</span> <span class="n">Electrode</span><span class="p">,</span> <span class="n">montage_problem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.fgmres</span><span class="w"> </span><span class="kn">import</span> <span class="n">fgmres</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">mesh_areas</span><span class="p">,</span>
+    <span class="n">mesh_fix</span><span class="p">,</span>
+    <span class="n">mesh_imprint</span><span class="p">,</span>
+    <span class="n">mesh_reorient</span><span class="p">,</span>
+    <span class="n">mesh_tricenter</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeadModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">field_neighbor_ints</span><span class="p">,</span> <span class="n">nearest_neighbors</span><span class="p">,</span> <span class="n">report</span>
+
+
+<div class="viewcode-block" id="TDCSOptions">
+<a class="viewcode-back" href="../../../bemfmm.solvers.html#bemfmm.solvers.tdcs.TDCSOptions">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TDCSOptions</span><span class="p">:</span>
+    <span class="n">num_neighbors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">num_neighbors_p</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">512</span>
+    <span class="nb">iter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">relres</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">skin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"skin"</span>
+    <span class="n">gauss</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span></div>
+
+
+
+<div class="viewcode-block" id="default_electrodes">
+<a class="viewcode-back" href="../../../bemfmm.solvers.html#bemfmm.solvers.tdcs.default_electrodes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_electrodes</span><span class="p">():</span>
+    <span class="c1"># montage from the matlab example, snapped to the nearest skin facet</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">15.55</span><span class="p">,</span> <span class="mf">65.22</span><span class="p">,</span> <span class="mf">57.04</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">6.58</span><span class="p">,</span> <span class="o">-</span><span class="mf">19.88</span><span class="p">,</span> <span class="mf">77.59</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">75.40</span><span class="p">,</span> <span class="mf">12.89</span><span class="p">,</span> <span class="mf">28.13</span><span class="p">],</span>
+            <span class="p">[</span><span class="o">-</span><span class="mf">39.54</span><span class="p">,</span> <span class="mf">17.64</span><span class="p">,</span> <span class="mf">64.08</span><span class="p">],</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">voltages</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">Electrode</span><span class="p">(</span><span class="sa">f</span><span class="s2">"E</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="mf">15e-3</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">voltages</span><span class="p">))</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="imprint_electrodes">
+<a class="viewcode-back" href="../../../bemfmm.solvers.html#bemfmm.solvers.tdcs.imprint_electrodes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">imprint_electrodes</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">condin</span><span class="p">,</span> <span class="n">condout</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">skin_idx</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">radii</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Imprints the electrodes into the skin and puts the new skin back into the</span>
+<span class="sd">    combined mesh with the electrode facets up front, sorted by electrode</span>
+
+<span class="sd">    SNM 2012-2025</span>
+<span class="sd">    GNP 2026</span>
+<span class="sd">    SP 2026</span>
+<span class="sd">    """</span>
+    <span class="n">skin</span> <span class="o">=</span> <span class="n">interface</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">skin_idx</span>
+
+    <span class="c1"># skin sub mesh with compact vertices</span>
+    <span class="n">used</span><span class="p">,</span> <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">skin</span><span class="p">],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">Ps</span> <span class="o">=</span> <span class="n">P</span><span class="p">[</span><span class="n">used</span><span class="p">]</span>
+    <span class="n">ns</span> <span class="o">=</span> <span class="n">normals</span><span class="p">[</span><span class="n">skin</span><span class="p">]</span>
+
+    <span class="c1"># nearest skin facet, the lowest index among ties: on a symmetric mesh</span>
+    <span class="c1"># (the poles of the sphere) several facets are equally close and a plain</span>
+    <span class="c1"># nearest neighbor search picks one by rounding, which differs by platform</span>
+    <span class="n">centers_s</span> <span class="o">=</span> <span class="n">mesh_tricenter</span><span class="p">(</span><span class="n">Ps</span><span class="p">,</span> <span class="n">ts</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">cdist</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">centers_s</span><span class="p">)</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="n">d</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-9</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">elec_cen</span> <span class="o">=</span> <span class="n">centers_s</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">Pe</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">ne</span><span class="p">,</span> <span class="n">indicator</span> <span class="o">=</span> <span class="n">mesh_imprint</span><span class="p">(</span><span class="n">Ps</span><span class="p">,</span> <span class="n">ts</span><span class="p">,</span> <span class="n">ns</span><span class="p">,</span> <span class="n">elec_cen</span><span class="p">,</span> <span class="n">radii</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Imprinting: </span><span class="si">{</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">indicator</span> <span class="o">==</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">radii</span><span class="p">))]</span>
+        <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">indicator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">te</span> <span class="o">=</span> <span class="n">te</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">ne</span> <span class="o">=</span> <span class="n">ne</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+    <span class="n">indicator</span> <span class="o">=</span> <span class="n">indicator</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">radii</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">indicator</span> <span class="o">==</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Electrode </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2"> has no facets, its radius is too small for the skin mesh"</span>
+            <span class="p">)</span>
+
+    <span class="n">Ne</span> <span class="o">=</span> <span class="n">te</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># remove the old skin, add the imprinted skin up front</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">Pe</span><span class="p">,</span> <span class="n">P</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">te</span><span class="p">,</span> <span class="n">t</span><span class="p">[</span><span class="o">~</span><span class="n">skin</span><span class="p">]</span> <span class="o">+</span> <span class="n">Pe</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">ne</span><span class="p">,</span> <span class="n">normals</span><span class="p">[</span><span class="o">~</span><span class="n">skin</span><span class="p">]))</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">Ne</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">skin_idx</span><span class="p">),</span> <span class="n">interface</span><span class="p">[</span><span class="o">~</span><span class="n">skin</span><span class="p">]))</span>
+    <span class="n">condin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">Ne</span><span class="p">,</span> <span class="n">condin</span><span class="p">[</span><span class="n">skin</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">condin</span><span class="p">[</span><span class="o">~</span><span class="n">skin</span><span class="p">]))</span>
+    <span class="n">condout</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">Ne</span><span class="p">,</span> <span class="n">condout</span><span class="p">[</span><span class="n">skin</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span> <span class="n">condout</span><span class="p">[</span><span class="o">~</span><span class="n">skin</span><span class="p">]))</span>
+    <span class="n">indicator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">indicator</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">Ne</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)))</span>
+
+    <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">mesh_fix</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">mesh_reorient</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">)</span>
+
+    <span class="n">area</span> <span class="o">=</span> <span class="n">mesh_areas</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">good</span> <span class="o">=</span> <span class="n">area</span> <span class="o">&gt;=</span> <span class="mf">1e-12</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">normals</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="n">interface</span> <span class="o">=</span> <span class="n">interface</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="n">condin</span> <span class="o">=</span> <span class="n">condin</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="n">condout</span> <span class="o">=</span> <span class="n">condout</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+    <span class="n">indicator</span> <span class="o">=</span> <span class="n">indicator</span><span class="p">[</span><span class="n">good</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">condin</span><span class="p">,</span> <span class="n">condout</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">indicator</span></div>
+
+
+
+<span class="nd">@cache</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">neighbor_ints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">num_neighbors</span><span class="p">,</span> <span class="n">gauss</span><span class="o">=</span><span class="mi">25</span><span class="p">):</span>
+    <span class="n">ineighborE</span> <span class="o">=</span> <span class="n">nearest_neighbors</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">num_neighbors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">field_neighbor_ints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">ineighborE</span><span class="p">,</span> <span class="n">gauss</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="electrode_preconditioner">
+<a class="viewcode-back" href="../../../bemfmm.solvers.html#bemfmm.solvers.tdcs.electrode_preconditioner">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">electrode_preconditioner</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">PC</span><span class="p">,</span> <span class="n">indexe</span><span class="p">,</span> <span class="n">ElectrodeIndexes</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Blocked electrode preconditioner, one dense potential block per electrode</span>
+
+<span class="sd">    SNM/WAW/DD 2020-2025</span>
+<span class="sd">    SP 2026</span>
+<span class="sd">    """</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">indexe</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">position</span><span class="p">[</span><span class="n">indexe</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexe</span><span class="p">))</span>
+
+    <span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">ElectrodeIndexes</span><span class="p">:</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">position</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+        <span class="c1"># (1/(4pi)) * A_j / r_ij with the self term handled by PC</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
+            <span class="n">M</span> <span class="o">=</span> <span class="n">area</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">cdist</span><span class="p">(</span><span class="n">center</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">center</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">M</span> <span class="o">/</span> <span class="p">(</span><span class="mi">4</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="n">PC</span><span class="p">[</span><span class="n">idx</span><span class="p">][:,</span> <span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+
+        <span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">idx</span><span class="p">,</span> <span class="n">lu_factor</span><span class="p">(</span><span class="n">M</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">blocks</span></div>
+
+
+
+<span class="nd">@cache</span><span class="p">(</span><span class="n">ignore</span><span class="o">=</span><span class="p">[</span><span class="s2">"progress"</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">charge_engine</span><span class="p">(</span>
+    <span class="n">normals</span><span class="p">,</span>
+    <span class="n">area</span><span class="p">,</span>
+    <span class="n">center</span><span class="p">,</span>
+    <span class="n">contrast</span><span class="p">,</span>
+    <span class="n">condin</span><span class="p">,</span>
+    <span class="n">EC</span><span class="p">,</span>
+    <span class="n">PC</span><span class="p">,</span>
+    <span class="n">indexe</span><span class="p">,</span>
+    <span class="n">ElectrodeIndexes</span><span class="p">,</span>
+    <span class="n">voltages</span><span class="p">,</span>
+    <span class="nb">iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">relres</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span>
+    <span class="n">weight</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">prec</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="n">electrode_preconditioner</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">PC</span><span class="p">,</span> <span class="n">indexe</span><span class="p">,</span> <span class="n">ElectrodeIndexes</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Electrode preconditioner: </span><span class="si">{</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indexe</span><span class="p">))</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">_</span><span class="p">),</span> <span class="n">voltage</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">voltages</span><span class="p">):</span>
+        <span class="n">V</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">voltage</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">normals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">lu</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+        <span class="n">b</span><span class="p">[</span><span class="n">indexe</span><span class="p">[</span><span class="n">idx</span><span class="p">]]</span> <span class="o">=</span> <span class="n">lu_solve</span><span class="p">(</span><span class="n">lu</span><span class="p">,</span> <span class="n">V</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+    <span class="n">MATVEC</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">surface_field_lhs_v</span><span class="p">(</span>
+        <span class="n">c</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+        <span class="n">area</span><span class="o">=</span><span class="n">area</span><span class="p">,</span>
+        <span class="n">contrast</span><span class="o">=</span><span class="n">contrast</span><span class="p">,</span>
+        <span class="n">normals</span><span class="o">=</span><span class="n">normals</span><span class="p">,</span>
+        <span class="n">blocks</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span>
+        <span class="n">EC</span><span class="o">=</span><span class="n">EC</span><span class="p">,</span>
+        <span class="n">PC</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="n">indexe</span><span class="o">=</span><span class="n">indexe</span><span class="p">,</span>
+        <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span>
+        <span class="n">condin</span><span class="o">=</span><span class="n">condin</span><span class="p">,</span>
+        <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">its</span><span class="p">,</span> <span class="n">resvec</span> <span class="o">=</span> <span class="n">fgmres</span><span class="p">(</span>
+        <span class="n">MATVEC</span><span class="o">=</span><span class="n">MATVEC</span><span class="p">,</span>
+        <span class="n">b</span><span class="o">=</span><span class="n">b</span><span class="p">,</span>
+        <span class="n">x0</span><span class="o">=</span><span class="n">b</span><span class="p">,</span>
+        <span class="n">n</span><span class="o">=</span><span class="n">normals</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+        <span class="n">relres</span><span class="o">=</span><span class="n">relres</span><span class="p">,</span>
+        <span class="nb">iter</span><span class="o">=</span><span class="nb">iter</span><span class="p">,</span>
+        <span class="n">maxiter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">callback</span><span class="o">=</span><span class="k">lambda</span> <span class="n">j</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">report</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="s2">"solve"</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="nb">iter</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">b</span> <span class="o">-</span> <span class="n">MATVEC</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"solution_error=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">residual</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">b</span><span class="p">)</span><span class="si">:</span><span class="s2">.4e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="n">resvec</span>
+
+
+<div class="viewcode-block" id="solve">
+<a class="viewcode-back" href="../../../bemfmm.solvers.html#bemfmm.solvers.tdcs.solve">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">HeadModel</span><span class="p">,</span>
+    <span class="n">electrodes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Electrode</span><span class="p">],</span>
+    <span class="n">options</span><span class="p">:</span> <span class="n">TDCSOptions</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress</span><span class="p">:</span> <span class="n">Progress</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Surface charge solution for electrodes held at fixed voltages. The</span>
+<span class="sd">    electrodes are imprinted into the skin first, so the result has its own</span>
+<span class="sd">    mesh with Result.electrodes marking the electrode facets</span>
+<span class="sd">    """</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="n">TDCSOptions</span><span class="p">()</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">montage_problem</span><span class="p">(</span><span class="n">electrodes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">problem</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+    <span class="n">timings</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">electrodes</span><span class="p">]</span>
+    <span class="n">centers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">center</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">electrodes</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">radii</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">radius</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">electrodes</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">voltages</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">e</span><span class="o">.</span><span class="n">voltage</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">electrodes</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">report</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="s2">"imprint"</span><span class="p">)</span>
+    <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">condin</span><span class="p">,</span> <span class="n">condout</span><span class="p">,</span> <span class="n">interface</span><span class="p">,</span> <span class="n">indicator</span> <span class="o">=</span> <span class="n">imprint_electrodes</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">t</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">normals</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">condin</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">condout</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">interface</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">tissue_id</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">skin</span><span class="p">),</span>
+        <span class="n">centers</span><span class="p">,</span>
+        <span class="n">radii</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"imprint"</span><span class="p">]</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+    <span class="n">center</span> <span class="o">=</span> <span class="n">mesh_tricenter</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="n">mesh_areas</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">contrast</span> <span class="o">=</span> <span class="p">(</span><span class="n">condin</span> <span class="o">-</span> <span class="n">condout</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">condin</span> <span class="o">+</span> <span class="n">condout</span><span class="p">)</span>
+
+    <span class="n">ElectrodeIndexes</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">indicator</span> <span class="o">==</span> <span class="n">m</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">radii</span><span class="p">))]</span>
+    <span class="n">indexe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">ElectrodeIndexes</span><span class="p">)</span>
+    <span class="n">contrast</span><span class="p">[</span><span class="n">indexe</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">ElectrodeIndexes</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2"> facets"</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">report</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="s2">"neighbors"</span><span class="p">)</span>
+    <span class="n">EC</span> <span class="o">=</span> <span class="n">neighbor_ints</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">num_neighbors</span><span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"neighbors"</span><span class="p">]</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">num_neighbors</span><span class="si">}</span><span class="s2"> Neighbors Integrals: </span><span class="si">{</span><span class="n">timings</span><span class="p">[</span><span class="s1">'neighbors'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">PC</span> <span class="o">=</span> <span class="n">potential_neighbor_ints</span><span class="p">(</span>
+        <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">indexe</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">num_neighbors_p</span>
+    <span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"potential_neighbors"</span><span class="p">]</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">options</span><span class="o">.</span><span class="n">num_neighbors_p</span><span class="si">}</span><span class="s2"> Neighbors Potential Integrals: </span><span class="si">{</span><span class="n">timings</span><span class="p">[</span><span class="s1">'potential_neighbors'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s"</span>
+    <span class="p">)</span>
+
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">report</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="s2">"solve"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">iter</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">resvec</span> <span class="o">=</span> <span class="n">charge_engine</span><span class="p">(</span>
+        <span class="n">normals</span><span class="o">=</span><span class="n">normals</span><span class="p">,</span>
+        <span class="n">area</span><span class="o">=</span><span class="n">area</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+        <span class="n">contrast</span><span class="o">=</span><span class="n">contrast</span><span class="p">,</span>
+        <span class="n">condin</span><span class="o">=</span><span class="n">condin</span><span class="p">,</span>
+        <span class="n">EC</span><span class="o">=</span><span class="n">EC</span><span class="p">,</span>
+        <span class="n">PC</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="n">indexe</span><span class="o">=</span><span class="n">indexe</span><span class="p">,</span>
+        <span class="n">ElectrodeIndexes</span><span class="o">=</span><span class="n">ElectrodeIndexes</span><span class="p">,</span>
+        <span class="n">voltages</span><span class="o">=</span><span class="n">voltages</span><span class="p">,</span>
+        <span class="nb">iter</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">iter</span><span class="p">,</span>
+        <span class="n">relres</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">relres</span><span class="p">,</span>
+        <span class="n">weight</span><span class="o">=</span><span class="n">options</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span>
+        <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"solve"</span><span class="p">]</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+    <span class="c1">## Surface potential, normal E and J just inside</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">report</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="s2">"fields"</span><span class="p">)</span>
+    <span class="n">prec</span> <span class="o">=</span> <span class="mf">1e-2</span>
+    <span class="n">Pot</span><span class="p">,</span> <span class="n">Esec</span> <span class="o">=</span> <span class="n">surface_field_electric_plain</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="o">=</span><span class="n">area</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="n">prec</span><span class="p">)</span>
+    <span class="n">Pot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">Pot</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">Pot</span><span class="p">[</span><span class="n">indexe</span><span class="p">]</span> <span class="o">+=</span> <span class="n">PC</span> <span class="o">@</span> <span class="n">c</span>
+
+    <span class="n">currents</span><span class="p">,</span> <span class="n">En_in</span> <span class="o">=</span> <span class="n">electrode_current</span><span class="p">(</span>
+        <span class="n">c</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">EC</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">ElectrodeIndexes</span><span class="p">,</span> <span class="n">condin</span>
+    <span class="p">)</span>
+
+    <span class="n">solved</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Pot</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="n">area</span><span class="p">[</span><span class="n">index</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">area</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">ElectrodeIndexes</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+    <span class="c1"># all current enters and leaves through the electrodes</span>
+    <span class="n">power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">solved</span> <span class="o">*</span> <span class="n">currents</span><span class="p">)</span>
+
+    <span class="n">E</span> <span class="o">=</span> <span class="n">Esec</span>
+    <span class="n">Emag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">timings</span><span class="p">[</span><span class="s2">"fields"</span><span class="p">]</span> <span class="o">=</span> <span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">Result</span><span class="p">(</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">"tdcs"</span><span class="p">,</span>
+        <span class="n">tissues</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">names</span><span class="p">),</span>
+        <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+        <span class="n">normals</span><span class="o">=</span><span class="n">normals</span><span class="p">,</span>
+        <span class="n">interface</span><span class="o">=</span><span class="n">interface</span><span class="p">,</span>
+        <span class="n">fields</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">"c"</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span>
+            <span class="s2">"E"</span><span class="p">:</span> <span class="n">E</span><span class="p">,</span>
+            <span class="s2">"Emag"</span><span class="p">:</span> <span class="n">Emag</span><span class="p">,</span>
+            <span class="s2">"En"</span><span class="p">:</span> <span class="n">En_in</span> <span class="o">+</span> <span class="n">c</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"Jn"</span><span class="p">:</span> <span class="n">En_in</span> <span class="o">*</span> <span class="n">condin</span><span class="p">,</span>
+            <span class="s2">"Pot"</span><span class="p">:</span> <span class="n">Pot</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">resvec</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">resvec</span><span class="p">),</span>
+        <span class="n">electrodes</span><span class="o">=</span><span class="n">indicator</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">stamp</span><span class="p">(</span>
+        <span class="n">tissue_index</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">index_path</span><span class="p">),</span>
+        <span class="n">model_fingerprint</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">(),</span>
+        <span class="n">options</span><span class="o">=</span><span class="n">asdict</span><span class="p">(</span><span class="n">options</span><span class="p">),</span>
+        <span class="n">electrodes</span><span class="o">=</span><span class="p">[</span>
+            <span class="p">{</span>
+                <span class="o">**</span><span class="n">electrode</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+                <span class="s2">"facets"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)),</span>
+                <span class="s2">"solved_voltage"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                <span class="s2">"current"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">current</span><span class="p">),</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">electrode</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">current</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">electrodes</span><span class="p">,</span> <span class="n">ElectrodeIndexes</span><span class="p">,</span> <span class="n">solved</span><span class="p">,</span> <span class="n">currents</span>
+            <span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">total_current</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">currents</span><span class="p">)),</span>
+        <span class="n">power</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">power</span><span class="p">),</span>
+        <span class="n">iterations</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">resvec</span><span class="p">),</span>
+        <span class="n">relres</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">resvec</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="n">timings</span><span class="o">=</span><span class="n">timings</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

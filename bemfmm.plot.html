@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bemfmm.plot package &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bemfmm.solvers package" href="bemfmm.solvers.html" />
+    <link rel="prev" title="bemfmm.mesh package" href="bemfmm.mesh.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="bemfmm-plot-package">
+<h1>bemfmm.plot package<a class="headerlink" href="#bemfmm-plot-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bemfmm.plot.compute_efield_overlay">
+<span id="bemfmm-plot-compute-efield-overlay-module"></span><h2>bemfmm.plot.compute_efield_overlay module<a class="headerlink" href="#module-bemfmm.plot.compute_efield_overlay" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.compute_efield_overlay.compute_efield_overlay">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.compute_efield_overlay.</span></span><span class="sig-name descname"><span class="pre">compute_efield_overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plane</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.planes.Plane" title="bemfmm.planes.Plane"><span class="pre">Plane</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">th1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">INNER_IDX</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice" title="bemfmm.my_types.EfieldSlice"><span class="pre">EfieldSlice</span></a></span></span><a class="reference internal" href="_modules/bemfmm/plot/compute_efield_overlay.html#compute_efield_overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.compute_efield_overlay.compute_efield_overlay" title="Link to this definition">¶</a></dt>
+<dd><p>Total E-field on an Ms x Ms grid covering the model in plane, with the
+tissue outlines where the plane cuts the surfaces. Grid and outlines are in
+the plane’s own coordinates (Plane.frame), which for a plane normal to an
+axis are the other two world coordinates. mask marks the grid points inside
+the outline of tissue INNER_IDX (the outside of the skin), th1 and th2 are
+the color limits. The color scale is applied when drawing (slice_image)</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.electrodes">
+<span id="bemfmm-plot-electrodes-module"></span><h2>bemfmm.plot.electrodes module<a class="headerlink" href="#module-bemfmm.plot.electrodes" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.electrodes.plot_electrode_worker">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.electrodes.</span></span><span class="sig-name descname"><span class="pre">plot_electrode_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrode_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrode_voltages</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/electrodes.html#plot_electrode_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.electrodes.plot_electrode_worker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.fields">
+<span id="bemfmm-plot-fields-module"></span><h2>bemfmm.plot.fields module<a class="headerlink" href="#module-bemfmm.plot.fields" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.fields.plot_fields">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.fields.</span></span><span class="sig-name descname"><span class="pre">plot_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ptot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">En</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Emag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Jn_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/fields.html#plot_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.fields.plot_fields" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.patch">
+<span id="bemfmm-plot-patch-module"></span><h2>bemfmm.plot.patch module<a class="headerlink" href="#module-bemfmm.plot.patch" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.patch.patch">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.patch.</span></span><span class="sig-name descname"><span class="pre">patch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">faces</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cdata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colormap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bg2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">edge_color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_font</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'VictorMono'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viewax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'view(az,</span> <span class="pre">el)'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(0,</span> <span class="pre">90)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subdivide</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qt_widget</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">array</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes_alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.8</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Mesh</span></span></span><a class="reference internal" href="_modules/bemfmm/plot/patch.html#patch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.patch.patch" title="Link to this definition">¶</a></dt>
+<dd><p>Plot model with colormap data
+Name comes from legacy matlab # TODO change</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.patch.plot_coil_worker">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.patch.</span></span><span class="sig-name descname"><span class="pre">plot_coil_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/patch.html#plot_coil_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.patch.plot_coil_worker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.patch.plot_single_coil_worker">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.patch.</span></span><span class="sig-name descname"><span class="pre">plot_single_coil_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">CoilP</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Coilt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_start</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_end</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/patch.html#plot_single_coil_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.patch.plot_single_coil_worker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.patch.plot_worker">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.patch.</span></span><span class="sig-name descname"><span class="pre">plot_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/patch.html#plot_worker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.patch.plot_worker" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.residual">
+<span id="bemfmm-plot-residual-module"></span><h2>bemfmm.plot.residual module<a class="headerlink" href="#module-bemfmm.plot.residual" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.residual.plot_residual">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.residual.</span></span><span class="sig-name descname"><span class="pre">plot_residual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resvec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/residual.html#plot_residual"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.residual.plot_residual" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.residual.res_plot">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.residual.</span></span><span class="sig-name descname"><span class="pre">res_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resvec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/residual.html#res_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.residual.res_plot" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.results">
+<span id="bemfmm-plot-results-module"></span><h2>bemfmm.plot.results module<a class="headerlink" href="#module-bemfmm.plot.results" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.coil_planes">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">coil_planes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#coil_planes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.coil_planes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.compute_slices">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">compute_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#compute_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.compute_slices" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.show_slices">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">show_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_tissue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#show_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.show_slices" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.show_tdcs">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">show_tdcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'skin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#show_tdcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.show_tdcs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.show_tms">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">show_tms</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slice_tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gm'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#show_tms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.show_tms" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.show_uniform">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">show_uniform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_tissue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gm'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#show_uniform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.show_uniform" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.results.tissue_or_last">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.results.</span></span><span class="sig-name descname"><span class="pre">tissue_or_last</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/results.html#tissue_or_last"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.results.tissue_or_last" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.slice">
+<span id="bemfmm-plot-slice-module"></span><h2>bemfmm.plot.slice module<a class="headerlink" href="#module-bemfmm.plot.slice" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.draw_efield_slice">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">draw_efield_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Figure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice" title="bemfmm.my_types.EfieldSlice"><span class="pre">EfieldSlice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">11</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'viridis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outside</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#draw_efield_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.draw_efield_slice" title="Link to this definition">¶</a></dt>
+<dd><p>Draws one slice into ax, color is used for the labels and ticks outside the
+plot. The plot itself stays black so the tissue outlines stand out, and so
+does the air around the head when outside is False. See slice_image for
+log, factor and limits</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.load_slices">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">load_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#load_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.load_slices" title="Link to this definition">¶</a></dt>
+<dd><p>Slices written by save_slices: the planes, the EfieldSlice of each, the
+tissues and the created stamp. Older files still load: from before
+arbitrary planes, with the x, y, z of three axis planes, and from before
+the color scale was applied when drawing, with log scaled limits and no
+mask (all of the grid is shown)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.log_modulus">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">log_modulus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#log_modulus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.log_modulus" title="Link to this definition">¶</a></dt>
+<dd><p>John and Draper (1980) log-modulus transform</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.plot_efield_slice">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">plot_efield_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice" title="bemfmm.my_types.EfieldSlice"><span class="pre">EfieldSlice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outside</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Axes</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#plot_efield_slice"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.plot_efield_slice" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.save_slices">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">save_slices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">planes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tissue_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">created</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#save_slices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.save_slices" title="Link to this definition">¶</a></dt>
+<dd><p>planes and slices are lists of the same length. created is the time stamp
+of the result the slices belong to, so stale slices next to a newer result
+can be told apart</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.slice.slice_image">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.slice.</span></span><span class="sig-name descname"><span class="pre">slice_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.my_types.EfieldSlice" title="bemfmm.my_types.EfieldSlice"><span class="pre">EfieldSlice</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">outside</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/slice.html#slice_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.slice.slice_image" title="Link to this definition">¶</a></dt>
+<dd><p>The grid to draw, its color limits and the map from the drawn values back
+to V/m for the colorbar labels. Cheap, so what is shown can change without
+computing the slice again. outside False leaves the grid points outside the
+head empty. log uses the log-modulus scale, where a smaller factor spreads
+out the low values more. limits is the (lowest, highest) value in V/m, the
+range of the slice by default</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.plot.sparse">
+<span id="bemfmm-plot-sparse-module"></span><h2>bemfmm.plot.sparse module<a class="headerlink" href="#module-bemfmm.plot.sparse" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.plot.sparse.plot_sparse">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.plot.sparse.</span></span><span class="sig-name descname"><span class="pre">plot_sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sp_plot.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_pixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8000,</span> <span class="pre">8000)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bgcolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">marker_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#0007BD'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/plot/sparse.html#plot_sparse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.plot.sparse.plot_sparse" title="Link to this definition">¶</a></dt>
+<dd><p>DO NOT TRY to view this with matplotlib, just save it</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.plot">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bemfmm.plot" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="bemfmm.html">bemfmm package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bemfmm.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html">bemfmm.charge package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.coils.html">bemfmm.coils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.examples.html">bemfmm.examples package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.gui.html">bemfmm.gui package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bemfmm.plot package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.compute_efield_overlay">bemfmm.plot.compute_efield_overlay module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.electrodes">bemfmm.plot.electrodes module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.fields">bemfmm.plot.fields module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.patch">bemfmm.plot.patch module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.residual">bemfmm.plot.residual module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.results">bemfmm.plot.results module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.slice">bemfmm.plot.slice module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot.sparse">bemfmm.plot.sparse module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.plot">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.solvers.html">bemfmm.solvers package</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.cli">bemfmm.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.constants">bemfmm.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.electrode">bemfmm.electrode module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.export">bemfmm.export module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.fgmres">bemfmm.fgmres module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.lib">bemfmm.lib module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.model">bemfmm.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.my_types">bemfmm.my_types module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.planes">bemfmm.planes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.results">bemfmm.results module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.scene">bemfmm.scene module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="bemfmm.html">bemfmm package</a><ul>
+      <li>Previous: <a href="bemfmm.mesh.html" title="previous chapter">bemfmm.mesh package</a></li>
+      <li>Next: <a href="bemfmm.solvers.html" title="next chapter">bemfmm.solvers package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/bemfmm.plot.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Python &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Files" href="files.html" />
+    <link rel="prev" title="Command line" href="cli.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="python">
+<h1>Python<a class="headerlink" href="#python" title="Link to this heading">¶</a></h1>
+<p>The gui and the command line are thin layers over a few classes. Scripts can
+use them directly, for parameter sweeps or batch runs.</p>
+<p>Units are SI everywhere (m, S/m, V, A/s). Mesh files are read in mm and scaled
+when a model is loaded.</p>
+<section id="models">
+<h2>Models<a class="headerlink" href="#models" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeadModel</span><span class="p">,</span> <span class="n">default_index</span><span class="p">,</span> <span class="n">sphere_index</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">HeadModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_model/tissue_index.yaml"</span><span class="p">)</span>   <span class="c1"># or default_index()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">names</span>                  <span class="c1"># tissue names, outermost first as in the index</span>
+<span class="n">model</span><span class="o">.</span><span class="n">num_facets</span>
+<span class="n">P</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">surface</span><span class="p">(</span><span class="s2">"gm"</span><span class="p">)</span>   <span class="c1"># one tissue as its own mesh</span>
+<span class="n">idx</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">facets</span><span class="p">(</span><span class="s2">"gm"</span><span class="p">)</span>     <span class="c1"># boolean mask into the combined mesh</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">read_index</span></code>, <code class="docutils literal notranslate"><span class="pre">check_shells</span></code> and <code class="docutils literal notranslate"><span class="pre">write_index</span></code> read, check and write
+tissue index files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.project</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span><span class="p">,</span> <span class="n">default_project</span><span class="p">,</span> <span class="n">new_project</span>
+
+<span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"my_head"</span><span class="p">)</span>  <span class="c1"># or default_project()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">model</span><span class="p">()</span>
+<span class="n">project</span><span class="o">.</span><span class="n">skin</span><span class="p">,</span> <span class="n">project</span><span class="o">.</span><span class="n">setups</span><span class="p">(),</span> <span class="n">project</span><span class="o">.</span><span class="n">runs</span><span class="p">()</span>
+<span class="n">project</span><span class="o">.</span><span class="n">run_dir</span><span class="p">(</span><span class="s2">"tms"</span><span class="p">)</span>             <span class="c1"># runs/tms-&lt;date&gt;-&lt;time&gt;, not created</span>
+<span class="n">project</span><span class="o">.</span><span class="n">problems</span><span class="p">()</span>                 <span class="c1"># empty when it can be used</span>
+
+<span class="c1"># from surfaces, nested by containment, and what is wrong with them</span>
+<span class="n">project</span><span class="p">,</span> <span class="n">problems</span> <span class="o">=</span> <span class="n">new_project</span><span class="p">(</span><span class="s2">"my_head"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"scalp.stl"</span><span class="p">,</span> <span class="s2">"skull.stl"</span><span class="p">,</span> <span class="s2">"gm.stl"</span><span class="p">])</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.conductivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">conductivity</span><span class="p">,</span> <span class="n">find_conductivity</span>
+
+<span class="n">conductivity</span><span class="p">(</span><span class="s2">"sub01_scalp.stl"</span><span class="p">)</span>    <span class="c1"># 0.465, 0.3 when the name is not listed</span>
+<span class="n">find_conductivity</span><span class="p">(</span><span class="s2">"lh.pial"</span><span class="p">)</span>       <span class="c1"># tissue gm, value, aliases and source</span>
+</pre></div>
+</div>
+</section>
+<section id="tms">
+<h2>TMS<a class="headerlink" href="#tms" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.coils</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_params</span><span class="p">,</span> <span class="n">make_coil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.coils.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">vector_to_quat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">tms</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.solvers.tms</span><span class="w"> </span><span class="kn">import</span> <span class="n">TMSOptions</span>
+
+<span class="n">coil</span> <span class="o">=</span> <span class="n">make_coil</span><span class="p">(</span><span class="s2">"figure_eight"</span><span class="p">,</span> <span class="n">default_params</span><span class="p">(</span><span class="s2">"figure_eight"</span><span class="p">))</span>
+<span class="n">coil</span><span class="o">.</span><span class="n">place</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.042</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.080</span><span class="p">]),</span> <span class="n">vector_to_quat</span><span class="p">([</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]))</span>
+<span class="n">coil</span><span class="o">.</span><span class="n">dIdt</span> <span class="o">=</span> <span class="mf">9.4e7</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">tms</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="n">coil</span><span class="p">],</span> <span class="n">TMSOptions</span><span class="p">(</span><span class="nb">iter</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">relres</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">place(center,</span> <span class="pre">quaternion)</span></code> moves a coil: the quaternion is x, y, z, w and
+<code class="docutils literal notranslate"><span class="pre">vector_to_quat</span></code> gives the one that points the coil axis along a vector.
+<code class="docutils literal notranslate"><span class="pre">default_coil()</span></code> is the coil <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tms</span></code> uses without a setup,
+<code class="docutils literal notranslate"><span class="pre">load_template(name)</span></code> reads a strcoil template, <code class="docutils literal notranslate"><span class="pre">COIL_TYPES</span></code> lists the
+generators.</p>
+</section>
+<section id="tes">
+<h2>TES<a class="headerlink" href="#tes" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.electrode</span><span class="w"> </span><span class="kn">import</span> <span class="n">Electrode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">tdcs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.solvers.tdcs</span><span class="w"> </span><span class="kn">import</span> <span class="n">TDCSOptions</span>
+
+<span class="n">electrodes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Electrode</span><span class="p">(</span><span class="s2">"anode"</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.016</span><span class="p">,</span> <span class="mf">0.065</span><span class="p">,</span> <span class="mf">0.057</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">voltage</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+    <span class="n">Electrode</span><span class="p">(</span><span class="s2">"cathode"</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.040</span><span class="p">,</span> <span class="mf">0.018</span><span class="p">,</span> <span class="mf">0.064</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="mf">0.015</span><span class="p">,</span> <span class="n">voltage</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">tdcs</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">electrodes</span><span class="p">,</span> <span class="n">TDCSOptions</span><span class="p">(</span><span class="n">skin</span><span class="o">=</span><span class="s2">"skin"</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">"electrodes"</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="s2">"solved_voltage"</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="s2">"current"</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The electrode centers do not need to be on the skin, each one is moved to the
+nearest facet of the <code class="docutils literal notranslate"><span class="pre">skin</span></code> tissue before it is imprinted.</p>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading">¶</a></h2>
+<p>Every solver returns a <code class="docutils literal notranslate"><span class="pre">Result</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>         <span class="c1"># c, E, Emag, En, Jn and Pot for TES</span>
+<span class="n">result</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">"Emag"</span><span class="p">,</span> <span class="s2">"gm"</span><span class="p">)</span>      <span class="c1"># values on one tissue</span>
+<span class="n">result</span><span class="o">.</span><span class="n">info</span>                  <span class="c1"># settings, timings, iterations, currents</span>
+<span class="n">result</span><span class="o">.</span><span class="n">resvec</span>                <span class="c1"># GMRES residual per iteration</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+
+<span class="n">result</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"run01"</span><span class="p">)</span>         <span class="c1"># result.json and result.npz</span>
+<span class="n">again</span> <span class="o">=</span> <span class="n">Result</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"run01"</span><span class="p">)</span>
+
+<span class="c1"># one file per field, here only the gray matter facets, with the mesh</span>
+<span class="n">result</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="s2">"run01/export"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"E"</span><span class="p">,</span> <span class="s2">"En"</span><span class="p">],</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">"mat"</span><span class="p">,</span> <span class="n">tissue</span><span class="o">=</span><span class="s2">"gm"</span><span class="p">,</span> <span class="n">mesh</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="slices">
+<h2>Slices<a class="headerlink" href="#slices" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.planes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plane</span><span class="p">,</span> <span class="n">axis_planes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.plot.results</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_slices</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.plot.slice</span><span class="w"> </span><span class="kn">import</span> <span class="n">draw_efield_slice</span><span class="p">,</span> <span class="n">load_slices</span><span class="p">,</span> <span class="n">save_slices</span>
+
+<span class="c1"># the axis planes through a point, and the plane y = x</span>
+<span class="n">planes</span> <span class="o">=</span> <span class="n">axis_planes</span><span class="p">((</span><span class="mf">0.030</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.012</span><span class="p">,</span> <span class="mf">0.054</span><span class="p">))</span> <span class="o">+</span> <span class="p">[</span><span class="n">Plane</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))]</span>
+<span class="n">slices</span> <span class="o">=</span> <span class="n">compute_slices</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">planes</span><span class="p">,</span> <span class="s2">"gm"</span><span class="p">,</span> <span class="n">coils</span><span class="o">=</span><span class="p">[</span><span class="n">coil</span><span class="p">])</span>
+<span class="n">save_slices</span><span class="p">(</span><span class="s2">"run01/slices.npz"</span><span class="p">,</span> <span class="n">planes</span><span class="p">,</span> <span class="n">slices</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">tissues</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">draw_efield_slice</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">slices</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">result</span><span class="o">.</span><span class="n">tissues</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">"xz.png"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">Plane</span></code> is a normal, of any length, and a point on it in meters.
+<code class="docutils literal notranslate"><span class="pre">compute_slices</span></code> returns one slice per plane. The color range comes from the
+field on the named tissue. For TMS pass the coils, so the primary field is
+included. <code class="docutils literal notranslate"><span class="pre">draw_efield_slice</span></code> takes <code class="docutils literal notranslate"><span class="pre">outside=False</span></code> to leave the air
+around the head empty, <code class="docutils literal notranslate"><span class="pre">log=False</span></code> for a linear scale, <code class="docutils literal notranslate"><span class="pre">factor</span></code> for the
+log scale and <code class="docutils literal notranslate"><span class="pre">limits=(low,</span> <span class="pre">high)</span></code> in V/m.</p>
+</section>
+<section id="setups">
+<h2>Setups<a class="headerlink" href="#setups" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.scene</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scene</span>
+
+<span class="n">scene</span> <span class="o">=</span> <span class="n">Scene</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"setup.json"</span><span class="p">)</span>
+<span class="n">scene</span><span class="o">.</span><span class="n">coils</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">electrodes</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">planes</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">scene</span><span class="o">.</span><span class="n">skin</span>
+</pre></div>
+</div>
+</section>
+<section id="a-sweep">
+<h2>A sweep<a class="headerlink" href="#a-sweep" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.coils</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_params</span><span class="p">,</span> <span class="n">make_coil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.coils.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">axis_angle_to_quat</span><span class="p">,</span> <span class="n">quat_multiply</span><span class="p">,</span> <span class="n">vector_to_quat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">tms</span>
+
+<span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.042</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.080</span><span class="p">])</span>
+<span class="n">tilt</span> <span class="o">=</span> <span class="n">vector_to_quat</span><span class="p">([</span><span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>
+<span class="n">coil</span> <span class="o">=</span> <span class="n">make_coil</span><span class="p">(</span><span class="s2">"figure_eight"</span><span class="p">,</span> <span class="n">default_params</span><span class="p">(</span><span class="s2">"figure_eight"</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">30</span><span class="p">):</span>
+    <span class="n">twist</span> <span class="o">=</span> <span class="n">axis_angle_to_quat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">place</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">quat_multiply</span><span class="p">(</span><span class="n">tilt</span><span class="p">,</span> <span class="n">twist</span><span class="p">))</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">tms</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="n">coil</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">"Emag"</span><span class="p">,</span> <span class="s2">"gm"</span><span class="p">),</span> <span class="mi">99</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Python</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#models">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tms">TMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tes">TES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#results">Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slices">Slices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setups">Setups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-sweep">A sweep</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="cli.html" title="previous chapter">Command line</a></li>
+      <li>Next: <a href="files.html" title="next chapter">Files</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/python.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

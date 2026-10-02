@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.examples.dipole &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.examples.dipole</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Primary field of a current dipole on a skull surface</span>
+
+<span class="sd">DD 5/2026</span>
+<span class="sd">SP 6/2026</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vedo</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.charge.inc_field_gauss_selective_dipoles</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">inc_field_gauss_selective_dipoles</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asset_path</span><span class="p">,</span> <span class="n">timeit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_areas</span><span class="p">,</span> <span class="n">mesh_normals</span><span class="p">,</span> <span class="n">mesh_tricenter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+
+<span class="nd">@timeit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_dipoles</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">,</span>
+    <span class="n">normals</span><span class="p">,</span>
+    <span class="n">Center</span><span class="p">,</span>
+    <span class="n">Area</span><span class="p">,</span>
+    <span class="n">contrast</span><span class="p">,</span>
+    <span class="n">condinner</span><span class="p">,</span>
+    <span class="n">condin</span><span class="p">,</span>
+    <span class="n">condouter</span><span class="p">,</span>
+    <span class="n">condout</span><span class="p">,</span>
+    <span class="n">tissuename</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Setup Dipoles</span>
+<span class="sd">    Setup the dipoles and compute the primary field for bem-fmm</span>
+
+<span class="sd">    DD - 5/2026</span>
+<span class="sd">    SP - 26</span>
+<span class="sd">    """</span>
+    <span class="c1">## Fixed dipole positions</span>
+    <span class="c1"># Will start with a single dipole at the origin (pointing up).</span>
+    <span class="n">dipPlus</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">40</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">dipMinus</span> <span class="o">=</span> <span class="mf">1e-3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mf">15.1</span><span class="p">,</span> <span class="mf">40.1</span><span class="p">])</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+    <span class="c1"># Total Current</span>
+    <span class="n">Itot</span> <span class="o">=</span> <span class="mf">1e-3</span>
+    <span class="c1"># 1 [mA]</span>
+
+    <span class="c1">## Dipole values</span>
+
+    <span class="c1"># Values necessary for calculating the primary field</span>
+    <span class="n">dipVec</span> <span class="o">=</span> <span class="n">dipPlus</span> <span class="o">-</span> <span class="n">dipMinus</span>
+    <span class="n">strdipolePplus</span> <span class="o">=</span> <span class="n">dipPlus</span>
+    <span class="n">strdipolePminus</span> <span class="o">=</span> <span class="n">dipMinus</span>
+    <span class="n">Ctr</span> <span class="o">=</span> <span class="p">(</span><span class="n">dipMinus</span> <span class="o">+</span> <span class="n">dipPlus</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">NoDipoles</span> <span class="o">=</span> <span class="n">dipPlus</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">I0</span> <span class="o">=</span> <span class="n">Itot</span> <span class="o">/</span> <span class="n">NoDipoles</span>
+    <span class="c1"># ensure that the total strength is 1e-5 A</span>
+
+    <span class="n">strdipoleCurrent</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">I0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">NoDipoles</span><span class="p">)),</span> <span class="o">-</span><span class="n">I0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">NoDipoles</span><span class="p">))]</span>
+    <span class="p">)</span>
+
+    <span class="n">condLAST</span> <span class="o">=</span> <span class="n">condinner</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># innermost tissue index</span>
+    <span class="n">strdipolesig</span> <span class="o">=</span> <span class="n">condLAST</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">NoDipoles</span><span class="p">))</span>
+    <span class="n">strdipolemcenter</span> <span class="o">=</span> <span class="n">Ctr</span>
+    <span class="n">strdipolemstrength</span> <span class="o">=</span> <span class="n">Itot</span>
+    <span class="n">strdipolemvector</span> <span class="o">=</span> <span class="n">strdipolePplus</span> <span class="o">-</span> <span class="n">strdipolePminus</span>
+
+    <span class="c1">## Primary Field</span>
+    <span class="c1"># Compute the primary field and rhs vector</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">gaussRadius</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">R</span>
+    <span class="n">dipoleClusterCenter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Ctr</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">Epri</span><span class="p">,</span> <span class="n">Ppri</span> <span class="o">=</span> <span class="n">inc_field_gauss_selective_dipoles</span><span class="p">(</span>
+        <span class="n">strdipolePplus</span><span class="o">=</span><span class="n">strdipolePplus</span><span class="p">,</span>
+        <span class="n">strdipolePminus</span><span class="o">=</span><span class="n">strdipolePminus</span><span class="p">,</span>
+        <span class="n">strdipolesig</span><span class="o">=</span><span class="n">strdipolesig</span><span class="p">,</span>
+        <span class="n">strdipoleCurrent</span><span class="o">=</span><span class="n">strdipoleCurrent</span><span class="p">,</span>
+        <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+        <span class="n">Center</span><span class="o">=</span><span class="n">Center</span><span class="p">,</span>
+        <span class="n">dipoleClusterCenter</span><span class="o">=</span><span class="n">dipoleClusterCenter</span><span class="p">,</span>
+        <span class="n">gaussRadius</span><span class="o">=</span><span class="n">gaussRadius</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Epri</span><span class="p">,</span> <span class="n">Ppri</span>
+
+
+<span class="nd">@timeit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_model</span><span class="p">():</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"plot_skull.stl"</span><span class="p">))</span>
+    <span class="c1"># mesh.subdivide(3)</span>
+    <span class="n">P</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"use vedo to load stl"</span><span class="p">)</span>
+
+    <span class="c1">## Shell Parameters</span>
+    <span class="c1"># Set the shell radii and layer conductivities</span>
+    <span class="c1"># -- Set the shell radii [mm] (can maybe switch to layer thickness if desired.</span>
+    <span class="c1"># Skin - Bone - Brain (GM - WM)</span>
+    <span class="n">tissuename</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">"Bone"</span><span class="p">])</span>
+    <span class="n">unit_convert</span> <span class="o">=</span> <span class="mf">0.001</span>
+
+    <span class="n">P</span> <span class="o">=</span> <span class="n">unit_convert</span> <span class="o">*</span> <span class="n">P</span>
+    <span class="c1"># -- Set conductivities (S/m)</span>
+    <span class="n">condinner</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.01</span><span class="p">])</span>
+
+    <span class="n">condouter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.465</span><span class="p">])</span>
+
+    <span class="n">condin</span> <span class="o">=</span> <span class="n">condinner</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">condout</span> <span class="o">=</span> <span class="n">condouter</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Compute mesh data</span>
+    <span class="n">normals</span> <span class="o">=</span> <span class="n">mesh_normals</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">Center</span> <span class="o">=</span> <span class="n">mesh_tricenter</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">Area</span> <span class="o">=</span> <span class="n">mesh_areas</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">contrast</span> <span class="o">=</span> <span class="p">(</span><span class="n">condin</span> <span class="o">-</span> <span class="n">condout</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">condin</span> <span class="o">+</span> <span class="n">condout</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">P</span><span class="p">,</span>
+        <span class="n">t</span><span class="p">,</span>
+        <span class="n">normals</span><span class="p">,</span>
+        <span class="n">Center</span><span class="p">,</span>
+        <span class="n">Area</span><span class="p">,</span>
+        <span class="n">contrast</span><span class="p">,</span>
+        <span class="n">condinner</span><span class="p">,</span>
+        <span class="n">condin</span><span class="p">,</span>
+        <span class="n">condouter</span><span class="p">,</span>
+        <span class="n">condout</span><span class="p">,</span>
+        <span class="n">tissuename</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="run">
+<a class="viewcode-back" href="../../../bemfmm.examples.html#bemfmm.examples.dipole.run">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">():</span>
+    <span class="c1"># Load model</span>
+    <span class="p">(</span>
+        <span class="n">P</span><span class="p">,</span>
+        <span class="n">t</span><span class="p">,</span>
+        <span class="n">normals</span><span class="p">,</span>
+        <span class="n">Center</span><span class="p">,</span>
+        <span class="n">Area</span><span class="p">,</span>
+        <span class="n">contrast</span><span class="p">,</span>
+        <span class="n">condinner</span><span class="p">,</span>
+        <span class="n">condin</span><span class="p">,</span>
+        <span class="n">condouter</span><span class="p">,</span>
+        <span class="n">condout</span><span class="p">,</span>
+        <span class="n">tissuename</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">()</span>
+
+    <span class="c1">## 2. Set up dipoles</span>
+    <span class="c1"># Dipole positions are incorporated throught the primary field.</span>
+    <span class="n">plot_tissue</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">Epri</span><span class="p">,</span> <span class="n">Ppri</span> <span class="o">=</span> <span class="n">setup_dipoles</span><span class="p">(</span>
+        <span class="n">P</span><span class="p">,</span>
+        <span class="n">t</span><span class="p">,</span>
+        <span class="n">normals</span><span class="p">,</span>
+        <span class="n">Center</span><span class="p">,</span>
+        <span class="n">Area</span><span class="p">,</span>
+        <span class="n">contrast</span><span class="p">,</span>
+        <span class="n">condinner</span><span class="p">,</span>
+        <span class="n">condin</span><span class="p">,</span>
+        <span class="n">condouter</span><span class="p">,</span>
+        <span class="n">condout</span><span class="p">,</span>
+        <span class="n">tissuename</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1">## Plot primary field</span>
+    <span class="n">Eprin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Epri</span> <span class="o">*</span> <span class="n">normals</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">plot_t_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span>
+    <span class="p">)</span>  <span class="c1"># NOTE: for future reference this will be selecting a tissue</span>
+    <span class="n">plot_t</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="n">plot_t_idx</span><span class="p">]</span>
+    <span class="n">plot_field</span> <span class="o">=</span> <span class="n">Eprin</span><span class="p">[</span><span class="n">plot_t_idx</span><span class="p">]</span>
+
+    <span class="n">viewax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>  <span class="c1"># TODO embed</span>
+
+    <span class="n">_p</span> <span class="o">=</span> <span class="n">patch</span><span class="p">(</span>
+        <span class="n">vertices</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+        <span class="n">faces</span><span class="o">=</span><span class="n">plot_t</span><span class="p">,</span>
+        <span class="n">cdata</span><span class="o">=</span><span class="n">plot_field</span><span class="p">,</span>
+        <span class="n">edge_color</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Normal component of primary field Epri on Surface: </span><span class="si">{</span><span class="n">tissuename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">cmap_label</span><span class="o">=</span><span class="s2">"V/m"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">_p</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

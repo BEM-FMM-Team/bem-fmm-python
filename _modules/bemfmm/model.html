@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.model &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.model</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vedo</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asset_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_areas</span><span class="p">,</span> <span class="n">mesh_combine_simple</span><span class="p">,</span> <span class="n">mesh_tricenter</span>
+
+<span class="n">MODEL_UNIT_SCALAR</span> <span class="o">=</span> <span class="mf">1e-3</span>  <span class="c1"># meshes are in [mm], the solvers work in [m]</span>
+
+
+<div class="viewcode-block" id="default_index">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.default_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"tissue_index.yaml"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sphere_index">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.sphere_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sphere_index</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"sphere_3L/tissue_index.yaml"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_index">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.read_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_index</span><span class="p">(</span><span class="n">index_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Returns the shells of a tissue index as {name: (condin, outside, path)}</span>
+<span class="sd">    with absolute mesh paths</span>
+<span class="sd">    """</span>
+    <span class="n">index_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">index_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">index_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Tissue index not found: </span><span class="si">{</span><span class="n">index_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">index_path</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+    <span class="n">shells</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shells"</span><span class="p">)</span> <span class="k">if</span> <span class="n">data</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shells</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"shells is missing from </span><span class="si">{</span><span class="n">index_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">index_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">/</span> <span class="n">value</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">get_asset_path</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.stl"</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="check_shells">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.check_shells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_shells</span><span class="p">(</span><span class="n">shells</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Problems with a set of shells, empty when it can be solved</span>
+<span class="sd">    """</span>
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shells</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"There are no tissues"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">outside</span> <span class="o">==</span> <span class="s2">"FreeSpace"</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"No tissue has FreeSpace outside it"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="s2">" "</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' is not a valid tissue name"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cond</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> needs a conductivity above 0"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">outside</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> cannot be outside itself"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">outside</span> <span class="o">!=</span> <span class="s2">"FreeSpace"</span> <span class="ow">and</span> <span class="n">outside</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shells</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> lists </span><span class="si">{</span><span class="n">outside</span><span class="si">}</span><span class="s2"> as outside, which is not a tissue"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Mesh file of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">problems</span></div>
+
+
+
+<div class="viewcode-block" id="write_index">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.write_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_index</span><span class="p">(</span><span class="n">index_path</span><span class="p">,</span> <span class="n">shells</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Writes {name: (condin, outside, path)} as a tissue index, mesh paths are</span>
+<span class="sd">    stored relative to the index when they are below its folder</span>
+<span class="sd">    """</span>
+    <span class="n">index_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">index_path</span><span class="p">)</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">index_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">"# TissueName : [ condin , TissueOutside, mesh file ]"</span><span class="p">,</span>
+        <span class="s2">"# condin in [S/m], meshes in [mm], FreeSpace is air"</span><span class="p">,</span>
+        <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"shells:"</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">shells</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">'  </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s1">&lt;</span><span class="si">{</span><span class="n">width</span><span class="si">}}</span><span class="s1"> : [</span><span class="si">{</span><span class="n">cond</span><span class="si">}</span><span class="s1">, "</span><span class="si">{</span><span class="n">outside</span><span class="si">}</span><span class="s1">", "</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span><span class="si">}</span><span class="s1">"]'</span><span class="p">)</span>
+
+    <span class="n">index_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="HeadModel">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HeadModel</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Combined surface mesh of all tissue shells listed in a tissue index</span>
+
+<span class="sd">    The tissue index is a yaml file with::</span>
+
+<span class="sd">        shells:</span>
+<span class="sd">            TissueName: [condin, "TissueOutside", "file.stl"]</span>
+
+<span class="sd">    where TissueOutside is another TissueName or FreeSpace and the stl path is</span>
+<span class="sd">    relative to the index</span>
+<span class="sd">    """</span>
+
+    <span class="n">index_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
+    <span class="n">condinner</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">condouter</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+    <span class="n">outside</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+    <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">normals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">condin</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">condout</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="n">interface</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>  <span class="c1"># (N, 2) shell index of every facet</span>
+
+    <span class="n">center</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">area</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HeadModel.load">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">index_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">index_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">index_path</span><span class="p">)</span> <span class="k">if</span> <span class="n">index_path</span> <span class="k">else</span> <span class="n">default_index</span><span class="p">()</span>
+        <span class="n">shells</span> <span class="o">=</span> <span class="n">read_index</span><span class="p">(</span><span class="n">index_path</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">outside</span> <span class="o">!=</span> <span class="s2">"FreeSpace"</span> <span class="ow">and</span> <span class="n">outside</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shells</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> lists </span><span class="si">{</span><span class="n">outside</span><span class="si">}</span><span class="s2"> as its outside tissue, "</span>
+                    <span class="sa">f</span><span class="s2">"which is not in </span><span class="si">{</span><span class="n">index_path</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+
+        <span class="n">Pcell</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">tcell</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">condinner</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">condouter</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to find file </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">Pcell</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span> <span class="o">*</span> <span class="n">MODEL_UNIT_SCALAR</span><span class="p">)</span>
+            <span class="n">tcell</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells</span><span class="p">))</span>
+            <span class="n">condinner</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+            <span class="n">condouter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shells</span><span class="p">[</span><span class="n">outside</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">outside</span> <span class="o">!=</span> <span class="s2">"FreeSpace"</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">condin</span><span class="p">,</span> <span class="n">condout</span><span class="p">,</span> <span class="n">interface</span> <span class="o">=</span> <span class="n">mesh_combine_simple</span><span class="p">(</span>
+            <span class="n">Pcell</span><span class="p">,</span> <span class="n">tcell</span><span class="p">,</span> <span class="n">condinner</span><span class="p">,</span> <span class="n">condouter</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">index_path</span><span class="o">=</span><span class="n">index_path</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">shells</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span>
+            <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span>
+            <span class="n">condinner</span><span class="o">=</span><span class="n">condinner</span><span class="p">,</span>
+            <span class="n">condouter</span><span class="o">=</span><span class="n">condouter</span><span class="p">,</span>
+            <span class="n">outside</span><span class="o">=</span><span class="p">[</span><span class="n">v</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">values</span><span class="p">()],</span>
+            <span class="n">P</span><span class="o">=</span><span class="n">P</span><span class="p">,</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>
+            <span class="n">normals</span><span class="o">=</span><span class="n">normals</span><span class="p">,</span>
+            <span class="n">condin</span><span class="o">=</span><span class="n">condin</span><span class="p">,</span>
+            <span class="n">condout</span><span class="o">=</span><span class="n">condout</span><span class="p">,</span>
+            <span class="n">interface</span><span class="o">=</span><span class="n">interface</span><span class="p">,</span>
+            <span class="n">center</span><span class="o">=</span><span class="n">mesh_tricenter</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span>
+            <span class="n">area</span><span class="o">=</span><span class="n">mesh_areas</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">contrast</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condin</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">condout</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">condin</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">condout</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_facets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="HeadModel.tissue_id">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel.tissue_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tissue_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a tissue of </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HeadModel.facets">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel.facets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">facets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">tissue_id</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HeadModel.surface">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel.surface">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># single shell with compact vertices, for display</span>
+        <span class="n">used</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">facets</span><span class="p">(</span><span class="n">name</span><span class="p">)],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">P</span><span class="p">[</span><span class="n">used</span><span class="p">],</span> <span class="n">t</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HeadModel.fingerprint">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.model.HeadModel.fingerprint">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># hash of the index and every mesh file, stored with results</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="p">]:</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">h</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

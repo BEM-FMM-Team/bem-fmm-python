@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Changes &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="bemfmm package" href="bemfmm.html" />
+    <link rel="prev" title="Development" href="development.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="changes">
+<h1>Changes<a class="headerlink" href="#changes" title="Link to this heading">¶</a></h1>
+<section id="unreleased">
+<h2>Unreleased<a class="headerlink" href="#unreleased" title="Link to this heading">¶</a></h2>
+<p>Projects</p>
+<ul class="simple">
+<li><p>A project is a folder with a model, its setups and its runs, described by
+<code class="docutils literal notranslate"><span class="pre">project.yaml</span></code> (name, tissue index, skin tissue). Any folder with a tissue
+index already is one. <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tms</span> <span class="pre">--project</span></code> and <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tes</span> <span class="pre">--project</span></code>
+solve on its model and keep the result in its <code class="docutils literal notranslate"><span class="pre">runs</span></code> folder.
+<code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">project</span> <span class="pre">info</span></code> shows a project, <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">project</span> <span class="pre">init</span></code> writes its
+<code class="docutils literal notranslate"><span class="pre">project.yaml</span></code>. The bundled head and sphere are read only projects.</p></li>
+<li><p>The gui asks for a project at start: the bundled head or sphere, a recent
+one, a folder or a new one from surfaces (<code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span> <span class="pre">--project</span></code> skips
+the question). The Model tab and the File menu open, make and copy
+projects. Runs go into the project’s <code class="docutils literal notranslate"><span class="pre">runs</span></code> folder, and coils and
+electrodes sit on its skin tissue. The bundled projects are read only, so
+Copy makes a project of them to work in.</p></li>
+<li><p>Setups belong to a project: Save and Open setup start in its <code class="docutils literal notranslate"><span class="pre">setups</span></code>
+folder, the Model tab lists them, and <code class="docutils literal notranslate"><span class="pre">--setup</span> <span class="pre">NAME</span></code> with <code class="docutils literal notranslate"><span class="pre">--project</span></code>
+runs <code class="docutils literal notranslate"><span class="pre">setups/NAME.json</span></code>. Setups in a project store its tissue index
+relative to themselves, so the project can move. Setups made on the bundled
+head on another computer open on the bundled head here.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">project</span> <span class="pre">new</span></code> makes a project from closed surfaces. It works out
+which tissue is outside which from which surfaces contain which, takes the
+conductivities from the default list, and reports open, inward facing or
+crossing surfaces and meshes that look like they are in meters. From the
+seven surfaces of the default head, in any order, it writes the default
+tissue index.</p></li>
+<li><p>A list of default conductivities, the standard values of SimNIBS, with the
+usual other names of each tissue. Tissues added in the Model tab start with
+the value of their name (<code class="docutils literal notranslate"><span class="pre">scalp.stl</span></code> gets 0.465 S/m instead of 0.3), and
+<strong>Defaults</strong> sets all tissues in the list at once.</p></li>
+</ul>
+<p>GUI</p>
+<ul class="simple">
+<li><p>Fixed: slices could show a band across the head where the field was hidden
+inside and drawn outside it. This happened when the plane passed through
+mesh vertices, which on the full head happens for most planes that are not
+axis planes. The tissue outlines now also sit exactly on the plane of the
+field, before they could be up to 0.2 mm off.</p></li>
+<li><p>Tilted slice planes are drawn the same way round as the axis plane nearest
+to them, whichever way their normal points. Before, a plane with its normal
+along -x was shown mirrored compared with the YZ plane.</p></li>
+<li><p>tDCS is called TES (transcranial electrical stimulation) everywhere it is
+shown: the mode buttons, the window title, messages, <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tes</span></code> and
+<code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span> <span class="pre">--mode</span> <span class="pre">tes</span></code>. <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tdcs</span></code> and <code class="docutils literal notranslate"><span class="pre">--mode</span> <span class="pre">tdcs</span></code> still work,
+and setups and results keep the <code class="docutils literal notranslate"><span class="pre">tdcs</span></code> key, so older files open as before.</p></li>
+<li><p>Slices no longer show a field in the air around the head for TES, where it
+means nothing. TMS slices show it, the coil’s own field, unless <strong>Show
+outside the head</strong> in the Slices tab is unticked. <code class="docutils literal notranslate"><span class="pre">slices.npz</span></code> stores the
+plain field and its range, the log scale is applied when drawing.</p></li>
+<li><p>The Slices tab sets how the slices are drawn: log or linear scale, the log
+factor, and the range, automatic per slice or set by hand for all of them.
+Changing them redraws without computing the slices again.</p></li>
+<li><p>The window is explicitly in TMS or TES mode. The mode is switched from the
+toolbar or the Mode menu (Ctrl+1, Ctrl+2) and shown in the window title, the
+status bar and the name of the second tab. The run button says what it runs.
+<code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span> <span class="pre">--mode</span> <span class="pre">tms|tes</span></code> picks the mode at start, otherwise the last
+one used is restored.</p></li>
+<li><p>Only the coils or the electrodes of the current mode are shown in the 3D
+view.</p></li>
+<li><p>Results are in tabs next to the 3D view: Convergence, Slices
+and Electrodes, drawn with matplotlib inside the window. Every plot has the
+matplotlib toolbar (zoom, pan, save) and can be popped out into its own
+window and docked back.</p></li>
+<li><p>The Slices tab shows the E-field on the three slice planes. Runs compute the
+slices when “Compute E-field slices” is ticked, older results can compute
+them with the Compute slices button.</p></li>
+<li><p>Export results dialog: chosen quantities, all facets or one tissue, mat, npz or
+csv, optionally with the mesh.</p></li>
+<li><p>File &gt; Save 3D view image (Snapshot in the toolbar).</p></li>
+<li><p>Settings dialog (Edit &gt; Settings): theme (System, Light, Dark), the name of
+the skin tissue, the start mode, the output folder and whether runs compute
+slices. Settings are kept between sessions.</p></li>
+<li><p>Dark theme for the whole window, including the 3D view and the plots.</p></li>
+<li><p>The Electrodes tab has its own Place on surface. It assumes the skin tissue
+and can be set to any tissue, the electrodes follow it. The Coils tab has its
+own Place on as well.</p></li>
+<li><p>Align to (Coils tab) sets the tissue whose normal orients the coil for Auto
+orient, Drag and Aim at. The default is the Place on surface, which keeps the
+previous behavior. With another tissue, for example gm, the coil axis follows
+the gm normal at the target and the coil is moved out along that normal to
+the set distance above the skin.</p></li>
+<li><p>Electrodes are drawn as the skin facets the TES solver will imprint for
+them, with their edges, instead of a flat disk that cut into curved skin.
+The patch follows the electrode while it is dragged or resized.</p></li>
+<li><p>Coils and electrodes are selected by clicking them in the 3D view. Clicking
+empty space in the view or the list, or Esc, clears the selection, so
+nothing has to stay highlighted.</p></li>
+<li><p>Show in 3D view keeps its state when switching tabs instead of being turned
+off outside the Results tab. The result stays in the view on the Model and
+Solve tabs and steps aside only on the Coils/Electrodes tab.</p></li>
+<li><p>Twist is read from the coil pose, so the box no longer jumps back to 0 after
+another edit, and changing Distance, Auto orient, dragging and Aim at keep the
+twist instead of resetting the coil to its default turn about the axis.</p></li>
+<li><p>The slices use <code class="docutils literal notranslate"><span class="pre">viridis</span></code> instead of <code class="docutils literal notranslate"><span class="pre">jet</span></code>, and the Slices tab has a
+Colormap choice (viridis, plasma, inferno, cividis, hot, jet).</p></li>
+<li><p>Results open on the tissue picked last, <code class="docutils literal notranslate"><span class="pre">gm</span></code> at first, for TMS and TES
+alike (TMS results used to open on <code class="docutils literal notranslate"><span class="pre">wm</span></code>).</p></li>
+<li><p>Coils and electrodes are moved by pressing on them in the 3D view, moving
+the mouse and releasing. The Drag buttons, which picked an item up on one
+click and dropped it on the next, are gone. Dragging on empty space still
+turns the camera.</p></li>
+<li><p>Delete or Backspace removes the selected coil or electrode from anywhere on
+the Coils/Electrodes tab or after a click in the 3D view, not only while
+its list has focus.</p></li>
+<li><p>Tolerance in the Solve tab is shown and typed in scientific notation and its
+arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
+zero.</p></li>
+<li><p>Slices can be on any list of planes instead of the three axis planes, set
+by a normal and a position (the plane y = x is normal <code class="docutils literal notranslate"><span class="pre">1,</span> <span class="pre">-1,</span> <span class="pre">0</span></code>). The
+default is still the planes through the origin normal to x, y and z.</p></li>
+<li><p>The planes have their own Planes tab next to the 3D view: a list of planes,
+orientation buttons, a position slider, a plane through a picked point, and
+an arrow on the selected plane in the 3D view that drags it along its
+normal. The tab says when the computed slices no longer match the planes.</p></li>
+<li><p>Saving a setup while the model comes from applied but unsaved tissue edits
+offers to save the tissue index first, so the setup can point to it. It
+used to show the same notice on every save and write no tissue index.</p></li>
+<li><p>Fixed: closing the window, New and Open only asked to save when there were
+coils or electrodes, so slice plane changes were lost. They now ask when the
+coils, electrodes or planes differ from the saved setup, and not after
+undoing back to it.</p></li>
+<li><p>The Plot windows button in the Results tab is now Open in separate windows,
+since the same plots are in the tabs next to the 3D view.</p></li>
+<li><p>The gui shows plain names instead of variable names. Coil parameters have
+labels and are in mm, the cross-section shape (<code class="docutils literal notranslate"><span class="pre">flag</span></code>) and the current
+distribution (<code class="docutils literal notranslate"><span class="pre">sk</span></code>) are picked from lists, coil types have readable names,
+and the exported fields read E-field, Charge and so on instead of <code class="docutils literal notranslate"><span class="pre">E</span></code> and
+<code class="docutils literal notranslate"><span class="pre">c</span></code>. The file names of exported quantities are unchanged.</p></li>
+<li><p>Show coils (Show electrodes) in the Results tab hides them over a result
+without removing them from the setup.</p></li>
+<li><p>The gui calls the stored results quantities, since only the E-field and
+current density are fields: the Quantity list in the Display solution group,
+Export results, and Quantities under Also export.</p></li>
+<li><p>Solver presets in the Solve tab (Default, Accurate, Fast) for TMS and
+TES, and each mode keeps all of its solver settings, the neighbor
+integrals included.</p></li>
+<li><p>Fixed: a TES result stayed in the Results tab and the 3D view after
+switching to TMS, and the other way round. Each mode now keeps its own last
+result.</p></li>
+<li><p>Fixed: picking an Aim at target and then selecting another coil moved that
+coil to the target. Anything but Place coil now cancels the pick, and the
+status bar names the coil the target is for.</p></li>
+<li><p>Fixed: Ctrl+Z after a tissue table edit undid an unrelated coil or electrode
+edit and left the table edited. On the Model tab Undo and Redo now act on the
+table, and a table undone back to the loaded model no longer blocks runs.</p></li>
+<li><p>Fixed: switching between TMS and TES reset Max iterations and Tolerance to
+their defaults. Each mode now keeps its own values.</p></li>
+<li><p>Fixed: electrodes kept the coordinates of the previous model when another
+one was loaded, and the solver then snapped them to whatever skin was
+nearest. They are now moved onto the new surface, and coils whose height
+above their surface changed by more than 5 mm are reported.</p></li>
+<li><p>Fixed: a TES run with one electrode, or with all electrodes at the same
+voltage, was solved and gave meaningless currents. The gui refuses to run it
+and says why.</p></li>
+</ul>
+<p>Command line</p>
+<ul class="simple">
+<li><p>TES integrates the potential on the electrodes exactly over the nearest 512
+facets instead of 32 (<code class="docutils literal notranslate"><span class="pre">--num-neighbors-p</span></code>, Potential integrals in the
+gui).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">slices</span> <span class="pre">RESULT</span> <span class="pre">[--planes</span> <span class="pre">X</span> <span class="pre">Y</span> <span class="pre">Z]</span> <span class="pre">[--plane</span> <span class="pre">NX,NY,NZ,PX,PY,PZ</span> <span class="pre">...]</span></code>
+computes E-field slices for a saved result into <code class="docutils literal notranslate"><span class="pre">slices.npz</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tms</span></code> and <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tes</span></code> take <code class="docutils literal notranslate"><span class="pre">--slices</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tes</span> <span class="pre">--skin</span></code> defaults to the surface stored in the setup.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">show</span></code> uses saved slices instead of computing them again.</p></li>
+</ul>
+<p>Library</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Result.export</span></code> writes fields to mat, npz, csv or pkl files, for all facets
+or one tissue, optionally with the mesh. <code class="docutils literal notranslate"><span class="pre">--save-format</span></code> uses it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">coils.rotation.axis_twist</span></code> splits a coil pose into its axis and the twist
+about it, <code class="docutils literal notranslate"><span class="pre">twisted</span></code> builds it back. <code class="docutils literal notranslate"><span class="pre">Stimulation.twist_coil</span></code> takes the
+twist alone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">electrode.montage_problem</span></code> says why a set of electrodes cannot drive a
+current. <code class="docutils literal notranslate"><span class="pre">tdcs.solve</span></code> raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> with it, and <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tes</span></code>
+checks it before loading the model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot.results.compute_slices</span></code>, <code class="docutils literal notranslate"><span class="pre">plot.slice.draw_efield_slice</span></code>,
+<code class="docutils literal notranslate"><span class="pre">save_slices</span></code> and <code class="docutils literal notranslate"><span class="pre">load_slices</span></code>. <code class="docutils literal notranslate"><span class="pre">plot_efield_slice</span></code> draws with
+<code class="docutils literal notranslate"><span class="pre">draw_efield_slice</span></code> and the tissue outlines are drawn as one collection per
+tissue, which is much faster for large models.</p></li>
+<li><p>Setups store <code class="docutils literal notranslate"><span class="pre">mode</span></code> and <code class="docutils literal notranslate"><span class="pre">skin</span></code>. Older setups still open.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bemfmm.planes.Plane</span></code> is a slice plane by its normal and a point.
+<code class="docutils literal notranslate"><span class="pre">compute_slices</span></code> takes a list of them and returns a list of slices,
+<code class="docutils literal notranslate"><span class="pre">compute_efield_overlay</span></code> takes one, and setups store them (version 2).
+<code class="docutils literal notranslate"><span class="pre">slices.npz</span></code> stores any number of planes, older files still load.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">electrode.imprint_patch</span></code> imprints one electrode on the facets of a surface
+near it, the same cut as the solver in a few ms.</p></li>
+</ul>
+<p>Run scripts</p>
+<ul class="simple">
+<li><p>The nix devShell uses a plain Python 3.14 and installs everything into
+<code class="docutils literal notranslate"><span class="pre">.venv</span></code> from <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>, set up again when it changed. Before, the
+shell’s own Python packages (napari and others) leaked into <code class="docutils literal notranslate"><span class="pre">.venv</span></code> and
+broke pytest, and the Qt plugins of nixpkgs clashed with PySide6. <code class="docutils literal notranslate"><span class="pre">nix</span>
+<span class="pre">fmt</span></code> runs black, isort and alejandra, isort’s settings are in
+<code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">run.command</span></code> install uv with its official installer when
+it is missing and let uv provide Python 3.13, so no Python has to be
+installed first. Without uv they use an installed Python 3.11 or newer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.venv</span></code> is set up again when it no longer imports <code class="docutils literal notranslate"><span class="pre">bemfmm</span></code> or was
+installed from a different <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_no3d.bat</span></code> calls <code class="docutils literal notranslate"><span class="pre">run.bat</span> <span class="pre">--no-3d</span></code>, and <code class="docutils literal notranslate"><span class="pre">run_no3d.command</span></code> is new.</p></li>
+<li><p>Fixed in <code class="docutils literal notranslate"><span class="pre">run.bat</span></code>: variables set inside blocks were read before they were
+set, so installing uv through pip never worked and a failed start was
+reported as a success. Falling back from uv to pip reused a venv without pip.
+Errors now keep the window open.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.gitattributes</span></code> keeps <code class="docutils literal notranslate"><span class="pre">.bat</span></code> files CRLF, which <code class="docutils literal notranslate"><span class="pre">cmd.exe</span></code> needs for
+reliable labels.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span></code> fails before its window and 3D view are up, for example
+on a remote desktop without OpenGL, the run scripts start it again with
+<code class="docutils literal notranslate"><span class="pre">--no-3d</span></code>. A crash after the window was up is reported, not restarted.</p></li>
+</ul>
+<p>The numerics of all solvers are unchanged.</p>
+</section>
+<section id="refactor">
+<h2>Refactor<a class="headerlink" href="#refactor" title="Link to this heading">¶</a></h2>
+<p>The previous round moved everything into the <code class="docutils literal notranslate"><span class="pre">bemfmm</span></code> package with one
+command, a new gui built from <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files, the solver classes in
+<code class="docutils literal notranslate"><span class="pre">bemfmm.solvers</span></code>, result folders, setups as json, the three layer sphere as a
+tissue index, tests and a benchmark. See the git history for details.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">Unreleased</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#refactor">Refactor</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="development.html" title="previous chapter">Development</a></li>
+      <li>Next: <a href="bemfmm.html" title="next chapter">bemfmm package</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/changes.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

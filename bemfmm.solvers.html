@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bemfmm.solvers package &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="bemfmm.plot package" href="bemfmm.plot.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="bemfmm-solvers-package">
+<h1>bemfmm.solvers package<a class="headerlink" href="#bemfmm-solvers-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
+</section>
+<section id="module-bemfmm.solvers.common">
+<span id="bemfmm-solvers-common-module"></span><h2>bemfmm.solvers.common module<a class="headerlink" href="#module-bemfmm.solvers.common" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.common.apply_contrast">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.common.</span></span><span class="sig-name descname"><span class="pre">apply_contrast</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">EC</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">csr_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ineighborE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contrast</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">csr_matrix</span></span></span><a class="reference internal" href="_modules/bemfmm/solvers/common.html#apply_contrast"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.common.apply_contrast" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.common.field_neighbor_ints">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.common.</span></span><span class="sig-name descname"><span class="pre">field_neighbor_ints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ineighborE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauss</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/common.html#field_neighbor_ints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.common.field_neighbor_ints" title="Link to this definition">¶</a></dt>
+<dd><p>Accurate E-field integrals over neighbor facets (EC), without contrast</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.common.nearest_neighbors">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.common.</span></span><span class="sig-name descname"><span class="pre">nearest_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neighbors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/common.html#nearest_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.common.nearest_neighbors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.common.report">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.common.</span></span><span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/common.html#report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.common.report" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-bemfmm.solvers.tdcs">
+<span id="bemfmm-solvers-tdcs-module"></span><h2>bemfmm.solvers.tdcs module<a class="headerlink" href="#module-bemfmm.solvers.tdcs" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tdcs.</span></span><span class="sig-name descname"><span class="pre">TDCSOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neighbors_p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relres</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'skin'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tdcs.html#TDCSOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.gauss">
+<span class="sig-name descname"><span class="pre">gauss</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">25</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.gauss" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.iter">
+<span class="sig-name descname"><span class="pre">iter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.iter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.num_neighbors">
+<span class="sig-name descname"><span class="pre">num_neighbors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.num_neighbors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.num_neighbors_p">
+<span class="sig-name descname"><span class="pre">num_neighbors_p</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">512</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.num_neighbors_p" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.relres">
+<span class="sig-name descname"><span class="pre">relres</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-06</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.relres" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.skin">
+<span class="sig-name descname"><span class="pre">skin</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'skin'</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.skin" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.TDCSOptions.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#bemfmm.solvers.tdcs.TDCSOptions.weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.default_electrodes">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tdcs.</span></span><span class="sig-name descname"><span class="pre">default_electrodes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tdcs.html#default_electrodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tdcs.default_electrodes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.electrode_preconditioner">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tdcs.</span></span><span class="sig-name descname"><span class="pre">electrode_preconditioner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">center</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indexe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ElectrodeIndexes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tdcs.html#electrode_preconditioner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tdcs.electrode_preconditioner" title="Link to this definition">¶</a></dt>
+<dd><p>Blocked electrode preconditioner, one dense potential block per electrode</p>
+<p>SNM/WAW/DD 2020-2025
+SP 2026</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.imprint_electrodes">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tdcs.</span></span><span class="sig-name descname"><span class="pre">imprint_electrodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">P</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">condout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interface</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skin_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">centers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tdcs.html#imprint_electrodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tdcs.imprint_electrodes" title="Link to this definition">¶</a></dt>
+<dd><p>Imprints the electrodes into the skin and puts the new skin back into the
+combined mesh with the electrode facets up front, sorted by electrode</p>
+<p>SNM 2012-2025
+GNP 2026
+SP 2026</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tdcs.solve">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tdcs.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.model.HeadModel" title="bemfmm.model.HeadModel"><span class="pre">HeadModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">electrodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bemfmm.html#bemfmm.electrode.Electrode" title="bemfmm.electrode.Electrode"><span class="pre">Electrode</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bemfmm.solvers.tdcs.TDCSOptions" title="bemfmm.solvers.tdcs.TDCSOptions"><span class="pre">TDCSOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></span><a class="reference internal" href="_modules/bemfmm/solvers/tdcs.html#solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tdcs.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Surface charge solution for electrodes held at fixed voltages. The
+electrodes are imprinted into the skin first, so the result has its own
+mesh with Result.electrodes marking the electrode facets</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.solvers.tms">
+<span id="bemfmm-solvers-tms-module"></span><h2>bemfmm.solvers.tms module<a class="headerlink" href="#module-bemfmm.solvers.tms" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tms.</span></span><span class="sig-name descname"><span class="pre">TMSOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relres</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tms.html#TMSOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions.gauss">
+<span class="sig-name descname"><span class="pre">gauss</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">25</span></span><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions.gauss" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions.iter">
+<span class="sig-name descname"><span class="pre">iter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></span><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions.iter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions.num_neighbors">
+<span class="sig-name descname"><span class="pre">num_neighbors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></span><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions.num_neighbors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions.relres">
+<span class="sig-name descname"><span class="pre">relres</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0001</span></span><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions.relres" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.TMSOptions.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#bemfmm.solvers.tms.TMSOptions.weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.coil_rhs">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tms.</span></span><span class="sig-name descname"><span class="pre">coil_rhs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.model.HeadModel" title="bemfmm.model.HeadModel"><span class="pre">HeadModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tms.html#coil_rhs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tms.coil_rhs" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.neighbor_ints">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tms.</span></span><span class="sig-name descname"><span class="pre">neighbor_ints</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.model.HeadModel" title="bemfmm.model.HeadModel"><span class="pre">HeadModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gauss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/tms.html#neighbor_ints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tms.neighbor_ints" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.tms.solve">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.tms.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.model.HeadModel" title="bemfmm.model.HeadModel"><span class="pre">HeadModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coils</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bemfmm.solvers.tms.TMSOptions" title="bemfmm.solvers.tms.TMSOptions"><span class="pre">TMSOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></span><a class="reference internal" href="_modules/bemfmm/solvers/tms.html#solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.tms.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Surface charge solution for one or more coils, returns the total E-field
+at every facet center with the normal field and current just inside</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.solvers.uniform">
+<span id="bemfmm-solvers-uniform-module"></span><h2>bemfmm.solvers.uniform module<a class="headerlink" href="#module-bemfmm.solvers.uniform" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.uniform.</span></span><span class="sig-name descname"><span class="pre">UniformOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">polarization</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relres</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bemfmm/solvers/uniform.html#UniformOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.iter">
+<span class="sig-name descname"><span class="pre">iter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">50</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.iter" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.num_neighbors">
+<span class="sig-name descname"><span class="pre">num_neighbors</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.num_neighbors" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.polarization">
+<span class="sig-name descname"><span class="pre">polarization</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(1.0,</span> <span class="pre">0.0,</span> <span class="pre">0.0)</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.polarization" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.prec">
+<span class="sig-name descname"><span class="pre">prec</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.prec" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.relres">
+<span class="sig-name descname"><span class="pre">relres</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-06</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.relres" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.UniformOptions.weight">
+<span class="sig-name descname"><span class="pre">weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5</span></span><a class="headerlink" href="#bemfmm.solvers.uniform.UniformOptions.weight" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bemfmm.solvers.uniform.solve">
+<span class="sig-prename descclassname"><span class="pre">bemfmm.solvers.uniform.</span></span><span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bemfmm.html#bemfmm.model.HeadModel" title="bemfmm.model.HeadModel"><span class="pre">HeadModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bemfmm.solvers.uniform.UniformOptions" title="bemfmm.solvers.uniform.UniformOptions"><span class="pre">UniformOptions</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bemfmm.html#bemfmm.results.Result" title="bemfmm.results.Result"><span class="pre">Result</span></a></span></span><a class="reference internal" href="_modules/bemfmm/solvers/uniform.html#solve"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bemfmm.solvers.uniform.solve" title="Link to this definition">¶</a></dt>
+<dd><p>Surface charge solution for a constant primary field, used to validate the
+engine on the layered sphere</p>
+<p>Copyright SNM/WAW 2017-2020
+DD 5/2026
+SP 2026</p>
+</dd></dl>
+
+</section>
+<section id="module-bemfmm.solvers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bemfmm.solvers" title="Link to this heading">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="bemfmm.html">bemfmm package</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bemfmm.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.charge.html">bemfmm.charge package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.coils.html">bemfmm.coils package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.examples.html">bemfmm.examples package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.gui.html">bemfmm.gui package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.mesh.html">bemfmm.mesh package</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bemfmm.plot.html">bemfmm.plot package</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">bemfmm.solvers package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.solvers.common">bemfmm.solvers.common module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.solvers.tdcs">bemfmm.solvers.tdcs module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.solvers.tms">bemfmm.solvers.tms module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.solvers.uniform">bemfmm.solvers.uniform module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-bemfmm.solvers">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.cli">bemfmm.cli module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.constants">bemfmm.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.electrode">bemfmm.electrode module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.export">bemfmm.export module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.fgmres">bemfmm.fgmres module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.lib">bemfmm.lib module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.model">bemfmm.model module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.my_types">bemfmm.my_types module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.planes">bemfmm.planes module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.results">bemfmm.results module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm.scene">bemfmm.scene module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bemfmm.html#module-bemfmm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="bemfmm.html">bemfmm package</a><ul>
+      <li>Previous: <a href="bemfmm.plot.html" title="previous chapter">bemfmm.plot package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/bemfmm.solvers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

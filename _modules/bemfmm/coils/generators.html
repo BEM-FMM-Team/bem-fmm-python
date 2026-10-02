@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.coils.generators &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.coils.generators</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">.figure_eight</span><span class="w"> </span><span class="kn">import</span> <span class="n">figure_eight</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.figure_eightX</span><span class="w"> </span><span class="kn">import</span> <span class="n">figure_eightX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_C_B60</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_C_B60</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_Cool40_Rat</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_Cool40_Rat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_Cool_B35</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_Cool_B35</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_D_B80</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_D_B80</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_MRiB91</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_MRiB91</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.MagVenture_TMSMEG</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagVenture_TMSMEG</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.ring</span><span class="w"> </span><span class="kn">import</span> <span class="n">ring_gen</span>
+
+<span class="n">GENERATORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"ring"</span><span class="p">:</span> <span class="n">ring_gen</span><span class="p">,</span>
+    <span class="s2">"figure_eight"</span><span class="p">:</span> <span class="n">figure_eight</span><span class="p">,</span>
+    <span class="s2">"figure_eightX"</span><span class="p">:</span> <span class="n">figure_eightX</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool_B35"</span><span class="p">:</span> <span class="n">MagVenture_Cool_B35</span><span class="p">,</span>
+    <span class="s2">"MagVenture_C_B60"</span><span class="p">:</span> <span class="n">MagVenture_C_B60</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool40_Rat"</span><span class="p">:</span> <span class="n">MagVenture_Cool40_Rat</span><span class="p">,</span>
+    <span class="s2">"MagVenture_D_B80"</span><span class="p">:</span> <span class="n">MagVenture_D_B80</span><span class="p">,</span>
+    <span class="s2">"MagVenture_MRiB91"</span><span class="p">:</span> <span class="n">MagVenture_MRiB91</span><span class="p">,</span>
+    <span class="s2">"MagVenture_TMSMEG"</span><span class="p">:</span> <span class="n">MagVenture_TMSMEG</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># offered in the gui, MagVenture_C_B60 is left out until its mesh is fixed</span>
+<span class="n">COIL_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"ring"</span><span class="p">,</span>
+    <span class="s2">"figure_eight"</span><span class="p">,</span>
+    <span class="s2">"figure_eightX"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool_B35"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool40_Rat"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_D_B80"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_MRiB91"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_TMSMEG"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># generator parameters and their defaults, lengths in m</span>
+<span class="n">COIL_PARAMS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"ring"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"radius"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span>
+        <span class="s2">"diameter"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"figure_eight"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
+        <span class="s2">"b0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">},</span>
+        <span class="s2">"diameter"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.006</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"figure_eightX"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span>
+        <span class="s2">"b0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">},</span>
+        <span class="s2">"z_scale"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.004</span><span class="p">},</span>
+        <span class="s2">"z_shift"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">6</span><span class="p">},</span>
+        <span class="s2">"height"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">4e-3</span><span class="p">},</span>
+        <span class="s2">"thickness"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">2.5e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_Cool_B35"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"turns"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">32</span><span class="p">},</span>
+        <span class="s2">"a0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.0115</span><span class="p">},</span>
+        <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">15.0e-3</span><span class="p">},</span>
+        <span class="s2">"b"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.2e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_C_B60"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.017</span><span class="p">},</span>
+        <span class="s2">"b0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.0006</span><span class="p">},</span>
+        <span class="s2">"height"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">3.6e-3</span><span class="p">},</span>
+        <span class="s2">"thickness"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">2.61e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_Cool40_Rat"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">3e-3</span><span class="p">},</span>
+        <span class="s2">"b"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.5e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_D_B80"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.024</span><span class="p">},</span>
+        <span class="s2">"b0"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.00061</span><span class="p">},</span>
+        <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">6e-3</span><span class="p">},</span>
+        <span class="s2">"b"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">2e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_MRiB91"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"height"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">3.5e-3</span><span class="p">},</span>
+        <span class="s2">"thickness"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">2.2e-3</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">32</span><span class="p">},</span>
+        <span class="s2">"N"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="s2">"MagVenture_TMSMEG"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"a"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mf">0.0015</span><span class="p">},</span>
+        <span class="s2">"M"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">16</span><span class="p">},</span>
+        <span class="s2">"N"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">64</span><span class="p">},</span>
+        <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"type"</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">"default"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="c1"># names shown in the gui</span>
+<span class="n">COIL_LABELS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"ring"</span><span class="p">:</span> <span class="s2">"Ring"</span><span class="p">,</span>
+    <span class="s2">"figure_eight"</span><span class="p">:</span> <span class="s2">"Figure-eight"</span><span class="p">,</span>
+    <span class="s2">"figure_eightX"</span><span class="p">:</span> <span class="s2">"Figure-eight, curved wings"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool_B35"</span><span class="p">:</span> <span class="s2">"MagVenture Cool B35"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_C_B60"</span><span class="p">:</span> <span class="s2">"MagVenture C B60"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_Cool40_Rat"</span><span class="p">:</span> <span class="s2">"MagVenture Cool40 Rat"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_D_B80"</span><span class="p">:</span> <span class="s2">"MagVenture D B80"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_MRiB91"</span><span class="p">:</span> <span class="s2">"MagVenture MRiB91"</span><span class="p">,</span>
+    <span class="s2">"MagVenture_TMSMEG"</span><span class="p">:</span> <span class="s2">"MagVenture TMSMEG"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># how the gui shows a parameter: label, unit and help. Lengths are stored in m</span>
+<span class="c1"># and shown in mm, flag and sk are picked from CHOICES</span>
+<span class="n">PARAM_INFO</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"radius"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Loop radius"</span><span class="p">,</span> <span class="s2">"mm"</span><span class="p">,</span> <span class="s2">"Radius of the loop, to the center of the wire"</span><span class="p">),</span>
+    <span class="s2">"diameter"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wire size"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Width and height of the wire cross-section"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"a0"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Spiral start radius"</span><span class="p">,</span> <span class="s2">"mm"</span><span class="p">,</span> <span class="s2">"Radius where the spiral winding starts"</span><span class="p">),</span>
+    <span class="s2">"b0"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Spiral growth"</span><span class="p">,</span>
+        <span class="s2">"mm/rad"</span><span class="p">,</span>
+        <span class="s2">"How much the spiral radius grows per radian of winding"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"a"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wire height"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Size of the wire cross-section along the coil axis"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"b"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wire width"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Size of the wire cross-section across the coil axis"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"height"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wire height"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Size of the wire cross-section along the coil axis"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"thickness"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wire width"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Size of the wire cross-section across the coil axis"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"z_scale"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wing bend height"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"How far the wings bend out of the plane of the coil"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"z_shift"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Wing bend position"</span><span class="p">,</span>
+        <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"Where along the winding each wing bends, in points of the winding path"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"turns"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Turns"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Number of turns of the spiral"</span><span class="p">),</span>
+    <span class="s2">"M"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"Cross-section edges"</span><span class="p">,</span>
+        <span class="s2">""</span><span class="p">,</span>
+        <span class="s2">"Edges around the wire cross-section in the model, more is finer and slower"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">"N"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Edges per turn"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Edges along each turn of the loop"</span><span class="p">),</span>
+    <span class="s2">"flag"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Wire cross-section"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Shape of the wire cross-section"</span><span class="p">),</span>
+    <span class="s2">"sk"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"Current distribution"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">"Where the current flows inside the wire"</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="n">CHOICES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"flag"</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">"Elliptical"</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">"Rectangular"</span><span class="p">},</span>
+    <span class="s2">"sk"</span><span class="p">:</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">"Skin effect, near the wire surface"</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span> <span class="s2">"Uniform, Litz wire"</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># parameters that mean something else for one coil</span>
+<span class="n">COIL_PARAM_INFO</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">"MagVenture_TMSMEG"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">):</span> <span class="p">(</span>
+        <span class="s2">"Wire size"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Width and height of the wire cross-section"</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MagVenture_Cool_B35"</span><span class="p">,</span> <span class="s2">"a0"</span><span class="p">):</span> <span class="p">(</span>
+        <span class="s2">"Spiral start radius"</span><span class="p">,</span>
+        <span class="s2">"mm"</span><span class="p">,</span>
+        <span class="s2">"Radius where the spiral winding starts, it ends at 23 mm"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="param_info">
+<a class="viewcode-back" href="../../../bemfmm.coils.generators.html#bemfmm.coils.generators.param_info">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">param_info</span><span class="p">(</span><span class="n">coil_type</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">COIL_PARAM_INFO</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">coil_type</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">PARAM_INFO</span><span class="p">[</span><span class="n">name</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="default_params">
+<a class="viewcode-back" href="../../../bemfmm.coils.generators.html#bemfmm.coils.generators.default_params">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_params</span><span class="p">(</span><span class="n">coil_type</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">info</span><span class="p">[</span><span class="s2">"default"</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">COIL_PARAMS</span><span class="p">[</span><span class="n">coil_type</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
