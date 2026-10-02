@@ -33,6 +33,11 @@ tissue index files.
     project.run_dir("tms")             # runs/tms-<date>-<time>, not created
     project.problems()                 # empty when it can be used
 
+    from bemfmm.conductivity import conductivity, find_conductivity
+
+    conductivity("sub01_scalp.stl")    # 0.465, 0.3 when the name is not listed
+    find_conductivity("lh.pial")       # tissue gm, value, aliases and source
+
 TMS
 ---
 

@@ -2,11 +2,13 @@ import numpy as np
 import pytest
 
 from bemfmm.coils import Coil, default_coil, default_params, make_coil
+from bemfmm.conductivity import find_conductivity
 from bemfmm.electrode import Electrode
 from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_normals
 from bemfmm.model import (
     HeadModel,
     check_shells,
+    default_index,
     read_index,
     sphere_index,
     write_index,
@@ -108,3 +110,19 @@ def test_imprint_is_watertight(sphere):
     # imprinting keeps the orientation
     center = Pe[te].mean(axis=1)
     assert np.all(np.sum(mesh_normals(Pe, te) * center, axis=1) > 0)
+
+
+def test_default_conductivities():
+    names = {
+        "Sub01 Scalp.stl": "skin",
+        "lh.pial": "gm",
+        "rh.white": "wm",
+        "eyes2": "eyes",
+        "sub-01_skull.stl": "bone",
+    }
+    for name, tissue in names.items():
+        assert find_conductivity(name).tissue == tissue
+    assert find_conductivity("lesion") is None
+    # the list agrees with the default head
+    for name, (cond, _, _) in read_index(default_index()).items():
+        assert find_conductivity(name).value == cond

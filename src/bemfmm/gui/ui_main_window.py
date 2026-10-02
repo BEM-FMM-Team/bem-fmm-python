@@ -231,6 +231,11 @@ class Ui_MainWindow(object):
 
         self.tissueButtons.addWidget(self.removeTissueButton)
 
+        self.defaultConductivityButton = QPushButton(self.tissueGroup)
+        self.defaultConductivityButton.setObjectName("defaultConductivityButton")
+
+        self.tissueButtons.addWidget(self.defaultConductivityButton)
+
         self.tissueButtonSpacer = QSpacerItem(
             20, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
         )
@@ -1829,6 +1834,18 @@ class Ui_MainWindow(object):
         )
         self.removeTissueButton.setText(
             QCoreApplication.translate("MainWindow", "Remove", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.defaultConductivityButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Set the conductivity of every tissue in the default list, by its name",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.defaultConductivityButton.setText(
+            QCoreApplication.translate("MainWindow", "Defaults", None)
         )
         self.saveIndexButton.setText(
             QCoreApplication.translate("MainWindow", "Save as...", None)

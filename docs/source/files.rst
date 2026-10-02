@@ -47,6 +47,31 @@ The outside tissue must be another row or ``FreeSpace`` (air). Mesh paths are
 relative to the index file and the meshes are in mm. Normals must point out of
 the tissue.
 
+Default conductivities
+----------------------
+
+The gui gives new tissues, and **Defaults** gives all of them, a conductivity
+from this list (``assets/conductivities.yaml``), the standard values of
+SimNIBS. A tissue is found by its name or a part of it, so ``scalp``,
+``sub01_scalp.stl`` and ``lh.pial`` are found too.
+
+================ ======= ======================================== ==================
+tissue           S/m     also found as                            source
+================ ======= ======================================== ==================
+``skin``         0.465   scalp                                    Wagner et al. 2004
+``bone``         0.010   skull                                    Wagner et al. 2004
+``compact_bone`` 0.008   compact                                  Opitz et al. 2015
+``spongy_bone``  0.025   spongy, cancellous                       Opitz et al. 2015
+``csf``          1.654                                            Wagner et al. 2004
+``ventricles``   1.654   ventricle                                as csf
+``gm``           0.275   gray_matter, grey_matter, cortex, pial   Wagner et al. 2004
+``wm``           0.126   white_matter, white                      Wagner et al. 2004
+``cerebellum``   0.126                                            as wm
+``eyes``         0.500   eye, eyeballs, eyeball                   Opitz et al. 2015
+``blood``        0.600                                            Gabriel et al. 2009
+``muscle``       0.160   muscles                                  Gabriel et al. 2009
+================ ======= ======================================== ==================
+
 Setup
 -----
 

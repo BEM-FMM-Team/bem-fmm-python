@@ -35,8 +35,11 @@ Opens a tissue index and shows it as a table:
 - **Outside**: the tissue just outside the surface, ``FreeSpace`` for air.
 - **Mesh file**: the surface mesh (``.stl``, ``.obj``, ``.ply`` or ``.vtk``, in mm).
 
-**Add** reads more surfaces, **Remove** deletes the selected row (whatever was
-inside it moves to its outside). **Apply** checks the table and reloads the
+**Add** reads more surfaces, named after their files and with the default
+conductivity when the name is in the list (see :doc:`files`, ``scalp.stl``
+gets 0.465 S/m), else 0.3 S/m. **Remove** deletes the selected row (whatever
+was inside it moves to its outside). **Defaults** sets every tissue in the list
+to its default conductivity, the status bar names the ones not in it. **Apply** checks the table and reloads the
 model with it, **Save as** writes it to a new tissue index. A run with applied
 but unsaved edits writes the edited index into the run folder, so the run can
 always be repeated.

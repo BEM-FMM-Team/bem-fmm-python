@@ -164,6 +164,16 @@
                </widget>
               </item>
               <item>
+               <widget class="QPushButton" name="defaultConductivityButton">
+                <property name="toolTip">
+                 <string>Set the conductivity of every tissue in the default list, by its name</string>
+                </property>
+                <property name="text">
+                 <string>Defaults</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <spacer name="tissueButtonSpacer">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
