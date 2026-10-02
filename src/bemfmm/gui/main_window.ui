@@ -60,6 +60,106 @@
         </attribute>
         <layout class="QVBoxLayout" name="modelLayout">
          <item>
+          <widget class="QGroupBox" name="projectGroup">
+           <property name="title">
+            <string>Project</string>
+           </property>
+           <layout class="QVBoxLayout" name="projectLayout">
+            <item>
+             <widget class="QLabel" name="projectName">
+              <property name="text">
+               <string>-</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+              <property name="textInteractionFlags">
+               <set>Qt::TextInteractionFlag::TextSelectableByMouse</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="projectSetupRow">
+              <item>
+               <widget class="QLabel" name="projectSetupLabel">
+                <property name="text">
+                 <string>Setups</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="projectSetups">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>The setups saved in the project's setups folder</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="openProjectSetupButton">
+                <property name="text">
+                 <string>Open</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="projectButtons">
+              <item>
+               <widget class="QPushButton" name="openProjectButton">
+                <property name="toolTip">
+                 <string>Open another project</string>
+                </property>
+                <property name="text">
+                 <string>Open...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="newProjectButton">
+                <property name="toolTip">
+                 <string>A new project from closed surface meshes</string>
+                </property>
+                <property name="text">
+                 <string>New...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="copyProjectButton">
+                <property name="toolTip">
+                 <string>Copy the model and setups of this project to a new folder, to work in a read only one</string>
+                </property>
+                <property name="text">
+                 <string>Copy...</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="projectButtonSpacer">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="indexGroup">
            <property name="title">
             <string>Tissue index</string>
@@ -1980,6 +2080,10 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <addaction name="actionOpenProject"/>
+    <addaction name="actionNewProject"/>
+    <addaction name="actionCopyProject"/>
+    <addaction name="separator"/>
     <addaction name="actionNewSetup"/>
     <addaction name="actionOpenSetup"/>
     <addaction name="actionSaveSetup"/>
@@ -2107,6 +2211,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionOpenProject">
+   <property name="text">
+    <string>Open &amp;project...</string>
+   </property>
+  </action>
+  <action name="actionNewProject">
+   <property name="text">
+    <string>New project from surfaces...</string>
+   </property>
+  </action>
+  <action name="actionCopyProject">
+   <property name="text">
+    <string>Copy project...</string>
    </property>
   </action>
   <action name="actionOpenIndex">

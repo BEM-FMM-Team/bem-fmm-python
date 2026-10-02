@@ -44,7 +44,9 @@ jobs:
         env:
           BEMFMM_READY_FILE: ${{ runner.temp }}/gui-ready
         run: |
-          python -m bemfmm gui &
+          # a project skips the dialog that asks for one
+          project=$(python -c "from bemfmm.project import default_project as p; print(p().root)")
+          python -m bemfmm gui --project "$project" &
           pid=$!
           for _ in $(seq 60); do
             if [ -e "$BEMFMM_READY_FILE" ] || ! kill -0 "$pid" 2>/dev/null; then
@@ -59,7 +61,8 @@ jobs:
 
       - name: Gui without the 3D view
         run: |
-          python -m bemfmm gui --no-3d &
+          project=$(python -c "from bemfmm.project import default_project as p; print(p().root)")
+          python -m bemfmm gui --no-3d --project "$project" &
           pid=$!
           sleep 15
           kill -0 "$pid"

@@ -46,13 +46,24 @@ from bemfmm.model import (
 )
 from bemfmm.planes import Plane, axis_planes, same_planes
 from bemfmm.plot.slice import LOG_FACTOR, load_slices
+from bemfmm.project import Project, copy_project
 from bemfmm.results import FIELD_LABELS, Result, package_version
 from bemfmm.scene import Scene
 from bemfmm.solvers.tdcs import TDCSOptions
 from bemfmm.solvers.tms import TMSOptions
 
 from . import plots, theme
-from .dialogs import CoilParamsDialog, ExportDialog, SettingsDialog
+from .dialogs import (
+    MESH_FILTER,
+    CoilParamsDialog,
+    ExportDialog,
+    ProjectDialog,
+    SettingsDialog,
+    empty_folder,
+    last_project,
+    new_project_from_surfaces,
+    open_project_folder,
+)
 from .plots import PlotPanel
 from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
@@ -62,7 +73,6 @@ from .viewport import NullViewport, Viewport
 
 SETUP_FILTER = "Setup (*.json);;All Files (*)"
 INDEX_FILTER = "Tissue index (*.yaml *.yml);;All Files (*)"
-MESH_FILTER = "Surface mesh (*.stl *.obj *.ply *.vtk);;All Files (*)"
 RESULT_FILTER = "Result (result.json);;All Files (*)"
 TEMPLATE_FILTER = "Coil template (*.mat);;All Files (*)"
 MATLAB_FILTER = "MATLAB (*.mat);;All Files (*)"
@@ -130,10 +140,12 @@ def busy():
 
 
 def model_name(index_path):
+    # the name of the project a tissue index belongs to
     index_path = Path(index_path)
-    if index_path == default_index():
-        return "default head"
-    return index_path.parent.name
+    try:
+        return Project.for_index(index_path).name
+    except (OSError, ValueError):
+        return index_path.parent.name
 
 
 def spin(box, low, high, decimals, step):
@@ -163,7 +175,9 @@ def same_settings(a, b):
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, tissue_index=None, setup=None, no_3d=False, mode=None):
+    def __init__(
+        self, tissue_index=None, setup=None, no_3d=False, mode=None, project=None
+    ):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
@@ -175,6 +189,7 @@ class MainWindow(QMainWindow):
         self.applied_shells = {}  # what the loaded model was built from
         self.tissue_undo = []
         self.tissue_redo = []
+        self.project = None  # the project of the loaded tissue index
         self.index_file = None  # saved index the model came from
         self.index_dirty = False
         self.temp_dir = Path(tempfile.mkdtemp(prefix="bemfmm-"))
@@ -253,8 +268,13 @@ class MainWindow(QMainWindow):
             scene = Scene.load(setup)
             if not tissue_index and scene.tissue_index:
                 tissue_index = scene.tissue_index
+        if not tissue_index and not setup:
+            # the project asked for, else the last one
+            project = project or last_project(self.settings)
+            tissue_index = project.index_path
         if not self.load_index(tissue_index) and tissue_index:
             self.load_index(None)
+        self.settings.add_recent_project(self.project.root)
         if setup and self.model is not None:
             self.open_setup(setup)
         self.update_title()
@@ -315,7 +335,7 @@ class MainWindow(QMainWindow):
         ui.electrodeTable.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         ui.electrodeTable.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        ui.outputDir.setText(self.settings.output_dir())
+        ui.outputDir.setText(self.output_dir())
         ui.computeSlices.setChecked(self.settings["slices"])
         ui.logView.setMaximumBlockCount(5000)
         ui.progressBar.setTextVisible(False)
@@ -342,6 +362,13 @@ class MainWindow(QMainWindow):
         ui = self.ui
 
         ui.actionNewSetup.triggered.connect(self.new_setup)
+        ui.actionOpenProject.triggered.connect(self.open_project_dialog)
+        ui.actionNewProject.triggered.connect(self.new_project)
+        ui.actionCopyProject.triggered.connect(self.copy_project_dialog)
+        ui.openProjectButton.clicked.connect(self.open_project_dialog)
+        ui.newProjectButton.clicked.connect(self.new_project)
+        ui.copyProjectButton.clicked.connect(self.copy_project_dialog)
+        ui.openProjectSetupButton.clicked.connect(self.open_project_setup)
         ui.actionOpenSetup.triggered.connect(self.open_setup_dialog)
         ui.actionSaveSetup.triggered.connect(self.save_setup)
         ui.actionSaveSetupAs.triggered.connect(self.save_setup_as)
@@ -489,7 +516,11 @@ class MainWindow(QMainWindow):
             path = default_index()
             shells = read_index(path)
 
+        # before the model, which takes its skin from the project
+        previous = self.project
+        self.project = Project.for_index(path)
         if not self.apply_model(path):
+            self.project = previous
             return False
         self.shells = shells
         self.fill_tissue_table()
@@ -500,7 +531,91 @@ class MainWindow(QMainWindow):
         self.index_file = path
         self.index_dirty = False
         self.update_index_label()
+        self.show_project()
         return True
+
+    # project
+    def show_project(self):
+        project, ui = self.project, self.ui
+        text = f"<b>{project.name}</b><br>{project.root}"
+        if project.read_only:
+            text += (
+                "<br>Read only: runs go to the output folder of the Settings. "
+                "Copy it to keep setups and runs in the project."
+            )
+        ui.projectName.setText(text)
+        ui.copyProjectButton.setEnabled(project.index_path.is_file())
+        self.ui.outputDir.setText(self.output_dir())
+        self.fill_project_setups()
+        self.update_title()
+
+    def fill_project_setups(self):
+        combo = self.ui.projectSetups
+        combo.clear()
+        for path in self.project.setups():
+            combo.addItem(path.stem, str(path))
+            if self.setup_path and path.resolve() == self.setup_path.resolve():
+                combo.setCurrentIndex(combo.count() - 1)
+        if not combo.count():
+            combo.addItem("none saved")
+        has_setups = bool(self.project.setups())
+        combo.setEnabled(has_setups)
+        self.ui.openProjectSetupButton.setEnabled(has_setups)
+
+    def open_project_setup(self):
+        path = self.ui.projectSetups.currentData()
+        if path and self.confirm_discard():
+            self.open_setup(path)
+
+    def setup_folder(self):
+        # where the setup dialogs start: the project's setups when it has them
+        project = self.project
+        if project is None or project.read_only:
+            return ""
+        project.setups_dir.mkdir(parents=True, exist_ok=True)
+        return str(project.setups_dir)
+
+    def output_dir(self):
+        # a project keeps its runs, unless it is read only
+        if self.project is not None and not self.project.read_only:
+            return str(self.project.runs_dir)
+        return self.settings.output_dir()
+
+    def open_project(self, project):
+        if project is None or not self.confirm_discard():
+            return False
+        if not self.load_index(project.index_path):
+            return False
+        # a new project starts with an empty setup
+        self.stop_modes()
+        self.stim.clear()
+        self.refresh_lists()
+        self.refresh_planes()
+        self.show_planes()
+        self.setup_saved(None)
+        self.settings.add_recent_project(project.root)
+        self.statusBar().showMessage(f"Opened {project.name}", 5000)
+        return True
+
+    def open_project_dialog(self):
+        dialog = ProjectDialog(self.settings, self)
+        if dialog.exec() == QDialog.Accepted:
+            self.open_project(dialog.project)
+
+    def new_project(self):
+        self.open_project(new_project_from_surfaces(self))
+
+    def copy_project_dialog(self):
+        folder = empty_folder(self, "Folder for the copy of the project")
+        if folder is None:
+            return
+        try:
+            with busy():
+                copy = copy_project(self.project, folder)
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(self, "Copy project", str(error))
+            return
+        self.open_project(copy)
 
     def apply_model(self, index_path):
         start = datetime.now()
@@ -521,7 +636,9 @@ class MainWindow(QMainWindow):
         P = np.vstack([model.surface(name)[0] for name in names])
         self.set_model_box(P.min(axis=0), P.max(axis=0))
 
-        skin = self.settings["skin"]
+        skin = self.project.skin if self.project else self.settings["skin"]
+        if skin not in names:
+            skin = self.settings["skin"]
         if skin not in names:
             outer = [n for n, o in zip(names, model.outside) if o == "FreeSpace"]
             skin = (outer or names)[0]
@@ -561,7 +678,7 @@ class MainWindow(QMainWindow):
         seconds = (datetime.now() - start).total_seconds()
         summary = f"{len(names)} tissues, {model.num_facets:,} facets"
         self.ui.modelSummary.setText(summary)
-        self.model_label.setText(f"{model_name(index_path)}: {summary}")
+        self.model_label.setText(f"{self.project.name}: {summary}")
         self.statusBar().showMessage(f"Model loaded in {seconds:.1f} s", 5000)
         self.update_solve_summary()
         return True
@@ -1543,7 +1660,9 @@ class MainWindow(QMainWindow):
     def update_title(self):
         name = self.setup_path.name if self.setup_path else "untitled"
         dirty = "*" if self.setup_dirty else ""
-        self.setWindowTitle(f"{name}{dirty} - {MODE_NAMES[self.mode]} - BEM-FMM")
+        project = f"{self.project.name} - " if self.project else ""
+        title = f"{name}{dirty} - {project}{MODE_NAMES[self.mode]} - BEM-FMM"
+        self.setWindowTitle(title)
 
     def setup_changed(self):
         return setup_items(self.scene()) != self.saved_items
@@ -1553,6 +1672,8 @@ class MainWindow(QMainWindow):
         self.setup_path = Path(path) if path else None
         self.saved_items = setup_items(self.scene())
         self.setup_dirty = False
+        if self.project is not None:
+            self.fill_project_setups()
         self.update_title()
 
     def confirm_discard(self):
@@ -1595,7 +1716,9 @@ class MainWindow(QMainWindow):
     def open_setup_dialog(self):
         if not self.confirm_discard():
             return
-        path, _ = QFileDialog.getOpenFileName(self, "Open setup", "", SETUP_FILTER)
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Open setup", self.setup_folder(), SETUP_FILTER
+        )
         if path:
             self.open_setup(path)
 
@@ -1659,7 +1782,10 @@ class MainWindow(QMainWindow):
 
     def save_setup_as(self):
         path, _ = QFileDialog.getSaveFileName(
-            self, "Save setup", "setup.json", SETUP_FILTER
+            self,
+            "Save setup",
+            str(Path(self.setup_folder()) / "setup.json"),
+            SETUP_FILTER,
         )
         if not path:
             return False
@@ -2339,7 +2465,7 @@ class MainWindow(QMainWindow):
         if SettingsDialog(self.settings, self).exec() != QDialog.Accepted:
             return
         self.apply_theme()
-        self.ui.outputDir.setText(self.settings.output_dir())
+        self.ui.outputDir.setText(self.output_dir())
         self.ui.computeSlices.setChecked(self.settings["slices"])
         new_skin = self.settings["skin"]
         if new_skin != skin and self.model is not None and new_skin in self.model.names:

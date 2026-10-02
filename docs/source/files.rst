@@ -101,7 +101,11 @@ A ``.json`` file written by the gui (File > Save setup) and read by
     }
 
 Lengths are in meters, ``rot`` is a quaternion (x, y, z, w) and ``dIdt`` is in
-A/s. ``mode`` is the kind of study the setup was made for, ``tms`` or ``tdcs``
+A/s. ``tissue_index`` is relative to the setup when the setup is inside the
+index's project folder (``../tissue_index.yaml`` for ``setups/``), so a
+project can be moved or copied with its setups, and absolute otherwise. An
+absolute path into ``bemfmm/assets`` that is not found, from a setup made on
+another computer, opens the bundled model installed here. ``mode`` is the kind of study the setup was made for, ``tms`` or ``tdcs``
 (TES, the key keeps its old name), and ``skin`` the
 surface the coils and electrodes sit on, both may be missing in older setups.
 ``planes`` are the slice planes, each a normal and a point on it. Setups before

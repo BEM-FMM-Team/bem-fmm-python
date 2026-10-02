@@ -3,6 +3,7 @@ from pathlib import Path
 from PySide6.QtCore import QSettings
 
 START_MODES = ["last", "tms", "tdcs"]
+RECENT_PROJECTS = 8
 
 
 class Settings:
@@ -18,6 +19,9 @@ class Settings:
         "mode": "tms",
         "output_dir": "",
         "slices": True,
+        "project": "",
+        "recent_projects": "",
+        "ask_project": True,
     }
 
     def __init__(self):
@@ -29,6 +33,16 @@ class Settings:
 
     def __setitem__(self, key, value):
         self.store.setValue(key, value)
+
+    def recent_projects(self):
+        # newest first, one folder per line
+        return [p for p in self["recent_projects"].split("\n") if p]
+
+    def add_recent_project(self, folder):
+        folder = str(folder)
+        recent = [folder] + [p for p in self.recent_projects() if p != folder]
+        self["recent_projects"] = "\n".join(recent[:RECENT_PROJECTS])
+        self["project"] = folder
 
     def output_dir(self):
         return self["output_dir"] or str(Path.cwd() / "__output__")

@@ -12,6 +12,23 @@ Projects
   solve on its model and keep the result in its ``runs`` folder.
   ``bemfmm project info`` shows a project, ``bemfmm project init`` writes its
   ``project.yaml``. The bundled head and sphere are read only projects.
+- The gui asks for a project at start: the bundled head or sphere, a recent
+  one, a folder or a new one from surfaces (``bemfmm gui --project`` skips
+  the question). The Model tab and the File menu open, make and copy
+  projects. Runs go into the project's ``runs`` folder, and coils and
+  electrodes sit on its skin tissue. The bundled projects are read only, so
+  Copy makes a project of them to work in.
+- Setups belong to a project: Save and Open setup start in its ``setups``
+  folder, the Model tab lists them, and ``--setup NAME`` with ``--project``
+  runs ``setups/NAME.json``. Setups in a project store its tissue index
+  relative to themselves, so the project can move. Setups made on the bundled
+  head on another computer open on the bundled head here.
+- ``bemfmm project new`` makes a project from closed surfaces. It works out
+  which tissue is outside which from which surfaces contain which, takes the
+  conductivities from the default list, and reports open, inward facing or
+  crossing surfaces and meshes that look like they are in meters. From the
+  seven surfaces of the default head, in any order, it writes the default
+  tissue index.
 - A list of default conductivities, the standard values of SimNIBS, with the
   usual other names of each tissue. Tissues added in the Model tab start with
   the value of their name (``scalp.stl`` gets 0.465 S/m instead of 0.3), and
