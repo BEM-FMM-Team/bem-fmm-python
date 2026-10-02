@@ -45,7 +45,9 @@ class Plane:
         """
         Origin, in-plane axes e1, e2 and the unit normal. The origin is the
         point of the plane closest to (0, 0, 0), so a plane normal to an axis
-        keeps the other two world coordinates as its in-plane coordinates
+        keeps the other two world coordinates as its in-plane coordinates. A
+        tilted plane is drawn the same way round as the axis plane nearest to
+        it, whichever way its normal points
         """
         n = self.unit_normal()
         k = self.axis()
@@ -54,11 +56,13 @@ class Plane:
             _, a, b = AXIS_FRAMES[k]
             e1, e2 = np.eye(3)[a], np.eye(3)[b]
         else:
-            # e2 is "up" (z, or y for planes close to horizontal) in the plane
-            up = np.eye(3)[2] if abs(n[2]) < 0.99 else np.eye(3)[1]
-            e2 = up - np.dot(up, n) * n
+            # the axes of the nearest axis plane, projected into this one
+            _, a, b = AXIS_FRAMES[int(np.argmax(np.abs(n)))]
+            e2 = np.eye(3)[b] - n[b] * n
             e2 /= np.linalg.norm(e2)
             e1 = np.cross(e2, n)
+            if e1[a] < 0:
+                e1, n = -e1, -n
         origin = np.dot(self.point, n) * n
         return origin, e1, e2, n
 

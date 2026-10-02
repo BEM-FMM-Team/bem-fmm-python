@@ -69,7 +69,7 @@ def compute_efield_overlay(
     print(f"E-field computation: {time.perf_counter() - t0:.3f}s")
 
     Pi, edges, _, ci, _, _ = meshplaneint_axis_nonmanifold(
-        Q, t, axis=2, val=offset, tol=1e-5, compTri=interface[:, 1]
+        Q, t, axis=2, val=offset, compTri=interface[:, 1]
     )
     points_2d = Pi[:, :2]
 

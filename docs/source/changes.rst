@@ -15,6 +15,14 @@ Projects
 
 GUI
 
+- Fixed: slices could show a band across the head where the field was hidden
+  inside and drawn outside it. This happened when the plane passed through
+  mesh vertices, which on the full head happens for most planes that are not
+  axis planes. The tissue outlines now also sit exactly on the plane of the
+  field, before they could be up to 0.2 mm off.
+- Tilted slice planes are drawn the same way round as the axis plane nearest
+  to them, whichever way their normal points. Before, a plane with its normal
+  along -x was shown mirrored compared with the YZ plane.
 - tDCS is called TES (transcranial electrical stimulation) everywhere it is
   shown: the mode buttons, the window title, messages, ``bemfmm tes`` and
   ``bemfmm gui --mode tes``. ``bemfmm tdcs`` and ``--mode tdcs`` still work,
