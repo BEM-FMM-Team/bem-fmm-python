@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pytest
 
@@ -81,6 +83,32 @@ def test_scene_roundtrip(tmp_path):
         np.testing.assert_array_equal(a.Ewire, b.Ewire)
         assert a.dIdt == b.dIdt
     assert again.electrodes[0].to_dict() == scene.electrodes[0].to_dict()
+
+
+def test_setup_index_paths(tmp_path):
+    # in the index's project the path is relative, so the project can move
+    project = tmp_path / "project"
+    (project / "setups").mkdir(parents=True)
+    index = project / "tissue_index.yaml"
+    index.touch()
+    Scene(tissue_index=str(index)).save(project / "setups" / "a.json")
+    Scene(tissue_index=str(index)).save(tmp_path / "b.json")
+
+    def stored(path):
+        return json.loads(path.read_text())["tissue_index"]
+
+    assert stored(project / "setups" / "a.json") == "../tissue_index.yaml"
+    assert stored(tmp_path / "b.json") == str(index)
+
+    moved = project.rename(tmp_path / "moved")
+    assert Scene.load(moved / "setups" / "a.json").tissue_index == str(
+        moved / "tissue_index.yaml"
+    )
+
+    # the bundled model, saved on another computer
+    other = "/home/someone/bem-fmm-python/src/bemfmm/assets/sphere_3L/tissue_index.yaml"
+    (tmp_path / "c.json").write_text(json.dumps({"tissue_index": other}))
+    assert Scene.load(tmp_path / "c.json").tissue_index == str(sphere_index())
 
 
 def test_coil_place_keeps_shape():

@@ -36,8 +36,8 @@ same thing.
 A first TMS run
 ---------------
 
-1. Start the program with ``bemfmm gui --mode tms``. The default head model
-   loads, and the window title and the status bar both say ``TMS``.
+1. Start the program with ``bemfmm gui --mode tms`` and open the Default
+   head. It loads, and the window title and the status bar both say ``TMS``.
 2. Open the **Coils** tab, pick ``figure_eight`` and press **Add coil**. Accept
    the generator parameters.
 3. Set **Aim at** to ``gm``, press **Pick target**, click a point on the gray
@@ -72,7 +72,7 @@ run with File > Open result.
 Trying things on the sphere
 ---------------------------
 
-The three layer sphere in ``src/bemfmm/assets/sphere_3L`` solves in seconds and
-is the quickest way to try settings::
+The three layer sphere solves in seconds and is the quickest way to try
+settings. Pick Three layer sphere when the program asks for a project, or::
 
-    bemfmm gui --tissue-index src/bemfmm/assets/sphere_3L/tissue_index.yaml
+    bemfmm gui --project src/bemfmm/assets/sphere_3L

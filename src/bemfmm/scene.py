@@ -1,12 +1,44 @@
 import json
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from bemfmm.coils import Coil
 from bemfmm.electrode import Electrode
+from bemfmm.lib import get_asset_path
 from bemfmm.planes import Plane, as_planes, default_planes
 
 SCENE_VERSION = 2
+BUNDLED = "bemfmm/assets/"
+
+
+def stored_index(index, folder):
+    """
+    The tissue index as a setup in folder stores it: relative when the setup
+    is in the index's project folder, so the project can move, else absolute
+    """
+    if not index:
+        return ""
+    index = Path(index).resolve()
+    folder = Path(folder).resolve()
+    if folder.is_relative_to(index.parent):
+        return Path(os.path.relpath(index, folder)).as_posix()
+    return str(index)
+
+
+def found_index(index, folder):
+    """
+    The tissue index a setup in folder points to. A missing index of the
+    bundled models, stored on another computer, is the one installed here
+    """
+    if not index:
+        return ""
+    path = Path(folder) / index
+    if not path.exists() and BUNDLED in path.as_posix():
+        bundled = get_asset_path(path.as_posix().rsplit(BUNDLED, 1)[1])
+        if bundled.exists():
+            return str(bundled)
+    return str(path.resolve()) if path.exists() else str(path)
 
 
 @dataclass
@@ -60,10 +92,15 @@ class Scene:
     def save(self, path):
         path = Path(path)
         path.parent.mkdir(parents=True, exist_ok=True)
+        data = self.to_dict()
+        data["tissue_index"] = stored_index(self.tissue_index, path.parent)
         with open(path, "w") as f:
-            json.dump(self.to_dict(), f, indent=2)
+            json.dump(data, f, indent=2)
 
     @classmethod
     def load(cls, path):
+        path = Path(path)
         with open(path, "r") as f:
-            return cls.from_dict(json.load(f))
+            scene = cls.from_dict(json.load(f))
+        scene.tissue_index = found_index(scene.tissue_index, path.parent)
+        return scene

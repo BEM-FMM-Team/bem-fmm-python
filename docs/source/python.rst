@@ -25,13 +25,16 @@ tissue index files.
 
 .. code-block:: python
 
-    from bemfmm.project import Project, default_project
+    from bemfmm.project import Project, default_project, new_project
 
     project = Project.load("my_head")  # or default_project()
     model = project.model()
     project.skin, project.setups(), project.runs()
     project.run_dir("tms")             # runs/tms-<date>-<time>, not created
     project.problems()                 # empty when it can be used
+
+    # from surfaces, nested by containment, and what is wrong with them
+    project, problems = new_project("my_head", ["scalp.stl", "skull.stl", "gm.stl"])
 
     from bemfmm.conductivity import conductivity, find_conductivity
 

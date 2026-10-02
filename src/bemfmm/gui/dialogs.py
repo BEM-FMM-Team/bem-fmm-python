@@ -8,17 +8,154 @@ from PySide6.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
     QListWidgetItem,
+    QMessageBox,
     QSpinBox,
 )
 
 from bemfmm.coils import CHOICES, COIL_LABELS, COIL_PARAMS, param_info
+from bemfmm.project import Project, default_project, new_project, sphere_project
 from bemfmm.results import FIELD_LABELS
 
 from .settings import START_MODES, Settings
 from .theme import THEMES
 from .ui_coil_params import Ui_CoilParamsDialog
 from .ui_export_dialog import Ui_ExportDialog
+from .ui_project_dialog import Ui_ProjectDialog
 from .ui_settings_dialog import Ui_SettingsDialog
+
+MESH_FILTER = "Surface mesh (*.stl *.obj *.ply *.vtk);;All Files (*)"
+
+
+def empty_folder(parent, title):
+    # a folder picked for something new, None when cancelled or not empty
+    folder = QFileDialog.getExistingDirectory(parent, title)
+    if not folder:
+        return None
+    folder = Path(folder)
+    if any(folder.iterdir()):
+        QMessageBox.warning(parent, title, f"{folder} is not empty.")
+        return None
+    return folder
+
+
+def last_project(settings):
+    # the project opened last, the default head when it is gone or broken
+    folder = settings["project"]
+    if folder:
+        try:
+            project = Project.load(folder)
+            if not project.problems():
+                return project
+        except (OSError, ValueError):
+            pass
+    return default_project()
+
+
+def open_project_folder(parent):
+    """A project picked with a folder dialog, None when cancelled or bad"""
+    folder = QFileDialog.getExistingDirectory(parent, "Open project")
+    if not folder:
+        return None
+    try:
+        project = Project.load(folder)
+    except (OSError, ValueError) as error:
+        QMessageBox.warning(parent, "Open project", str(error))
+        return None
+    problems = project.problems()
+    if problems:
+        QMessageBox.warning(parent, "Open project", "\n".join(problems))
+        return None
+    return project
+
+
+def new_project_from_surfaces(parent):
+    """
+    Asks for the surfaces and an empty folder and makes a project there. The
+    project, or None when cancelled or it failed
+    """
+    meshes, _ = QFileDialog.getOpenFileNames(
+        parent, "Surfaces of the new project, in mm", "", MESH_FILTER
+    )
+    if not meshes:
+        return None
+    folder = empty_folder(parent, "Folder for the new project")
+    if folder is None:
+        return None
+    try:
+        project, problems = new_project(folder, meshes)
+    except (OSError, ValueError) as error:
+        QMessageBox.warning(parent, "New project", str(error))
+        return None
+    if problems:
+        QMessageBox.warning(
+            parent,
+            "New project",
+            "The project was made, but the surfaces have problems. Fix them, "
+            "or the tissues in the Model tab, before solving:\n\n"
+            + "\n".join(problems),
+        )
+    return project
+
+
+class ProjectDialog(QDialog):
+    """
+    Picks the project to open: the bundled ones, the recent ones, a folder or
+    a new one from surfaces
+    """
+
+    def __init__(self, settings, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_ProjectDialog()
+        self.ui.setupUi(self)
+        self.settings = settings
+        self.project = None
+        ui = self.ui
+
+        projects = [default_project(), sphere_project()]
+        for folder in settings.recent_projects():
+            try:
+                project = Project.load(folder)
+            except (OSError, ValueError):
+                continue
+            if project.root not in [p.root for p in projects]:
+                projects.append(project)
+        last = settings["project"]
+        for project in projects:
+            text = f"{project.name}   {project.root}"
+            if project.read_only:
+                text = f"{project.name} (read only)   {project.root}"
+            item = QListWidgetItem(text)
+            item.setData(Qt.UserRole, project)
+            ui.projectList.addItem(item)
+            if last and Path(last).resolve() == project.root:
+                ui.projectList.setCurrentItem(item)
+        if ui.projectList.currentRow() < 0:
+            ui.projectList.setCurrentRow(0)
+
+        ui.askCheck.setChecked(settings["ask_project"])
+        ui.projectList.itemDoubleClicked.connect(self.accept)
+        ui.openFolderButton.clicked.connect(
+            lambda: self.done_with(open_project_folder(self))
+        )
+        ui.newProjectButton.clicked.connect(
+            lambda: self.done_with(new_project_from_surfaces(self))
+        )
+
+    def done_with(self, project):
+        if project is not None:
+            self.project = project
+            super().accept()
+
+    def accept(self):
+        item = self.ui.projectList.currentItem()
+        if item is None:
+            return
+        self.project = item.data(Qt.UserRole)
+        super().accept()
+
+    def done(self, result):
+        self.settings["ask_project"] = self.ui.askCheck.isChecked()
+        super().done(result)
 
 
 class CoilParamsDialog(QDialog):

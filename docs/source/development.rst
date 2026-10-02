@@ -55,8 +55,8 @@ The gui
 ``gui/`` holds
 
 - ``main_window.ui``, ``settings_dialog.ui``, ``export_dialog.ui``,
-  ``coil_params.ui``: the layouts, edited with Qt Designer
-  (``pyside6-designer``)
+  ``coil_params.ui``, ``project_dialog.ui``: the layouts, edited with Qt
+  Designer (``pyside6-designer``)
 - ``ui_*.py``: generated from the ``.ui`` files, never edited by hand
 - ``main_window.py``: the window, connects the widgets to the rest
 - ``stimulation.py``: coils and electrodes on the model, snapping, alignment

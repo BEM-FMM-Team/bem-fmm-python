@@ -1,9 +1,18 @@
 import shutil
 
+import numpy as np
 import pytest
+import vedo
 
-from bemfmm.model import sphere_index
-from bemfmm.project import PROJECT_FILE, Project, default_project
+from bemfmm.model import read_index, sphere_index
+from bemfmm.project import (
+    PROJECT_FILE,
+    Project,
+    copy_project,
+    default_project,
+    new_project,
+    sphere_project,
+)
 
 
 def test_project(tmp_path):
@@ -31,3 +40,47 @@ def test_default_project():
     project = default_project()
     assert project.name == "Default head"
     assert project.read_only and project.problems() == []
+
+
+def test_new_project(tmp_path):
+    # the sphere's surfaces under other names and out of order, one flipped
+    sphere = sphere_index().parent
+    names = {"wm": "white", "skin": "scalp", "gm": "cortex", "bone": "skull"}
+    for tissue, name in names.items():
+        mesh = vedo.Mesh(str(sphere / f"{tissue}.stl"))
+        if tissue == "wm":
+            mesh = vedo.Mesh([mesh.vertices, np.asarray(mesh.cells)[:, ::-1]])
+        mesh.write(str(tmp_path / f"{name}.stl"))
+
+    meshes = [tmp_path / f"{name}.stl" for name in names.values()]
+    project, problems = new_project(tmp_path / "new", meshes, name="sphere")
+    assert problems == ["The normals of white point inward"]
+    assert (project.name, project.skin) == ("sphere", "scalp")
+    shells = read_index(project.index_path)
+    assert {t: (c, o) for t, (c, o, _) in shells.items()} == {
+        "scalp": (0.465, "FreeSpace"),
+        "skull": (0.01, "scalp"),
+        "cortex": (0.275, "skull"),
+        "white": (0.126, "cortex"),
+    }
+    assert all(path.parent == project.root for _, _, path in shells.values())
+    with pytest.raises(FileExistsError):
+        new_project(tmp_path / "new", meshes)
+
+
+def test_copy_project(tmp_path):
+    source = sphere_project()
+    assert Project.for_index(source.index_path).name == "Three layer sphere"
+    (tmp_path / "busy").mkdir()
+    (tmp_path / "busy" / "file").touch()
+    with pytest.raises(FileExistsError):
+        copy_project(source, tmp_path / "busy")
+
+    copy = copy_project(source, tmp_path / "copy")
+    assert (copy.name, copy.read_only, copy.problems()) == (
+        "Three layer sphere copy",
+        False,
+        [],
+    )
+    assert Project.for_index(copy.index_path).root == tmp_path / "copy"
+    assert list(read_index(copy.index_path)) == list(read_index(source.index_path))

@@ -3,6 +3,7 @@ The graphical interface
 
 Start it with ``bemfmm gui``. Options::
 
+    bemfmm gui --project my_head                    open a project, without asking
     bemfmm gui --mode tes                           start in TES mode
     bemfmm gui --tissue-index my_model/tissue_index.yaml
     bemfmm gui --setup study/setup.json             open a saved setup
@@ -10,6 +11,34 @@ Start it with ``bemfmm gui``. Options::
 
 The window has a side panel with four tabs on the left and the result views on
 the right.
+
+Projects
+--------
+
+The program works in a project: a folder with a head model, its setups and its
+runs (see :doc:`files`). At start it asks which one to open: the bundled
+default head and three layer sphere, the recent projects (the last one
+selected), **Open folder...** for any other and **New from surfaces...** to
+make one. Untick **Ask at startup** to open the last project directly, File >
+Open project brings the dialog back. ``--project``, ``--tissue-index`` and
+``--setup`` skip it.
+
+The Project box at the top of the Model tab names the open project, with
+**Open**, **New** and **Copy**, also in the File menu:
+
+- **New** asks for closed surface meshes (in mm) and an empty folder. Each
+  surface becomes a tissue named after its file, inside the smallest surface
+  that contains it, with its conductivity from the default list. Problems with
+  the surfaces (open, facing inward, crossing, in meters) are listed, fix
+  them, or the table, before solving.
+- **Copy** copies the model and the setups, not the runs, to an empty folder
+  and opens the copy.
+- **Setups** lists the setups saved in the project, **Open** opens one.
+
+Runs go into the project's ``runs`` folder. The bundled projects are read
+only, their runs go to the output folder of the Settings. Copy one to keep its
+work together. Opening another project starts an empty setup, and coils and
+electrodes sit on the project's skin tissue.
 
 TMS or TES
 -----------
@@ -182,7 +211,8 @@ Solver settings:
 
 Output:
 
-- **Folder** where the run folders are made
+- **Folder** where the run folders are made, the project's ``runs`` folder
+  unless the project is read only
 - **Also export** writes the ticked quantities as ``mat``, ``npz``, ``csv`` or
   ``pkl`` files next to the result
 - **Compute E-field slices** also computes the slices after the solve
@@ -275,7 +305,9 @@ Setups
 
 File > Save setup writes a ``.json`` file with the coils, electrodes, slice
 planes, the mode, the Place on surface and the tissue index. Opening it restores
-all of these. Undo and Redo (Ctrl+Z, Ctrl+Shift+Z) cover every change to coils,
+all of these. Save and Open start in the project's ``setups`` folder, and the
+Project box lists the setups in it to open with one click. Opening a setup
+made on another project's model opens that project. Undo and Redo (Ctrl+Z, Ctrl+Shift+Z) cover every change to coils,
 electrodes and planes, and on the Model tab the tissue table.
 
 The setup points to the tissue index of the model in use. When that model was
@@ -296,12 +328,12 @@ Edit > Settings (Ctrl+,):
 
 - **Theme**: System, Light or Dark. System follows the desktop and changes
   with it.
-- **Skin tissue**: the name of the scalp surface in your tissue indexes, used
-  as the default Place on surface. ``skin`` unless your models call it
-  something else.
+- **Skin tissue**: the default Place on surface for projects whose skin
+  tissue is not in their model. ``skin`` unless your models call it something
+  else.
 - **Start in**: the last used mode, TMS or TES.
-- **Output folder**: where run folders are made, ``__output__`` in the
-  working folder when empty.
+- **Output folder**: where runs on read only projects go, ``__output__`` in
+  the working folder when empty.
 - **Compute E-field slices after each run**: the default for the checkbox in
   the Solve tab. The slices add from a few seconds (sphere) to about a minute
   (full head) to a run.

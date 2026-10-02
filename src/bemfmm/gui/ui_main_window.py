@@ -96,6 +96,12 @@ class Ui_MainWindow(object):
         self.actionSaveSetup.setObjectName("actionSaveSetup")
         self.actionSaveSetupAs = QAction(MainWindow)
         self.actionSaveSetupAs.setObjectName("actionSaveSetupAs")
+        self.actionOpenProject = QAction(MainWindow)
+        self.actionOpenProject.setObjectName("actionOpenProject")
+        self.actionNewProject = QAction(MainWindow)
+        self.actionNewProject.setObjectName("actionNewProject")
+        self.actionCopyProject = QAction(MainWindow)
+        self.actionCopyProject.setObjectName("actionCopyProject")
         self.actionOpenIndex = QAction(MainWindow)
         self.actionOpenIndex.setObjectName("actionOpenIndex")
         self.actionSaveIndexAs = QAction(MainWindow)
@@ -162,6 +168,72 @@ class Ui_MainWindow(object):
         self.modelTab.setObjectName("modelTab")
         self.modelLayout = QVBoxLayout(self.modelTab)
         self.modelLayout.setObjectName("modelLayout")
+        self.projectGroup = QGroupBox(self.modelTab)
+        self.projectGroup.setObjectName("projectGroup")
+        self.projectLayout = QVBoxLayout(self.projectGroup)
+        self.projectLayout.setObjectName("projectLayout")
+        self.projectName = QLabel(self.projectGroup)
+        self.projectName.setObjectName("projectName")
+        self.projectName.setWordWrap(True)
+        self.projectName.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextSelectableByMouse
+        )
+
+        self.projectLayout.addWidget(self.projectName)
+
+        self.projectSetupRow = QHBoxLayout()
+        self.projectSetupRow.setObjectName("projectSetupRow")
+        self.projectSetupLabel = QLabel(self.projectGroup)
+        self.projectSetupLabel.setObjectName("projectSetupLabel")
+
+        self.projectSetupRow.addWidget(self.projectSetupLabel)
+
+        self.projectSetups = QComboBox(self.projectGroup)
+        self.projectSetups.setObjectName("projectSetups")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(
+            self.projectSetups.sizePolicy().hasHeightForWidth()
+        )
+        self.projectSetups.setSizePolicy(sizePolicy)
+
+        self.projectSetupRow.addWidget(self.projectSetups)
+
+        self.openProjectSetupButton = QPushButton(self.projectGroup)
+        self.openProjectSetupButton.setObjectName("openProjectSetupButton")
+
+        self.projectSetupRow.addWidget(self.openProjectSetupButton)
+
+        self.projectLayout.addLayout(self.projectSetupRow)
+
+        self.projectButtons = QHBoxLayout()
+        self.projectButtons.setObjectName("projectButtons")
+        self.openProjectButton = QPushButton(self.projectGroup)
+        self.openProjectButton.setObjectName("openProjectButton")
+
+        self.projectButtons.addWidget(self.openProjectButton)
+
+        self.newProjectButton = QPushButton(self.projectGroup)
+        self.newProjectButton.setObjectName("newProjectButton")
+
+        self.projectButtons.addWidget(self.newProjectButton)
+
+        self.copyProjectButton = QPushButton(self.projectGroup)
+        self.copyProjectButton.setObjectName("copyProjectButton")
+
+        self.projectButtons.addWidget(self.copyProjectButton)
+
+        self.projectButtonSpacer = QSpacerItem(
+            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum
+        )
+
+        self.projectButtons.addItem(self.projectButtonSpacer)
+
+        self.projectLayout.addLayout(self.projectButtons)
+
+        self.modelLayout.addWidget(self.projectGroup)
+
         self.indexGroup = QGroupBox(self.modelTab)
         self.indexGroup.setObjectName("indexGroup")
         self.indexLayout = QGridLayout(self.indexGroup)
@@ -325,9 +397,6 @@ class Ui_MainWindow(object):
         self.addCoilLayout.setObjectName("addCoilLayout")
         self.coilTypeCombo = QComboBox(self.coilPage)
         self.coilTypeCombo.setObjectName("coilTypeCombo")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
             self.coilTypeCombo.sizePolicy().hasHeightForWidth()
         )
@@ -1563,6 +1632,10 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuView.menuAction())
         self.menubar.addAction(self.menuRun.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
+        self.menuFile.addAction(self.actionOpenProject)
+        self.menuFile.addAction(self.actionNewProject)
+        self.menuFile.addAction(self.actionCopyProject)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionNewSetup)
         self.menuFile.addAction(self.actionOpenSetup)
         self.menuFile.addAction(self.actionSaveSetup)
@@ -1656,6 +1729,17 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Ctrl+Shift+S", None)
         )
         # endif // QT_CONFIG(shortcut)
+        self.actionOpenProject.setText(
+            QCoreApplication.translate("MainWindow", "Open &project...", None)
+        )
+        self.actionNewProject.setText(
+            QCoreApplication.translate(
+                "MainWindow", "New project from surfaces...", None
+            )
+        )
+        self.actionCopyProject.setText(
+            QCoreApplication.translate("MainWindow", "Copy project...", None)
+        )
         self.actionOpenIndex.setText(
             QCoreApplication.translate("MainWindow", "Open tissue &index...", None)
         )
@@ -1794,6 +1878,53 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Ctrl+2", None)
         )
         # endif // QT_CONFIG(shortcut)
+        self.projectGroup.setTitle(
+            QCoreApplication.translate("MainWindow", "Project", None)
+        )
+        self.projectName.setText(QCoreApplication.translate("MainWindow", "-", None))
+        self.projectSetupLabel.setText(
+            QCoreApplication.translate("MainWindow", "Setups", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.projectSetups.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "The setups saved in the project's setups folder", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.openProjectSetupButton.setText(
+            QCoreApplication.translate("MainWindow", "Open", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.openProjectButton.setToolTip(
+            QCoreApplication.translate("MainWindow", "Open another project", None)
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.openProjectButton.setText(
+            QCoreApplication.translate("MainWindow", "Open...", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.newProjectButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "A new project from closed surface meshes", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.newProjectButton.setText(
+            QCoreApplication.translate("MainWindow", "New...", None)
+        )
+        # if QT_CONFIG(tooltip)
+        self.copyProjectButton.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow",
+                "Copy the model and setups of this project to a new folder, to work in a read only one",
+                None,
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        self.copyProjectButton.setText(
+            QCoreApplication.translate("MainWindow", "Copy...", None)
+        )
         self.indexGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Tissue index", None)
         )

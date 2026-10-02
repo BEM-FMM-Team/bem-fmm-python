@@ -42,7 +42,9 @@ jobs:
         shell: pwsh
         run: |
           $env:BEMFMM_READY_FILE = "$env:RUNNER_TEMP\gui-ready"
-          $gui = Start-Process python -ArgumentList "-m", "bemfmm", "gui" -PassThru -NoNewWindow
+          # a project skips the dialog that asks for one
+          $project = python -c "from bemfmm.project import default_project as p; print(p().root)"
+          $gui = Start-Process python -ArgumentList "-m", "bemfmm", "gui", "--project", "`"$project`"" -PassThru -NoNewWindow
           for ($i = 0; $i -lt 180; $i++) {
             if ((Test-Path $env:BEMFMM_READY_FILE) -or $gui.HasExited) { break }
             Start-Sleep 1

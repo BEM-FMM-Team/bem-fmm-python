@@ -25,13 +25,16 @@ Solving
     bemfmm tms --setup setup.json               coils from a setup
     bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
     bemfmm tms --project my_head                the model of a project, runs kept in it
+    bemfmm tes --project my_head --setup montage   setups/montage.json of the project
     bemfmm tes --relres 1e-3 --iter 30          a quicker, looser solve
 
 Options shared by ``tms`` and ``tes``:
 
 ``--setup``
-    Setup file from the gui. Without it ``tms`` uses the default coil and
-    ``tes`` the default four electrode montage.
+    Setup file from the gui, or with ``--project`` the name of one in the
+    project's ``setups`` folder (``--setup motor`` for ``setups/motor.json``).
+    Without it ``tms`` uses the default coil and ``tes`` the default four
+    electrode montage.
 ``--project``
     Project folder (see :doc:`files`). Its model is solved on and the result
     goes into its ``runs`` folder, as ``tms-<date>-<time>`` or
@@ -92,6 +95,16 @@ Projects
 
     bemfmm project info my_head                 name, tissues, setups and runs
     bemfmm project init my_head --name "Subject 01" --skin scalp
+    bemfmm project new my_head surfaces/*.stl   a project from closed surfaces
+
+``new`` copies the surfaces into a new project folder and writes its tissue
+index. Each surface is a tissue named after its file. The tissue outside it is
+the smallest other surface that contains it, or ``FreeSpace``, and its
+conductivity comes from the default list (see :doc:`files`), 0.3 S/m when the
+name is not in it. The skin is the largest outermost surface unless
+``--skin`` says otherwise. It prints the table and any problems: surfaces that
+are open, face inward, cross each other or look like they are in meters. The
+project is written anyway, so the index can be fixed by hand or in the gui.
 
 ``init`` writes ``project.yaml`` into a folder that has a
 ``tissue_index.yaml``. ``info`` also lists what keeps a project from being

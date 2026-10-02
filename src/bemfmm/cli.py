@@ -31,6 +31,18 @@ def load_project(project):
         raise typer.Exit(1)
 
 
+def resolve_setup(setup, project):
+    # a setup name that is not a file is looked up in the project's setups
+    if setup and project is not None and not Path(setup).exists():
+        path = project.setups_dir / Path(setup).with_suffix(".json").name
+        if path.is_file():
+            return path
+    if setup and not Path(setup).is_file():
+        typer.echo(f"error: setup not found: {setup}", err=True)
+        raise typer.Exit(1)
+    return setup
+
+
 def resolve_index(tissue_index, scene, project=None):
     from bemfmm.model import default_index
 
@@ -126,6 +138,9 @@ def wait_for_windows(plot):
 
 @app.command()
 def gui(
+    project: Optional[str] = typer.Option(
+        None, help="Project folder to open, without it the gui asks"
+    ),
     tissue_index: Optional[str] = typer.Option(None, help="Tissue index to open"),
     setup: Optional[str] = typer.Option(None, help="Setup (.json) to open"),
     mode: Optional[Mode] = typer.Option(
@@ -139,12 +154,17 @@ def gui(
     from bemfmm.gui.app import run
 
     # the gui keeps the mode as tms or tdcs
-    sys.exit(run(tissue_index, setup, no_3d, "tdcs" if mode == "tes" else mode))
+    mode = "tdcs" if mode == "tes" else mode
+    if project is not None:
+        load_project(project)  # a clear error before the window opens
+    sys.exit(run(tissue_index, setup, no_3d, mode, project))
 
 
 @app.command()
 def tms(
-    setup: Optional[str] = typer.Option(None, help="Setup (.json) with coils"),
+    setup: Optional[str] = typer.Option(
+        None, help="Setup (.json) with coils, or the name of one in the project"
+    ),
     project: Optional[str] = typer.Option(
         None, help="Project folder, for its model and runs folder"
     ),
@@ -170,8 +190,9 @@ def tms(
     from bemfmm.scene import Scene
     from bemfmm.solvers.tms import TMSOptions, solve
 
-    scene = Scene.load(setup) if setup else None
     project = load_project(project)
+    setup = resolve_setup(setup, project)
+    scene = Scene.load(setup) if setup else None
     model = HeadModel.load(resolve_index(tissue_index, scene, project))
 
     if scene is None:
@@ -206,7 +227,9 @@ def tms(
 
 @app.command()
 def tes(
-    setup: Optional[str] = typer.Option(None, help="Setup (.json) with electrodes"),
+    setup: Optional[str] = typer.Option(
+        None, help="Setup (.json) with electrodes, or the name of one in the project"
+    ),
     project: Optional[str] = typer.Option(
         None, help="Project folder, for its model and runs folder"
     ),
@@ -236,6 +259,8 @@ def tes(
     from bemfmm.scene import Scene
     from bemfmm.solvers.tdcs import TDCSOptions, default_electrodes, solve
 
+    project = load_project(project)
+    setup = resolve_setup(setup, project)
     scene = Scene.load(setup) if setup else None
     if scene is None:
         electrodes, planes = default_electrodes(), None
@@ -248,7 +273,6 @@ def tes(
         typer.echo(f"error: {problem}", err=True)
         raise typer.Exit(1)
 
-    project = load_project(project)
     model = HeadModel.load(resolve_index(tissue_index, scene, project))
     skin = skin or (scene.skin if scene else "") or (project and project.skin)
     skin = skin or "skin"
@@ -426,6 +450,12 @@ def export_matlab(
     print(f"Saved {out}")
 
 
+def read_index(path):
+    from bemfmm.model import read_index
+
+    return read_index(path)
+
+
 project_app = typer.Typer(no_args_is_help=True, help="Projects: a model and its work")
 app.add_typer(project_app, name="project")
 
@@ -433,7 +463,6 @@ app.add_typer(project_app, name="project")
 @project_app.command("info")
 def project_info(folder: str = typer.Argument(".", help="Project folder")):
     """Show a project: its model, setups and runs."""
-    from bemfmm.model import read_index
 
     project = load_project(folder)
     print(f"{project.name}  ({project.root})")
@@ -445,9 +474,41 @@ def project_info(folder: str = typer.Argument(".", help="Project folder")):
     if not problems:
         shells = read_index(project.index_path)
         print(f"tissues: {', '.join(shells)}, skin is {project.skin}")
-    print(f"setups: {len(project.setups())}, runs: {len(project.runs())}")
+    setups = ", ".join(path.stem for path in project.setups()) or "none"
+    print(f"setups: {setups}")
+    print(f"runs: {len(project.runs())}")
     if problems:
         raise typer.Exit(1)
+
+
+@project_app.command("new")
+def project_new(
+    folder: str = typer.Argument(..., help="New project folder"),
+    meshes: list[str] = typer.Argument(..., help="Closed surfaces, in mm"),
+    name: Optional[str] = typer.Option(None, help="Name, the folder name by default"),
+    skin: Optional[str] = typer.Option(
+        None, help="Tissue coils and electrodes sit on, the outermost by default"
+    ),
+):
+    """Make a project from surface meshes, with the tissues nested by containment."""
+    from bemfmm.project import new_project
+
+    try:
+        project, problems = new_project(folder, meshes, name or "", skin or "")
+    except (OSError, ValueError) as error:
+        typer.echo(f"error: {error}", err=True)
+        raise typer.Exit(1)
+
+    shells = read_index(project.index_path)
+    width = max(len(t) for t in shells)
+    print(f"{'tissue':<{width}}  S/m     outside")
+    for tissue, (cond, outside, _) in shells.items():
+        print(f"{tissue:<{width}}  {cond:<6.4g}  {outside}")
+    print(f"Saved {project.root}, skin is {project.skin}")
+    for problem in problems:
+        print(f"problem: {problem}")
+    if problems:
+        print("Fix the surfaces, or the tissue index by hand, before solving.")
 
 
 @project_app.command("init")
