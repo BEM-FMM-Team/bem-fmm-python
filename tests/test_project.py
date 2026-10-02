@@ -1,4 +1,6 @@
 import shutil
+import subprocess
+import sys
 
 import numpy as np
 import pytest
@@ -84,3 +86,26 @@ def test_copy_project(tmp_path):
     )
     assert Project.for_index(copy.index_path).root == tmp_path / "copy"
     assert list(read_index(copy.index_path)) == list(read_index(source.index_path))
+
+
+def test_gui_sets_up_opengl_before_vtk():
+    # on Windows the software opengl32.dll has to be loaded before vtk, or vtk
+    # keeps the system one. Checked in a fresh process, this one has vtk
+    script = """
+import sys
+from bemfmm import softgl
+from bemfmm.cli import app
+
+def setup():
+    print(any(name.startswith("vtkmodules") for name in sys.modules))
+    raise SystemExit(0)
+
+softgl.setup = setup
+app(sys.argv[1:])
+"""
+    project = str(sphere_project().root)
+    for args in (["gui"], ["gui", "--project", project]):
+        out = subprocess.run(
+            [sys.executable, "-c", script, *args], capture_output=True, text=True
+        )
+        assert out.stdout.strip() == "False", (args, out.stderr)
