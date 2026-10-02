@@ -12,6 +12,10 @@ Projects
   solve on its model and keep the result in its ``runs`` folder.
   ``bemfmm project info`` shows a project, ``bemfmm project init`` writes its
   ``project.yaml``. The bundled head and sphere are read only projects.
+- A list of default conductivities, the standard values of SimNIBS, with the
+  usual other names of each tissue. Tissues added in the Model tab start with
+  the value of their name (``scalp.stl`` gets 0.465 S/m instead of 0.3), and
+  **Defaults** sets all tissues in the list at once.
 
 GUI
 

@@ -1,0 +1,16 @@
+# Default conductivities in [S/m], the standard values of SimNIBS
+# name: [conductivity, [other names], source]
+# ventricles and cerebellum take the values of csf and wm, as in the default head
+
+skin:         [0.465, [scalp],                          "Wagner et al. 2004"]
+bone:         [0.010, [skull],                          "Wagner et al. 2004"]
+compact_bone: [0.008, [compact],                        "Opitz et al. 2015"]
+spongy_bone:  [0.025, [spongy, cancellous],             "Opitz et al. 2015"]
+csf:          [1.654, [],                               "Wagner et al. 2004"]
+ventricles:   [1.654, [ventricle],                      "as csf"]
+gm:           [0.275, [gray_matter, grey_matter, cortex, pial], "Wagner et al. 2004"]
+wm:           [0.126, [white_matter, white],            "Wagner et al. 2004"]
+cerebellum:   [0.126, [],                               "as wm"]
+eyes:         [0.500, [eye, eyeballs, eyeball],         "Opitz et al. 2015"]
+blood:        [0.600, [],                               "Gabriel et al. 2009"]
+muscle:       [0.160, [muscles],                        "Gabriel et al. 2009"]

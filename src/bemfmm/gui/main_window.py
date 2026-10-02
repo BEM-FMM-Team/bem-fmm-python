@@ -35,6 +35,7 @@ from bemfmm.coils import (
     make_coil,
 )
 from bemfmm.coils.rotation import axis_twist, quat_to_xyz
+from bemfmm.conductivity import conductivity, find_conductivity
 from bemfmm.electrode import montage_problem
 from bemfmm.model import (
     HeadModel,
@@ -369,6 +370,7 @@ class MainWindow(QMainWindow):
         ui.openIndexButton.clicked.connect(self.open_index_dialog)
         ui.addTissueButton.clicked.connect(self.add_tissue)
         ui.removeTissueButton.clicked.connect(self.remove_tissue)
+        ui.defaultConductivityButton.clicked.connect(self.default_conductivities)
         ui.saveIndexButton.clicked.connect(self.save_index_as)
         ui.applyIndexButton.clicked.connect(self.apply_index)
         ui.tissueTable.itemChanged.connect(self.tissue_name_edited)
@@ -712,8 +714,23 @@ class MainWindow(QMainWindow):
             while name in shells:
                 name += "_2"
             outside = list(shells)[-1] if shells else "FreeSpace"
-            shells[name] = (0.3, outside, Path(path))
+            shells[name] = (conductivity(name), outside, Path(path))
         self.commit_tissues(shells, refill=True)
+
+    def default_conductivities(self):
+        # one undo step, tissues not in the list keep their value
+        shells, unknown = {}, []
+        for name, (cond, outside, path) in self.read_tissue_table().items():
+            entry = find_conductivity(name)
+            if entry is None:
+                unknown.append(name)
+            shells[name] = (entry.value if entry else cond, outside, path)
+        if shells != self.shells:
+            self.commit_tissues(shells, refill=True)
+        message = "Conductivities set from the default list"
+        if unknown:
+            message += f", not in it: {', '.join(unknown)}"
+        self.statusBar().showMessage(message, 8000)
 
     def remove_tissue(self):
         row = self.ui.tissueTable.currentRow()
