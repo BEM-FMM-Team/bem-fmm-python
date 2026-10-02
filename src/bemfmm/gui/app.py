@@ -9,22 +9,27 @@ from bemfmm import softgl
 
 
 def run(tissue_index=None, setup=None, no_3d=False, mode=None, project=None):
-    # before the main window imports vtk
+    # before anything imports vtk, bemfmm.project does too
     if not no_3d:
         no_3d = not softgl.setup()
+
+    from bemfmm.project import Project
+
+    if project is not None:
+        try:
+            project = Project.load(project)
+        except (OSError, ValueError) as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
 
     app = QApplication.instance() or QApplication(sys.argv)
     app.setApplicationName("BEM-FMM")
     app.setOrganizationName("BEM-FMM Team")
     app.setStyle("Fusion")
 
-    from bemfmm.project import Project
-
     from .main_window import MainWindow
 
-    if project is not None:
-        project = Project.load(project)
-    elif not tissue_index and not setup:
+    if project is None and not tissue_index and not setup:
         project = ask_project()
     window = MainWindow(tissue_index, setup, no_3d, mode, project)
     window.show()

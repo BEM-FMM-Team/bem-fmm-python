@@ -155,8 +155,8 @@ def gui(
 
     # the gui keeps the mode as tms or tdcs
     mode = "tdcs" if mode == "tes" else mode
-    if project is not None:
-        load_project(project)  # a clear error before the window opens
+    # the project is read in run, loading it here would load vtk before the
+    # software OpenGL is set up
     sys.exit(run(tissue_index, setup, no_3d, mode, project))
 
 
