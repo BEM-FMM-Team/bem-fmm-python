@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.plot.compute_efield_overlay &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.plot.compute_efield_overlay</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.charge.inc_field_electric</span><span class="w"> </span><span class="kn">import</span> <span class="n">inc_field_electric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.my_types</span><span class="w"> </span><span class="kn">import</span> <span class="n">EfieldSlice</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.planes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plane</span>
+
+
+<div class="viewcode-block" id="compute_efield_overlay">
+<a class="viewcode-back" href="../../../bemfmm.plot.html#bemfmm.plot.compute_efield_overlay.compute_efield_overlay">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_efield_overlay</span><span class="p">(</span>
+    <span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">centers</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">area</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">normals</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">c</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">plane</span><span class="p">:</span> <span class="n">Plane</span><span class="p">,</span>
+    <span class="n">th1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">th2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="n">Ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">200</span><span class="p">,</span>
+    <span class="n">prec</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+    <span class="n">R</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="n">interface</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">INNER_IDX</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">coils</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EfieldSlice</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Total E-field on an Ms x Ms grid covering the model in plane, with the</span>
+<span class="sd">    tissue outlines where the plane cuts the surfaces. Grid and outlines are in</span>
+<span class="sd">    the plane's own coordinates (Plane.frame), which for a plane normal to an</span>
+<span class="sd">    axis are the other two world coordinates. mask marks the grid points inside</span>
+<span class="sd">    the outline of tissue INNER_IDX (the outside of the skin), th1 and th2 are</span>
+<span class="sd">    the color limits. The color scale is applied when drawing (slice_image)</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.charge</span><span class="w"> </span><span class="kn">import</span> <span class="n">volume_field_electric</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">meshplaneint_axis_nonmanifold</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">INNER_IDX</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+        <span class="n">INNER_IDX</span> <span class="o">=</span> <span class="p">[</span><span class="n">INNER_IDX</span><span class="p">]</span> <span class="k">if</span> <span class="n">INNER_IDX</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># the mesh in plane coordinates (e1, e2, n), the plane is at n = offset.</span>
+    <span class="c1"># The origin has no in-plane part, so it only shifts the n coordinate. In</span>
+    <span class="c1"># the mesh's own precision an axis plane is then exactly the old axis slice</span>
+    <span class="n">origin</span><span class="p">,</span> <span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">plane</span><span class="o">.</span><span class="n">frame</span><span class="p">()</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">origin</span><span class="p">))</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">P</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">e1</span><span class="p">,</span> <span class="n">e2</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">P</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">Q</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Q</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">Ms</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">Q</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">Q</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">Ms</span><span class="p">)</span>
+    <span class="n">G0</span><span class="p">,</span> <span class="n">G1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="n">points_2d_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">G0</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">G1</span><span class="o">.</span><span class="n">ravel</span><span class="p">()))</span>
+    <span class="n">points_obs</span> <span class="o">=</span> <span class="n">origin</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">G0</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">e1</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">G1</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">e2</span><span class="p">)</span>
+
+    <span class="n">planeABCD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">origin</span><span class="p">)])</span>
+
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">Esec</span> <span class="o">=</span> <span class="n">volume_field_electric</span><span class="p">(</span>
+        <span class="n">points_obs</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">area</span><span class="p">,</span> <span class="n">normals</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">prec</span><span class="p">,</span> <span class="n">planeABCD</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Calculate the primary field for every coil</span>
+    <span class="n">Einc_l</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">coil</span> <span class="ow">in</span> <span class="n">coils</span><span class="p">:</span>
+        <span class="n">Einc_l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">inc_field_electric</span><span class="p">(</span><span class="n">coil</span><span class="p">,</span> <span class="n">points_obs</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">dIdt</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="mf">1e-1</span><span class="p">))</span>
+
+    <span class="n">Etotal</span> <span class="o">=</span> <span class="n">Esec</span> <span class="o">+</span> <span class="nb">sum</span><span class="p">(</span><span class="n">Einc_l</span><span class="p">)</span>
+
+    <span class="n">E_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">Etotal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"E-field computation: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
+
+    <span class="n">Pi</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ci</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">meshplaneint_axis_nonmanifold</span><span class="p">(</span>
+        <span class="n">Q</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="n">offset</span><span class="p">,</span> <span class="n">compTri</span><span class="o">=</span><span class="n">interface</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">points_2d</span> <span class="o">=</span> <span class="n">Pi</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="n">idx_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ci</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">inner_idx</span> <span class="ow">in</span> <span class="n">INNER_IDX</span><span class="p">:</span>
+        <span class="n">idx_mask</span> <span class="o">|=</span> <span class="n">ci</span> <span class="o">==</span> <span class="n">inner_idx</span>
+
+    <span class="n">Pinner</span><span class="p">,</span> <span class="n">einner</span> <span class="o">=</span> <span class="n">_compact_vertices</span><span class="p">(</span><span class="n">points_2d</span><span class="p">,</span> <span class="n">edges</span><span class="p">[</span><span class="n">idx_mask</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">_ray_cast_inside</span><span class="p">(</span><span class="n">points_2d_obs</span><span class="p">,</span> <span class="n">Pinner</span><span class="p">,</span> <span class="n">einner</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">EfieldSlice</span><span class="p">(</span>
+        <span class="n">E_mag</span><span class="o">=</span><span class="n">E_mag</span><span class="p">,</span>
+        <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span>
+        <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span>
+        <span class="n">v</span><span class="o">=</span><span class="n">v</span><span class="p">,</span>
+        <span class="n">th1</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">th1</span><span class="p">),</span>
+        <span class="n">th2</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">th2</span><span class="p">),</span>
+        <span class="n">points_2d</span><span class="o">=</span><span class="n">points_2d</span><span class="p">,</span>
+        <span class="n">edges</span><span class="o">=</span><span class="n">edges</span><span class="p">,</span>
+        <span class="n">ci</span><span class="o">=</span><span class="n">ci</span><span class="p">,</span>
+        <span class="n">plane</span><span class="o">=</span><span class="n">plane</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+        <span class="n">cfg</span><span class="o">=</span><span class="n">plane</span><span class="o">.</span><span class="n">labels</span><span class="p">(),</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compact_vertices</span><span class="p">(</span><span class="n">P</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">e</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">P</span><span class="p">,</span> <span class="n">e</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+    <span class="n">remap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">used</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+    <span class="n">remap</span><span class="p">[</span><span class="n">used</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">intp</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">P</span><span class="p">[</span><span class="n">used</span><span class="p">,</span> <span class="p">:],</span> <span class="n">remap</span><span class="p">[</span><span class="n">e</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ray_cast_inside</span><span class="p">(</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">vertices</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">edges</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    ray-casting point-in-polygon test.</span>
+<span class="sd">    It is vectorised so technically faster,</span>
+<span class="sd">    works directly on edge segments with no loop ordering required,</span>
+<span class="sd">    handling branch points and multi loop polygons correctly.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">vertices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="n">px</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">py</span> <span class="o">=</span> <span class="n">points</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">][:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="n">vertices</span><span class="p">[</span><span class="n">edges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">][</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="mf">1e-15</span><span class="p">,</span> <span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span>
+    <span class="n">x_int</span> <span class="o">=</span> <span class="n">x1</span> <span class="o">+</span> <span class="p">(</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">py</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">/</span> <span class="n">dy</span>
+
+    <span class="n">crossings</span> <span class="o">=</span> <span class="p">((</span><span class="n">y1</span> <span class="o">&gt;</span> <span class="n">py</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">y2</span> <span class="o">&gt;</span> <span class="n">py</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">px</span> <span class="o">&lt;</span> <span class="n">x_int</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">crossings</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

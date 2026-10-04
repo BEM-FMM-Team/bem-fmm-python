@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command line &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python" href="python.html" />
+    <link rel="prev" title="The graphical interface" href="gui.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="command-line">
+<h1>Command line<a class="headerlink" href="#command-line" title="Link to this heading">¶</a></h1>
+<p>Everything the program does is one command, <code class="docutils literal notranslate"><span class="pre">bemfmm</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">bemfmm</span></code>). <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code> lists the options.</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gui</span></code></p></td>
+<td><p>the graphical interface</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tms</span></code></p></td>
+<td><p>solve TMS for the coils in a setup, or the default coil</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tes</span></code></p></td>
+<td><p>solve TES for the electrodes in a setup, or the default montage</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">slices</span></code></p></td>
+<td><p>E-field slices for a saved result</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">show</span></code></p></td>
+<td><p>plot windows for a saved result</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sphere</span></code></p></td>
+<td><p>three layer sphere in a uniform field, a check of the engine</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">project</span></code></p></td>
+<td><p>show a project, or make a model folder one</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">export-matlab</span></code></p></td>
+<td><p>a tissue index as <code class="docutils literal notranslate"><span class="pre">CombinedMesh.mat</span></code> for the MATLAB scripts</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">dipole</span></code></p></td>
+<td><p>primary field of a current dipole on a skull surface</p></td>
+</tr>
+</tbody>
+</table>
+<section id="solving">
+<h2>Solving<a class="headerlink" href="#solving" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">tms</span>                                  <span class="n">default</span> <span class="n">coil</span> <span class="n">on</span> <span class="n">the</span> <span class="n">default</span> <span class="n">head</span>
+<span class="n">bemfmm</span> <span class="n">tms</span> <span class="o">--</span><span class="n">setup</span> <span class="n">setup</span><span class="o">.</span><span class="n">json</span>               <span class="n">coils</span> <span class="kn">from</span><span class="w"> </span><span class="nn">a</span> <span class="n">setup</span>
+<span class="n">bemfmm</span> <span class="n">tes</span> <span class="o">--</span><span class="n">setup</span> <span class="n">setup</span><span class="o">.</span><span class="n">json</span> <span class="o">--</span><span class="n">tissue</span><span class="o">-</span><span class="n">index</span> <span class="n">my_model</span><span class="o">/</span><span class="n">tissue_index</span><span class="o">.</span><span class="n">yaml</span>
+<span class="n">bemfmm</span> <span class="n">tms</span> <span class="o">--</span><span class="n">project</span> <span class="n">my_head</span>                <span class="n">the</span> <span class="n">model</span> <span class="n">of</span> <span class="n">a</span> <span class="n">project</span><span class="p">,</span> <span class="n">runs</span> <span class="n">kept</span> <span class="ow">in</span> <span class="n">it</span>
+<span class="n">bemfmm</span> <span class="n">tes</span> <span class="o">--</span><span class="n">project</span> <span class="n">my_head</span> <span class="o">--</span><span class="n">setup</span> <span class="n">montage</span>   <span class="n">setups</span><span class="o">/</span><span class="n">montage</span><span class="o">.</span><span class="n">json</span> <span class="n">of</span> <span class="n">the</span> <span class="n">project</span>
+<span class="n">bemfmm</span> <span class="n">tes</span> <span class="o">--</span><span class="n">relres</span> <span class="mf">1e-3</span> <span class="o">--</span><span class="nb">iter</span> <span class="mi">30</span>          <span class="n">a</span> <span class="n">quicker</span><span class="p">,</span> <span class="n">looser</span> <span class="n">solve</span>
+</pre></div>
+</div>
+<p>Options shared by <code class="docutils literal notranslate"><span class="pre">tms</span></code> and <code class="docutils literal notranslate"><span class="pre">tes</span></code>:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--setup</span></code></dt><dd><p>Setup file from the gui, or with <code class="docutils literal notranslate"><span class="pre">--project</span></code> the name of one in the
+project’s <code class="docutils literal notranslate"><span class="pre">setups</span></code> folder (<code class="docutils literal notranslate"><span class="pre">--setup</span> <span class="pre">motor</span></code> for <code class="docutils literal notranslate"><span class="pre">setups/motor.json</span></code>).
+Without it <code class="docutils literal notranslate"><span class="pre">tms</span></code> uses the default coil and <code class="docutils literal notranslate"><span class="pre">tes</span></code> the default four
+electrode montage.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--project</span></code></dt><dd><p>Project folder (see <a class="reference internal" href="files.html"><span class="doc">Files</span></a>). Its model is solved on and the result
+goes into its <code class="docutils literal notranslate"><span class="pre">runs</span></code> folder, as <code class="docutils literal notranslate"><span class="pre">tms-&lt;date&gt;-&lt;time&gt;</span></code> or
+<code class="docutils literal notranslate"><span class="pre">tes-&lt;date&gt;-&lt;time&gt;</span></code>. The bundled models are read only, their runs go to
+<code class="docutils literal notranslate"><span class="pre">--output-dir</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--tissue-index</span></code></dt><dd><p>Model to solve on. Defaults to the project’s, then to the index named in
+the setup, then to the default head.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--num-neighbors</span></code>, <code class="docutils literal notranslate"><span class="pre">--iter</span></code>, <code class="docutils literal notranslate"><span class="pre">--relres</span></code>, <code class="docutils literal notranslate"><span class="pre">--weight</span></code></dt><dd><p>Solver settings, see the Solve tab in <a class="reference internal" href="gui.html"><span class="doc">The graphical interface</span></a>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--output-dir</span></code></dt><dd><p>Where <code class="docutils literal notranslate"><span class="pre">result.json</span></code> and <code class="docutils literal notranslate"><span class="pre">result.npz</span></code> go. Defaults to a new folder in
+the project’s <code class="docutils literal notranslate"><span class="pre">runs</span></code>, else <code class="docutils literal notranslate"><span class="pre">./__output__</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--save-format</span></code> and <code class="docutils literal notranslate"><span class="pre">--save</span></code> / <code class="docutils literal notranslate"><span class="pre">-s</span></code></dt><dd><p>Also write single fields, for example <code class="docutils literal notranslate"><span class="pre">--save-format</span> <span class="pre">mat</span> <span class="pre">-s</span> <span class="pre">E</span> <span class="pre">-s</span> <span class="pre">En</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--slices</span></code></dt><dd><p>Also compute the E-field slices and save them as <code class="docutils literal notranslate"><span class="pre">slices.npz</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--plot</span></code> / <code class="docutils literal notranslate"><span class="pre">--no-plot</span></code></dt><dd><p>Open the plot windows when done, <code class="docutils literal notranslate"><span class="pre">--plot-tissue</span></code> picks the tissue.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">tes</span></code> also has</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">--skin</span></code></dt><dd><p>Tissue the electrodes are imprinted on. Defaults to the Place on surface
+stored in the setup, then to the project’s skin, then to <code class="docutils literal notranslate"><span class="pre">skin</span></code>.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">--num-neighbors-p</span></code></dt><dd><p>Facets integrated exactly for the potential on the electrodes, 512 by
+default.</p>
+</dd>
+</dl>
+<p>After a solve <code class="docutils literal notranslate"><span class="pre">tes</span></code> prints a table of the set and solved voltage and the
+current of every electrode, with the current balance and power. A setup with
+fewer than two electrodes, or with all of them at the same voltage, stops with
+an error before the model is loaded.</p>
+</section>
+<section id="slices">
+<h2>Slices<a class="headerlink" href="#slices" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">slices</span> <span class="n">__output__</span>                    <span class="n">at</span> <span class="n">the</span> <span class="n">planes</span> <span class="n">of</span> <span class="n">the</span> <span class="n">saved</span> <span class="n">setup</span>
+<span class="n">bemfmm</span> <span class="n">slices</span> <span class="n">run01</span> <span class="o">--</span><span class="n">planes</span> <span class="mi">30</span> <span class="o">-</span><span class="mi">12</span> <span class="mi">54</span>      <span class="n">axis</span> <span class="n">planes</span> <span class="n">through</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">mm</span>
+<span class="n">bemfmm</span> <span class="n">slices</span> <span class="n">run01</span> <span class="o">--</span><span class="n">plane</span> <span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span> <span class="o">--</span><span class="n">plane</span> <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--plane</span></code> is one plane by its normal and a point on it in mm, six numbers
+separated by commas, and can be given more than once. The example is the plane
+y = x and the plane z = 20 mm. Without <code class="docutils literal notranslate"><span class="pre">--plane</span></code> or <code class="docutils literal notranslate"><span class="pre">--planes</span></code> the planes
+come from the run’s <code class="docutils literal notranslate"><span class="pre">setup.json</span></code>, else the axis planes through the point where
+the coil axis meets the white matter (TMS) or through the origin (TES).</p>
+<p>The slices are saved next to the result as <code class="docutils literal notranslate"><span class="pre">slices.npz</span></code> and are shown by the
+gui and by <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">show</span></code>. They take a few seconds on the sphere and about a
+minute on the full head. TMS slices include the primary field of the coils.</p>
+</section>
+<section id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">project</span> <span class="n">info</span> <span class="n">my_head</span>                 <span class="n">name</span><span class="p">,</span> <span class="n">tissues</span><span class="p">,</span> <span class="n">setups</span> <span class="ow">and</span> <span class="n">runs</span>
+<span class="n">bemfmm</span> <span class="n">project</span> <span class="n">init</span> <span class="n">my_head</span> <span class="o">--</span><span class="n">name</span> <span class="s2">"Subject 01"</span> <span class="o">--</span><span class="n">skin</span> <span class="n">scalp</span>
+<span class="n">bemfmm</span> <span class="n">project</span> <span class="n">new</span> <span class="n">my_head</span> <span class="n">surfaces</span><span class="o">/*.</span><span class="n">stl</span>   <span class="n">a</span> <span class="n">project</span> <span class="kn">from</span><span class="w"> </span><span class="nn">closed</span> <span class="n">surfaces</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">new</span></code> copies the surfaces into a new project folder and writes its tissue
+index. Each surface is a tissue named after its file. The tissue outside it is
+the smallest other surface that contains it, or <code class="docutils literal notranslate"><span class="pre">FreeSpace</span></code>, and its
+conductivity comes from the default list (see <a class="reference internal" href="files.html"><span class="doc">Files</span></a>), 0.3 S/m when the
+name is not in it. The skin is the largest outermost surface unless
+<code class="docutils literal notranslate"><span class="pre">--skin</span></code> says otherwise. It prints the table and any problems: surfaces that
+are open, face inward, cross each other or look like they are in meters. The
+project is written anyway, so the index can be fixed by hand or in the gui.</p>
+<p><code class="docutils literal notranslate"><span class="pre">init</span></code> writes <code class="docutils literal notranslate"><span class="pre">project.yaml</span></code> into a folder that has a
+<code class="docutils literal notranslate"><span class="pre">tissue_index.yaml</span></code>. <code class="docutils literal notranslate"><span class="pre">info</span></code> also lists what keeps a project from being
+used, like a missing mesh or a skin tissue that is not in the model, and then
+exits with an error.</p>
+</section>
+<section id="other-commands">
+<h2>Other commands<a class="headerlink" href="#other-commands" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">show</span> <span class="n">__output__</span>                      <span class="n">plot</span> <span class="n">windows</span> <span class="k">for</span> <span class="n">a</span> <span class="n">result</span>
+<span class="n">bemfmm</span> <span class="n">show</span> <span class="n">run01</span> <span class="o">--</span><span class="n">plot</span><span class="o">-</span><span class="n">tissue</span> <span class="n">gm</span>
+<span class="n">bemfmm</span> <span class="n">sphere</span>                               <span class="n">uniform</span> <span class="n">field</span> <span class="n">on</span> <span class="n">the</span> <span class="n">sphere</span>
+<span class="n">bemfmm</span> <span class="n">export</span><span class="o">-</span><span class="n">matlab</span> <span class="o">--</span><span class="n">tissue</span><span class="o">-</span><span class="n">index</span> <span class="n">my_model</span><span class="o">/</span><span class="n">tissue_index</span><span class="o">.</span><span class="n">yaml</span> <span class="o">--</span><span class="n">out</span> <span class="n">CombinedMesh</span><span class="o">.</span><span class="n">mat</span>
+</pre></div>
+</div>
+</section>
+<section id="caching">
+<h2>Caching<a class="headerlink" href="#caching" title="Link to this heading">¶</a></h2>
+<p>The expensive parts of a solve (neighbor integrals, the charge solution) are
+cached in <code class="docutils literal notranslate"><span class="pre">__compute_cache__</span></code> in the repository, keyed on their inputs. A
+repeated run with the same model and coils or electrodes is much faster. Delete
+the folder to clear the cache, or set <code class="docutils literal notranslate"><span class="pre">BEMFMM_NO_CACHE=1</span></code> to turn it off.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#solving">Solving</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#slices">Slices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#projects">Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-commands">Other commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#caching">Caching</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="gui.html" title="previous chapter">The graphical interface</a></li>
+      <li>Next: <a href="python.html" title="next chapter">Python</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/cli.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

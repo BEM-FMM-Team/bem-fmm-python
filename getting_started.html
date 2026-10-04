@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Getting started &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The graphical interface" href="gui.html" />
+    <link rel="prev" title="bem-fmm-python documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Link to this heading">¶</a></h1>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h2>
+<p>The run scripts in the repository root set everything up the first time they
+are started. They install <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> and Python 3.13
+when they are missing, and use an installed Python 3.11 or newer when that
+fails. Python 3.11 to 3.14 are supported:</p>
+<ul class="simple">
+<li><p>Windows: <code class="docutils literal notranslate"><span class="pre">run.bat</span></code> (double click it or start it from a terminal).</p></li>
+<li><p>Linux and MacOS: <code class="docutils literal notranslate"><span class="pre">run.command</span></code>.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">run_no3d.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">run_no3d.command</span></code> open the same program without the 3D
+view, for remote desktop sessions without a usable OpenGL driver. When the
+window does not open with the 3D view, <code class="docutils literal notranslate"><span class="pre">run.bat</span></code> and <code class="docutils literal notranslate"><span class="pre">run.command</span></code> start
+it again without it. Arguments are passed on to <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span></code>, for example
+<code class="docutils literal notranslate"><span class="pre">run.bat</span> <span class="pre">--mode</span> <span class="pre">tes</span></code>.</p>
+<p>On a Linux Wayland session the gui runs through XWayland, since the 3D view
+draws into an X window. When Qt cannot open an X window, usually because
+<code class="docutils literal notranslate"><span class="pre">libxcb-cursor0</span></code> is not installed, it starts without the 3D view and says
+so. Setting <code class="docutils literal notranslate"><span class="pre">QT_QPA_PLATFORM</span></code> yourself overrides this.</p>
+<p>The environment is kept in <code class="docutils literal notranslate"><span class="pre">.venv</span></code> and set up again when <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>
+changed, for example after a <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code> that changed the dependencies. To
+start over, delete <code class="docutils literal notranslate"><span class="pre">.venv</span></code>.</p>
+<p>To install by hand, in the repository root:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="n">uv</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">uv</span> <span class="n">venv</span>
+<span class="o">.</span><span class="n">venv</span>\<span class="n">Scripts</span>\<span class="n">activate</span>          <span class="p">(</span><span class="n">Windows</span><span class="p">)</span>
+<span class="n">source</span> <span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>       <span class="p">(</span><span class="n">Linux</span><span class="p">,</span> <span class="n">MacOS</span><span class="p">)</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">uv</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>This puts the <code class="docutils literal notranslate"><span class="pre">bemfmm</span></code> command on the path. <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">bemfmm</span></code> does the
+same thing.</p>
+</section>
+<section id="a-first-tms-run">
+<h2>A first TMS run<a class="headerlink" href="#a-first-tms-run" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Start the program with <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span> <span class="pre">--mode</span> <span class="pre">tms</span></code> and open the Default
+head. It loads, and the window title and the status bar both say <code class="docutils literal notranslate"><span class="pre">TMS</span></code>.</p></li>
+<li><p>Open the <strong>Coils</strong> tab, pick <code class="docutils literal notranslate"><span class="pre">figure_eight</span></code> and press <strong>Add coil</strong>. Accept
+the generator parameters.</p></li>
+<li><p>Set <strong>Aim at</strong> to <code class="docutils literal notranslate"><span class="pre">gm</span></code>, press <strong>Pick target</strong>, click a point on the gray
+matter in the 3D view and press <strong>Place coil</strong>. The coil sits 10 mm above
+the skin, over that point.</p></li>
+<li><p>Press <strong>Run TMS</strong> in the toolbar (or F5). The Solve tab shows progress and
+the solver log.</p></li>
+<li><p>When the run finishes the Results tab opens. The 3D view shows the E-field on
+the chosen tissue, and the Convergence and Slices tabs next to
+the 3D view show the rest.</p></li>
+</ol>
+</section>
+<section id="a-first-tes-run">
+<h2>A first TES run<a class="headerlink" href="#a-first-tes-run" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Switch to TES with the <strong>TES</strong> button in the toolbar (or Ctrl+2). The
+second tab becomes <strong>Electrodes</strong>.</p></li>
+<li><p>Press <strong>Add electrode</strong> twice. New electrodes alternate between +1 V and
+-1 V. Type a position for each one, it snaps to the skin.</p></li>
+<li><p>Press <strong>Run TES</strong>. The Results tab lists the solved voltage and current of
+every electrode, and the Electrodes tab next to the 3D view plots the
+currents.</p></li>
+</ol>
+</section>
+<section id="where-results-go">
+<h2>Where results go<a class="headerlink" href="#where-results-go" title="Link to this heading">¶</a></h2>
+<p>Every run gets its own folder, <code class="docutils literal notranslate"><span class="pre">tms-&lt;date&gt;-&lt;time&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">tes-&lt;date&gt;-&lt;time&gt;</span></code>,
+inside the output folder (<code class="docutils literal notranslate"><span class="pre">__output__</span></code> in the folder the program was started
+from, unless changed in Settings). The folder holds the setup that was solved,
+the result files and, if they were computed, the E-field slices. Open an older
+run with File &gt; Open result.</p>
+</section>
+<section id="trying-things-on-the-sphere">
+<h2>Trying things on the sphere<a class="headerlink" href="#trying-things-on-the-sphere" title="Link to this heading">¶</a></h2>
+<p>The three layer sphere solves in seconds and is the quickest way to try
+settings. Pick Three layer sphere when the program asks for a project, or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">project</span> <span class="n">src</span><span class="o">/</span><span class="n">bemfmm</span><span class="o">/</span><span class="n">assets</span><span class="o">/</span><span class="n">sphere_3L</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#install">Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-first-tms-run">A first TMS run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-first-tes-run">A first TES run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-results-go">Where results go</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trying-things-on-the-sphere">Trying things on the sphere</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">bem-fmm-python documentation</a></li>
+      <li>Next: <a href="gui.html" title="next chapter">The graphical interface</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/getting_started.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

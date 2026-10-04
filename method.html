@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Method &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development" href="development.html" />
+    <link rel="prev" title="Files" href="files.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="method">
+<h1>Method<a class="headerlink" href="#method" title="Link to this heading">¶</a></h1>
+<p>This page summarizes what the solvers compute. The references in the README
+have the full derivations.</p>
+<section id="the-model">
+<h2>The model<a class="headerlink" href="#the-model" title="Link to this heading">¶</a></h2>
+<p>A head model is a set of closed, non intersecting surfaces, each with a
+conductivity inside it and a known tissue outside it. The surfaces are merged
+into one triangle mesh with N facets. Every facet knows its inside
+conductivity <span class="math notranslate nohighlight">\(\sigma_{in}\)</span>, its outside conductivity
+<span class="math notranslate nohighlight">\(\sigma_{out}\)</span> and its outward normal <span class="math notranslate nohighlight">\(\mathbf{n}\)</span>.</p>
+<p>At the frequencies of TMS and TES the fields are quasi-static. The total
+electric field is a known primary field plus the field of charges that build up
+on the tissue boundaries:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{E} = \mathbf{E}_p + \mathbf{E}_s[\rho]\]</div>
+<p>For TMS <span class="math notranslate nohighlight">\(\mathbf{E}_p = -\partial \mathbf{A} / \partial t\)</span> is induced by
+the coil current, for TES there is no primary field and the charges are driven
+by the electrodes.</p>
+</section>
+<section id="charge-on-the-boundaries">
+<h2>Charge on the boundaries<a class="headerlink" href="#charge-on-the-boundaries" title="Link to this heading">¶</a></h2>
+<p>The unknown is the surface charge density on each facet, stored divided by
+<span class="math notranslate nohighlight">\(\varepsilon_0\)</span> as <span class="math notranslate nohighlight">\(c = \rho / \varepsilon_0\)</span> (units of V/m). A
+charge layer makes the normal field jump by <span class="math notranslate nohighlight">\(c\)</span> across the surface:</p>
+<div class="math notranslate nohighlight">
+\[E_n^{in} = \bar{E}_n - \frac{c}{2}, \qquad E_n^{out} = \bar{E}_n + \frac{c}{2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\bar{E}_n\)</span> is the normal component of the total field at the
+surface without the facet’s own jump. No current may pile up at a boundary, so
+<span class="math notranslate nohighlight">\(\sigma_{in} E_n^{in} = \sigma_{out} E_n^{out}\)</span>. Solving for <span class="math notranslate nohighlight">\(c\)</span>
+with the contrast</p>
+<div class="math notranslate nohighlight">
+\[\kappa = \frac{\sigma_{in} - \sigma_{out}}{\sigma_{in} + \sigma_{out}}\]</div>
+<p>gives <span class="math notranslate nohighlight">\(c = 2 \kappa \bar{E}_n\)</span>. Writing the field of the charges as an
+integral operator <span class="math notranslate nohighlight">\(K\)</span> over the whole mesh,
+<span class="math notranslate nohighlight">\(\bar{E}_n = E_{p,n} + K[c]\)</span>, this is a second kind integral equation:</p>
+<div class="math notranslate nohighlight">
+\[c - 2 \kappa K[c] = 2 \kappa E_{p,n}\]</div>
+<p>It is well conditioned, which is why GMRES needs only tens of iterations even
+for close to a million facets.</p>
+</section>
+<section id="discretization">
+<h2>Discretization<a class="headerlink" href="#discretization" title="Link to this heading">¶</a></h2>
+<p>The charge is constant on each facet and the equation is enforced at the facet
+centers. The field of all facets at all centers is a sum of about
+<span class="math notranslate nohighlight">\(N^2\)</span> point interactions, which the fast multipole method (FMM3D,
+<code class="docutils literal notranslate"><span class="pre">lfmm3d</span></code>) evaluates in about <span class="math notranslate nohighlight">\(N \log N\)</span> time. The point approximation
+is poor for facets that are close together, so for the <code class="docutils literal notranslate"><span class="pre">num_neighbors</span></code>
+nearest facets of every facet the contribution is replaced by an accurate
+integral over the facet. These corrections are a sparse matrix computed once
+per model.</p>
+<p>A small extra term, <code class="docutils literal notranslate"><span class="pre">weight</span></code> times the area weighted mean of <span class="math notranslate nohighlight">\(c\)</span>, is
+added to the equation. It keeps the total charge at zero, which the physics
+requires but the discrete equation does not enforce by itself.</p>
+<p>The system is solved with flexible GMRES until the relative residual is below
+<code class="docutils literal notranslate"><span class="pre">relres</span></code> or <code class="docutils literal notranslate"><span class="pre">iter</span></code> iterations are done. The residual history is stored with
+the result and plotted in the Convergence tab.</p>
+</section>
+<section id="tms">
+<h2>TMS<a class="headerlink" href="#tms" title="Link to this heading">¶</a></h2>
+<p>The coil is a set of short straight current elements. For a current slope
+<span class="math notranslate nohighlight">\(dI/dt\)</span> the primary field is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{E}_p(\mathbf{r}) = -\frac{\mu_0}{4\pi} \frac{dI}{dt}
+\sum_j \frac{\mathbf{s}_j}{|\mathbf{r} - \mathbf{r}_j|}\]</div>
+<p>with <span class="math notranslate nohighlight">\(\mathbf{s}_j\)</span> the vector of element <span class="math notranslate nohighlight">\(j\)</span> and
+<span class="math notranslate nohighlight">\(\mathbf{r}_j\)</span> its center, again evaluated with the FMM. The right hand
+side is the normal component at the facet centers. After the solve, the total
+field at the facet centers is the primary field plus the field of the charges.</p>
+</section>
+<section id="tes">
+<h2>TES<a class="headerlink" href="#tes" title="Link to this heading">¶</a></h2>
+<p>Each electrode is a disk on the skin. Before solving, the skin mesh is cut
+along the edge of every disk (imprinted) so that each electrode is an exact set
+of facets. On the electrode facets the charge equation is replaced by a
+condition on the potential,</p>
+<div class="math notranslate nohighlight">
+\[\varphi(\mathbf{r}_i) = \frac{1}{4\pi} \int \frac{c(\mathbf{r}')}{|\mathbf{r}_i - \mathbf{r}'|} \, dA' = V_k\]</div>
+<p>for every center <span class="math notranslate nohighlight">\(\mathbf{r}_i\)</span> of electrode <span class="math notranslate nohighlight">\(k\)</span>. The potential of
+the <code class="docutils literal notranslate"><span class="pre">num_neighbors_p</span></code> nearest facets is integrated accurately. These rows are
+very different from the rest, so each electrode gets a dense block
+preconditioner (the potential interactions among its own facets, LU factored).
+In place of the charge conservation term, <code class="docutils literal notranslate"><span class="pre">weight</span></code> times the normalized total
+electrode current is added, which keeps the current going in equal to the
+current going out.</p>
+<p>After the solve:</p>
+<ul class="simple">
+<li><p>the current of electrode <span class="math notranslate nohighlight">\(k\)</span> is
+<span class="math notranslate nohighlight">\(I_k = -\sum_{i \in k} \sigma_{in} E_{n,i}^{in} A_i\)</span>, positive into the
+head</p></li>
+<li><p>the solved voltage is the area weighted mean potential over its facets</p></li>
+<li><p>the power is <span class="math notranslate nohighlight">\(\sum_k V_k I_k\)</span></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Jn</span></code> is <span class="math notranslate nohighlight">\(\sigma_{in} E_n^{in}\)</span> and <code class="docutils literal notranslate"><span class="pre">Pot</span></code> the surface potential on
+every facet</p></li>
+</ul>
+<p>The sum of the currents should be close to zero. Its size relative to the
+electrode currents is a quick check of a solve.</p>
+</section>
+<section id="the-uniform-field-check">
+<h2>The uniform field check<a class="headerlink" href="#the-uniform-field-check" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">sphere</span></code> puts the three layer sphere in a uniform 1 V/m field. The
+outermost layer faces air (<span class="math notranslate nohighlight">\(\sigma_{out} = 0\)</span>), so the charges must cancel
+the applied field everywhere inside. The field left inside is a measure of the
+discretization error. The tests check it on random points.</p>
+</section>
+<section id="e-field-slices">
+<h2>E-field slices<a class="headerlink" href="#e-field-slices" title="Link to this heading">¶</a></h2>
+<p>A slice is the total field on a 200 x 200 grid covering the model in one plane,
+evaluated with the FMM (plus the coil field for TMS), with the tissue outlines
+where the plane cuts the surfaces. The colors use a log-modulus scale between
+the smallest and largest field on the gray matter, so both weak and strong
+regions stay readable.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Method</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-model">The model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#charge-on-the-boundaries">Charge on the boundaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#discretization">Discretization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tms">TMS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tes">TES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-uniform-field-check">The uniform field check</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#e-field-slices">E-field slices</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="files.html" title="previous chapter">Files</a></li>
+      <li>Next: <a href="development.html" title="next chapter">Development</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/method.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

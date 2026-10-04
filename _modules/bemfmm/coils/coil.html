@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.coils.coil &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.coils.coil</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">loadmat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rotation</span> <span class="k">as</span> <span class="n">R</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asset_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.mesh</span><span class="w"> </span><span class="kn">import</span> <span class="n">mesh_rotate1</span><span class="p">,</span> <span class="n">mesh_rotate2</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.generators</span><span class="w"> </span><span class="kn">import</span> <span class="n">COIL_LABELS</span><span class="p">,</span> <span class="n">GENERATORS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.rotation</span><span class="w"> </span><span class="kn">import</span> <span class="n">vector_to_quat</span>
+
+<span class="n">TEMPLATE_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"templates"</span>
+
+<span class="n">LOCAL_CENTERLINE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.025</span><span class="p">]])</span>
+
+
+<div class="viewcode-block" id="Coil">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.Coil">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Coil</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A TMS coil: wire model (Pwire, Ewire, Swire) for the field, CAD surface</span>
+<span class="sd">    (cad_P, t) for display, and a pose (com, rot) applied to the templates</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># generator parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="s2">""</span>  <span class="c1"># path of a .mat template</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cad_template_P</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">str_template_P</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Pwire</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ewire</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Swire</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cad_P</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centerline</span> <span class="o">=</span> <span class="n">LOCAL_CENTERLINE</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bottom_to_com</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># z delta from coil bottom to center of mass</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>  <span class="c1"># quaternion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="mf">0.010</span>  <span class="c1"># distance from head</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dIdt</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mf">1e6</span>  <span class="c1"># A/s</span>
+
+<div class="viewcode-block" id="Coil.place">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.Coil.place">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">place</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xyz</span><span class="p">,</span> <span class="n">quat</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># moves the templates to a new center of mass and optional rotation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">xyz</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">quat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">quat</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="n">Rmat</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">from_quat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="p">)</span><span class="o">.</span><span class="n">as_matrix</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cad_P</span> <span class="o">=</span> <span class="p">(</span><span class="n">Rmat</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">cad_template_P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">com</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Pwire</span> <span class="o">=</span> <span class="p">(</span><span class="n">Rmat</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">str_template_P</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">com</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centerline</span> <span class="o">=</span> <span class="p">(</span><span class="n">Rmat</span> <span class="o">@</span> <span class="n">LOCAL_CENTERLINE</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">com</span></div>
+
+
+<div class="viewcode-block" id="Coil.clone">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.Coil.clone">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clone</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Coil.to_dict">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.Coil.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s2">"com"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s2">"rot"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">rot</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+            <span class="s2">"distance"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">),</span>
+            <span class="s2">"dIdt"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dIdt</span><span class="p">),</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">"template"</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">"template"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">"default"</span><span class="p">:</span>
+            <span class="n">d</span><span class="p">[</span><span class="s2">"params"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+
+<div class="viewcode-block" id="Coil.from_dict">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.Coil.from_dict">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">d</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"default"</span><span class="p">:</span>
+            <span class="n">coil</span> <span class="o">=</span> <span class="n">default_coil</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">d</span><span class="p">[</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"template"</span><span class="p">:</span>
+            <span class="n">coil</span> <span class="o">=</span> <span class="n">load_template</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"template"</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">coil</span> <span class="o">=</span> <span class="n">make_coil</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">"params"</span><span class="p">])</span>
+
+        <span class="n">com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"com"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">"rot"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">com</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">com</span><span class="p">)</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">rot</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">rot</span><span class="p">)):</span>
+            <span class="n">coil</span><span class="o">.</span><span class="n">place</span><span class="p">(</span><span class="n">com</span><span class="p">,</span> <span class="n">rot</span><span class="p">)</span>
+
+        <span class="n">coil</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">coil</span><span class="o">.</span><span class="n">distance</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"distance"</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">distance</span><span class="p">)</span>
+        <span class="n">coil</span><span class="o">.</span><span class="n">dIdt</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dIdt"</span><span class="p">,</span> <span class="n">coil</span><span class="o">.</span><span class="n">dIdt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">coil</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="make_coil">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.make_coil">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_coil</span><span class="p">(</span><span class="n">coil_type</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+    <span class="c1"># builds a coil at the origin from one of the generators</span>
+    <span class="n">mesh_data</span> <span class="o">=</span> <span class="n">GENERATORS</span><span class="p">[</span><span class="n">coil_type</span><span class="p">](</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">coil</span> <span class="o">=</span> <span class="n">Coil</span><span class="p">()</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">coil_type</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">COIL_LABELS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">coil_type</span><span class="p">,</span> <span class="n">coil_type</span><span class="p">)</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">coil</span><span class="o">.</span><span class="n">Ewire</span> <span class="o">=</span> <span class="n">mesh_data</span><span class="p">[</span><span class="s2">"Ewire"</span><span class="p">]</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">Swire</span> <span class="o">=</span> <span class="n">mesh_data</span><span class="p">[</span><span class="s2">"Swire"</span><span class="p">]</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">mesh_data</span><span class="p">[</span><span class="s2">"t"</span><span class="p">]</span>
+
+    <span class="n">temp_cad</span> <span class="o">=</span> <span class="n">mesh_data</span><span class="p">[</span><span class="s2">"P"</span><span class="p">]</span>
+    <span class="n">cad_com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">temp_cad</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">bottom_to_com</span> <span class="o">=</span> <span class="n">cad_com</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">temp_cad</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+
+    <span class="n">temp_wire</span> <span class="o">=</span> <span class="n">mesh_data</span><span class="p">[</span><span class="s2">"Pwire"</span><span class="p">]</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">cad_template_P</span> <span class="o">=</span> <span class="n">temp_cad</span> <span class="o">-</span> <span class="n">cad_com</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">str_template_P</span> <span class="o">=</span> <span class="n">temp_wire</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">temp_wire</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">coil</span><span class="o">.</span><span class="n">place</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">coil</span></div>
+
+
+
+<div class="viewcode-block" id="load_template">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.load_template">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_template</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Loads a coil saved from matlab as &lt;name&gt;.mat (strcoil) and &lt;name&gt;CAD.mat</span>
+<span class="sd">    (P, t), either a path or a name inside coils/templates</span>
+<span class="sd">    """</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">".mat"</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">TEMPLATE_DIR</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+
+    <span class="n">str_data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">.mat"</span><span class="p">,</span> <span class="n">squeeze_me</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">cad_data</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">CAD.mat"</span><span class="p">,</span> <span class="n">squeeze_me</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">coil</span> <span class="o">=</span> <span class="n">Coil</span><span class="p">()</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">"template"</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">template</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="n">strcoil</span> <span class="o">=</span> <span class="n">str_data</span><span class="p">[</span><span class="s2">"strcoil"</span><span class="p">]</span>
+    <span class="n">Pwire</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strcoil</span><span class="p">[</span><span class="s2">"Pwire"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="c1"># matlab indexing</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">Ewire</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strcoil</span><span class="p">[</span><span class="s2">"Ewire"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">Swire</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">strcoil</span><span class="p">[</span><span class="s2">"Swire"</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cad_P</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cad_data</span><span class="p">[</span><span class="s2">"P"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">cad_data</span><span class="p">[</span><span class="s2">"t"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">cad_com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">cad_P</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">bottom_to_com</span> <span class="o">=</span> <span class="n">cad_com</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">cad_P</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">cad_template_P</span> <span class="o">=</span> <span class="n">cad_P</span> <span class="o">-</span> <span class="n">cad_com</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">str_template_P</span> <span class="o">=</span> <span class="n">Pwire</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Pwire</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">coil</span><span class="o">.</span><span class="n">place</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">coil</span></div>
+
+
+
+<div class="viewcode-block" id="list_templates">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.list_templates">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">list_templates</span><span class="p">():</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">stem</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">TEMPLATE_DIR</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.mat"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"CAD"</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">CAD.mat"</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="default_coil">
+<a class="viewcode-back" href="../../../bemfmm.coils.html#bemfmm.coils.coil.default_coil">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_coil</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The coil used when no setup is given, placed above the left motor area</span>
+<span class="sd">    """</span>
+    <span class="n">dIdt</span> <span class="o">=</span> <span class="mf">9.4e7</span>  <span class="c1"># A/s (2*pi*I0/period)</span>
+
+    <span class="n">_strcoil</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"coil.mat"</span><span class="p">))[</span><span class="s2">"strcoil"</span><span class="p">]</span>
+    <span class="n">Pwire</span> <span class="o">=</span> <span class="n">_strcoil</span><span class="p">[</span><span class="s2">"Pwire"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">Ewire</span> <span class="o">=</span> <span class="n">_strcoil</span><span class="p">[</span><span class="s2">"Ewire"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">Swire</span> <span class="o">=</span> <span class="n">_strcoil</span><span class="p">[</span><span class="s2">"Swire"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">coilCAD</span> <span class="o">=</span> <span class="n">loadmat</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"coilCAD.mat"</span><span class="p">))</span>
+    <span class="n">CoilP</span> <span class="o">=</span> <span class="n">coilCAD</span><span class="p">[</span><span class="s2">"P"</span><span class="p">]</span>
+    <span class="n">Coilt</span> <span class="o">=</span> <span class="n">coilCAD</span><span class="p">[</span><span class="s2">"t"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">coil</span> <span class="o">=</span> <span class="n">Coil</span><span class="p">()</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s2">"default"</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"default"</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">str_template_P</span> <span class="o">=</span> <span class="n">Pwire</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">cad_template_P</span> <span class="o">=</span> <span class="n">CoilP</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">bottom_to_com</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">CoilP</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">CoilP</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">Ewire</span> <span class="o">=</span> <span class="n">Ewire</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">Swire</span> <span class="o">=</span> <span class="n">Swire</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">Coilt</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">dIdt</span> <span class="o">=</span> <span class="n">dIdt</span>
+
+    <span class="c1"># rotate about the centerline, tilt the centerline to [Nx, Ny, Nz], move</span>
+    <span class="n">coilaxis</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nz</span> <span class="o">=</span> <span class="mf">0.45</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span>
+    <span class="n">Translation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">42e-3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">79.5e-3</span><span class="p">])</span>
+
+    <span class="n">Pwire</span> <span class="o">=</span> <span class="n">mesh_rotate2</span><span class="p">(</span><span class="n">Pwire</span><span class="p">,</span> <span class="n">coilaxis</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+    <span class="n">CoilP</span> <span class="o">=</span> <span class="n">mesh_rotate2</span><span class="p">(</span><span class="n">CoilP</span><span class="p">,</span> <span class="n">coilaxis</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span>
+
+    <span class="n">Pwire</span> <span class="o">=</span> <span class="n">mesh_rotate1</span><span class="p">(</span><span class="n">Pwire</span><span class="p">,</span> <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nz</span><span class="p">)</span>
+    <span class="n">CoilP</span> <span class="o">=</span> <span class="n">mesh_rotate1</span><span class="p">(</span><span class="n">CoilP</span><span class="p">,</span> <span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nz</span><span class="p">)</span>
+
+    <span class="n">coil</span><span class="o">.</span><span class="n">Pwire</span> <span class="o">=</span> <span class="n">Pwire</span> <span class="o">+</span> <span class="n">Translation</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">cad_P</span> <span class="o">=</span> <span class="n">CoilP</span> <span class="o">+</span> <span class="n">Translation</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">com</span> <span class="o">=</span> <span class="n">Translation</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">rot</span> <span class="o">=</span> <span class="n">vector_to_quat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nz</span><span class="p">]))</span>
+
+    <span class="c1"># observation line along the coil axis, 0 to 100 mm</span>
+    <span class="n">NxNyNz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Nx</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nz</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">dirline</span> <span class="o">=</span> <span class="o">-</span><span class="n">NxNyNz</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">NxNyNz</span><span class="p">)</span>
+    <span class="n">offline</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="mf">100e-3</span>
+    <span class="n">coil</span><span class="o">.</span><span class="n">centerline</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">dirline</span> <span class="o">*</span> <span class="n">offline</span> <span class="o">+</span> <span class="n">Translation</span><span class="p">,</span>
+            <span class="n">dirline</span> <span class="o">*</span> <span class="p">(</span><span class="n">L</span> <span class="o">+</span> <span class="n">offline</span><span class="p">)</span> <span class="o">+</span> <span class="n">Translation</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">coil</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

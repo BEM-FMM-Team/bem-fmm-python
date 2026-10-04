@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>The graphical interface &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <script src="_static/documentation_options.js?v=01f34227"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Command line" href="cli.html" />
+    <link rel="prev" title="Getting started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="the-graphical-interface">
+<h1>The graphical interface<a class="headerlink" href="#the-graphical-interface" title="Link to this heading">¶</a></h1>
+<p>Start it with <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">gui</span></code>. Options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">project</span> <span class="n">my_head</span>                    <span class="nb">open</span> <span class="n">a</span> <span class="n">project</span><span class="p">,</span> <span class="n">without</span> <span class="n">asking</span>
+<span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">mode</span> <span class="n">tes</span>                           <span class="n">start</span> <span class="ow">in</span> <span class="n">TES</span> <span class="n">mode</span>
+<span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">tissue</span><span class="o">-</span><span class="n">index</span> <span class="n">my_model</span><span class="o">/</span><span class="n">tissue_index</span><span class="o">.</span><span class="n">yaml</span>
+<span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">setup</span> <span class="n">study</span><span class="o">/</span><span class="n">setup</span><span class="o">.</span><span class="n">json</span>             <span class="nb">open</span> <span class="n">a</span> <span class="n">saved</span> <span class="n">setup</span>
+<span class="n">bemfmm</span> <span class="n">gui</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="mi">3</span><span class="n">d</span>                              <span class="n">no</span> <span class="mi">3</span><span class="n">D</span> <span class="n">view</span><span class="p">,</span> <span class="k">for</span> <span class="n">remote</span> <span class="n">desktops</span>
+</pre></div>
+</div>
+<p>The window has a side panel with four tabs on the left and the result views on
+the right.</p>
+<section id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Link to this heading">¶</a></h2>
+<p>The program works in a project: a folder with a head model, its setups and its
+runs (see <a class="reference internal" href="files.html"><span class="doc">Files</span></a>). At start it asks which one to open: the bundled
+default head and three layer sphere, the recent projects (the last one
+selected), <strong>Open folder…</strong> for any other and <strong>New from surfaces…</strong> to
+make one. Untick <strong>Ask at startup</strong> to open the last project directly, File &gt;
+Open project brings the dialog back. <code class="docutils literal notranslate"><span class="pre">--project</span></code>, <code class="docutils literal notranslate"><span class="pre">--tissue-index</span></code> and
+<code class="docutils literal notranslate"><span class="pre">--setup</span></code> skip it.</p>
+<p>The Project box at the top of the Model tab names the open project, with
+<strong>Open</strong>, <strong>New</strong> and <strong>Copy</strong>, also in the File menu:</p>
+<ul class="simple">
+<li><p><strong>New</strong> asks for closed surface meshes (in mm) and an empty folder. Each
+surface becomes a tissue named after its file, inside the smallest surface
+that contains it, with its conductivity from the default list. Problems with
+the surfaces (open, facing inward, crossing, in meters) are listed, fix
+them, or the table, before solving.</p></li>
+<li><p><strong>Copy</strong> copies the model and the setups, not the runs, to an empty folder
+and opens the copy.</p></li>
+<li><p><strong>Setups</strong> lists the setups saved in the project, <strong>Open</strong> opens one.</p></li>
+</ul>
+<p>Runs go into the project’s <code class="docutils literal notranslate"><span class="pre">runs</span></code> folder. The bundled projects are read
+only, their runs go to the output folder of the Settings. Copy one to keep its
+work together. Opening another project starts an empty setup, and coils and
+electrodes sit on the project’s skin tissue.</p>
+</section>
+<section id="tms-or-tes">
+<h2>TMS or TES<a class="headerlink" href="#tms-or-tes" title="Link to this heading">¶</a></h2>
+<p>The program is always in one of two modes, and the mode is shown in four
+places: the two buttons at the left of the toolbar, the window title, the badge
+in the status bar and the name of the second tab (<strong>Coils</strong> or <strong>Electrodes</strong>).
+The run button says <strong>Run TMS</strong> or <strong>Run TES</strong>.</p>
+<p>Switch with the toolbar buttons, the Mode menu, or Ctrl+1 and Ctrl+2. Coils and
+electrodes are both kept while switching. Only the ones of the current mode are
+shown and only those are solved. Without <code class="docutils literal notranslate"><span class="pre">--mode</span></code> the program starts in the
+mode used last, which Settings can change.</p>
+</section>
+<section id="model-tab">
+<h2>Model tab<a class="headerlink" href="#model-tab" title="Link to this heading">¶</a></h2>
+<p>Opens a tissue index and shows it as a table:</p>
+<ul class="simple">
+<li><p><strong>Tissue</strong>: the name, double click to rename it. Other rows that point at it
+follow the new name.</p></li>
+<li><p><strong>S/m</strong>: conductivity inside the surface.</p></li>
+<li><p><strong>Outside</strong>: the tissue just outside the surface, <code class="docutils literal notranslate"><span class="pre">FreeSpace</span></code> for air.</p></li>
+<li><p><strong>Mesh file</strong>: the surface mesh (<code class="docutils literal notranslate"><span class="pre">.stl</span></code>, <code class="docutils literal notranslate"><span class="pre">.obj</span></code>, <code class="docutils literal notranslate"><span class="pre">.ply</span></code> or <code class="docutils literal notranslate"><span class="pre">.vtk</span></code>, in mm).</p></li>
+</ul>
+<p><strong>Add</strong> reads more surfaces, named after their files and with the default
+conductivity when the name is in the list (see <a class="reference internal" href="files.html"><span class="doc">Files</span></a>, <code class="docutils literal notranslate"><span class="pre">scalp.stl</span></code>
+gets 0.465 S/m), else 0.3 S/m. <strong>Remove</strong> deletes the selected row (whatever
+was inside it moves to its outside). <strong>Defaults</strong> sets every tissue in the list
+to its default conductivity, the status bar names the ones not in it. <strong>Apply</strong> checks the table and reloads the
+model with it, <strong>Save as</strong> writes it to a new tissue index. A run with applied
+but unsaved edits writes the edited index into the run folder, so the run can
+always be repeated.</p>
+<p>While the Model tab is open, Undo and Redo step through the table edits. Undoing
+back to the loaded model clears the edited state, so Apply is not needed.</p>
+<p>When another model is loaded, electrodes are moved onto its surface (one undo
+step). Coils keep their pose, and a message lists every coil whose height above
+its surface changed by more than 5 mm.</p>
+<p><strong>Display</strong> turns tissues on and off in the 3D view and sets their opacity.</p>
+</section>
+<section id="coils-tab-tms">
+<h2>Coils tab (TMS)<a class="headerlink" href="#coils-tab-tms" title="Link to this heading">¶</a></h2>
+<p><strong>Placement</strong></p>
+<ul class="simple">
+<li><p><strong>Place on</strong>: the surface coils sit above and are dragged over. The skin
+tissue by default.</p></li>
+<li><p><strong>Align to</strong>: the tissue whose surface normal sets the coil axis. It starts
+on the same tissue as Place on, which points the coil along the skin normal.
+Picking another tissue, for example <code class="docutils literal notranslate"><span class="pre">gm</span></code>, points the coil along the normal
+of that tissue instead. The coil is then moved along that normal until it is
+the set distance above the Place on surface.</p></li>
+</ul>
+<p><strong>Adding coils</strong>: pick a type and press <strong>Add coil</strong>. The types are</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">default</span> <span class="pre">(bundled</span> <span class="pre">coil)</span></code>: the coil and pose used by <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">tms</span></code>
+without a setup</p></li>
+<li><p>the coil generators (Ring, Figure-eight, MagVenture models and others).
+Adding one opens its parameters: sizes in mm, the number of edges the wire
+is modeled with, the <strong>Wire cross-section</strong> (elliptical or rectangular) and
+the <strong>Current distribution</strong> (skin effect, the current near the wire
+surface, or uniform as in Litz wire). Hover over a parameter for what it
+sets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">template:</span> <span class="pre">&lt;name&gt;</span></code> for the templates in <code class="docutils literal notranslate"><span class="pre">src/bemfmm/coils/templates</span></code>,
+and <strong>Template file…</strong> for any other strcoil <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file</p></li>
+</ul>
+<p>The list holds the coils of the setup. Double click to rename. Delete (or
+Backspace) removes the selected one while this tab is open or after a click in
+the 3D view. Clicking a coil in the 3D view selects it, clicking empty
+space in the view or the list, or pressing Esc, clears the selection.</p>
+<p><strong>Selected coil</strong></p>
+<ul class="simple">
+<li><p><strong>Position</strong> (mm) and <strong>Rotation</strong> (degrees, x y z) of the coil center</p></li>
+<li><p><strong>Twist</strong>: rotation about the coil axis, in degrees. It is part of the pose,
+so moving the coil, changing Distance, Auto orient, dragging and Aim at keep
+it</p></li>
+<li><p><strong>Distance</strong>: from the bottom of the coil to the surface, in mm</p></li>
+<li><p><strong>dI/dt</strong> in A/us</p></li>
+<li><p><strong>Auto orient</strong>: points the axis along the Align to normal, keeping the twist</p></li>
+<li><p><strong>Flip</strong>: turns the coil over</p></li>
+<li><p><strong>Dragging</strong>: press on the coil in the 3D view, move the mouse and release.
+The coil follows the Place on surface under the mouse, the same way Aim at
+and Auto orient place it</p></li>
+<li><p><strong>Aim at</strong>: pick a tissue, press <strong>Pick target</strong>, click a point on that
+tissue and press <strong>Place coil</strong>. The coil goes the set distance above the
+Place on surface, oriented as described under Align to. Selecting another
+coil, undo or switching mode before <strong>Place coil</strong> cancels the pick</p></li>
+</ul>
+</section>
+<section id="electrodes-tab-tes">
+<h2>Electrodes tab (TES)<a class="headerlink" href="#electrodes-tab-tes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Place on</strong>: the surface the electrodes are imprinted on, where current
+enters and leaves the head. It assumes the skin tissue (<code class="docutils literal notranslate"><span class="pre">skin</span></code>, or the name
+set in Settings) and can be changed to any tissue. Changing it moves the
+existing electrodes onto the new surface.</p></li>
+<li><p><strong>Add electrode</strong> adds a disk electrode. New ones alternate between +1 V
+and -1 V. The 3D view draws the skin facets the solver will imprint for it,
+so on curved or folded skin it shows the exact patch that carries current.</p></li>
+<li><p><strong>Selected electrode</strong>: position (snapped to the surface), radius in mm and
+voltage. Drag it in the 3D view like a coil.</p></li>
+</ul>
+<p>A run needs at least two electrodes at different voltages, the current enters
+through some and leaves through the others. The Solve tab says what is missing
+and Run refuses until it is fixed.</p>
+<p>Anodes are drawn red, cathodes blue, the selected item cyan. Electrodes are
+selected and deselected in the 3D view the same way as coils.</p>
+</section>
+<section id="planes-tab">
+<h2>Planes tab<a class="headerlink" href="#planes-tab" title="Link to this heading">¶</a></h2>
+<p>The slice planes, next to the 3D view, which switches to show them. By default
+they are the planes through the origin normal to x, y and z.</p>
+<ul class="simple">
+<li><p>The list names every plane, for example <code class="docutils literal notranslate"><span class="pre">XY</span> <span class="pre">at</span> <span class="pre">z</span> <span class="pre">=</span> <span class="pre">20.0</span> <span class="pre">mm</span></code>. The selected
+plane is drawn cyan, the others grey.</p></li>
+<li><p><strong>Add</strong> copies the selected plane, <strong>Remove</strong> (or Delete) removes it and
+<strong>Defaults</strong> puts back the three axis planes through the center of the model.</p></li>
+<li><p><strong>Orientation</strong> turns the selected plane normal to x, y or z.</p></li>
+<li><p><strong>Normal</strong> is the plane’s normal, of any length, so <code class="docutils literal notranslate"><span class="pre">1,</span> <span class="pre">-1,</span> <span class="pre">0</span></code> is the plane
+y = x.</p></li>
+<li><p><strong>Position</strong> moves the plane along its normal: drag the slider across the
+model or type the signed distance from the origin in mm.</p></li>
+<li><p><strong>Through a picked point</strong>: click a point on a surface in the 3D view to put
+the plane through it. Esc cancels.</p></li>
+<li><p>In the 3D view the selected plane has an arrow at its edge. Drag the arrow to
+move the plane along its normal. Dragging anywhere else turns the camera.</p></li>
+</ul>
+<p>A plane normal to an axis is plotted in the other two world coordinates, any
+other plane in in-plane coordinates u (horizontal) and v (up where the plane
+allows). Undo and Redo include the planes, a slider or arrow drag is one step,
+and the planes are saved with the setup. When the planes no longer match the
+computed slices the tab says so, and <strong>Compute slices</strong> here or in the Slices
+view brings them up to date. <strong>Show the planes on the other tabs</strong> keeps them in
+the 3D view after leaving the tab.</p>
+</section>
+<section id="solve-tab">
+<h2>Solve tab<a class="headerlink" href="#solve-tab" title="Link to this heading">¶</a></h2>
+<p>Solver settings:</p>
+<ul>
+<li><p><strong>Preset</strong> fills in the settings below:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Preset</p></th>
+<th class="head"><p>TMS</p></th>
+<th class="head"><p>TES</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Default</p></td>
+<td><p>4, 20 iterations, 1e-4</p></td>
+<td><p>4, 512, 50 iterations, 1e-6</p></td>
+</tr>
+<tr class="row-odd"><td><p>Accurate</p></td>
+<td><p>64, 50 iterations, 1e-6</p></td>
+<td><p>64, 512, 50 iterations, 1e-6</p></td>
+</tr>
+<tr class="row-even"><td><p>Fast</p></td>
+<td><p>4, 20 iterations, 1e-3</p></td>
+<td><p>4, 32, 20 iterations, 1e-3</p></td>
+</tr>
+</tbody>
+</table>
+<p>The numbers are the neighbor integrals, the potential integrals (TES),
+the max iterations and the tolerance. Default is what the command line
+uses, Fast is for benchmarking and quick checks. Changing any of them
+shows <strong>Custom</strong>.</p>
+</li>
+<li><p><strong>Neighbor integrals</strong>: nearest facets integrated exactly for the E-field (4)</p></li>
+<li><p><strong>Potential integrals</strong>: TES only, nearest facets integrated exactly for the
+potential on the electrodes (512)</p></li>
+<li><p><strong>Max iterations</strong> and <strong>Tolerance</strong>: when GMRES stops. The defaults are
+20 and 1e-4 for TMS, 50 and 1e-6 for TES. Each mode keeps its own
+settings while switching. Tolerance is typed and shown in
+scientific notation (<code class="docutils literal notranslate"><span class="pre">1e-6</span></code>, <code class="docutils literal notranslate"><span class="pre">2.5e-7</span></code>), the arrows step by a factor of
+ten</p></li>
+<li><p><strong>Conservation weight</strong>: weight of the term that keeps the total charge
+(TMS) or the total electrode current (TES) at zero</p></li>
+</ul>
+<p>Output:</p>
+<ul class="simple">
+<li><p><strong>Folder</strong> where the run folders are made, the project’s <code class="docutils literal notranslate"><span class="pre">runs</span></code> folder
+unless the project is read only</p></li>
+<li><p><strong>Also export</strong> writes the ticked quantities as <code class="docutils literal notranslate"><span class="pre">mat</span></code>, <code class="docutils literal notranslate"><span class="pre">npz</span></code>, <code class="docutils literal notranslate"><span class="pre">csv</span></code> or
+<code class="docutils literal notranslate"><span class="pre">pkl</span></code> files next to the result</p></li>
+<li><p><strong>Compute E-field slices</strong> also computes the slices after the solve</p></li>
+</ul>
+<p>The solver runs in a separate process, so the window stays responsive and a
+crash in the solver cannot close it. <strong>Cancel</strong> stops the run.</p>
+</section>
+<section id="results-tab">
+<h2>Results tab<a class="headerlink" href="#results-tab" title="Link to this heading">¶</a></h2>
+<p>Shows the run (type, model, date, convergence and folder) and controls what the
+3D view shows. Each mode keeps its own last result: switching between TMS and
+TES shows that mode’s result, or none, and opening a TMS or TES result
+switches to its mode.</p>
+<ul class="simple">
+<li><p><strong>Quantity</strong> and <strong>Tissue</strong>: any stored quantity (E-field, normal E-field,
+normal current density, charge, potential) on any tissue. Results open on
+the tissue picked last, <code class="docutils literal notranslate"><span class="pre">gm</span></code> at first</p></li>
+<li><p><strong>Colormap</strong> and <strong>Range</strong> (automatic or fixed)</p></li>
+<li><p>the minimum, median, 99th percentile and maximum of the values shown</p></li>
+<li><p><strong>Show in 3D view</strong> switches between the result and the setup. It is ticked
+for every new result and keeps its state when switching tabs. On the
+Coils/Electrodes tab the view always shows the setup, since placing needs
+the surfaces the result hides</p></li>
+<li><p><strong>Show coils</strong> (<strong>Show electrodes</strong> in TES mode) draws them over the
+result. Untick it to see the solution under them, they are always shown while
+placing</p></li>
+</ul>
+<p>For TES results the table lists the set and solved voltage and the current of
+every electrode, with the current balance (should be close to zero) and the
+power.</p>
+<p><strong>Export results…</strong> writes chosen quantities, for all facets or one tissue, as
+<code class="docutils literal notranslate"><span class="pre">mat</span></code>, <code class="docutils literal notranslate"><span class="pre">npz</span></code> or <code class="docutils literal notranslate"><span class="pre">csv</span></code>, optionally with the mesh. <strong>Open in separate
+windows</strong> opens the result in the plot windows of <code class="docutils literal notranslate"><span class="pre">bemfmm</span> <span class="pre">show</span></code>, outside the
+main window. They show the same plots as the result tabs, which can also be
+popped out one by one. <strong>Open folder</strong> opens the run folder.</p>
+</section>
+<section id="result-views">
+<h2>Result views<a class="headerlink" href="#result-views" title="Link to this heading">¶</a></h2>
+<p>The tabs on the right:</p>
+<ul>
+<li><p><strong>3D view</strong>: the model, coils, electrodes and a quantity on a tissue.
+<strong>Snapshot</strong> in the toolbar (File &gt; Save 3D view image) saves it as an image.</p></li>
+<li><p><strong>Convergence</strong>: relative residual per GMRES iteration, with the tolerance.</p></li>
+<li><p><strong>Slices</strong>: the total E-field on the slice planes with the tissue outlines,
+one plane or all of them. <strong>Compute slices</strong> computes them for the planes set
+in the Planes tab, when the run did not or after the planes were changed.
+<strong>Colormap</strong> picks the colors, <code class="docutils literal notranslate"><span class="pre">viridis</span></code> by default. Outside the head
+only TMS has a field worth seeing, the coil’s own: <strong>Show outside the
+head</strong>, ticked by default, draws it, TES slices always leave the air black</p>
+<p>Below them, how the field is drawn, all without computing again:</p>
+<ul class="simple">
+<li><p><strong>Scale</strong>: <strong>Log</strong> (the default) spreads out the low values with the
+log-modulus transform, <strong>Linear</strong> shows the field as it is.</p></li>
+<li><p><strong>Log factor</strong>: values below about this fraction of the highest one are
+spread out, smaller spreads out more. 0.01 by default.</p></li>
+<li><p><strong>Range</strong>: with <strong>Auto</strong> each slice uses the range of the field on the
+tissue the slices were computed for. Untick it to set the lowest and
+highest value in V/m for all slices at once, which makes them comparable.</p></li>
+</ul>
+</li>
+<li><p><strong>Electrodes</strong>: TES only, the current of every electrode.</p></li>
+</ul>
+<p>Every plot has the matplotlib toolbar: home, back and forward, pan, zoom,
+subplot spacing, axis settings and save (png, pdf, svg and more). <strong>Pop out</strong>
+moves the plot into its own window, which can be resized or put on a second
+screen. Closing that window, or pressing <strong>Dock</strong>, puts it back.</p>
+</section>
+<section id="d-view-mouse-and-keys">
+<h2>3D view mouse and keys<a class="headerlink" href="#d-view-mouse-and-keys" title="Link to this heading">¶</a></h2>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>Left click</p></td>
+<td><p>select a coil or electrode, empty space clears</p></td>
+</tr>
+<tr class="row-even"><td><p>Drag a coil or electrode</p></td>
+<td><p>move it over the surface</p></td>
+</tr>
+<tr class="row-odd"><td><p>Esc</p></td>
+<td><p>leave Pick target, else clear the selection</p></td>
+</tr>
+<tr class="row-even"><td><p>Delete, Backspace</p></td>
+<td><p>remove the selected coil or electrode</p></td>
+</tr>
+<tr class="row-odd"><td><p>Left drag</p></td>
+<td><p>rotate</p></td>
+</tr>
+<tr class="row-even"><td><p>Shift + left drag</p></td>
+<td><p>pan</p></td>
+</tr>
+<tr class="row-odd"><td><p>Right drag or scroll</p></td>
+<td><p>zoom</p></td>
+</tr>
+<tr class="row-even"><td><p>r</p></td>
+<td><p>reset the camera</p></td>
+</tr>
+<tr class="row-odd"><td><p>w, s</p></td>
+<td><p>wireframe, surface</p></td>
+</tr>
+<tr class="row-even"><td><p>f</p></td>
+<td><p>fly to the point under the mouse</p></td>
+</tr>
+</tbody>
+</table>
+<p>The XY, XZ, YZ and Reset buttons in the toolbar set the camera.</p>
+</section>
+<section id="setups">
+<h2>Setups<a class="headerlink" href="#setups" title="Link to this heading">¶</a></h2>
+<p>File &gt; Save setup writes a <code class="docutils literal notranslate"><span class="pre">.json</span></code> file with the coils, electrodes, slice
+planes, the mode, the Place on surface and the tissue index. Opening it restores
+all of these. Save and Open start in the project’s <code class="docutils literal notranslate"><span class="pre">setups</span></code> folder, and the
+Project box lists the setups in it to open with one click. Opening a setup
+made on another project’s model opens that project. Undo and Redo (Ctrl+Z, Ctrl+Shift+Z) cover every change to coils,
+electrodes and planes, and on the Model tab the tissue table.</p>
+<p>The setup points to the tissue index of the model in use. When that model was
+built from applied tissue edits that are in no file, saving the setup offers
+<strong>Save tissue index…</strong> first, next to the setup by default, so the setup can
+point to it. <strong>Save setup only</strong> saves it without a tissue index. Edits in the
+tissue table that were not applied are not part of the model, so they are not
+saved with the setup.</p>
+<p>New, Open and closing the window ask to save when the coils, electrodes or
+planes differ from the saved setup. Undoing back to the saved setup does not
+count as a change.</p>
+</section>
+<section id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Link to this heading">¶</a></h2>
+<p>Edit &gt; Settings (Ctrl+,):</p>
+<ul class="simple">
+<li><p><strong>Theme</strong>: System, Light or Dark. System follows the desktop and changes
+with it.</p></li>
+<li><p><strong>Skin tissue</strong>: the default Place on surface for projects whose skin
+tissue is not in their model. <code class="docutils literal notranslate"><span class="pre">skin</span></code> unless your models call it something
+else.</p></li>
+<li><p><strong>Start in</strong>: the last used mode, TMS or TES.</p></li>
+<li><p><strong>Output folder</strong>: where runs on read only projects go, <code class="docutils literal notranslate"><span class="pre">__output__</span></code> in
+the working folder when empty.</p></li>
+<li><p><strong>Compute E-field slices after each run</strong>: the default for the checkbox in
+the Solve tab. The slices add from a few seconds (sphere) to about a minute
+(full head) to a run.</p></li>
+</ul>
+</section>
+<section id="remote-desktops">
+<h2>Remote desktops<a class="headerlink" href="#remote-desktops" title="Link to this heading">¶</a></h2>
+<p>The 3D view needs OpenGL, which remote desktop sessions often do not have. On a
+Windows server with a GPU, enable the group policy “Use hardware graphics
+adapters for all Remote Desktop Services sessions”. Otherwise start with
+<code class="docutils literal notranslate"><span class="pre">--no-3d</span></code> (<code class="docutils literal notranslate"><span class="pre">run_no3d.bat</span></code>). Everything except dragging and picking in the
+3D view still works, including all result plots. <code class="docutils literal notranslate"><span class="pre">run.bat</span></code> and
+<code class="docutils literal notranslate"><span class="pre">run.command</span></code> do this by themselves when the window fails to open.</p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The graphical interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#projects">Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tms-or-tes">TMS or TES</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-tab">Model tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coils-tab-tms">Coils tab (TMS)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#electrodes-tab-tes">Electrodes tab (TES)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#planes-tab">Planes tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#solve-tab">Solve tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#results-tab">Results tab</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#result-views">Result views</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-view-mouse-and-keys">3D view mouse and keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setups">Setups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#settings">Settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#remote-desktops">Remote desktops</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changes.html">Changes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="getting_started.html" title="previous chapter">Getting started</a></li>
+      <li>Next: <a href="cli.html" title="next chapter">Command line</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;0.1.0.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/gui.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

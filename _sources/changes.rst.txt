@@ -1,0 +1,233 @@
+Changes
+=======
+
+Unreleased
+----------
+
+Linux
+
+- Fixed: on a Wayland session the gui ended at start with ``BadWindow`` and a
+  segmentation fault, and ``run.command`` fell back to no 3D view. Qt now
+  runs through XWayland there. When it cannot, the gui starts without the 3D
+  view and says why instead of crashing.
+
+Projects
+
+- A project is a folder with a model, its setups and its runs, described by
+  ``project.yaml`` (name, tissue index, skin tissue). Any folder with a tissue
+  index already is one. ``bemfmm tms --project`` and ``bemfmm tes --project``
+  solve on its model and keep the result in its ``runs`` folder.
+  ``bemfmm project info`` shows a project, ``bemfmm project init`` writes its
+  ``project.yaml``. The bundled head and sphere are read only projects.
+- The gui asks for a project at start: the bundled head or sphere, a recent
+  one, a folder or a new one from surfaces (``bemfmm gui --project`` skips
+  the question). The Model tab and the File menu open, make and copy
+  projects. Runs go into the project's ``runs`` folder, and coils and
+  electrodes sit on its skin tissue. The bundled projects are read only, so
+  Copy makes a project of them to work in.
+- Setups belong to a project: Save and Open setup start in its ``setups``
+  folder, the Model tab lists them, and ``--setup NAME`` with ``--project``
+  runs ``setups/NAME.json``. Setups in a project store its tissue index
+  relative to themselves, so the project can move. Setups made on the bundled
+  head on another computer open on the bundled head here.
+- ``bemfmm project new`` makes a project from closed surfaces. It works out
+  which tissue is outside which from which surfaces contain which, takes the
+  conductivities from the default list, and reports open, inward facing or
+  crossing surfaces and meshes that look like they are in meters. From the
+  seven surfaces of the default head, in any order, it writes the default
+  tissue index.
+- A list of default conductivities, the standard values of SimNIBS, with the
+  usual other names of each tissue. Tissues added in the Model tab start with
+  the value of their name (``scalp.stl`` gets 0.465 S/m instead of 0.3), and
+  **Defaults** sets all tissues in the list at once.
+
+GUI
+
+- Fixed: slices could show a band across the head where the field was hidden
+  inside and drawn outside it. This happened when the plane passed through
+  mesh vertices, which on the full head happens for most planes that are not
+  axis planes. The tissue outlines now also sit exactly on the plane of the
+  field, before they could be up to 0.2 mm off.
+- Tilted slice planes are drawn the same way round as the axis plane nearest
+  to them, whichever way their normal points. Before, a plane with its normal
+  along -x was shown mirrored compared with the YZ plane.
+- tDCS is called TES (transcranial electrical stimulation) everywhere it is
+  shown: the mode buttons, the window title, messages, ``bemfmm tes`` and
+  ``bemfmm gui --mode tes``. ``bemfmm tdcs`` and ``--mode tdcs`` still work,
+  and setups and results keep the ``tdcs`` key, so older files open as before.
+- Slices no longer show a field in the air around the head for TES, where it
+  means nothing. TMS slices show it, the coil's own field, unless **Show
+  outside the head** in the Slices tab is unticked. ``slices.npz`` stores the
+  plain field and its range, the log scale is applied when drawing.
+- The Slices tab sets how the slices are drawn: log or linear scale, the log
+  factor, and the range, automatic per slice or set by hand for all of them.
+  Changing them redraws without computing the slices again.
+- The window is explicitly in TMS or TES mode. The mode is switched from the
+  toolbar or the Mode menu (Ctrl+1, Ctrl+2) and shown in the window title, the
+  status bar and the name of the second tab. The run button says what it runs.
+  ``bemfmm gui --mode tms|tes`` picks the mode at start, otherwise the last
+  one used is restored.
+- Only the coils or the electrodes of the current mode are shown in the 3D
+  view.
+- Results are in tabs next to the 3D view: Convergence, Slices
+  and Electrodes, drawn with matplotlib inside the window. Every plot has the
+  matplotlib toolbar (zoom, pan, save) and can be popped out into its own
+  window and docked back.
+- The Slices tab shows the E-field on the three slice planes. Runs compute the
+  slices when "Compute E-field slices" is ticked, older results can compute
+  them with the Compute slices button.
+- Export results dialog: chosen quantities, all facets or one tissue, mat, npz or
+  csv, optionally with the mesh.
+- File > Save 3D view image (Snapshot in the toolbar).
+- Settings dialog (Edit > Settings): theme (System, Light, Dark), the name of
+  the skin tissue, the start mode, the output folder and whether runs compute
+  slices. Settings are kept between sessions.
+- Dark theme for the whole window, including the 3D view and the plots.
+- The Electrodes tab has its own Place on surface. It assumes the skin tissue
+  and can be set to any tissue, the electrodes follow it. The Coils tab has its
+  own Place on as well.
+- Align to (Coils tab) sets the tissue whose normal orients the coil for Auto
+  orient, Drag and Aim at. The default is the Place on surface, which keeps the
+  previous behavior. With another tissue, for example gm, the coil axis follows
+  the gm normal at the target and the coil is moved out along that normal to
+  the set distance above the skin.
+- Electrodes are drawn as the skin facets the TES solver will imprint for
+  them, with their edges, instead of a flat disk that cut into curved skin.
+  The patch follows the electrode while it is dragged or resized.
+- Coils and electrodes are selected by clicking them in the 3D view. Clicking
+  empty space in the view or the list, or Esc, clears the selection, so
+  nothing has to stay highlighted.
+- Show in 3D view keeps its state when switching tabs instead of being turned
+  off outside the Results tab. The result stays in the view on the Model and
+  Solve tabs and steps aside only on the Coils/Electrodes tab.
+- Twist is read from the coil pose, so the box no longer jumps back to 0 after
+  another edit, and changing Distance, Auto orient, dragging and Aim at keep the
+  twist instead of resetting the coil to its default turn about the axis.
+- The slices use ``viridis`` instead of ``jet``, and the Slices tab has a
+  Colormap choice (viridis, plasma, inferno, cividis, hot, jet).
+- Results open on the tissue picked last, ``gm`` at first, for TMS and TES
+  alike (TMS results used to open on ``wm``).
+- Coils and electrodes are moved by pressing on them in the 3D view, moving
+  the mouse and releasing. The Drag buttons, which picked an item up on one
+  click and dropped it on the next, are gone. Dragging on empty space still
+  turns the camera.
+- Delete or Backspace removes the selected coil or electrode from anywhere on
+  the Coils/Electrodes tab or after a click in the 3D view, not only while
+  its list has focus.
+- Tolerance in the Solve tab is shown and typed in scientific notation and its
+  arrows step by a factor of ten. Values below 1e-10 are no longer rounded to
+  zero.
+- Slices can be on any list of planes instead of the three axis planes, set
+  by a normal and a position (the plane y = x is normal ``1, -1, 0``). The
+  default is still the planes through the origin normal to x, y and z.
+- The planes have their own Planes tab next to the 3D view: a list of planes,
+  orientation buttons, a position slider, a plane through a picked point, and
+  an arrow on the selected plane in the 3D view that drags it along its
+  normal. The tab says when the computed slices no longer match the planes.
+- Saving a setup while the model comes from applied but unsaved tissue edits
+  offers to save the tissue index first, so the setup can point to it. It
+  used to show the same notice on every save and write no tissue index.
+- Fixed: closing the window, New and Open only asked to save when there were
+  coils or electrodes, so slice plane changes were lost. They now ask when the
+  coils, electrodes or planes differ from the saved setup, and not after
+  undoing back to it.
+- The Plot windows button in the Results tab is now Open in separate windows,
+  since the same plots are in the tabs next to the 3D view.
+- The gui shows plain names instead of variable names. Coil parameters have
+  labels and are in mm, the cross-section shape (``flag``) and the current
+  distribution (``sk``) are picked from lists, coil types have readable names,
+  and the exported fields read E-field, Charge and so on instead of ``E`` and
+  ``c``. The file names of exported quantities are unchanged.
+- Show coils (Show electrodes) in the Results tab hides them over a result
+  without removing them from the setup.
+- The gui calls the stored results quantities, since only the E-field and
+  current density are fields: the Quantity list in the Display solution group,
+  Export results, and Quantities under Also export.
+- Solver presets in the Solve tab (Default, Accurate, Fast) for TMS and
+  TES, and each mode keeps all of its solver settings, the neighbor
+  integrals included.
+- Fixed: a TES result stayed in the Results tab and the 3D view after
+  switching to TMS, and the other way round. Each mode now keeps its own last
+  result.
+- Fixed: picking an Aim at target and then selecting another coil moved that
+  coil to the target. Anything but Place coil now cancels the pick, and the
+  status bar names the coil the target is for.
+- Fixed: Ctrl+Z after a tissue table edit undid an unrelated coil or electrode
+  edit and left the table edited. On the Model tab Undo and Redo now act on the
+  table, and a table undone back to the loaded model no longer blocks runs.
+- Fixed: switching between TMS and TES reset Max iterations and Tolerance to
+  their defaults. Each mode now keeps its own values.
+- Fixed: electrodes kept the coordinates of the previous model when another
+  one was loaded, and the solver then snapped them to whatever skin was
+  nearest. They are now moved onto the new surface, and coils whose height
+  above their surface changed by more than 5 mm are reported.
+- Fixed: a TES run with one electrode, or with all electrodes at the same
+  voltage, was solved and gave meaningless currents. The gui refuses to run it
+  and says why.
+
+Command line
+
+- TES integrates the potential on the electrodes exactly over the nearest 512
+  facets instead of 32 (``--num-neighbors-p``, Potential integrals in the
+  gui).
+- ``bemfmm slices RESULT [--planes X Y Z] [--plane NX,NY,NZ,PX,PY,PZ ...]``
+  computes E-field slices for a saved result into ``slices.npz``.
+- ``bemfmm tms`` and ``bemfmm tes`` take ``--slices``.
+- ``bemfmm tes --skin`` defaults to the surface stored in the setup.
+- ``bemfmm show`` uses saved slices instead of computing them again.
+
+Library
+
+- ``Result.export`` writes fields to mat, npz, csv or pkl files, for all facets
+  or one tissue, optionally with the mesh. ``--save-format`` uses it.
+- ``coils.rotation.axis_twist`` splits a coil pose into its axis and the twist
+  about it, ``twisted`` builds it back. ``Stimulation.twist_coil`` takes the
+  twist alone.
+- ``electrode.montage_problem`` says why a set of electrodes cannot drive a
+  current. ``tdcs.solve`` raises ``ValueError`` with it, and ``bemfmm tes``
+  checks it before loading the model.
+- ``plot.results.compute_slices``, ``plot.slice.draw_efield_slice``,
+  ``save_slices`` and ``load_slices``. ``plot_efield_slice`` draws with
+  ``draw_efield_slice`` and the tissue outlines are drawn as one collection per
+  tissue, which is much faster for large models.
+- Setups store ``mode`` and ``skin``. Older setups still open.
+- ``bemfmm.planes.Plane`` is a slice plane by its normal and a point.
+  ``compute_slices`` takes a list of them and returns a list of slices,
+  ``compute_efield_overlay`` takes one, and setups store them (version 2).
+  ``slices.npz`` stores any number of planes, older files still load.
+- ``electrode.imprint_patch`` imprints one electrode on the facets of a surface
+  near it, the same cut as the solver in a few ms.
+
+Run scripts
+
+- The nix devShell uses a plain Python 3.14 and installs everything into
+  ``.venv`` from ``pyproject.toml``, set up again when it changed. Before, the
+  shell's own Python packages (napari and others) leaked into ``.venv`` and
+  broke pytest, and the Qt plugins of nixpkgs clashed with PySide6. ``nix
+  fmt`` runs black, isort and alejandra, isort's settings are in
+  ``pyproject.toml``.
+- ``run.bat`` and ``run.command`` install uv with its official installer when
+  it is missing and let uv provide Python 3.13, so no Python has to be
+  installed first. Without uv they use an installed Python 3.11 or newer.
+- ``.venv`` is set up again when it no longer imports ``bemfmm`` or was
+  installed from a different ``pyproject.toml``.
+- ``run_no3d.bat`` calls ``run.bat --no-3d``, and ``run_no3d.command`` is new.
+- Fixed in ``run.bat``: variables set inside blocks were read before they were
+  set, so installing uv through pip never worked and a failed start was
+  reported as a success. Falling back from uv to pip reused a venv without pip.
+  Errors now keep the window open.
+- ``.gitattributes`` keeps ``.bat`` files CRLF, which ``cmd.exe`` needs for
+  reliable labels.
+- When ``bemfmm gui`` fails before its window and 3D view are up, for example
+  on a remote desktop without OpenGL, the run scripts start it again with
+  ``--no-3d``. A crash after the window was up is reported, not restarted.
+
+The numerics of all solvers are unchanged.
+
+Refactor
+--------
+
+The previous round moved everything into the ``bemfmm`` package with one
+command, a new gui built from ``.ui`` files, the solver classes in
+``bemfmm.solvers``, result folders, setups as json, the three layer sphere as a
+tissue index, tests and a benchmark. See the git history for details.
