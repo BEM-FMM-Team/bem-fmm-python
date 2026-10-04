@@ -4,6 +4,13 @@ Changes
 Unreleased
 ----------
 
+Linux
+
+- Fixed: on a Wayland session the gui ended at start with ``BadWindow`` and a
+  segmentation fault, and ``run.command`` fell back to no 3D view. Qt now
+  runs through XWayland there. When it cannot, the gui starts without the 3D
+  view and says why instead of crashing.
+
 Projects
 
 - A project is a folder with a model, its setups and its runs, described by

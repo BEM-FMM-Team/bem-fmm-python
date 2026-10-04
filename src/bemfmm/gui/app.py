@@ -22,7 +22,15 @@ def run(tissue_index=None, setup=None, no_3d=False, mode=None, project=None):
             print(f"error: {error}", file=sys.stderr)
             return 1
 
+    if not no_3d:
+        prefer_x11()
     app = QApplication.instance() or QApplication(sys.argv)
+    if not no_3d and app.platformName() == "wayland":
+        # the qt window is not an X window, vtk ends the process on it
+        print("-- qt could not open an X window, starting without the 3D view --")
+        print("qt's xcb plugin is missing a library, usually libxcb-cursor0,")
+        print("QT_DEBUG_PLUGINS=1 shows which")
+        no_3d = True
     app.setApplicationName("BEM-FMM")
     app.setOrganizationName("BEM-FMM Team")
     app.setStyle("Fusion")
@@ -41,6 +49,14 @@ def run(tissue_index=None, setup=None, no_3d=False, mode=None, project=None):
         QTimer.singleShot(0, lambda: mark_ready(window, ready_file))
 
     return app.exec()
+
+
+def prefer_x11():
+    # vtk draws into an X window on linux. On a wayland session qt makes
+    # wayland windows, so it is pointed at XWayland and only falls back to
+    # wayland when its xcb plugin cannot load
+    if sys.platform.startswith("linux") and os.environ.get("WAYLAND_DISPLAY"):
+        os.environ.setdefault("QT_QPA_PLATFORM", "xcb;wayland")
 
 
 def ask_project():
