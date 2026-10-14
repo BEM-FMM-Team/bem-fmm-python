@@ -36,12 +36,9 @@ dependencies = [
     "cbemfmm",
 ]
 
-# [project.urls]
-# Repository = "https://github.com//bem-fmm-python"
-
 [project.optional-dependencies]
 dev = [
-  "pytest>=7.4.0", "jupyter>=1.0.0", "sphinx", "sphinx_mdinclude",
+  "pytest>=7.4.0", "sphinx", "sphinx_mdinclude",
 ]
 
 [tool.setuptools]
@@ -59,7 +56,7 @@ bemfmm = "bemfmm.cli:app"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"] # TODO have actual unit tests
+python_files = ["test_*.py"]
 python_functions = ["test_*"]
 pythonpath = ["src"]
 

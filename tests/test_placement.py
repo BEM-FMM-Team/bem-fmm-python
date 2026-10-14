@@ -7,18 +7,12 @@ import pytest
 
 from bemfmm.coils import default_params, make_coil
 from bemfmm.gui.stimulation import Stimulation
-from bemfmm.model import HeadModel, sphere_index
 
 
 class Quiet:
     # stands in for the 3D view
     def __getattr__(self, name):
         return lambda *args, **kwargs: None
-
-
-@pytest.fixture(scope="module")
-def sphere():
-    return HeadModel.load(sphere_index(), verbose=False)
 
 
 def coil_axis(coil):

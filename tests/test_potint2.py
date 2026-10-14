@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from cbemfmm import potint, potint2
+from cbemfmm import potint2
 
 from bemfmm.mesh import mesh_tri
 
