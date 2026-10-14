@@ -167,12 +167,12 @@ def draw_currents(figure, electrodes):
     ax.set_ylabel("Current (mA)")
 
 
-def draw_slices(figure, data, index, color, cmap, outside=True, scale=None):
+def draw_slices(figure, data, index, color, cmap, outside, scale):
     # the slice at index, or all of them when index is None
     if data is None or not data["slices"]:
         return draw_message(figure, "No slices for this result, press Compute slices")
     slices = data["slices"]
-    if index is not None and 0 <= index < len(slices):
+    if index is not None:
         slices = [slices[index]]
     if len(slices) == 1:
         axes, legend_size = [figure.add_subplot()], 10
@@ -191,5 +191,5 @@ def draw_slices(figure, data, index, color, cmap, outside=True, scale=None):
             legend_size=legend_size,
             cmap=cmap,
             outside=outside,
-            **(scale or {}),
+            **scale,
         )

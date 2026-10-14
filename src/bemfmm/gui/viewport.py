@@ -1,11 +1,11 @@
-import numpy as np
-from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtWidgets import QLabel, QVBoxLayout
-
 """
 3D view used by the main window. Everything the gui draws goes through these
 methods, NullViewport keeps the gui usable where OpenGL is not available
 """
+
+import numpy as np
+from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtWidgets import QLabel, QVBoxLayout
 
 TISSUE_COLORS = {
     "skin": "#e8c4a8",
@@ -52,11 +52,6 @@ class NullViewport:
         label.setObjectName("noViewportLabel")
         layout.addWidget(label)
 
-        self.on_drag_begin = None
-        self.on_drag = None
-        self.on_drag_end = None
-        self.on_target = None
-
     def __getattr__(self, name):
         # every drawing call is a no-op
         return lambda *args, **kwargs: None
@@ -94,7 +89,6 @@ class Viewport:
 
         self.picker = vtkCellPicker()
         self.picker.PickFromListOn()
-        self.pick_surface = None
 
         self.drag_key = None  # item being moved
         self.grab = None  # (key, x, y) of a press on an item
@@ -200,7 +194,6 @@ class Viewport:
         self.render()
 
     def set_pick_surface(self, name):
-        self.pick_surface = name
         self.picker.InitializePickList()
         if name in self.surfaces:
             self.picker.AddPickList(self.surfaces[name].actor)

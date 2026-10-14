@@ -37,6 +37,7 @@ from bemfmm.coils import (
 from bemfmm.coils.rotation import axis_twist, quat_to_xyz
 from bemfmm.conductivity import conductivity, find_conductivity
 from bemfmm.electrode import montage_problem
+from bemfmm.export import export_matlab
 from bemfmm.model import (
     HeadModel,
     check_shells,
@@ -505,20 +506,17 @@ class MainWindow(QMainWindow):
 
     # model
     def load_index(self, path=None):
-        path = Path(path) if path else None
+        path = Path(path) if path else default_index()
         try:
-            shells = read_index(path) if path else None
+            shells = read_index(path)
+            project = Project.for_index(path)
         except (OSError, ValueError) as error:
             QMessageBox.warning(self, "Tissue index", str(error))
             return False
 
-        if shells is None:
-            path = default_index()
-            shells = read_index(path)
-
         # before the model, which takes its skin from the project
         previous = self.project
-        self.project = Project.for_index(path)
+        self.project = project
         if not self.apply_model(path):
             self.project = previous
             return False
@@ -888,7 +886,11 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
-        write_index(path, shells)
+        try:
+            write_index(path, shells)
+        except OSError as error:
+            QMessageBox.warning(self, "Could not save the tissue index", str(error))
+            return
         if not self.index_dirty:
             self.index_file = Path(path)
         self.update_index_label()
@@ -1968,7 +1970,11 @@ class MainWindow(QMainWindow):
             return
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         run_dir = Path(self.ui.outputDir.text()) / f"sphere-{stamp}"
-        run_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            run_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as error:
+            QMessageBox.warning(self, "Could not start the run", str(error))
+            return
         self.start_run(["sphere", "--output-dir", run_dir, "--no-plot"], run_dir)
 
     def start_run(self, args, run_dir):
@@ -2061,7 +2067,7 @@ class MainWindow(QMainWindow):
         mode = result.kind if result.kind in MODE_NAMES else self.mode
         self.mode_results[mode] = self.result_dir
 
-        kinds = {"tms": "TMS", "tdcs": "TES", "uniform": "Uniform field"}
+        kinds = {**MODE_NAMES, "uniform": "Uniform field"}
         ui.resultKind.setText(
             f"{kinds.get(result.kind, result.kind)} on "
             f"{model_name(info.get('tissue_index', ''))}"
@@ -2478,8 +2484,6 @@ class MainWindow(QMainWindow):
 
     # tools
     def export_matlab(self):
-        from bemfmm.export import export_matlab
-
         if self.model is None:
             return
         path, _ = QFileDialog.getSaveFileName(
@@ -2487,8 +2491,12 @@ class MainWindow(QMainWindow):
         )
         if not path:
             return
-        with busy():
-            export_matlab(self.model, path)
+        try:
+            with busy():
+                export_matlab(self.model, path)
+        except OSError as error:
+            QMessageBox.warning(self, "Could not export", str(error))
+            return
         self.statusBar().showMessage(f"Saved {path}", 5000)
 
     def run_dipole(self):
