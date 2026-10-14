@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Mesh, Plotter
 
 from bemfmm.mesh.meshcoil import meshcoil
 
@@ -60,8 +59,3 @@ def MagVenture_TMSMEG(a, M, N, flag, sk):
         "t": t,
         "tind": tind,
     }
-
-
-# coil = MagVenture_TMSMEG(.0015,16,64,1,1)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

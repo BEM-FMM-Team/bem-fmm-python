@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Mesh, Plotter
 
 from bemfmm.mesh.mesh_rotate2 import mesh_rotate2
 from bemfmm.mesh.mesh_surface import mesh_surface
@@ -57,8 +56,3 @@ def MagVenture_C_B60(a0, b0, height, thickness, M, flag, sk):
         "t": t,
         "tind": tind,
     }
-
-
-# coil = MagVenture_C_B60(.017, .0006, 3.60e-3, 2.61e-3, 20, 2, 1)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

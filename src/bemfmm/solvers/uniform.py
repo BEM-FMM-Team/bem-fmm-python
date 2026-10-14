@@ -64,7 +64,6 @@ def solve(
     else:
         EC_raw = csr_matrix((n, n))
         EC = csr_matrix((n, n))
-    PC = csr_matrix((n, n))
     timings["neighbors"] = perf_counter() - start
 
     Epri, Ppri = inc_field_electric_constant(center, list(options.polarization))
@@ -95,7 +94,7 @@ def solve(
 
     start = perf_counter()
     report(progress, "fields")
-    Padd = surface_field_potential_accurate(c, center, area, PC)
+    Padd = surface_field_potential_accurate(c, center, area)
     Ptot = Ppri + Padd
 
     # secondary normal field just inside, plus the primary field

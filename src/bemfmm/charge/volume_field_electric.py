@@ -5,8 +5,6 @@ from cbemfmm import potint2
 from fmm3dpy import lfmm3d
 from scipy.spatial import cKDTree
 
-# from .potint2 import potint2
-
 
 def volume_field_electric(
     Points, c, P, t, Center, Area, normals, R, prec, planeABCD=[]
@@ -18,7 +16,6 @@ def volume_field_electric(
     U = lfmm3d(eps=prec, sources=sources, charges=charges, targets=targ, pgt=pgt)
     E = -U.gradtarg.T
 
-    M = Center.shape[0]
     Size = np.mean(np.sqrt(Area))
 
     if len(planeABCD) == 0:
@@ -60,8 +57,6 @@ def volume_field_electric(
                 np.atleast_2d(normals[m, :]).astype(np.float64),
                 np.atleast_2d(Points[index, :]).astype(np.float64),
             )
-
-            # I = potint2(r1, r2, r3, normals[m, :], Points[index, :])
 
             E[index, :] = E[index, :] + (-c[m] * I / (4 * np.pi))
 

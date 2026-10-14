@@ -1,5 +1,4 @@
 from dataclasses import asdict, dataclass
-from functools import reduce
 from time import perf_counter
 
 import numpy as np
@@ -54,8 +53,7 @@ def coil_rhs(model: HeadModel, coils):
         rhs_Einc.append(Einc)
         rhs_b.append(b)
 
-    _sum = lambda l: reduce(lambda _a, _b: _a + _b, l)
-    return _sum(rhs_b), _sum(rhs_Einc)
+    return sum(rhs_b), sum(rhs_Einc)
 
 
 @cache(ignore=["progress"])

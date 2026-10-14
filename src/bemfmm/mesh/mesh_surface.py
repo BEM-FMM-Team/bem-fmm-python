@@ -65,12 +65,8 @@ def mesh_surface(Pcenter, a, b, M, flag):
         #   Add nodes/triangles for the start cap
         PathVector1 = Pcenter[1, :] - Pcenter[0, :]
         p1, tcapstart, added = meshfill(pbottom, PathVector1)
-        t1 = tcapstart.copy()
         NodesSides = P.shape[0] - NE
-        for m in range(tcapstart.shape[0]):
-            index = np.where(tcapstart[m, :] >= NE)[0]
-            for n in range(len(index)):
-                tcapstart[m, index[n]] = tcapstart[m, index[n]] + NodesSides
+        tcapstart[tcapstart >= NE] += NodesSides
         P = np.vstack((P, p1[NE, :]))
         t = np.vstack((tcapstart, t))
         #   Add nodes/triangles for the end cap
@@ -78,13 +74,8 @@ def mesh_surface(Pcenter, a, b, M, flag):
         tcapend0 = tcapend.copy()
         NodesSides1 = P.shape[0] - NE - added
         NodesSides2 = P.shape[0] - NE
-        for m in range(tcapend.shape[0]):
-            index = np.where(tcapend0[m, :] < NE)[0]
-            for n in range(len(index)):
-                tcapend[m, index[n]] = tcapend[m, index[n]] + NodesSides1
-            index = np.where(tcapend0[m, :] >= NE)[0]
-            for n in range(len(index)):
-                tcapend[m, index[n]] = tcapend[m, index[n]] + NodesSides2
+        tcapend[tcapend0 < NE] += NodesSides1
+        tcapend[tcapend0 >= NE] += NodesSides2
         #   Condition the final surface mesh
         P = np.vstack((P, p2[NE:, :]))
         t = np.vstack((t, tcapend))

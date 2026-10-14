@@ -1,7 +1,6 @@
-import numpy as np
 from fmm3dpy import lfmm3d
 
-from bemfmm.constants import eps0, mu0
+from bemfmm.constants import mu0
 
 from ..my_types import Mx3, StrCoil
 
@@ -13,8 +12,6 @@ def inc_field_electric(
     Computes electric field from the coil via the FMM  in terms of the pseudo electric potential evaluated for segment centers
 
     Copyright SNM 2017-2020
-
-    Compute pseudo potentials
     """
     P0 = strcoil.Pwire[strcoil.Ewire[:, 0]]
     P1 = strcoil.Pwire[strcoil.Ewire[:, 1]]
@@ -31,7 +28,6 @@ def inc_field_electric(
         nd=3,
     )
 
-    # Einc = mu0 * dIdt * U.pottarg.T
     Einc = mu0 * dIdt * U.pottarg.T
 
     return Einc

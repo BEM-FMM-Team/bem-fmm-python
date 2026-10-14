@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Mesh, Plotter
 
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
@@ -44,8 +43,3 @@ def MagVenture_Cool_B35(turns, a0, a, b, M, flag, sk):
         "t": t,
         "tind": tind,
     }
-
-
-# coil = MagVenture_Cool_B35(32,.0115,15.0e-3,.2e-3,20,2,0)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

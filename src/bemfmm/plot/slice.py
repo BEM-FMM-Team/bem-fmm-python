@@ -110,8 +110,6 @@ def draw_efield_slice(
 
     count = []
     for m in np.unique(result.ci).astype(int):
-        if not np.any(result.ci == m):
-            continue
         count.append(m)
         col = tissue_colors[m % n_tissues]
         # one collection per tissue, a line per edge is too slow to redraw

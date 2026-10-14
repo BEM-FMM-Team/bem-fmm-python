@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Lines, Mesh, Plotter, Points
 
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
@@ -22,8 +21,3 @@ def ring_gen(radius, diameter, M, flag, sk):
     coil["t"] = t
     coil["tind"] = tind
     return coil
-
-
-# coil = ring_gen(.02, .002, 16, 2, 1)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

@@ -148,14 +148,12 @@ A sweep
 
     import numpy as np
     from bemfmm.coils import default_params, make_coil
-    from bemfmm.coils.rotation import axis_angle_to_quat, quat_multiply, vector_to_quat
+    from bemfmm.coils.rotation import twisted
     from bemfmm.solvers import tms
 
     center = np.array([0.042, 0.0, 0.080])
-    tilt = vector_to_quat([0.45, 0.0, 1.0])
     coil = make_coil("figure_eight", default_params("figure_eight"))
     for angle in range(0, 180, 30):
-        twist = axis_angle_to_quat(np.array([0, 0, 1]), np.deg2rad(angle))
-        coil.place(center, quat_multiply(tilt, twist))
+        coil.place(center, twisted([0.45, 0.0, 1.0], angle))
         result = tms.solve(model, [coil])
         print(angle, np.percentile(result.on("Emag", "gm"), 99))

@@ -1,5 +1,3 @@
-from typing import Any
-
 import numpy as np
 from fmm3dpy import lfmm3d
 
