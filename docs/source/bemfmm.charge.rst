@@ -60,22 +60,6 @@ bemfmm.charge.potential\_neighbor\_ints module
    :show-inheritance:
    :undoc-members:
 
-bemfmm.charge.potint module
----------------------------
-
-.. automodule:: bemfmm.charge.potint
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-bemfmm.charge.potint2 module
-----------------------------
-
-.. automodule:: bemfmm.charge.potint2
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 bemfmm.charge.surface\_field\_electric\_accurate module
 -------------------------------------------------------
 
@@ -88,14 +72,6 @@ bemfmm.charge.surface\_field\_electric\_plain module
 ----------------------------------------------------
 
 .. automodule:: bemfmm.charge.surface_field_electric_plain
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
-bemfmm.charge.surface\_field\_electric\_subdiv module
------------------------------------------------------
-
-.. automodule:: bemfmm.charge.surface_field_electric_subdiv
    :members:
    :show-inheritance:
    :undoc-members:
