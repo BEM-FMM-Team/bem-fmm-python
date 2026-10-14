@@ -1955,7 +1955,7 @@ class MainWindow(QMainWindow):
         ):
             if box.isChecked():
                 args += ["--save", name]
-        if kind == "tdcs":
+        if kind == "tes":
             args += ["--num-neighbors-p", str(ui.numNeighborsP.value())]
             args += ["--skin", surface]
         if ui.computeSlices.isChecked():
