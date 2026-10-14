@@ -82,13 +82,11 @@ def charge_engine(
         prec=1e-1,
     )
     c, its, resvec = fgmres(
-        MATVEC=MATVEC,
-        b=b,
+        MATVEC,
+        b,
+        relres,
+        iter,
         x0=b * 8,
-        n=normals.shape[0],
-        relres=relres,
-        iter=iter,
-        maxiter=1,
         callback=lambda j, r: report(progress, "solve", j, iter),
     )
 
