@@ -22,10 +22,11 @@ def tissue_or_last(result: Result, tissue):
 
 
 def coil_planes(result: Result, coils, tissue="wm"):
-    # the axis planes through the point where the first coil axis meets tissue
+    # the axis planes through the point where the first coil axis meets tissue,
+    # or through the origin like tes when it misses
     t = result.t[result.facets(tissue_or_last(result, tissue))]
     i = vedo.Mesh([result.P, t]).intersect_with_line(*coils[0].centerline)
-    return axis_planes(i[0] if len(i) > 0 else [0.5, 0.5, 0.5])
+    return axis_planes(i[0]) if len(i) > 0 else default_planes()
 
 
 def compute_slices(result: Result, planes, th_tissue="gm", coils=(), progress=None):
