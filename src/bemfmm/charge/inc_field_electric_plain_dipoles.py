@@ -13,35 +13,21 @@ def inc_field_electric_plain_dipoles(
     Computes potential and electric field from the dipole distribution via the FMM
     at observation points (Points)
     """
-    # Define source (pole) positions and FMM pseudo charges
-    # Pseudo dipole moment M = (I0 / sigma) * separation, per dipole.
-    # strdipoleCurrent / strdipolesig are (1, 2*N); the positive-pole entries
-    # fill the first half.
+    # pseudo dipole moment M = (I0 / sigma) * separation per dipole, the
+    # (1, 2*N) currents and conductivities hold the plus poles in the first half
     Positions = 0.5 * (strdipolePplus + strdipolePminus)
     d = strdipolePplus - strdipolePminus
 
-    # Define source (pole) positions and FMM pseudo charges
-    Positions = 0.5 * (strdipolePplus + strdipolePminus)
-
-    d = strdipolePplus - strdipolePminus
-
-    # MATLAB:
-    # I0oversigma = strdipoleCurrent(1:end/2)./strdipolesig(1:end/2);
-
-    n = strdipoleCurrent.shape[1] // 2 - 1
-    m = strdipolesig.shape[1] // 2 - 1
-    I0oversigma = strdipoleCurrent[0][n] / strdipolesig[0][m]
-
-    # MATLAB:
-    # PseudoM = +repmat(I0oversigma', 1, 3).*d;
-    PseudoM = np.array([I0oversigma, I0oversigma, I0oversigma]).reshape((-1, 1)) * d
+    k = d.shape[0]
+    I0oversigma = strdipoleCurrent[0, :k] / strdipolesig[0, :k]
+    PseudoM = I0oversigma[:, None] * d
 
     sources = Positions.T
     targ = Points.T
     prec = 0.0001
     pgt = 2
 
-    dipoles = PseudoM[0].T
+    dipoles = PseudoM.T
 
     U = lfmm3d(
         eps=prec,
