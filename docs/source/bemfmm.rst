@@ -26,6 +26,14 @@ bemfmm.cli module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.conductivity module
+--------------------------
+
+.. automodule:: bemfmm.conductivity
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.constants module
 -----------------------
 
@@ -90,6 +98,14 @@ bemfmm.planes module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.project module
+---------------------
+
+.. automodule:: bemfmm.project
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.results module
 ---------------------
 
@@ -102,6 +118,14 @@ bemfmm.scene module
 -------------------
 
 .. automodule:: bemfmm.scene
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+bemfmm.softgl module
+--------------------
+
+.. automodule:: bemfmm.softgl
    :members:
    :show-inheritance:
    :undoc-members:

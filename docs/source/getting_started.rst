@@ -31,9 +31,9 @@ To install by hand, in the repository root::
 
     python -m pip install uv
     python -m uv venv
-    .venv\Scripts\activate          (Windows)
-    source .venv/bin/activate       (Linux, MacOS)
     python -m uv pip install -e .
+    source .venv/bin/activate       (Linux, MacOS)
+    .venv\Scripts\activate          (Windows)
 
 This puts the ``bemfmm`` command on the path. ``python -m bemfmm`` does the
 same thing.
@@ -69,10 +69,11 @@ Where results go
 ----------------
 
 Every run gets its own folder, ``tms-<date>-<time>`` or ``tes-<date>-<time>``,
-inside the output folder (``__output__`` in the folder the program was started
-from, unless changed in Settings). The folder holds the setup that was solved,
-the result files and, if they were computed, the E-field slices. Open an older
-run with File > Open result.
+inside the project's ``runs`` folder. The bundled projects are read only, their
+runs go to the output folder (``__output__`` in the folder the program was
+started from, unless changed in Settings). The folder holds the setup that was
+solved, the result files and, if they were computed, the E-field slices. Open an
+older run with File > Open result.
 
 Trying things on the sphere
 ---------------------------

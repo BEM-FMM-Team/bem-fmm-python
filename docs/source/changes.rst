@@ -164,6 +164,13 @@ GUI
 - Fixed: a TES run with one electrode, or with all electrodes at the same
   voltage, was solved and gave meaningless currents. The gui refuses to run it
   and says why.
+- Fixed: TES runs from the gui did not pass ``--num-neighbors-p`` and
+  ``--skin`` to ``bemfmm tes``, so it used 512 neighbors and the skin of the
+  setup instead of the Potential integrals preset and the surface picked in
+  the gui.
+- Fixed: when saving a tissue index, exporting to MATLAB, making the run folder
+  of a sphere run or loading a bad ``project.yaml`` failed, the gui printed a
+  traceback. It shows a warning instead.
 
 Command line
 
@@ -175,6 +182,12 @@ Command line
 - ``bemfmm tms`` and ``bemfmm tes`` take ``--slices``.
 - ``bemfmm tes --skin`` defaults to the surface stored in the setup.
 - ``bemfmm show`` uses saved slices instead of computing them again.
+- Fixed: run folders got an empty ``.gitignore``, which ignored nothing and
+  wiped a ``.gitignore`` already there. A new one holds ``*``, an existing one
+  is kept.
+- Fixed: when the coil axis missed the head, the slice planes went through a
+  point 0.5 m from the origin and the slices came out empty. They now fall
+  back to the axis planes through the origin, as for TES.
 
 Library
 
@@ -197,6 +210,12 @@ Library
   ``slices.npz`` stores any number of planes, older files still load.
 - ``electrode.imprint_patch`` imprints one electrode on the facets of a surface
   near it, the same cut as the solver in a few ms.
+- Fixed: ``TDCSOptions.gauss`` was ignored, both neighbor integrals always used
+  25 points. It now reaches both, and ``gauss=1`` works.
+- Fixed: ``inc_field_electric_plain``, the plain dipole primary field used for
+  facets beyond ``gaussRadius`` in the dipole example, had the wrong pole
+  layout, sign and shape and failed for more than one far facet.
+  ``inc_field_electric_plain_dipoles`` takes more than one dipole.
 
 Run scripts
 

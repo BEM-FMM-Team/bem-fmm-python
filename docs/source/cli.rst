@@ -11,9 +11,10 @@ Everything the program does is one command, ``bemfmm`` (or
 ``slices``          E-field slices for a saved result
 ``show``            plot windows for a saved result
 ``sphere``          three layer sphere in a uniform field, a check of the engine
-``project``         show a project, or make a model folder one
+``project``         show, init or make a project
 ``export-matlab``   a tissue index as ``CombinedMesh.mat`` for the MATLAB scripts
 ``dipole``          primary field of a current dipole on a skull surface
+``opengl``          which OpenGL the 3D view uses, sets up Mesa on Windows
 =================== ==================================================
 
 Solving

@@ -9,13 +9,13 @@ Download the repo (clone or download the zip and extract it).
 The run scripts install [uv](https://docs.astral.sh/uv/) and Python 3.13 when they are missing,
 and use an installed `python3.11+` when that fails. Python 3.11 to 3.14 are supported.
 
-> Note
-The charge engine only runs once per model + coil/electrode configuration, results are cached in `./__compute_cache__/` until that directory is removed.
+The charge engine runs once per model and coil or electrode configuration. Its results are cached in
+`__compute_cache__/` in the repository root until that folder is removed, `BEMFMM_NO_CACHE=1` turns the cache off.
 
-### Windows*
+### Windows
 
 Run the `run.bat` script either by double clicking or Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
-May need to by pass windows security.
+Windows may ask to allow the script to run.
 
 Remote desktop sessions usually only offer OpenGL 1.1 and the 3D view needs 3.2.
 The program then downloads Mesa's software renderer once (a 16 MB download, into `.venv\mesa\`) and draws the 3D view on the CPU.
@@ -27,10 +27,10 @@ When the window does not open because of the 3D view, `run.bat` starts it again 
 
 When something fails the window stays open until a key is pressed, so the messages can be read.
 
-### MacOS* (intel and arm)
+### MacOS (intel and arm)
 
 Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
-May need to by pass apple's security.
+MacOS may ask to allow the script to run.
 
 MacOS uses PySide6 6.9.3, newer versions stop the 3D view from opening.
 When the 3D view still fails, `run.command` starts again without it (`run_no3d.command`, `bemfmm gui --no-3d`).
@@ -40,7 +40,7 @@ lfmm3d calls are slower on MacOS for this version.
 
 Run `run.command` (`run_no3d.command` without the 3D view) or proceed with the `Programs` section.
 
-##### Nix
+#### Nix
 
 `nix develop` gives a shell with Python 3.14, uv and the formatters. It sets up `.venv` from
 `pyproject.toml` (again after `pyproject.toml` changed) and activates it, the Python packages
@@ -58,9 +58,9 @@ To set up an environment by hand:
 ```bash
 python -m pip install uv
 python -m uv venv
-.\.venv\Scripts\activate
-python -m pip install uv
 python -m uv pip install -e .
+source .venv/bin/activate           # Linux, MacOS
+.venv\Scripts\activate              # Windows
 ```
 
 Everything is one command, `bemfmm` (or `python -m bemfmm`):
@@ -70,8 +70,8 @@ bemfmm gui                          # the graphical interface, asks for a projec
 bemfmm gui --project my_head        # open a project directly
 bemfmm gui --mode tes               # start in TES mode
 bemfmm project new my_head surfaces/*.stl   # a project from closed surfaces
-bemfmm tms -s c -s E -s En          # default coil on the default head model
-bemfmm tes -s c -s E -s En          # default four electrode montage
+bemfmm tms                          # default coil on the default head model
+bemfmm tes --save-format mat        # default four electrode montage, c, E and En as .mat
 bemfmm tms --setup setup.json       # coils saved from the gui
 bemfmm tms --project my_head        # the project's model, result in its runs folder
 bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
@@ -94,11 +94,12 @@ of them to work in, and New makes one from a set of closed surfaces, nesting the
 The window is always in TMS or TES mode, switched with the two buttons at the left of the toolbar
 (Ctrl+1, Ctrl+2). The mode is in the window title and the status bar, and the run button says what it runs.
 
-The side panel has four tabs:
+The side panel has five tabs:
 
 - **Model**: open, make or copy a project, open a tissue index, edit conductivities and which tissue is outside which, add or remove shells, then Apply to reload the model or Save as to write a new index
 - **Coils** (TMS): coils placed on a chosen surface (skin by default). Coils can be moved with the position fields, dragged over the surface, auto oriented, flipped, twisted, and aimed at a point on any tissue. Align to picks the tissue whose normal sets the coil axis, the Place on surface by default
 - **Electrodes** (TES): electrodes on their own Place on surface, the skin unless changed. Each has a position, radius and voltage
+- **Planes**: the slice planes for the E-field slices. Add, remove or turn them, move them with the slider, by dragging in the 3D view or through a picked point
 - **Solve**: solver settings and the output folder. Runs in the background with progress, the log and a Cancel button
 - **Results**: any field on any tissue in the 3D view, percentiles, electrode currents, field export and the classic plot windows
 
@@ -193,10 +194,10 @@ After editing a `.ui` file regenerate its python module, for example
 `pyside6-uic src/bemfmm/gui/main_window.ui -o src/bemfmm/gui/ui_main_window.py`.
 
 # References
-[1] H. Cheng, L. Greengard, and V. Rokhlin, “A Fast Adaptive Multipole Algorithm in Three Dimensions,” Journal of Computational Physics, vol. 155, no. 2, pp. 468–498, Nov. 1999, doi: 10.1006/jcph.1999.6355.
+[1] H. Cheng, L. Greengard, and V. Rokhlin, "A Fast Adaptive Multipole Algorithm in Three Dimensions," Journal of Computational Physics, vol. 155, no. 2, pp. 468-498, Nov. 1999, doi: 10.1006/jcph.1999.6355.
 
-[2] S. N. Makarov, G. M. Noetscher, T. Raij, and A. Nummenmaa, “A Quasi‑Static Boundary Element Approach With Fast Multipole Acceleration for High‑Resolution Bioelectromagnetic Models,” IEEE Transactions on Biomedical Engineering, vol. 65, no. 12, pp. 2675–2683, Dec. 2018, doi: 10.1109/TBME.2018.2813261.
+[2] S. N. Makarov, G. M. Noetscher, T. Raij, and A. Nummenmaa, "A Quasi-Static Boundary Element Approach With Fast Multipole Acceleration for High-Resolution Bioelectromagnetic Models," IEEE Transactions on Biomedical Engineering, vol. 65, no. 12, pp. 2675-2683, Dec. 2018, doi: 10.1109/TBME.2018.2813261.
 
-[3] S. N. Makaroff et al., “A fast direct solver for surface‑based whole‑head modeling of transcranial magnetic stimulation,” Scientific Reports, vol. 13, no. 1, Oct. 2023, doi: 10.1038/s41598‑023‑45602‑5.
+[3] S. N. Makaroff et al., "A fast direct solver for surface-based whole-head modeling of transcranial magnetic stimulation," Scientific Reports, vol. 13, no. 1, Oct. 2023, doi: 10.1038/s41598-023-45602-5.
 
-[4] D. Tang et al., “A BEM‑FMM TMS coil designer using MATLAB platform,” Brain Stimulation, vol. 18, no. 1, pp. 128–130, 2025, doi: 10.1016/j.brs.2024.11.011.
+[4] D. Tang et al., "A BEM-FMM TMS coil designer using MATLAB platform," Brain Stimulation, vol. 18, no. 1, pp. 128-130, 2025, doi: 10.1016/j.brs.2024.11.011.
