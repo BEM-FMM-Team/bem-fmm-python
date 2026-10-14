@@ -60,8 +60,10 @@ def output_path(output_dir):
         output_dir = Path(os.getcwd()) / "__output__"
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    f = open(output_dir / ".gitignore", "w")
-    f.close()
+    # keep run output out of git, a .gitignore already there is left alone
+    gitignore = output_dir / ".gitignore"
+    if not gitignore.exists():
+        gitignore.write_text("*\n")
     return output_dir
 
 
