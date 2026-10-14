@@ -2,14 +2,18 @@
 Files written for a result: exported fields and E-field slices
 """
 
+from types import SimpleNamespace
+
 import numpy as np
 from matplotlib.figure import Figure
 from scipy.io import loadmat
 
 from bemfmm.mesh import meshplaneint_axis_nonmanifold
+from bemfmm.model import HeadModel, sphere_index
 from bemfmm.my_types import EfieldSlice
-from bemfmm.planes import Plane, axis_planes
+from bemfmm.planes import Plane, axis_planes, default_planes
 from bemfmm.plot.compute_efield_overlay import _ray_cast_inside
+from bemfmm.plot.results import coil_planes
 from bemfmm.plot.slice import (
     SLICE_ARRAYS,
     draw_efield_slice,
@@ -161,3 +165,20 @@ def test_cut_through_mesh_edges():
     assert np.all(np.bincount(edges.ravel()) == 2)
     inside = _ray_cast_inside(np.array([[0.0, 0.0], [0.2, 0.3], [2.0, 0.0]]), Pi, edges)
     assert list(inside) == [True, True, False]
+
+
+def test_coil_planes_miss():
+    model = HeadModel.load(sphere_index(), verbose=False)
+    result = Result(
+        kind="tms",
+        tissues=list(model.names),
+        P=model.P,
+        t=model.t,
+        normals=model.normals,
+        interface=model.interface,
+        fields={},
+    )
+    # a coil axis pointing away from the head, the planes go through the
+    # origin like tes and not half a metre out in the air
+    coil = SimpleNamespace(centerline=np.array([[0, 0, 0.1], [0, 0, 0.2]]))
+    assert coil_planes(result, [coil]) == default_planes()
