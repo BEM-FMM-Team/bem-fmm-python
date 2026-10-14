@@ -132,12 +132,6 @@ def saved_slices(directory, result):
     return data
 
 
-def wait_for_windows(plot):
-    # the plot windows are child processes, keep the terminal open until they close
-    if plot:
-        print("Close all plot windows to exit")
-
-
 @app.command()
 def gui(
     project: Optional[str] = typer.Option(
@@ -224,7 +218,7 @@ def tms(
 
     if plot:
         show_tms(result, coils, planes, plot_tissue, slices=slice_data)
-    wait_for_windows(plot)
+        print("Close all plot windows to exit")
 
 
 @app.command()
@@ -308,7 +302,7 @@ Power loss: {info['power']:.4e} W""")
 
     if plot:
         show_tdcs(result, planes, plot_tissue, skin, slice_data)
-    wait_for_windows(plot)
+        print("Close all plot windows to exit")
 
 
 # the old name, kept for scripts
@@ -339,7 +333,7 @@ def sphere(
 
     if plot:
         show_uniform(result)
-    wait_for_windows(plot)
+        print("Close all plot windows to exit")
 
 
 @app.command()
@@ -373,7 +367,8 @@ def show(
         show_tdcs(res, planes, plot_tissue or "gm", skin, slices)
     else:
         show_uniform(res, plot_tissue or "gm")
-    wait_for_windows(True)
+    # the plot windows are non-daemon processes, python waits for them on exit
+    print("Close all plot windows to exit")
 
 
 @app.command("slices")
@@ -452,12 +447,6 @@ def export_matlab(
     print(f"Saved {out}")
 
 
-def read_index(path):
-    from bemfmm.model import read_index
-
-    return read_index(path)
-
-
 project_app = typer.Typer(no_args_is_help=True, help="Projects: a model and its work")
 app.add_typer(project_app, name="project")
 
@@ -465,6 +454,7 @@ app.add_typer(project_app, name="project")
 @project_app.command("info")
 def project_info(folder: str = typer.Argument(".", help="Project folder")):
     """Show a project: its model, setups and runs."""
+    from bemfmm.model import read_index
 
     project = load_project(folder)
     print(f"{project.name}  ({project.root})")
@@ -493,6 +483,7 @@ def project_new(
     ),
 ):
     """Make a project from surface meshes, with the tissues nested by containment."""
+    from bemfmm.model import read_index
     from bemfmm.project import new_project
 
     try:
@@ -532,7 +523,3 @@ def project_init(
         raise typer.Exit(1)
     project.save()
     print(f"Saved {project.root / PROJECT_FILE}")
-
-
-if __name__ == "__main__":
-    app()

@@ -1,14 +1,12 @@
 import json
 
 import numpy as np
-import pytest
 
 from bemfmm.coils import Coil, default_coil, default_params, make_coil
 from bemfmm.conductivity import find_conductivity
 from bemfmm.electrode import Electrode
 from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_normals
 from bemfmm.model import (
-    HeadModel,
     check_shells,
     default_index,
     read_index,
@@ -16,11 +14,6 @@ from bemfmm.model import (
     write_index,
 )
 from bemfmm.scene import Scene
-
-
-@pytest.fixture(scope="module")
-def sphere():
-    return HeadModel.load(sphere_index(), verbose=False)
 
 
 def test_sphere_model(sphere):

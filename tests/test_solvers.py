@@ -13,7 +13,6 @@ from bemfmm.charge import volume_field_electric
 from bemfmm.coils import default_coil
 from bemfmm.electrode import Electrode
 from bemfmm.fgmres import fgmres
-from bemfmm.model import HeadModel, sphere_index
 from bemfmm.results import Result
 from bemfmm.solvers import tdcs, tms, uniform
 
@@ -24,11 +23,6 @@ TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors_p=32)
 TDCS_FACETS = [240, 240, 18]
 TDCS_CURRENTS = [5.842863368897759e-3, -8.121492182008439e-3, 2.286201112945014e-3]
 UNIFORM_NORM_C = 82.77419018858933
-
-
-@pytest.fixture(scope="module")
-def sphere():
-    return HeadModel.load(sphere_index(), verbose=False)
 
 
 def test_tms_default_coil(sphere, tmp_path):
