@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 import vedo
 
+from bemfmm.cli import output_path
 from bemfmm.model import read_index, sphere_index
 from bemfmm.project import (
     PROJECT_FILE,
@@ -109,3 +110,12 @@ app(sys.argv[1:])
             [sys.executable, "-c", script, *args], capture_output=True, text=True
         )
         assert out.stdout.strip() == "False", (args, out.stderr)
+
+
+def test_output_path_gitignore(tmp_path):
+    output_dir = output_path(tmp_path / "run")
+    assert (output_dir / ".gitignore").read_text() == "*\n"
+    # a .gitignore already there is kept
+    (output_dir / ".gitignore").write_text("*.npz\n")
+    output_path(output_dir)
+    assert (output_dir / ".gitignore").read_text() == "*.npz\n"
