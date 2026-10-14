@@ -85,13 +85,10 @@ def solve(
     start = perf_counter()
     report(progress, "solve", 0, options.iter)
     c, its, resvec = fgmres(
-        MATVEC=MATVEC,
-        b=b,
-        x0=None,
-        n=normals.shape[0],
-        relres=options.relres,
-        iter=options.iter,
-        maxiter=1,
+        MATVEC,
+        b,
+        options.relres,
+        options.iter,
         callback=lambda j, r: report(progress, "solve", j, options.iter),
     )
     timings["solve"] = perf_counter() - start

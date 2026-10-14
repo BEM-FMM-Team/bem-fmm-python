@@ -12,6 +12,7 @@ import pytest
 from bemfmm.charge import volume_field_electric
 from bemfmm.coils import default_coil
 from bemfmm.electrode import Electrode
+from bemfmm.fgmres import fgmres
 from bemfmm.model import HeadModel, sphere_index
 from bemfmm.results import Result
 from bemfmm.solvers import tdcs, tms, uniform
@@ -119,3 +120,27 @@ def test_uniform_field_is_shielded(sphere):
     )
     E_total = E + np.array([1.0, 0.0, 0.0])
     assert np.median(np.linalg.norm(E_total, axis=1)) < 0.05
+
+
+@pytest.mark.parametrize("restart, max_iters", [(30, 1), (5, 20)])
+def test_fgmres_dense(restart, max_iters):
+    rng = np.random.default_rng(0)
+    M = 4 * np.eye(30) + rng.normal(size=(30, 30)) / np.sqrt(30)
+    x_true = rng.normal(size=30)
+    b = M @ x_true
+    calls = []
+
+    x, its, resids = fgmres(
+        lambda v: M @ v,
+        b,
+        1e-10,
+        restart,
+        max_iters,
+        callback=lambda j, r: calls.append(r),
+    )
+
+    assert resids[-1] < 1e-10
+    assert calls == resids
+    assert its[0] <= max_iters and its[1] <= restart
+    assert np.linalg.norm(M @ x - b) / np.linalg.norm(b) < 1e-9
+    assert np.linalg.norm(x - x_true) / np.linalg.norm(x_true) < 1e-9

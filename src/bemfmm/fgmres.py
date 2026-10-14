@@ -1,7 +1,3 @@
-"""
-Provides a wrapper for fgmres to make the code cleaner
-"""
-
 import time
 from typing import Callable
 
@@ -9,74 +5,34 @@ import numpy as np
 
 
 def fgmres(
-    MATVEC: Callable[[float], float],
-    b: np.ndarray,
-    n: int,
-    relres: float,
-    iter: int,
-    maxiter: int,
-    x0: np.ndarray | None = None,
-    callback: Callable[[int, float], None] | None = None,
-):
-    _ = n
-    return dbg_fgmres(
-        A=MATVEC,
-        b=b,
-        tol=relres,
-        restart=iter,
-        max_iters=maxiter,
-        x0=x0,
-        callback=callback,
-    )
-
-
-def dbg_fgmres(
-    A: Callable[[float], float] | np.ndarray,
+    A: Callable[[np.ndarray], np.ndarray],
     b: np.ndarray,
     tol: float,
-    relaxation: float = 0,
+    restart: int,
     max_iters: int = 1,
-    restart: int = 100,
     x0: np.ndarray | None = None,
-    verb: int = 2,
-    tol_exit: float | None = None,
-    P: Callable | np.ndarray | None = None,
     callback: Callable[[int, float], None] | None = None,
 ) -> tuple[np.ndarray, tuple[int, int], list[float]]:
     """
-    Flexible GMRES method
-       fgmres(A, b, tol, relaxation=0, max_iters=1, restart=100, x0=None,
-              verb=2, tol_exit=None, P=None)
+    Flexible GMRES method with Householder orthogonalization
 
-    Tries to solve a linear system Ax=b via the flexible GMRES
-
-    A should be given as a function that computes the matrix-vector product A*x.
-    A and b can be passed as regular numpy arrays.
+    Tries to solve a linear system Ax=b and prints the residual after every
+    inner iteration
 
     Parameters:
     -----------
-    A : callable or ndarray
-        Matrix or function that computes A*x
+    A : callable
+        Function that computes A*x
     b : ndarray
         Right-hand side vector
     tol : float
-        Tolerance (used for Krylov relaxation by default)
-    relaxation : float, optional [0]
-        Inexact Krylov relaxation power. The accuracy for Krylov vectors is set
-        as tol/(|r|/|b|)^relaxation, where r is the current residual
-    max_iters : int, optional [2]
+        Stopping tolerance: exit if |r|/|b|<tol
+    restart : int
+        Number of inner iterations, capped at len(b)
+    max_iters : int, optional [1]
         Number of outer iterations
-    restart : int, optional [20]
-        Number of inner iterations
     x0 : ndarray, optional [all-zeros vector]
         Initial guess
-    verb : int, optional [2]
-        Verbosity. 0 - Silent, 1 - outer iteration info, 2 - inner iteration info,
-        3 - iterations + return all solutions
-    tol_exit : float, optional [tol]
-        Stopping tolerance: exit if |r|/|b|<tol_exit
-    P : callable or ndarray, optional []
-        Preconditioning procedure in the same form as A
     callback : callable, optional
         Called as callback(iteration, relres) after every inner iteration
 
@@ -86,8 +42,8 @@ def dbg_fgmres(
         Solution
     iter : tuple
         Iteration numbers (outer_iter, inner_iter)
-    resids : ndarray
-        Residuals for each iteration
+    resids : list
+        Relative residual |r|/|b| after each inner iteration
 
     NOTE: This was ported from MATLAB, below is the original stub
 
@@ -103,19 +59,6 @@ def dbg_fgmres(
     For all questions, bugs and suggestions please mail
     ivan.oseledets@gmail.com
     """
-
-    # Set default value for tol_exit if not provided
-    if tol_exit is None:
-        tol_exit = tol
-
-    # If we are given a single matrix, just use exact MV
-    if isinstance(A, np.ndarray):
-        A_mat = A
-        A = lambda x: A_mat @ x
-
-    if P is not None and isinstance(P, np.ndarray):
-        P_mat = P
-        P = lambda x: P_mat @ x
 
     n = b.shape[0]
 
@@ -144,17 +87,11 @@ def dbg_fgmres(
     J = np.zeros((2, restart))
 
     # Krylov subspace
-    V = V = [None] * (restart + 1)
-    # Preconditioned subspace
-    if P is not None:
-        Z = [None] * restart
+    V = [None] * (restart + 1)
 
     resids = []
 
     for it in range(max_iters):
-        # Krylov tolerance
-        tol_kryl = tol
-
         # Compute the initial residual
         if it > 0 or np.linalg.norm(x) > 0:
             Ax = A(x)
@@ -188,12 +125,7 @@ def dbg_fgmres(
             # Explicitly normalize v to reduce the effects of round-off.
             v = v / np.linalg.norm(v)
 
-            if P is None:
-                w = A(v)
-            else:
-                # Keep the PrecVec separately
-                Z[j] = P(v)
-                w = A(Z[j])
+            w = A(v)
 
             # Orthogonalize the Krylov vector
             # Form Pj*Pj-1*...P1*Av.
@@ -243,43 +175,34 @@ def dbg_fgmres(
             err = np.abs(W[j + 1]) / np.abs(beta)
             resid = np.abs(W[j + 1]) / beta0
 
-            # Relax the Krylov tolerance
-            tol_kryl = tol / (err**relaxation) if err > 0 else tol
-
             # Report the residual
             resids.append(resid)
             if callback is not None:
                 callback(j + 1, resid)
 
-            if verb > 1:
-                elapsed = time.time() - t_gmres_start
-                print(
-                    f"iter={j+1:2d}, "
-                    f"relres={resid:.3e}, "
-                    f"locres={err:.3e}, "
-                    f"time={elapsed:.1f}"
-                )
+            elapsed = time.time() - t_gmres_start
+            print(
+                f"iter={j+1:2d}, "
+                f"relres={resid:.3e}, "
+                f"locres={err:.3e}, "
+                f"time={elapsed:.1f}"
+            )
 
-            if resid < tol_exit:
+            if resid < tol:
                 break
 
         # Correction
         y = np.linalg.solve(R[: j + 1, : j + 1], W[: j + 1])
 
-        if P is None:
-            dx = -2 * y[j] * V[j] * np.conj(V[j][j])
-            dx[j] = dx[j] + y[j]
-            for i in range(j - 1, -1, -1):
-                dx[i] = dx[i] + y[i]
-                dx = dx - 2 * V[i] * (np.conj(V[i]) @ dx)
-        else:
-            dx = np.zeros(n)
-            for i in range(j, -1, -1):
-                dx = dx + y[i] * Z[i]
+        dx = -2 * y[j] * V[j] * np.conj(V[j][j])
+        dx[j] = dx[j] + y[j]
+        for i in range(j - 1, -1, -1):
+            dx[i] = dx[i] + y[i]
+            dx = dx - 2 * V[i] * (np.conj(V[i]) @ dx)
 
         x = x + dx
 
-        if resid < tol_exit:
+        if resid < tol:
             break
 
     # Output
