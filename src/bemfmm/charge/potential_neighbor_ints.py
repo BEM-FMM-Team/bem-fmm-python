@@ -5,9 +5,7 @@ from cbemfmm import potint
 from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
 
-from bemfmm.mesh import mesh_tri
-
-GAUSS_RULES = {1: (1, 1), 4: (4, 3), 7: (7, 5), 13: (13, 7), 25: (25, 10)}
+from bemfmm.mesh.mesh_tri import GAUSS_RULES, mesh_tri
 
 
 def potential_neighbor_ints(

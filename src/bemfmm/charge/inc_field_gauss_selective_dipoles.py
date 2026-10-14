@@ -1,11 +1,8 @@
-from typing import Iterable
-
 import numpy as np
 
-from bemfmm.mesh.mesh_tri import mesh_tri
-from bemfmm.my_types import FaceCenters, f32, vec2f32, vec3f32
+from bemfmm.mesh.mesh_tri import GAUSS_RULES, mesh_tri
 
-from ..my_types import VertexIndices, Vertices
+from ..my_types import FaceCenters, VertexIndices, Vertices, vec2f32, vec3f32
 from .inc_field_electric_plain import inc_field_electric_plain
 from .inc_field_electric_plain_dipoles import inc_field_electric_plain_dipoles
 
@@ -35,30 +32,10 @@ def inc_field_gauss_selective_dipoles(
     """
 
     gauss = 7
-    if gauss == 1:
-        coeffS, weightsS, IndexS = mesh_tri(1, 1)
-    elif gauss == 4:
-        coeffS, weightsS, IndexS = mesh_tri(4, 3)
-    elif gauss == 7:
-        coeffS, weightsS, IndexS = mesh_tri(7, 5)
-    elif gauss == 13:
-        coeffS, weightsS, IndexS = mesh_tri(13, 1)
-    elif gauss == 25:
-        coeffS, weightsS, IndexS = mesh_tri(25, 10)
-    else:
-        raise ValueError("Invalid Gaussian subdivision parameter")
+    coeffS, weightsS, IndexS = mesh_tri(*GAUSS_RULES[gauss])
 
     ## Find all triangles that require Gaussian subdivision based on distance from center of dipole cluster
     # Find indices of triangles that need to be subdivided
-
-    # This commented-out method may be useful for multiple dipole clusters.
-    # (as written, it only extracts the points close to the first cluster)
-    # trianglesToSubdiv_temp = rangesearch(Center, dipoleClusterCenter, gaussRadius);
-    # Convert to logical array
-    # trianglesToSubdiv = logical(zeros(size(t, 1), 1));
-    # trianglesToSubdiv(trianglesToSubdiv_temp{1}) = true;
-
-    # This method is much faster for a single dipole cluster
     tempDist = np.linalg.norm(Center - dipoleClusterCenter, axis=1)
     trianglesToSubdiv = tempDist <= gaussRadius
 

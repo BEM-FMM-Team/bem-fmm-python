@@ -70,6 +70,21 @@ def test_tdcs_three_electrodes(sphere):
     )
 
 
+def test_tdcs_gauss(sphere):
+    electrodes = [
+        Electrode("E0", [0, 0, 0.042], 0.008, 1.0),
+        Electrode("E1", [0, 0, -0.042], 0.008, -1.0),
+        Electrode("E2", [0.042, 0, 0], 0.006, 0.5),
+    ]
+    options = tdcs.TDCSOptions(num_neighbors_p=32, gauss=7)
+    result = tdcs.solve(sphere, electrodes, options)
+    currents = np.array([e["current"] for e in result.info["electrodes"]])
+
+    # the references use 25 points, 7 points lands about 2e-4 away
+    np.testing.assert_allclose(currents, TDCS_CURRENTS, rtol=1e-3)
+    assert np.abs(currents / TDCS_CURRENTS - 1).max() > 1e-5
+
+
 def test_tdcs_symmetric_pair(sphere):
     electrodes = [
         Electrode("A", [0, 0, 0.042], 0.008, 1.0),
