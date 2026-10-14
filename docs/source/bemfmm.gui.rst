@@ -92,6 +92,14 @@ bemfmm.gui.ui\_main\_window module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.gui.ui\_project\_dialog module
+-------------------------------------
+
+.. automodule:: bemfmm.gui.ui_project_dialog
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.gui.ui\_settings\_dialog module
 --------------------------------------
 

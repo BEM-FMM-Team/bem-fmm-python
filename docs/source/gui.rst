@@ -9,7 +9,7 @@ Start it with ``bemfmm gui``. Options::
     bemfmm gui --setup study/setup.json             open a saved setup
     bemfmm gui --no-3d                              no 3D view, for remote desktops
 
-The window has a side panel with four tabs on the left and the result views on
+The window has a side panel with five tabs on the left and the result views on
 the right.
 
 Projects
@@ -154,8 +154,8 @@ selected and deselected in the 3D view the same way as coils.
 Planes tab
 ----------
 
-The slice planes, next to the 3D view, which switches to show them. By default
-they are the planes through the origin normal to x, y and z.
+The slice planes. The 3D view switches to show them while this tab is open. By
+default they are the planes through the origin normal to x, y and z.
 
 - The list names every plane, for example ``XY at z = 20.0 mm``. The selected
   plane is drawn cyan, the others grey.
