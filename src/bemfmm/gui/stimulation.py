@@ -10,7 +10,7 @@ from bemfmm.coils.rotation import (
     xyz_to_quat,
 )
 from bemfmm.electrode import Electrode, imprint_patch
-from bemfmm.mesh import mesh_normals, mesh_tricenter
+from bemfmm.mesh import mesh_normals, mesh_ray, mesh_tricenter
 from bemfmm.planes import default_planes
 
 from .viewport import COIL_COLOR, SELECTED_COLOR, electrode_color
@@ -30,12 +30,10 @@ class Surface:
         self.normals = mesh_normals(P, t)
         self.centers = mesh_tricenter(P, t)
         self.nn = NearestNeighbors(n_neighbors=1).fit(self.centers)
-        # edges for the ray test
-        self.v0 = P[t[:, 0]]
-        self.e1 = P[t[:, 1]] - self.v0
-        self.e2 = P[t[:, 2]] - self.v0
+        e1 = P[t[:, 1]] - P[t[:, 0]]
+        e2 = P[t[:, 2]] - P[t[:, 0]]
         self.longest_edge = np.linalg.norm(
-            np.concatenate((self.e1, self.e2, self.e2 - self.e1)), axis=1
+            np.concatenate((e1, e2, e2 - e1)), axis=1
         ).max()
 
     def nearest(self, xyz):
@@ -44,20 +42,7 @@ class Surface:
         return distances[0, 0], self.centers[idx].copy(), self.normals[idx].copy()
 
     def first_hit(self, origin, direction):
-        # Moller-Trumbore against every facet, None if the ray misses
-        p = np.cross(direction, self.e2)
-        det = np.einsum("ij,ij->i", self.e1, p)
-        valid = np.abs(det) > 1e-18
-        inv = np.divide(1.0, det, out=np.zeros_like(det), where=valid)
-        s = origin - self.v0
-        u = np.einsum("ij,ij->i", s, p) * inv
-        q = np.cross(s, self.e1)
-        v = (q @ direction) * inv
-        distance = np.einsum("ij,ij->i", self.e2, q) * inv
-        hit = valid & (u >= 0) & (v >= 0) & (u + v <= 1) & (distance > 0)
-        if not np.any(hit):
-            return None
-        return origin + direction * distance[hit].min()
+        return mesh_ray(self.P, self.t, origin, direction)
 
     def imprint(self, center, radius):
         return imprint_patch(

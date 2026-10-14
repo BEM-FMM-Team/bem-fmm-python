@@ -7,6 +7,7 @@ from .mesh_imprint import mesh_imprint
 from .mesh_laplace3D import mesh_laplace3D
 from .mesh_laplace_normals import mesh_laplace_normals
 from .mesh_normals import mesh_normals
+from .mesh_ray import mesh_ray
 from .mesh_refiner import mesh_refiner
 from .mesh_refiner_light import mesh_refiner_light
 from .mesh_reorient import mesh_reorient

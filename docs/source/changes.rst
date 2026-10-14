@@ -188,6 +188,11 @@ Command line
 - Fixed: when the coil axis missed the head, the slice planes went through a
   point 0.5 m from the origin and the slices came out empty. They now fall
   back to the axis planes through the origin, as for TES.
+- Fixed: the TMS slice planes almost never went through the point under the
+  coil. The coil axis was tested as its 25 mm line segment, which ends well
+  before the white matter, and vtk 9.7 returns wrong hits for it anyway. The
+  axis is now followed as a ray from the coil, with the same triangle test the
+  gui uses to place coils. ``bemfmm show`` marks the coil points the same way.
 
 Library
 

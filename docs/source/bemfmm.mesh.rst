@@ -76,6 +76,14 @@ bemfmm.mesh.mesh\_normals module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.mesh.mesh\_ray module
+----------------------------
+
+.. automodule:: bemfmm.mesh.mesh_ray
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.mesh.mesh\_refiner module
 --------------------------------
 
