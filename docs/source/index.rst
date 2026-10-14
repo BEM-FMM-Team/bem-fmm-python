@@ -17,7 +17,6 @@ bem-fmm-python documentation
    :caption: Development
 
    development
-   changes
 
 Readme File
 ===========
