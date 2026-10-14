@@ -54,7 +54,7 @@ def inc_field_gauss_selective_dipoles(
             Points=Center[notSubdiv, :],
         )
         Epri[notSubdiv, :] = E_temp
-        Ppri[notSubdiv, :] = P_temp
+        Ppri[notSubdiv, 0] = P_temp
     else:
         print("skipping primary at triangles which do not need subdiv")
 
