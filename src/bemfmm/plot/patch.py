@@ -2,6 +2,8 @@ import numpy as np
 import vedo
 from matplotlib.colors import LinearSegmentedColormap
 
+from bemfmm.mesh import mesh_ray
+
 
 def plot_worker(P, plot_t, p):
     _p = patch(
@@ -24,11 +26,10 @@ def plot_coil_worker(
     # we are giving it its own process though
     # coils: list of (centerline, cad_P, t) in the same units as P
     planes = []
-    mesh = vedo.Mesh([P, plot_t])
-    for centerline, _, _ in coils:
-        i = mesh.intersect_with_line(*centerline)
-        if len(i) > 0:
-            planes.append(i[0])
+    for (start, end), _, _ in coils:
+        hit = mesh_ray(P, plot_t, start, end - start)
+        if hit is not None:
+            planes.append(hit)
 
     plt = patch(
         vertices=P,

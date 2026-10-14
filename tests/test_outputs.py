@@ -182,3 +182,9 @@ def test_coil_planes_miss():
     # origin like tes and not half a metre out in the air
     coil = SimpleNamespace(centerline=np.array([[0, 0, 0.1], [0, 0, 0.2]]))
     assert coil_planes(result, [coil]) == default_planes()
+
+    # pointing at the head, through the top of wm however far away it is
+    coil = SimpleNamespace(centerline=np.array([[0, 0, 0.1], [0, 0, 0.075]]))
+    top = model.P[np.unique(model.t[model.facets("wm")])][:, 2].max()
+    xy, yz, z = coil_planes(result, [coil])
+    assert np.allclose(z.point, (0, 0, top))

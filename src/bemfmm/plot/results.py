@@ -1,10 +1,9 @@
 from multiprocessing import Process
 
 import numpy as np
-import vedo
 
 from bemfmm.constants import eps0
-from bemfmm.mesh import mesh_areas, mesh_tricenter
+from bemfmm.mesh import mesh_areas, mesh_ray, mesh_tricenter
 from bemfmm.planes import axis_planes, default_planes
 from bemfmm.results import Result
 
@@ -25,8 +24,9 @@ def coil_planes(result: Result, coils, tissue="wm"):
     # the axis planes through the point where the first coil axis meets tissue,
     # or through the origin like tes when it misses
     t = result.t[result.facets(tissue_or_last(result, tissue))]
-    i = vedo.Mesh([result.P, t]).intersect_with_line(*coils[0].centerline)
-    return axis_planes(i[0]) if len(i) > 0 else default_planes()
+    start, end = coils[0].centerline
+    hit = mesh_ray(result.P, t, start, end - start)
+    return axis_planes(hit) if hit is not None else default_planes()
 
 
 def compute_slices(result: Result, planes, th_tissue="gm", coils=(), progress=None):
