@@ -12,14 +12,6 @@ bemfmm.mesh.mesh\_areas module
    :show-inheritance:
    :undoc-members:
 
-bemfmm.mesh.mesh\_clean\_coincident\_facets module
---------------------------------------------------
-
-.. automodule:: bemfmm.mesh.mesh_clean_coincident_facets
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 bemfmm.mesh.mesh\_combine\_simple module
 ----------------------------------------
 

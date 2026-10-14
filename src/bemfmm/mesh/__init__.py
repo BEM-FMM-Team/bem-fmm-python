@@ -1,5 +1,4 @@
 from .mesh_areas import mesh_areas
-from .mesh_clean_coincident_facets import mesh_clean_coincident_facets
 from .mesh_combine_simple import mesh_combine_simple
 from .mesh_connee import mesh_connee
 from .mesh_cross_section import mesh_cross_section

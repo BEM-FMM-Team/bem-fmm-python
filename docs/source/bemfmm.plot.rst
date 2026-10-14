@@ -60,14 +60,6 @@ bemfmm.plot.slice module
    :show-inheritance:
    :undoc-members:
 
-bemfmm.plot.sparse module
--------------------------
-
-.. automodule:: bemfmm.plot.sparse
-   :members:
-   :show-inheritance:
-   :undoc-members:
-
 Module contents
 ---------------
 
