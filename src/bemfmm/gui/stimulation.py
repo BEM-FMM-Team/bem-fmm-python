@@ -88,7 +88,6 @@ class Stimulation:
 
         self.surface = None
         self.align = None
-        self.hidden = set()
 
     def set_surface(self, P, t):
         self.surface = Surface(P, t)

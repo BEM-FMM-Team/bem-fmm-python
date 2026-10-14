@@ -79,6 +79,7 @@ class SolveRunner(QObject):
     def on_error(self, error):
         if error == QProcess.FailedToStart:
             self.output.emit("The solver could not be started")
+            self.process.deleteLater()
             self.process = None
             self.finished.emit(False, str(self.run_dir))
 
@@ -87,5 +88,6 @@ class SolveRunner(QObject):
             self.output.emit(self.buffer)
             self.buffer = ""
         ok = status == QProcess.NormalExit and code == 0 and not self.cancelled
+        self.process.deleteLater()
         self.process = None
         self.finished.emit(ok, str(self.run_dir))

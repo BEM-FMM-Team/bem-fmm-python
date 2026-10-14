@@ -1,13 +1,13 @@
+"""
+Light and dark themes. style.qss is a template, the $names in it are filled
+from COLORS so both themes share one stylesheet
+"""
+
 from pathlib import Path
 from string import Template
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QGuiApplication, QPalette
-
-"""
-Light and dark themes. style.qss is a template, the $names in it are filled
-from COLORS so both themes share one stylesheet
-"""
 
 STYLE = Path(__file__).resolve().parent / "style.qss"
 
@@ -105,8 +105,7 @@ def apply(app, theme):
         app.setPalette(dark_palette())
     else:
         app.setPalette(app.style().standardPalette())
-    if STYLE.is_file():
-        app.setStyleSheet(Template(STYLE.read_text()).substitute(COLORS[name]))
+    app.setStyleSheet(Template(STYLE.read_text()).substitute(COLORS[name]))
     return name
 
 
