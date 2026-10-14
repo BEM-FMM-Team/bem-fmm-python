@@ -152,7 +152,3 @@ def parse_plane(text):
     # "nx ny nz px py pz", the normal then a point on the plane in mm
     values = parse_vector(text, 6)
     return Plane(values[:3], [v * 1e-3 for v in values[3:]])
-
-
-def format_vector(values):
-    return ", ".join(f"{v:.6g}" for v in values)

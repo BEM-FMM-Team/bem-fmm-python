@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Mesh, Plotter
 
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
@@ -28,8 +27,3 @@ def figure_eight(a0, b0, diameter, M, flag, sk):
     coil["t"] = t
     coil["tind"] = tind
     return coil
-
-
-# coil = figure_eight(.002, .03, .006, 16, 1, 1)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

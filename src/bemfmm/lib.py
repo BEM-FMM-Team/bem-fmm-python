@@ -15,8 +15,6 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module=r"vedo\.")
 
 vedo.settings.default_font = "Theemim"
 
-# TODO needs a better name
-
 
 def timeit(fn):
     def ret(*args, **kwargs):
@@ -34,8 +32,7 @@ memory = Memory(
     (
         None
         if os.environ.get("BEMFMM_NO_CACHE")
-        else Path(__file__).resolve().parent.resolve().parent.resolve().parent
-        / "__compute_cache__"
+        else Path(__file__).resolve().parents[2] / "__compute_cache__"
     ),
     verbose=0,
 )
@@ -43,15 +40,7 @@ cache = memory.cache
 
 
 def get_asset_path(asset_name: str) -> Path:
-    try:
-        # 3.12+
-        return Path(str(files("bemfmm").joinpath("assets", asset_name)))
-    except TypeError:
-        # fallback for older versions or when installed as directory
-        from importlib.resources import as_file
-
-        with as_file(files("bemfmm").joinpath("assets", asset_name)) as path:
-            return path
+    return Path(str(files("bemfmm") / "assets" / asset_name))
 
 
 def save_pkl(path, _, arr):

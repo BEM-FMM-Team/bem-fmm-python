@@ -1,4 +1,3 @@
-import copy
 from pathlib import Path
 
 import numpy as np
@@ -57,9 +56,6 @@ class Coil:
         self.cad_P = (Rmat @ self.cad_template_P.T).T + self.com
         self.Pwire = (Rmat @ self.str_template_P.T).T + self.com
         self.centerline = (Rmat @ LOCAL_CENTERLINE.T).T + self.com
-
-    def clone(self):
-        return copy.deepcopy(self)
 
     def to_dict(self):
         d = {

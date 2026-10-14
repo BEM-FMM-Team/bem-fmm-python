@@ -15,12 +15,12 @@ def compute_efield_overlay(
     normals: np.ndarray,
     c: np.ndarray,
     plane: Plane,
+    interface: np.ndarray,
     th1: float = 1,
     th2: float = 0,
     Ms: int = 200,
     prec: float = 1e-4,
     R: int = 8,
-    interface: np.ndarray | None = None,
     INNER_IDX: list | int | None = None,
     coils: list = [],
 ) -> EfieldSlice:
@@ -107,12 +107,7 @@ def _compact_vertices(P: np.ndarray, e: np.ndarray) -> tuple[np.ndarray, np.ndar
 def _ray_cast_inside(
     points: np.ndarray, vertices: np.ndarray, edges: np.ndarray
 ) -> np.ndarray:
-    """
-    ray-casting point-in-polygon test.
-    It is vectorised so technically faster,
-    works directly on edge segments with no loop ordering required,
-    handling branch points and multi loop polygons correctly.
-    """
+    # even-odd ray casting over unordered edges, handles several loops
     if len(edges) == 0 or len(vertices) == 0:
         return np.zeros(len(points), dtype=bool)
 

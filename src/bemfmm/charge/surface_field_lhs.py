@@ -9,7 +9,7 @@ from .surface_field_electric_plain import surface_field_electric_plain
 def surface_field_lhs(
     c: Nx1,
     center: Nx3,
-    area: Nx3,
+    area: Nx1,
     contrast: Nx1,
     normals: Nx3,
     weight: float,
@@ -26,7 +26,7 @@ def surface_field_lhs(
     Args:
         c: Nx1
         center: Nx3
-        area: Nx3
+        area: Nx1
         contrast: Nx1
         normals: Nx3
         weight: float
@@ -34,7 +34,7 @@ def surface_field_lhs(
         prec: float
 
     Returns:
-        Unknown
+        LHS, N
     """
     c = np.squeeze(c)
     area = np.squeeze(area)
@@ -49,7 +49,7 @@ def surface_field_lhs(
     )
 
     # Correction of plain FMM result
-    correction = EC @ c  # NOTE TMS 2020 does not multiply constrast here
+    correction = EC @ c  # TMS 2020 does not multiply contrast here
 
     # This is weight correction (optional)
     weight_correction = weight * np.sum(c * area) / np.sum(area)

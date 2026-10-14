@@ -1,5 +1,3 @@
-import copy
-
 import numpy as np
 
 from bemfmm.mesh import mesh_imprint
@@ -23,9 +21,6 @@ class Electrode:
 
     def disk(self, lift=1e-4, res=40):
         return electrode_disk(self.center, self.normal, self.radius, lift, res)
-
-    def clone(self):
-        return copy.deepcopy(self)
 
     def to_dict(self):
         return {

@@ -1,5 +1,4 @@
 import numpy as np
-from vedo import Mesh, Plotter
 
 from bemfmm.mesh.meshcoil import meshcoil
 
@@ -46,8 +45,3 @@ def MagVenture_MRiB91(height, thickness, M, N, flag, sk):
         "t": t,
         "tind": tind,
     }
-
-
-# coil = MagVenture_MRiB91(3.50e-3,2.20e-3, 32, 128,2,1)
-# mesh = Mesh([coil["P"], coil["t"]])
-# Plotter().show(mesh, axes=1)

@@ -8,7 +8,6 @@ def surface_field_potential_accurate(
     c: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
     center: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
     area: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],
-    PC,
 ):
     """
      This function computes CONTINUOUS electric field and the full potential
@@ -32,7 +31,5 @@ def surface_field_potential_accurate(
     charges = c.reshape(-1, 1) * area
     U = lfmm3d(eps=eps, sources=sources, charges=charges, pg=pg)
     Potential = U.pot.T
-    #   Near-field correction
-    Potential = Potential + PC * c
 
     return Potential

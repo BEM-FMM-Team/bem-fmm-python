@@ -88,12 +88,8 @@ def show_tms(
         result.P * 1e3,
         plot_t,
         plot_t_idx,
-        f["c"].reshape((-1, 1)),
         [(coil.centerline * 1e3, coil.cad_P * 1e3, coil.t) for coil in coils],
-        None,
-        f["En"].reshape((-1, 1)),
         f["Emag"],
-        f["Jn"].reshape((-1, 1)),
     )
 
     if planes is None:
