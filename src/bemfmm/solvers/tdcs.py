@@ -268,13 +268,15 @@ def solve(
 
     start = perf_counter()
     report(progress, "neighbors")
-    EC = neighbor_ints(P, t, normals, center, area, options.num_neighbors)
+    EC = neighbor_ints(
+        P, t, normals, center, area, options.num_neighbors, options.gauss
+    )
     timings["neighbors"] = perf_counter() - start
     print(f"{options.num_neighbors} Neighbors Integrals: {timings['neighbors']:.3f}s")
 
     start = perf_counter()
     PC = potential_neighbor_ints(
-        P, t, normals, center, area, indexe, options.num_neighbors_p
+        P, t, normals, center, area, indexe, options.num_neighbors_p, options.gauss
     )
     timings["potential_neighbors"] = perf_counter() - start
     print(

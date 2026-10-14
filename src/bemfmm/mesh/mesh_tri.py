@@ -1,13 +1,10 @@
 import numpy as np
 
-# Gaussian quadrature rule data (centralized)
-# Uses Gaussian quadratures (with authors permission) from
-# http://www.cs.kuleuven.ac.be/~nines/research/ecf/ecf.html
-# Formulas of third (4 integration points), fifth (7 integration points)
-# seventh (13 integration points), and tenth (25 integration points) order
-# of accuracy may be created
+# number of gauss points -> mesh_tri(points, order)
+GAUSS_RULES = {1: (1, 1), 4: (4, 3), 7: (7, 5), 13: (13, 7), 25: (25, 10)}
+
 GAUSSIAN_RULES = {
-    (1, None): {"coeff": [[1 / 3, 1 / 3, 1 / 3]], "weights": [1.0]},
+    (1, 1): {"coeff": [[1 / 3, 1 / 3, 1 / 3]], "weights": [1.0]},
     (3, 2): {
         "coeff": [[1 / 2, 1 / 2, 0], [0, 1 / 2, 1 / 2], [1 / 2, 0, 1 / 2]],
         "weights": [1 / 3, 1 / 3, 1 / 3],
@@ -279,6 +276,5 @@ def mesh_tri(arg1, arg2=None):
         if "weight_multiplier" in rule:
             weights = weights * rule["weight_multiplier"]
 
-    # Trim unused preallocated columns
     IndexF = coeff.shape[1]
     return coeff, weights, IndexF
