@@ -31,7 +31,10 @@ dependencies = [
     "pyyaml==6.0.3",
     "typer==0.27.0",
     # These come from our index
-    "fmm3dpyfast",
+    # fmm3dpyfast bundles its own libomp, and with cbemfmm's in the same
+    # process cbemfmm's openmp loops crash or hang on macos
+    'fmm3dpy ;     platform_system == "Darwin"',
+    'fmm3dpyfast ; platform_system != "Darwin"',
 
     "cbemfmm",
 ]
