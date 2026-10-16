@@ -2,8 +2,12 @@ import time
 from typing import Callable
 
 import numpy as np
+from threadpoolctl import threadpool_limits
 
 
+# the matvecs run fmm3d on OpenMP threads, an idle multithreaded BLAS between
+# them keeps spinning and slows the FMM down several times
+@threadpool_limits.wrap(limits=1, user_api="blas")
 def fgmres(
     A: Callable[[np.ndarray], np.ndarray],
     b: np.ndarray,

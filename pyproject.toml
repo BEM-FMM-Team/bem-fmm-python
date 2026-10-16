@@ -23,6 +23,7 @@ dependencies = [
     "matplotlib",
     "joblib==1.5.3",
     "scikit-learn==1.9.0",
+    "threadpoolctl==3.7.0",
     'PySide6==6.11.1 ; platform_system != "Darwin"',
     # 6.10+ repaints vtk's qt widget in an endless loop on MacOS, the 3D view
     # never opens
