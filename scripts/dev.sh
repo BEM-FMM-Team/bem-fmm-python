@@ -4,7 +4,7 @@
 # was made by another python (an older shell, or run.command). Like the run
 # scripts, a copy of pyproject.toml in .venv marks what it was installed from
 
-INDEX_URL="https://pandecode.github.io/FMM3D/simple/"
+INDEX_URL="https://bem-fmm-team.github.io/simple-index/simple/"
 EXTRA_INDEX_URL="https://pypi.org/simple"
 
 venv_is_current() {

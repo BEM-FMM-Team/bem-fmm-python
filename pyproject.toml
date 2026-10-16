@@ -31,8 +31,7 @@ dependencies = [
     "pyyaml==6.0.3",
     "typer==0.27.0",
     # These come from our index
-    'fmm3dpy ;     platform_system == "Darwin"', # fmm3dpy compilation maybe broken
-    'fmm3dpyfast ; platform_system != "Darwin"',
+    "fmm3dpyfast",
 
     "cbemfmm",
 ]
@@ -62,7 +61,7 @@ python_functions = ["test_*"]
 pythonpath = ["src"]
 
 [tool.uv]
-index-url = "https://pandecode.github.io/FMM3D/simple/"
+index-url = "https://bem-fmm-team.github.io/simple-index/simple/"
 extra-index-url = ["https://pypi.org/simple"]
 
 [tool.isort]

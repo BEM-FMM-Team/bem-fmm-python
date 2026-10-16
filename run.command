@@ -10,7 +10,7 @@ cd "$SCRIPT_DIR" || exit 1
 VENV_DIR="$SCRIPT_DIR/.venv"
 PYTHON="$VENV_DIR/bin/python"
 PY_VERSION="3.13"
-INDEX_URL="https://pandecode.github.io/FMM3D/simple/"
+INDEX_URL="https://bem-fmm-team.github.io/simple-index/simple/"
 EXTRA_INDEX_URL="https://pypi.org/simple"
 VENV_CHECK="import filecmp, sys, bemfmm.cli; sys.exit(not filecmp.cmp(*sys.argv[1:], shallow=False))"
 
