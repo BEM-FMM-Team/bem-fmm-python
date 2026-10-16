@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.project &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.project</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.conductivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">conductivity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_asset_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bemfmm.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">HeadModel</span><span class="p">,</span> <span class="n">read_index</span><span class="p">,</span> <span class="n">write_index</span>
+
+<span class="n">PROJECT_FILE</span> <span class="o">=</span> <span class="s2">"project.yaml"</span>
+<span class="n">PROJECT_VERSION</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">INDEX_FILE</span> <span class="o">=</span> <span class="s2">"tissue_index.yaml"</span>
+
+
+<div class="viewcode-block" id="bundled">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.bundled">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bundled</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="c1"># inside the models that ship with the package</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="Project">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Project</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A folder with a head model and the work done on it::</span>
+
+<span class="sd">        my_head/</span>
+<span class="sd">          project.yaml        name, tissue index and skin tissue</span>
+<span class="sd">          tissue_index.yaml</span>
+<span class="sd">          skin.stl, ...</span>
+<span class="sd">          setups/             setup files</span>
+<span class="sd">          runs/               one folder per run</span>
+
+<span class="sd">    A folder with a tissue index but no project.yaml is a project too, named</span>
+<span class="sd">    after the folder. The models that ship with the package are read only, runs</span>
+<span class="sd">    on them go to the output folder instead</span>
+<span class="sd">    """</span>
+
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">INDEX_FILE</span>
+    <span class="n">skin</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"skin"</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setups_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"setups"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runs_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"runs"</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bundled</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Project.setups">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.setups">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">setups_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.json"</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Project.runs">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.runs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">runs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># newest first, the folder names start with the kind and end with a stamp</span>
+        <span class="n">runs</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*"</span><span class="p">)</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">"result.json"</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">runs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"-"</span><span class="p">,</span> <span class="mi">2</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.run_dir">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.run_dir">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">stamp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="n">stamp</span> <span class="ow">or</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">-%H%M%S"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">runs_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">stamp</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+<div class="viewcode-block" id="Project.problems">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.problems">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">problems</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""What keeps the project from being used, empty when nothing does"""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Tissue index not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">shells</span> <span class="o">=</span> <span class="n">read_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">skin</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">shells</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"The skin tissue </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">skin</span><span class="si">}</span><span class="s2"> is not in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="Project.model">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HeadModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_path</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.to_dict">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"version"</span><span class="p">:</span> <span class="n">PROJECT_VERSION</span><span class="p">,</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">"index"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="s2">"skin"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">skin</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Project.save">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="n">PROJECT_FILE</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">"# bemfmm project, see the Files page of the docs</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="o">+</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.for_index">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.for_index">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">for_index</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">index_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""The project a tissue index belongs to, the folder it is in"""</span>
+        <span class="n">index_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">index_path</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">index_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">PROJECT_FILE</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="n">project</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">index_path</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">project</span><span class="o">.</span><span class="n">index_path</span> <span class="o">==</span> <span class="n">index_path</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">project</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">index_path</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index_path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Project.load">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.Project.load">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The project in a folder, path may also be its project.yaml or any file</span>
+<span class="sd">        in it, like the tissue index</span>
+<span class="sd">        """</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Project not found: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">path</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="k">else</span> <span class="n">path</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">PROJECT_FILE</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="n">INDEX_FILE</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">root</span><span class="si">}</span><span class="s2"> has no </span><span class="si">{</span><span class="n">PROJECT_FILE</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">INDEX_FILE</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"version"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">version</span> <span class="o">&gt;</span> <span class="n">PROJECT_VERSION</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Project version </span><span class="si">{</span><span class="n">version</span><span class="si">}</span><span class="s2"> is newer than this version of bemfmm"</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">root</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)),</span>
+            <span class="n">index</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"index"</span><span class="p">,</span> <span class="n">INDEX_FILE</span><span class="p">)),</span>
+            <span class="n">skin</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"skin"</span><span class="p">,</span> <span class="s2">"skin"</span><span class="p">)),</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1"># vertices of each surface tested against the others</span>
+<span class="n">CONTAINMENT_SAMPLES</span> <span class="o">=</span> <span class="mi">7</span>
+
+
+<div class="viewcode-block" id="signed_volume">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.signed_volume">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">signed_volume</span><span class="p">(</span><span class="n">mesh</span><span class="p">):</span>
+    <span class="c1"># positive when the normals point out, in the units of the mesh cubed</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">mesh</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">cells</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">"ij,ij-&gt;i"</span><span class="p">,</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">v</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="mi">6</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="tissue_name">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.tissue_name">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">tissue_name</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="c1"># "Sub 01-scalp.stl" -&gt; "Sub_01-scalp", tissue names cannot have spaces</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\s+"</span><span class="p">,</span> <span class="s2">"_"</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="nest_surfaces">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.nest_surfaces">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nest_surfaces</span><span class="p">(</span><span class="n">paths</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The shells of closed surfaces, {name: (conductivity, outside, path)}, with</span>
+<span class="sd">    the tissue outside each one found from which surfaces contain it: the</span>
+<span class="sd">    smallest one that does, else FreeSpace. Outermost first. Conductivities</span>
+<span class="sd">    come from the default list by name. Also returns the problems found: open</span>
+<span class="sd">    or inward facing surfaces, surfaces that cross, sizes that look like m</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">vedo</span>
+
+    <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">tissue_name</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">))</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Two surfaces have the same name: "</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+
+    <span class="n">problems</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">meshes</span><span class="p">,</span> <span class="n">volumes</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">paths</span><span class="p">):</span>
+        <span class="n">mesh</span> <span class="o">=</span> <span class="n">vedo</span><span class="o">.</span><span class="n">Mesh</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">meshes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">volume</span> <span class="o">=</span> <span class="n">signed_volume</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">volumes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">volume</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mesh</span><span class="o">.</span><span class="n">is_closed</span><span class="p">():</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> is not a closed surface"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">volume</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The normals of </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> point inward"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ptp</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">vertices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"The surfaces are under 1 mm across, they must be in mm"</span><span class="p">)</span>
+
+    <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">inside</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">meshes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">meshes</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>  <span class="c1"># [outer, inner]</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">inner</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">meshes</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">CONTAINMENT_SAMPLES</span><span class="p">,</span> <span class="n">inner</span><span class="o">.</span><span class="n">npoints</span><span class="p">)</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">inner</span><span class="o">.</span><span class="n">vertices</span><span class="p">[</span><span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">inner</span><span class="o">.</span><span class="n">npoints</span><span class="p">,</span> <span class="n">count</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">outer</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">meshes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">j</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">hits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">outer</span><span class="o">.</span><span class="n">inside_points</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">return_ids</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+            <span class="n">inside</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">hits</span> <span class="o">&gt;</span> <span class="n">count</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">hits</span> <span class="o">&lt;</span> <span class="n">count</span><span class="p">:</span>
+                <span class="n">problems</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> cross each other"</span><span class="p">)</span>
+
+    <span class="n">outside</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+        <span class="n">parents</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span> <span class="k">if</span> <span class="n">inside</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]]</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">parents</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">volumes</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">if</span> <span class="n">parents</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">outside</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">parent</span><span class="p">]</span> <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">"FreeSpace"</span>
+        <span class="n">depth</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span>
+
+    <span class="n">order</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">j</span><span class="p">:</span> <span class="p">(</span><span class="n">depth</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]],</span> <span class="o">-</span><span class="n">volumes</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="n">shells</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span> <span class="p">(</span><span class="n">conductivity</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span> <span class="n">outside</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]],</span> <span class="n">paths</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">order</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">shells</span><span class="p">,</span> <span class="n">problems</span></div>
+
+
+
+<div class="viewcode-block" id="new_project">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.new_project">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">new_project</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">meshes</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">skin</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A project in folder from closed surfaces: the meshes are copied into it</span>
+<span class="sd">    and the tissue index is made by nest_surfaces. skin defaults to the</span>
+<span class="sd">    largest tissue with FreeSpace outside. Returns the project and the</span>
+<span class="sd">    problems found in the surfaces</span>
+<span class="sd">    """</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">(</span><span class="n">PROJECT_FILE</span><span class="p">,</span> <span class="n">INDEX_FILE</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">folder</span> <span class="o">/</span> <span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">folder</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">file</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+    <span class="n">shells</span><span class="p">,</span> <span class="n">problems</span> <span class="o">=</span> <span class="n">nest_surfaces</span><span class="p">(</span><span class="n">meshes</span><span class="p">)</span>
+
+    <span class="n">folder</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">copied</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">tissue</span><span class="p">,</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">/</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="o">!=</span> <span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">copied</span><span class="p">[</span><span class="n">tissue</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">write_index</span><span class="p">(</span><span class="n">folder</span> <span class="o">/</span> <span class="n">INDEX_FILE</span><span class="p">,</span> <span class="n">copied</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">skin</span><span class="p">:</span>
+        <span class="n">skin</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="n">t</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">copied</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">outside</span> <span class="o">==</span> <span class="s2">"FreeSpace"</span>
+        <span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">skin</span><span class="o">=</span><span class="n">skin</span><span class="p">)</span>
+    <span class="n">project</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">project</span><span class="p">,</span> <span class="n">problems</span></div>
+
+
+
+<div class="viewcode-block" id="copy_project">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.copy_project">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">copy_project</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">""</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A copy of project in folder, which must be empty or missing: the model and</span>
+<span class="sd">    the setups, not the runs. Meshes are copied next to the new tissue index</span>
+<span class="sd">    """</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">folder</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">folder</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()):</span>
+        <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2"> is not empty"</span><span class="p">)</span>
+    <span class="n">shells</span> <span class="o">=</span> <span class="n">read_index</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">index_path</span><span class="p">)</span>
+    <span class="n">folder</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">copied</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">tissue</span><span class="p">,</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span> <span class="ow">in</span> <span class="n">shells</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">target</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">/</span> <span class="n">path</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Two meshes are named </span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="n">copied</span><span class="p">[</span><span class="n">tissue</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">outside</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">write_index</span><span class="p">(</span><span class="n">folder</span> <span class="o">/</span> <span class="n">INDEX_FILE</span><span class="p">,</span> <span class="n">copied</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">project</span><span class="o">.</span><span class="n">setups_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">project</span><span class="o">.</span><span class="n">setups_dir</span><span class="p">,</span> <span class="n">folder</span> <span class="o">/</span> <span class="s2">"setups"</span><span class="p">)</span>
+
+    <span class="n">copy</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">project</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> copy"</span><span class="p">,</span> <span class="n">skin</span><span class="o">=</span><span class="n">project</span><span class="o">.</span><span class="n">skin</span><span class="p">)</span>
+    <span class="n">copy</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">copy</span></div>
+
+
+
+<div class="viewcode-block" id="default_project">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.default_project">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">default_project</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">""</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="sphere_project">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.project.sphere_project">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sphere_project</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">Project</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">get_asset_path</span><span class="p">(</span><span class="s2">"sphere_3L"</span><span class="p">))</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;Shawn Pande, Simon Hao, Guillermo Nunez Ponasso, Drumm Derek.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

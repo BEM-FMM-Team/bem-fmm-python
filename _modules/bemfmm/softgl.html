@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bemfmm.softgl &#8212; bem-fmm-python 0.1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=01f34227"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for bemfmm.softgl</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""</span>
+<span class="sd">Software OpenGL for Windows machines without a usable graphics driver, remote</span>
+<span class="sd">desktop sessions in particular. Windows only offers OpenGL 1.1 there and vtk</span>
+<span class="sd">needs 3.2. Mesa's llvmpipe opengl32.dll (OpenGL 4.5 on the CPU) is downloaded</span>
+<span class="sd">once into the environment and loaded before vtk, so vtk uses it instead of the</span>
+<span class="sd">system one. A DLL that is already loaded is reused for every later load of the</span>
+<span class="sd">same name, which is what makes this work without copying files next to</span>
+<span class="sd">python.exe. `bemfmm opengl` sets it up and says which OpenGL the gui uses</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># a single self contained opengl32.dll, llvmpipe only. Mesa 25.3.6 up to</span>
+<span class="c1"># 26.1.5 draws nothing for vtk's per cell colors (gl_PrimitiveID without a</span>
+<span class="c1"># geometry shader), fixed in 26.1.6 and 26.2.0</span>
+<span class="n">MESA_VERSION</span> <span class="o">=</span> <span class="s2">"26.2.3"</span>
+<span class="n">MESA_URL</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"https://github.com/mmozeiko/build-mesa/releases/download/</span><span class="si">{</span><span class="n">MESA_VERSION</span><span class="si">}</span><span class="s2">/mesa-llvmpipe-x64-</span><span class="si">{</span><span class="n">MESA_VERSION</span><span class="si">}</span><span class="s2">.7z"</span>
+<span class="n">MESA_SHA256</span> <span class="o">=</span> <span class="s2">"bd0d817fbf33a7ec41aa770841eb83cc609f7c67fef7c8b56fde901a5b80a8ee"</span>
+<span class="c1"># the release is a .7z with the BCJ2 filter, which neither python nor the tar</span>
+<span class="c1"># that comes with Windows can unpack</span>
+<span class="n">SEVENZR_URL</span> <span class="o">=</span> <span class="s2">"https://github.com/ip7z/7zip/releases/download/26.03/7zr.exe"</span>
+<span class="n">SEVENZR_SHA256</span> <span class="o">=</span> <span class="s2">"ad4c82fadcbdf93c03b4fc440f300509c7d60c5c2f4d183e35d9d70d6957037d"</span>
+
+<span class="n">ENV</span> <span class="o">=</span> <span class="s2">"BEMFMM_OPENGL32"</span>
+
+<span class="c1"># draws a sphere offscreen and exits 0 when it shows up in the pixels. A real</span>
+<span class="c1"># render, SupportsOpenGL alone can pass where drawing then fails. Prints the</span>
+<span class="c1"># OpenGL in use and, on Windows, which opengl32.dll the name resolves to. Run</span>
+<span class="c1"># in its own process since a failed context can take the process down</span>
+<span class="n">PROBE</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">import sys</span>
+
+<span class="s2">import bemfmm</span>
+<span class="s2">import numpy as np</span>
+<span class="s2">from vtkmodules.util.numpy_support import vtk_to_numpy</span>
+<span class="s2">from vtkmodules.vtkCommonCore import vtkObject</span>
+<span class="s2">from vtkmodules.vtkFiltersSources import vtkSphereSource</span>
+<span class="s2">from vtkmodules.vtkRenderingCore import (</span>
+<span class="s2">    vtkActor, vtkPolyDataMapper, vtkRenderer, vtkRenderWindow, vtkWindowToImageFilter,</span>
+<span class="s2">)</span>
+<span class="s2">import vtkmodules.vtkRenderingOpenGL2</span>
+
+<span class="s2">vtkObject.GlobalWarningDisplayOff()</span>
+<span class="s2">sphere = vtkSphereSource()</span>
+<span class="s2">mapper = vtkPolyDataMapper()</span>
+<span class="s2">mapper.SetInputConnection(sphere.GetOutputPort())</span>
+<span class="s2">actor = vtkActor()</span>
+<span class="s2">actor.SetMapper(mapper)</span>
+<span class="s2">renderer = vtkRenderer()</span>
+<span class="s2">renderer.AddActor(actor)</span>
+<span class="s2">window = vtkRenderWindow()</span>
+<span class="s2">window.SetOffScreenRendering(1)</span>
+<span class="s2">window.SetSize(64, 64)</span>
+<span class="s2">window.AddRenderer(renderer)</span>
+<span class="s2">window.Render()</span>
+<span class="s2">grab = vtkWindowToImageFilter()</span>
+<span class="s2">grab.SetInput(window)</span>
+<span class="s2">grab.Update()</span>
+<span class="s2">pixels = vtk_to_numpy(grab.GetOutput().GetPointData().GetScalars())</span>
+<span class="s2">drawn = np.any(pixels != pixels[0], axis=-1).mean()</span>
+
+<span class="s2">for line in window.ReportCapabilities().splitlines():</span>
+<span class="s2">    if "renderer string" in line or "version string" in line:</span>
+<span class="s2">        print(line.strip())</span>
+<span class="s2">if sys.platform == "win32":</span>
+<span class="s2">    import ctypes</span>
+
+<span class="s2">    kernel32 = ctypes.WinDLL("kernel32")</span>
+<span class="s2">    kernel32.GetModuleHandleW.restype = ctypes.c_void_p</span>
+<span class="s2">    kernel32.GetModuleFileNameW.argtypes = [ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_uint]</span>
+<span class="s2">    path = ctypes.create_unicode_buffer(1024)</span>
+<span class="s2">    kernel32.GetModuleFileNameW(kernel32.GetModuleHandleW("opengl32.dll"), path, 1024)</span>
+<span class="s2">    print("opengl32.dll:", path.value)</span>
+<span class="s2">print(f"</span><span class="si">{drawn:.0%}</span><span class="s2"> of the pixels drawn")</span>
+<span class="s2">raise SystemExit(0 if drawn &gt; 0.05 else 1)</span>
+<span class="s2">"""</span>
+
+
+<div class="viewcode-block" id="dll_path">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.dll_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dll_path</span><span class="p">():</span>
+    <span class="c1"># a folder per version, a new version is downloaded instead of the old one</span>
+    <span class="c1"># being reused</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">prefix</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"mesa"</span> <span class="o">/</span> <span class="n">MESA_VERSION</span> <span class="o">/</span> <span class="s2">"opengl32.dll"</span></div>
+
+
+
+<div class="viewcode-block" id="load">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.load">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">():</span>
+    <span class="c1"># called by bemfmm/__init__.py in every process, the gui's plot windows</span>
+    <span class="c1"># and solver runs inherit the environment variable</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENV</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"win32"</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"GALLIUM_DRIVER"</span><span class="p">,</span> <span class="s2">"llvmpipe"</span><span class="p">)</span>
+    <span class="c1"># its folder before System32 for anything that looks up opengl32.dll by</span>
+    <span class="c1"># name without finding the loaded one</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">windll</span><span class="o">.</span><span class="n">kernel32</span><span class="o">.</span><span class="n">SetDllDirectoryW</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+    <span class="n">ctypes</span><span class="o">.</span><span class="n">WinDLL</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="opengl_works">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.opengl_works">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">opengl_works</span><span class="p">(</span><span class="n">opengl32</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Returns (works, what the probe printed)</span>
+<span class="sd">    """</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">ENV</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">opengl32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">env</span><span class="p">[</span><span class="n">ENV</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">opengl32</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">probe</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-c"</span><span class="p">,</span> <span class="n">PROBE</span><span class="p">],</span>
+            <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">,</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">TimeoutExpired</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">"the probe did not finish in 120 s"</span>
+    <span class="n">report</span> <span class="o">=</span> <span class="p">(</span><span class="n">probe</span><span class="o">.</span><span class="n">stdout</span> <span class="o">+</span> <span class="n">probe</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">probe</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">probe exit code </span><span class="si">{</span><span class="n">probe</span><span class="o">.</span><span class="n">returncode</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="n">probe</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="download">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.download">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">sha256</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"downloading </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span> <span class="k">as</span> <span class="n">response</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span> <span class="o">!=</span> <span class="n">sha256</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2"> does not have the expected sha256"</span><span class="p">)</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="install">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.install">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">install</span><span class="p">(</span><span class="n">dll</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">sevenzr</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">/</span> <span class="s2">"7zr.exe"</span>
+        <span class="n">archive</span> <span class="o">=</span> <span class="n">tmp</span> <span class="o">/</span> <span class="s2">"mesa.7z"</span>
+        <span class="n">download</span><span class="p">(</span><span class="n">SEVENZR_URL</span><span class="p">,</span> <span class="n">SEVENZR_SHA256</span><span class="p">,</span> <span class="n">sevenzr</span><span class="p">)</span>
+        <span class="n">download</span><span class="p">(</span><span class="n">MESA_URL</span><span class="p">,</span> <span class="n">MESA_SHA256</span><span class="p">,</span> <span class="n">archive</span><span class="p">)</span>
+        <span class="n">dll</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sevenzr</span><span class="p">,</span> <span class="s2">"e"</span><span class="p">,</span> <span class="s2">"-y"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"-o</span><span class="si">{</span><span class="n">dll</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">archive</span><span class="p">,</span> <span class="n">dll</span><span class="o">.</span><span class="n">name</span><span class="p">],</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">DEVNULL</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="setup">
+<a class="viewcode-back" href="../../bemfmm.html#bemfmm.softgl.setup">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Returns True when the 3D view can run, loading Mesa first when the system</span>
+<span class="sd">    OpenGL cannot draw. Only Windows is checked, elsewhere the system OpenGL</span>
+<span class="sd">    is used as it is</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">!=</span> <span class="s2">"win32"</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ENV</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">works</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">opengl_works</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">works</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"-- the system OpenGL cannot draw the 3D view --"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"-- using Mesa's software renderer --"</span><span class="p">)</span>
+    <span class="n">dll</span> <span class="o">=</span> <span class="n">dll_path</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dll</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">install</span><span class="p">(</span><span class="n">dll</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"could not set up Mesa: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">works</span><span class="p">,</span> <span class="n">report</span> <span class="o">=</span> <span class="n">opengl_works</span><span class="p">(</span><span class="n">dll</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">works</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dll</span><span class="si">}</span><span class="s2"> cannot draw the 3D view either"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">ENV</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">dll</span><span class="p">)</span>
+    <span class="n">load</span><span class="p">()</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">bem-fmm-python</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">User guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gui.html">The graphical interface</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cli.html">Command line</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../python.html">Python</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../files.html">Files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../method.html">Method</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../development.html">Development</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bemfmm.html">bemfmm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;Shawn Pande, Simon Hao, Guillermo Nunez Ponasso, Drumm Derek.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
