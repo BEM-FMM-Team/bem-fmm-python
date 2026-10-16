@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import vedo
 import yaml
+from vtkmodules.util.numpy_support import vtk_to_numpy
 
 from bemfmm.lib import get_asset_path
 from bemfmm.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
@@ -150,7 +151,9 @@ class HeadModel:
 
             mesh = vedo.Mesh(str(path))
             Pcell.append(mesh.vertices * MODEL_UNIT_SCALAR)
-            tcell.append(np.array(mesh.cells))
+            # straight from vtk, mesh.cells builds a python list per triangle
+            polys = mesh.dataset.GetPolys().GetConnectivityArray()
+            tcell.append(vtk_to_numpy(polys).reshape(-1, 3))
             condinner.append(cond)
             condouter.append(shells[outside][0] if outside != "FreeSpace" else 0.0)
             files.append(path)
