@@ -8,7 +8,7 @@ rem the gui, arguments are passed to "bemfmm gui"
 set "VENV_DIR=%~dp0.venv"
 set "PYTHON=%VENV_DIR%\Scripts\python.exe"
 set "PY_VERSION=3.13"
-set "INDEX_URL=https://pandecode.github.io/FMM3D/simple/"
+set "INDEX_URL=https://bem-fmm-team.github.io/simple-index/simple/"
 set "EXTRA_INDEX_URL=https://pypi.org/simple"
 set "VENV_CHECK=import filecmp, sys, bemfmm.cli; sys.exit(not filecmp.cmp(*sys.argv[1:], shallow=False))"
 
