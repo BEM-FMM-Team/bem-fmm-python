@@ -5,6 +5,12 @@ import numpy as np
 from threadpoolctl import threadpool_limits
 
 
+def reflect(u, v, tmp):
+    # v = v - 2*u*(u'*v) in place, without temporaries the length of v
+    np.multiply(u, 2 * (u @ v), out=tmp)
+    v -= tmp
+
+
 # the matvecs run fmm3d on OpenMP threads, an idle multithreaded BLAS between
 # them keeps spinning and slows the FMM down several times
 @threadpool_limits.wrap(limits=1, user_api="blas")
@@ -95,6 +101,9 @@ def fgmres(
 
     resids = []
 
+    # scratch for the reflectors
+    tmp = np.empty(n)
+
     for it in range(max_iters):
         # Compute the initial residual
         if it > 0 or np.linalg.norm(x) > 0:
@@ -124,17 +133,18 @@ def fgmres(
 
             # v = P1*P2*...Pj-1*(Pj*ej)
             for i in range(j - 1, -1, -1):
-                v = v - 2 * V[i] * (np.conj(V[i]) @ v)
+                reflect(V[i], v, tmp)
 
             # Explicitly normalize v to reduce the effects of round-off.
             v = v / np.linalg.norm(v)
 
-            w = A(v)
+            # a copy, the reflectors work in place on it
+            w = A(v).astype(np.float64)
 
             # Orthogonalize the Krylov vector
             # Form Pj*Pj-1*...P1*Av.
             for i in range(j + 1):
-                w = w - 2 * V[i] * (np.conj(V[i]) @ w)
+                reflect(V[i], w, tmp)
 
             # Update the rotators
             # Determine Pj+1.
@@ -202,7 +212,7 @@ def fgmres(
         dx[j] = dx[j] + y[j]
         for i in range(j - 1, -1, -1):
             dx[i] = dx[i] + y[i]
-            dx = dx - 2 * V[i] * (np.conj(V[i]) @ dx)
+            reflect(V[i], dx, tmp)
 
         x = x + dx
 
