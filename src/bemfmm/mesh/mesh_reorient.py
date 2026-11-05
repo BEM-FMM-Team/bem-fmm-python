@@ -19,7 +19,8 @@ def mesh_reorient(P, t, normals):
     dots = np.sum(computed_normals * normals, axis=1)
     flip = dots < 0
 
-    # swap columns 1 and 2 for flipped triangles
+    # swap columns 1 and 2 for flipped triangles, on a copy of t
+    t = t.copy()
     temp = t[flip, 1].copy()
     t[flip, 1] = t[flip, 2]
     t[flip, 2] = temp
