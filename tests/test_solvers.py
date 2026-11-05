@@ -21,21 +21,21 @@ RTOL = 1e-6
 # the references were made with 32 potential integrals, the default is higher
 TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors_p=32)
 TDCS_FACETS = [240, 240, 18]
-TDCS_CURRENTS = [5.842863368897759e-3, -8.121492182008439e-3, 2.286201112945014e-3]
-UNIFORM_NORM_C = 82.77419018858933
+TDCS_CURRENTS = [5.838899199538127e-3, -8.147586528061867e-3, 2.3161815097220155e-3]
+UNIFORM_NORM_C = 82.7741895073473
 
 
 def test_tms_default_coil(sphere, tmp_path):
     result = tms.solve(sphere, [default_coil()])
     c, Emag, En = result.fields["c"], result.fields["Emag"], result.fields["En"]
 
-    np.testing.assert_allclose(np.linalg.norm(c), 1543.5811565079748, rtol=RTOL)
-    np.testing.assert_allclose(Emag.max(), 37.26766741619058, rtol=RTOL)
+    np.testing.assert_allclose(np.linalg.norm(c), 1543.5933071013524, rtol=RTOL)
+    np.testing.assert_allclose(Emag.max(), 37.26754853165611, rtol=RTOL)
     np.testing.assert_allclose(
-        Emag[sphere.facets("gm")].max(), 11.25610998215725, rtol=RTOL
+        Emag[sphere.facets("gm")].max(), 11.255992714201195, rtol=RTOL
     )
     np.testing.assert_allclose(
-        En[sphere.facets("gm")].sum(), 58.44155351897098, rtol=RTOL
+        En[sphere.facets("gm")].sum(), 58.41662005644821, rtol=RTOL
     )
 
     result.save(tmp_path)

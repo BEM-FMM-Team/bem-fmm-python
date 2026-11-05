@@ -150,7 +150,10 @@ class HeadModel:
                 raise FileNotFoundError(f"Failed to find file {path}")
 
             mesh = vedo.Mesh(str(path))
-            Pcell.append(mesh.vertices * MODEL_UNIT_SCALAR)
+            # vtk reads stl vertices as float32, the solvers need float64
+            Pcell.append(
+                np.asarray(mesh.vertices, dtype=np.float64) * MODEL_UNIT_SCALAR
+            )
             # straight from vtk, mesh.cells builds a python list per triangle
             polys = mesh.dataset.GetPolys().GetConnectivityArray()
             tcell.append(vtk_to_numpy(polys).reshape(-1, 3))

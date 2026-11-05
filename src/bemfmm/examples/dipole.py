@@ -67,7 +67,7 @@ def setup_dipoles(P, t, Center, condinner):
 @timeit
 def load_model():
     mesh = vedo.Mesh(get_asset_path("plot_skull.stl"))
-    P = mesh.vertices
+    P = np.asarray(mesh.vertices, dtype=np.float64)
     t = np.array(mesh.cells)
     if t.shape[1] != 3:
         raise RuntimeError("use vedo to load stl")
