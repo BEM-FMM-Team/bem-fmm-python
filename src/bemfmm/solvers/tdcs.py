@@ -21,7 +21,7 @@ from bemfmm.mesh import (
     mesh_reorient,
     mesh_tricenter,
 )
-from bemfmm.model import HeadModel
+from bemfmm.model import HeadModel, facet_contrast
 from bemfmm.results import Result
 
 from .common import Progress, field_neighbor_ints, nearest_neighbors, report
@@ -254,7 +254,7 @@ def solve(
 
     center = mesh_tricenter(P, t)
     area = mesh_areas(P, t).ravel()
-    contrast = (condin - condout) / (condin + condout)
+    contrast = facet_contrast(condin, condout)
 
     ElectrodeIndexes = [np.flatnonzero(indicator == m + 1) for m in range(len(radii))]
     indexe = np.concatenate(ElectrodeIndexes)
