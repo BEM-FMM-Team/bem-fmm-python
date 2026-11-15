@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import vedo
 import yaml
+from scipy.spatial import cKDTree
 from vtkmodules.util.numpy_support import vtk_to_numpy
 
 from bemfmm.lib import get_asset_path
@@ -59,8 +60,8 @@ def check_shells(shells):
     for name, (cond, outside, path) in shells.items():
         if not name or " " in name:
             problems.append(f"'{name}' is not a valid tissue name")
-        if cond <= 0:
-            problems.append(f"{name} needs a conductivity above 0")
+        if cond < 0:
+            problems.append(f"{name} cannot have a negative conductivity")
         if outside == name:
             problems.append(f"{name} cannot be outside itself")
         elif outside != "FreeSpace" and outside not in shells:
@@ -68,6 +69,22 @@ def check_shells(shells):
         if not Path(path).is_file():
             problems.append(f"Mesh file of {name} not found: {path}")
     return problems
+
+
+def facet_contrast(condin, condout):
+    # 0 between two insulators instead of 0/0, as assign_initial_conductivities.m
+    total = condin + condout
+    return np.divide(
+        condin - condout, total, out=np.zeros(len(total)), where=total != 0
+    )
+
+
+def stacked_facets(center, area):
+    # pairs of facets that lie on top of each other, their centers much
+    # closer than a facet is wide. the center point term of the neighbor
+    # integrals divides by that distance
+    tol = 1e-3 * np.sqrt(np.mean(area))
+    return cKDTree(center).query_pairs(tol, output_type="ndarray")
 
 
 def write_index(index_path, shells):
@@ -166,6 +183,19 @@ class HeadModel:
         P, t, normals, condin, condout, interface = mesh_combine_simple(
             Pcell, tcell, condinner, condouter
         )
+        center = mesh_tricenter(P, t)
+        area = mesh_areas(P, t)
+
+        # only shells that do not touch can be solved, a facet shared by two
+        # tissues would need the conductivity of each on its two sides
+        pairs = stacked_facets(center, area)
+        if len(pairs):
+            names = list(shells)
+            a, b = (names[i] for i in interface[pairs[0], 0])
+            raise ValueError(
+                f"{len(pairs)} facets of {a} and {b} lie on top of each other, "
+                "the tissue surfaces must not touch"
+            )
 
         return cls(
             index_path=index_path,
@@ -180,13 +210,13 @@ class HeadModel:
             condin=condin,
             condout=condout,
             interface=interface,
-            center=mesh_tricenter(P, t),
-            area=mesh_areas(P, t),
+            center=center,
+            area=area,
         )
 
     @property
     def contrast(self):
-        return (self.condin - self.condout) / (self.condin + self.condout)
+        return facet_contrast(self.condin, self.condout)
 
     @property
     def num_facets(self):

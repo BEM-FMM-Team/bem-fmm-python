@@ -19,7 +19,6 @@ def export_matlab(model: HeadModel, out):
     center = mesh_tricenter(P, t)
     area = mesh_areas(P, t)
     contrast = model.contrast
-    contrast[np.isnan(contrast)] = 0
 
     # same selection as script04_create_combined_mesh.m
     index = (model.interface[:, 0] == 0) & (contrast == 1)

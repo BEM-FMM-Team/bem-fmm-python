@@ -1,14 +1,17 @@
 import json
 
 import numpy as np
+import pytest
 
 from bemfmm.coils import Coil, default_coil, default_params, make_coil
 from bemfmm.conductivity import find_conductivity
 from bemfmm.electrode import Electrode
 from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_normals
 from bemfmm.model import (
+    HeadModel,
     check_shells,
     default_index,
+    facet_contrast,
     read_index,
     sphere_index,
     write_index,
@@ -45,10 +48,15 @@ def test_index_roundtrip(tmp_path):
 def test_index_problems():
     shells = read_index(sphere_index())
     shells["bone"] = (0.01, "scalp", shells["bone"][2])
-    shells["gm"] = (0.0, "bone", shells["gm"][2])
+    shells["gm"] = (-0.1, "bone", shells["gm"][2])
     problems = check_shells(shells)
     assert any("scalp" in p for p in problems)
-    assert any("gm needs a conductivity" in p for p in problems)
+    assert any("gm cannot have a negative conductivity" in p for p in problems)
+
+    # an air cavity is a tissue too
+    shells = read_index(sphere_index())
+    shells["wm"] = (0.0, "gm", shells["wm"][2])
+    assert check_shells(shells) == []
 
 
 def test_scene_roundtrip(tmp_path):
@@ -147,3 +155,17 @@ def test_default_conductivities():
     # the list agrees with the default head
     for name, (cond, _, _) in read_index(default_index()).items():
         assert find_conductivity(name).value == cond
+
+
+def test_contrast_between_insulators():
+    condin = np.array([0.465, 0.0, 0.0])
+    condout = np.array([0.0, 0.3, 0.0])
+    np.testing.assert_array_equal(facet_contrast(condin, condout), [1, -1, 0])
+
+
+def test_touching_shells(tmp_path):
+    skin = read_index(sphere_index())["skin"][2]
+    shells = {"skin": (0.465, "FreeSpace", skin), "inner": (0.3, "skin", skin)}
+    write_index(tmp_path / "tissue_index.yaml", shells)
+    with pytest.raises(ValueError, match="3360 facets of skin and inner"):
+        HeadModel.load(tmp_path / "tissue_index.yaml", verbose=False)
