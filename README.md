@@ -44,7 +44,7 @@ Run `run.command` (`run_no3d.command` without the 3D view) or proceed with the `
 
 `nix develop` gives a shell with Python 3.14, uv and the formatters. It sets up `.venv` from
 `pyproject.toml` (again after `pyproject.toml` changed) and activates it, the Python packages
-come from PyPI and our index, not from nixpkgs. `nix fmt` formats the code.
+come from PyPI and our index, not from nixpkgs. `treefmt` formats the code.
 
 
 ## Programs

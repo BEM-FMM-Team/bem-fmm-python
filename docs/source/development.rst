@@ -88,8 +88,8 @@ Style
 -----
 
 Code is formatted with black and imports sorted with isort, its settings are
-in ``pyproject.toml``. ``nix fmt`` runs both, and alejandra on the nix files.
-Keep comments for what the code does not
+in ``pyproject.toml``. ``treefmt`` in the nix shell (or ``nix fmt``) runs
+both, and nixfmt on the nix files. Keep comments for what the code does not
 say itself.
 
 Adding a coil generator
