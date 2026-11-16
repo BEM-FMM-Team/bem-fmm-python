@@ -2,6 +2,9 @@ from dataclasses import asdict, dataclass
 from time import perf_counter
 
 import numpy as np
+
+# pyrefly: ignore [missing-import]
+from cbemfmm import neighbor_ints_Pn
 from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial.distance import cdist
 
@@ -24,7 +27,13 @@ from bemfmm.mesh import (
 from bemfmm.model import HeadModel, facet_contrast
 from bemfmm.results import Result
 
-from .common import Progress, field_neighbor_ints, nearest_neighbors, report
+from .common import (
+    Progress,
+    check_solution,
+    field_neighbor_ints,
+    nearest_neighbors,
+    report,
+)
 
 
 @dataclass
@@ -127,8 +136,12 @@ def imprint_electrodes(
 
 @cache
 def neighbor_ints(P, t, normals, center, area, num_neighbors, gauss=25):
-    ineighborE = nearest_neighbors(center, num_neighbors)
-    return field_neighbor_ints(P, t, normals, center, area, ineighborE, gauss)
+    # EC for the field, and the potential integrals over the same neighbors
+    # for the surface potential away from the electrodes
+    ineighbor = nearest_neighbors(center, num_neighbors)
+    EC = field_neighbor_ints(P, t, normals, center, area, ineighbor, gauss)
+    PC = neighbor_ints_Pn(P, t, normals, center, ineighbor, area, gauss)
+    return EC, PC
 
 
 def electrode_preconditioner(center, area, PC, indexe, ElectrodeIndexes):
@@ -208,6 +221,7 @@ def charge_engine(
         x0=b,
         callback=lambda j, r: report(progress, "solve", j, iter),
     )
+    check_solution(c, resvec)
 
     residual = b - MATVEC(c)
     print(f"solution_error={np.linalg.norm(residual) / np.linalg.norm(b):.4e}")
@@ -265,7 +279,7 @@ def solve(
 
     start = perf_counter()
     report(progress, "neighbors")
-    EC = neighbor_ints(
+    EC, PC_near = neighbor_ints(
         P, t, normals, center, area, options.num_neighbors, options.gauss
     )
     timings["neighbors"] = perf_counter() - start
@@ -305,8 +319,12 @@ def solve(
     report(progress, "fields")
     prec = 1e-2
     Pot, Esec = surface_field_electric_plain(c=c, center=center, area=area, prec=prec)
-    Pot = np.ravel(Pot).copy()
-    Pot[indexe] += PC @ c
+    # the electrodes with the integrals of the solve. MATLAB has those on
+    # every facet, 450M integrals on a head, so the other facets get the
+    # num_neighbors nearest, the self term is most of the correction
+    Pfmm = np.ravel(Pot)
+    Pot = Pfmm + PC_near @ c
+    Pot[indexe] = Pfmm[indexe] + PC @ c
 
     currents, En_in = electrode_current(
         c, center, area, normals, EC, prec, ElectrodeIndexes, condin

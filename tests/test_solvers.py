@@ -9,19 +9,23 @@ The solvers run without the cache
 import numpy as np
 import pytest
 
-from bemfmm.charge import volume_field_electric
+# pyrefly: ignore [missing-import]
+from cbemfmm import neighbor_ints_Pn
+
+from bemfmm.charge import potential_neighbor_ints, volume_field_electric
 from bemfmm.coils import default_coil
 from bemfmm.electrode import Electrode
 from bemfmm.fgmres import fgmres
 from bemfmm.results import Result
 from bemfmm.solvers import tdcs, tms, uniform
+from bemfmm.solvers.common import check_solution, nearest_neighbors
 
 RTOL = 1e-6
 
 # the references were made with 32 potential integrals, the default is higher
 TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors_p=32)
 TDCS_FACETS = [240, 240, 18]
-TDCS_CURRENTS = [5.838899199538127e-3, -8.147586528061867e-3, 2.3161815097220155e-3]
+TDCS_CURRENTS = [5.835232033540465e-3, -8.143583089190842e-3, 2.315855148958199e-3]
 UNIFORM_NORM_C = 82.7741895073473
 
 
@@ -91,6 +95,25 @@ def test_tdcs_symmetric_pair(sphere):
     np.testing.assert_allclose(result.info["power"], 2 * a, rtol=1e-6)
 
 
+def test_potential_integrals_by_source_facet(sphere):
+    # the rows picked out of the integrals over the neighbors of every facet
+    rows = np.array([5, 3000, 7000, 13000])
+    PC = potential_neighbor_ints(
+        sphere.P, sphere.t, sphere.normals, sphere.center, sphere.area, rows, 16
+    )
+    full = neighbor_ints_Pn(
+        sphere.P,
+        sphere.t,
+        sphere.normals,
+        sphere.center,
+        nearest_neighbors(sphere.center, 16),
+        np.ravel(sphere.area),
+        25,
+    )
+    assert PC.nnz == full[rows].nnz
+    assert abs(PC - full[rows]).max() < 1e-15
+
+
 def test_uniform_field_is_shielded(sphere):
     # no current leaves into air, so the total field inside must vanish
     result = uniform.solve(sphere)
@@ -138,3 +161,20 @@ def test_fgmres_dense(restart, max_iters):
     assert its[0] <= max_iters and its[1] <= restart
     assert np.linalg.norm(M @ x - b) / np.linalg.norm(b) < 1e-9
     assert np.linalg.norm(x - x_true) / np.linalg.norm(x_true) < 1e-9
+
+
+def test_fgmres_stops_on_nan():
+    rng = np.random.default_rng(0)
+    M = 4 * np.eye(30) + rng.normal(size=(30, 30)) / np.sqrt(30)
+    calls = []
+
+    def matvec(v):
+        calls.append(1)
+        return M @ v if len(calls) < 3 else np.full(30, np.nan)
+
+    x, _, resids = fgmres(matvec, rng.normal(size=30), 1e-10, 30, 5)
+
+    assert len(calls) == 3
+    assert np.isnan(resids[-1])
+    with pytest.raises(RuntimeError, match="not finite"):
+        check_solution(x, resids)

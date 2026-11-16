@@ -105,7 +105,8 @@ condition on the potential,
     \varphi(\mathbf{r}_i) = \frac{1}{4\pi} \int \frac{c(\mathbf{r}')}{|\mathbf{r}_i - \mathbf{r}'|} \, dA' = V_k
 
 for every center :math:`\mathbf{r}_i` of electrode :math:`k`. The potential of
-the ``num_neighbors_p`` nearest facets is integrated accurately. These rows are
+a facet is integrated accurately on the ``num_neighbors_p`` facets nearest to
+it. These rows are
 very different from the rest, so each electrode gets a dense block
 preconditioner (the potential interactions among its own facets, LU factored).
 In place of the charge conservation term, ``weight`` times the normalized total
@@ -120,7 +121,8 @@ After the solve:
 - the solved voltage is the area weighted mean potential over its facets
 - the power is :math:`\sum_k V_k I_k`
 - ``Jn`` is :math:`\sigma_{in} E_n^{in}` and ``Pot`` the surface potential on
-  every facet
+  every facet. On the electrodes it has the accurate integrals of the solve,
+  elsewhere those of the ``num_neighbors`` nearest facets
 
 The sum of the currents should be close to zero. Its size relative to the
 electrode currents is a quick check of a solve.
