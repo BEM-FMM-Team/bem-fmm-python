@@ -16,6 +16,7 @@ from bemfmm.results import Result
 from .common import (
     Progress,
     apply_contrast,
+    check_solution,
     field_neighbor_ints,
     nearest_neighbors,
     report,
@@ -87,6 +88,7 @@ def charge_engine(
         x0=b * 8,
         callback=lambda j, r: report(progress, "solve", j, iter),
     )
+    check_solution(c, resvec)
 
     c = np.squeeze(c)
     area = np.squeeze(area)

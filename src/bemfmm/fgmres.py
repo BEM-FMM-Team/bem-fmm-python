@@ -202,7 +202,7 @@ def fgmres(
                 f"time={elapsed:.1f}"
             )
 
-            if resid < tol:
+            if resid < tol or np.isnan(resid):
                 break
 
         # Correction
@@ -216,7 +216,7 @@ def fgmres(
 
         x = x + dx
 
-        if resid < tol:
+        if resid < tol or np.isnan(resid):
             break
 
     # Output
