@@ -18,6 +18,7 @@ from bemfmm.results import Result
 from .common import (
     Progress,
     apply_contrast,
+    check_solution,
     field_neighbor_ints,
     nearest_neighbors,
     report,
@@ -90,6 +91,7 @@ def solve(
         options.iter,
         callback=lambda j, r: report(progress, "solve", j, options.iter),
     )
+    check_solution(c, resvec)
     timings["solve"] = perf_counter() - start
 
     start = perf_counter()

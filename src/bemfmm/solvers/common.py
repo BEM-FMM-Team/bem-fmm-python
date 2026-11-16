@@ -50,3 +50,13 @@ def apply_contrast(EC: csr_matrix, ineighborE, contrast) -> csr_matrix:
 
     CO = csr_matrix((data, (ii, jj)), shape=(N, N))
     return CO.multiply(EC)
+
+
+def check_solution(c, resvec):
+    # one NaN or Inf in a matvec ends up in every charge, stop here instead
+    # of saving it
+    if not (np.isfinite(resvec[-1]) and np.all(np.isfinite(c))):
+        raise RuntimeError(
+            "The solution is not finite, the mesh probably has a degenerate "
+            "or duplicated facet"
+        )
