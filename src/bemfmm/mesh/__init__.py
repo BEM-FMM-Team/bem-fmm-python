@@ -6,6 +6,7 @@ from .mesh_fix import mesh_fix
 from .mesh_imprint import mesh_imprint
 from .mesh_laplace3D import mesh_laplace3D
 from .mesh_laplace_normals import mesh_laplace_normals
+from .mesh_neighbors import mesh_neighbors
 from .mesh_normals import mesh_normals
 from .mesh_ray import mesh_ray
 from .mesh_refiner import mesh_refiner

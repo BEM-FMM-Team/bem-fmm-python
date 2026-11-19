@@ -68,6 +68,14 @@ bemfmm.mesh.mesh\_laplace\_normals module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.mesh.mesh\_neighbors module
+----------------------------------
+
+.. automodule:: bemfmm.mesh.mesh_neighbors
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.mesh.mesh\_normals module
 --------------------------------
 

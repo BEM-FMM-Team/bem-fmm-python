@@ -1,9 +1,8 @@
 """
-Regression tests on the three layer sphere. The TMS reference numbers come from
-the code before the solvers moved into bemfmm.solvers, which the current code
-reproduces exactly. The tDCS ones come from the snap to the lowest facet index
-among ties, E0 and E1 sit on the poles where 8 skin facets are equally close.
-The solvers run without the cache
+Regression tests on the three layer sphere. The TMS reference numbers are of
+the charge after the low-pass filter. The tDCS ones come from the snap to the
+lowest facet index among ties, E0 and E1 sit on the poles where 8 skin facets
+are equally close. The solvers run without the cache
 """
 
 import numpy as np
@@ -33,14 +32,16 @@ def test_tms_default_coil(sphere, tmp_path):
     result = tms.solve(sphere, [default_coil()])
     c, Emag, En = result.fields["c"], result.fields["Emag"], result.fields["En"]
 
-    np.testing.assert_allclose(np.linalg.norm(c), 1543.5933071013524, rtol=RTOL)
-    np.testing.assert_allclose(Emag.max(), 37.26754853165611, rtol=RTOL)
+    np.testing.assert_allclose(np.linalg.norm(c), 1542.9409781775328, rtol=RTOL)
+    np.testing.assert_allclose(Emag.max(), 37.18156576937509, rtol=RTOL)
     np.testing.assert_allclose(
-        Emag[sphere.facets("gm")].max(), 11.255992714201195, rtol=RTOL
+        Emag[sphere.facets("gm")].max(), 11.2703517405012, rtol=RTOL
     )
     np.testing.assert_allclose(
-        En[sphere.facets("gm")].sum(), 58.41662005644821, rtol=RTOL
+        En[sphere.facets("gm")].sum(), 58.719113424137504, rtol=RTOL
     )
+    # nothing flows into the air
+    assert np.all(result.fields["Jn"][sphere.facets("skin")] == 0)
 
     result.save(tmp_path)
     again = Result.load(tmp_path)
