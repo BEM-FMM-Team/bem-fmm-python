@@ -132,8 +132,9 @@ the number of iterations and final residual, timings per stage, the date, the
 package version and git commit, and the fingerprint of the model it was solved
 on. TES results also list every electrode with its facets, set and solved
 voltage and current, the total current and the power. TMS results list the
-coils and how well the normal current is continuous across the surfaces
-(``current_conservation``, the norm of the jump in normal current times area).
+coils and how far the solved charge is from adding up to zero
+(``conservation_law_error``, the total charge over the total of its absolute
+value, taken before the charge is smoothed).
 
 ``result.npz`` holds ``P`` and ``t`` (the combined mesh, 0 based), ``normals``,
 ``interface`` (inside and outside tissue of every facet), ``resvec`` and one

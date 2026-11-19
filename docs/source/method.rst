@@ -89,8 +89,20 @@ The coil is a set of short straight current elements. For a current slope
 
 with :math:`\mathbf{s}_j` the vector of element :math:`j` and
 :math:`\mathbf{r}_j` its center, again evaluated with the FMM. The right hand
-side is the normal component at the facet centers. After the solve, the total
+side is the normal component at the facet centers.
+
+After the solve the charge of every facet is replaced by the area weighted
+mean over the facet and its three edge neighbors, a low-pass filter that the
+MATLAB code applies too. All fields come from the filtered charge. The total
 field at the facet centers is the primary field plus the field of the charges.
+The normal field just inside follows from the boundary condition
+:math:`\sigma_{in} E_n^{in} = \sigma_{out} E_n^{out}` and the jump
+:math:`E_n^{out} - E_n^{in} = c`,
+
+.. math::
+
+    E_n^{in} = \frac{\sigma_{out}}{\sigma_{in} - \sigma_{out}} c, \qquad
+    J_n = \sigma_{in} E_n^{in}
 
 TES
 ----

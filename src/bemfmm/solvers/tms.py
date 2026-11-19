@@ -10,6 +10,7 @@ from bemfmm.charge import (
 )
 from bemfmm.fgmres import fgmres
 from bemfmm.lib import cache
+from bemfmm.mesh import mesh_neighbors
 from bemfmm.model import HeadModel
 from bemfmm.results import Result
 
@@ -57,6 +58,15 @@ def coil_rhs(model: HeadModel, coils):
     return sum(rhs_b), sum(rhs_Einc)
 
 
+def lowpass(c, area, tneighbor):
+    # area weighted mean of the charge over a facet and its three edge
+    # neighbors, bem2_charge_engine.m filters the solution like this before
+    # it computes any field
+    return (c * area + np.sum(c[tneighbor] * area[tneighbor], axis=1)) / (
+        area + np.sum(area[tneighbor], axis=1)
+    )
+
+
 @cache(ignore=["progress"])
 def charge_engine(
     normals,
@@ -91,13 +101,7 @@ def charge_engine(
     check_solution(c, resvec)
 
     c = np.squeeze(c)
-    area = np.squeeze(area)
-
-    conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
-    solution_error = resvec[-1] / resvec[0]
-
-    print(f"""conservation_law_error={conservation_law_error:.4e}
-solution_error={solution_error:.4e}""")
+    print(f"solution_error={resvec[-1] / resvec[0]:.4e}")
 
     return c, resvec
 
@@ -110,7 +114,8 @@ def solve(
 ) -> Result:
     """
     Surface charge solution for one or more coils, returns the total E-field
-    at every facet center with the normal field and current just inside
+    at every facet center, its normal component and the normal current just
+    inside
     """
     options = options or TMSOptions()
     if len(coils) == 0:
@@ -146,25 +151,23 @@ def solve(
 
     start = perf_counter()
     report(progress, "fields")
-    c = c.reshape((-1, 1))
+    area = np.ravel(model.area)
+    conservation_law_error = np.sum(c * area) / np.sum(np.abs(c) * area)
+    print(f"conservation_law_error={conservation_law_error:.4e}")
+    c = lowpass(c, area, mesh_neighbors(model.t))
 
-    # (i) total normal E-field just inside/outside, (ii) secondary continuous
-    # E-field, c is normalized by eps0
+    # secondary continuous E-field, c is normalized by eps0
     Psec, Esec = surface_field_electric_plain(
         c=c, center=model.center, area=model.area, prec=1e-3
     )
-    En = np.sum(model.normals * (Einc + Esec), 1).reshape((-1, 1))
+    En = np.sum(model.normals * (Einc + Esec), 1)
 
-    half_c = (1 / 2) * c
-    En_in = En - half_c
-    En_out = En + half_c
-    Jn_in = En_in * model.condin.reshape(-1, 1)
-    Jn_out = En_out * model.condout.reshape(-1, 1)
-
-    current_conservation = np.linalg.norm(((Jn_in - Jn_out) * model.area))
-    print(
-        f"""Current conservation law:\nNorm difference of inner and outer current density: {current_conservation:.3e}"""
-    )
+    # normal field just inside from the boundary condition condin En_in =
+    # condout En_out with En_out - En_in = c, as bem2_charge_engine.m. A
+    # facet without a conductivity jump only has the jump relation
+    jump = model.condin - model.condout
+    En_in = np.divide(model.condout * c, jump, out=En - c / 2, where=jump != 0)
+    Jn = model.condin * En_in
 
     E = Einc + Esec
     Emag = np.sqrt(np.sum(E**2, axis=1))
@@ -178,11 +181,11 @@ def solve(
         normals=model.normals,
         interface=model.interface,
         fields={
-            "c": c.ravel(),
+            "c": c,
             "E": E,
             "Emag": Emag,
-            "En": En.ravel(),
-            "Jn": Jn_in.ravel(),
+            "En": En,
+            "Jn": Jn,
         },
         resvec=np.asarray(resvec),
     )
@@ -193,7 +196,7 @@ def solve(
         coils=[coil.to_dict() for coil in coils],
         iterations=len(resvec),
         relres=float(resvec[-1]),
-        current_conservation=float(current_conservation),
+        conservation_law_error=float(conservation_law_error),
         timings=timings,
     )
     return result

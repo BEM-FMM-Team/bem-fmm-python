@@ -6,7 +6,7 @@ import pytest
 from bemfmm.coils import Coil, default_coil, default_params, make_coil
 from bemfmm.conductivity import find_conductivity
 from bemfmm.electrode import Electrode
-from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_normals
+from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_neighbors, mesh_normals
 from bemfmm.model import (
     HeadModel,
     check_shells,
@@ -57,6 +57,25 @@ def test_index_problems():
     shells = read_index(sphere_index())
     shells["wm"] = (0.0, "gm", shells["wm"][2])
     assert check_shells(shells) == []
+
+
+def test_edge_neighbors(sphere):
+    # column k is the facet across the edge opposite vertex k
+    tetra = np.array([[0, 1, 2], [0, 3, 1], [1, 3, 2], [2, 3, 0]])
+    np.testing.assert_array_equal(
+        mesh_neighbors(tetra), [[2, 3, 1], [2, 0, 3], [3, 0, 1], [1, 0, 2]]
+    )
+
+    # open meshes repeat a neighbor, a lone facet is its own
+    strip = np.array([[0, 1, 2], [1, 3, 2], [2, 3, 4], [7, 8, 9]])
+    np.testing.assert_array_equal(
+        mesh_neighbors(strip), [[1, 1, 1], [0, 2, 2], [1, 1, 1], [3, 3, 3]]
+    )
+
+    tn = mesh_neighbors(sphere.t)
+    shared = (sphere.t[:, None, :, None] == sphere.t[tn][:, :, None, :]).any(axis=3)
+    assert np.all(shared.sum(axis=2) == 2)
+    assert not shared[:, np.arange(3), np.arange(3)].any()
 
 
 def test_scene_roundtrip(tmp_path):
