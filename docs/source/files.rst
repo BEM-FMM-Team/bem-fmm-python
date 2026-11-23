@@ -142,7 +142,7 @@ value, taken before the charge is smoothed).
 
 =========== =========================================================
 ``c``       surface charge density divided by eps0 (V/m)
-``E``       continuous E-field at the facet centers, N x 3 (V/m)
+``E``       E-field just inside the surface, averaged over the facet, N x 3 (V/m)
 ``Emag``    magnitude of ``E`` (V/m)
 ``En``      normal component of the continuous E-field (V/m)
 ``Jn``      outward normal current density just inside the surface (A/m^2)

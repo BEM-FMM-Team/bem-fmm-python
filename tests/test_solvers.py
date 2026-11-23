@@ -11,10 +11,15 @@ import pytest
 # pyrefly: ignore [missing-import]
 from cbemfmm import neighbor_ints_Pn
 
-from bemfmm.charge import potential_neighbor_ints, volume_field_electric
+from bemfmm.charge import (
+    potential_neighbor_ints,
+    surface_field_electric_subdiv,
+    volume_field_electric,
+)
 from bemfmm.coils import default_coil
 from bemfmm.electrode import Electrode
 from bemfmm.fgmres import fgmres
+from bemfmm.mesh.mesh_tri import mesh_tri
 from bemfmm.results import Result
 from bemfmm.solvers import tdcs, tms, uniform
 from bemfmm.solvers.common import check_solution, nearest_neighbors
@@ -33,12 +38,12 @@ def test_tms_default_coil(sphere, tmp_path):
     c, Emag, En = result.fields["c"], result.fields["Emag"], result.fields["En"]
 
     np.testing.assert_allclose(np.linalg.norm(c), 1542.9409781775328, rtol=RTOL)
-    np.testing.assert_allclose(Emag.max(), 37.18156576937509, rtol=RTOL)
+    np.testing.assert_allclose(Emag.max(), 25.703409366829035, rtol=RTOL)
     np.testing.assert_allclose(
-        Emag[sphere.facets("gm")].max(), 11.2703517405012, rtol=RTOL
+        Emag[sphere.facets("gm")].max(), 11.29558799625568, rtol=RTOL
     )
     np.testing.assert_allclose(
-        En[sphere.facets("gm")].sum(), 58.719113424137504, rtol=RTOL
+        En[sphere.facets("gm")].sum(), 59.498905148077256, rtol=RTOL
     )
     # nothing flows into the air
     assert np.all(result.fields["Jn"][sphere.facets("skin")] == 0)
@@ -113,6 +118,28 @@ def test_potential_integrals_by_source_facet(sphere):
     )
     assert PC.nnz == full[rows].nnz
     assert abs(PC - full[rows]).max() < 1e-15
+
+
+def test_subdivided_field_is_the_direct_sum(sphere):
+    # 300 facets, every sub-charge sees all the others but not itself
+    t = sphere.t[:300]
+    area = np.ravel(sphere.area)[:300]
+    c = np.random.default_rng(0).normal(size=300)
+    Pot, E = surface_field_electric_subdiv(c, sphere.P, t, area, prec=1e-10)
+
+    coeff, weights, G = mesh_tri(3)
+    points = np.einsum("pg,npx->ngx", coeff, sphere.P[t]).reshape(-1, 3)
+    q = np.outer(c * area, weights).ravel()
+    d = points[:, None, :] - points[None, :, :]
+    r = np.linalg.norm(d, axis=2)
+    np.fill_diagonal(r, np.inf)
+    pot = (q / r).sum(axis=1) / (4 * np.pi)
+    field = (q[None, :, None] * d / r[:, :, None] ** 3).sum(axis=1) / (4 * np.pi)
+
+    np.testing.assert_allclose(Pot, pot.reshape(-1, G) @ weights, rtol=1e-8)
+    np.testing.assert_allclose(
+        E, np.einsum("ngx,g->nx", field.reshape(-1, G, 3), weights), atol=1e-8
+    )
 
 
 def test_uniform_field_is_shielded(sphere):

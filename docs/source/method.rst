@@ -93,8 +93,11 @@ side is the normal component at the facet centers.
 
 After the solve the charge of every facet is replaced by the area weighted
 mean over the facet and its three edge neighbors, a low-pass filter that the
-MATLAB code applies too. All fields come from the filtered charge. The total
-field at the facet centers is the primary field plus the field of the charges.
+MATLAB code applies too. All fields come from the filtered charge. The field of
+the charges is averaged over every facet: each facet is split into 9 equal
+charges at its barycentric points and the field of all the others is taken at
+each of them. ``E`` is the total field just inside the surface, the primary
+field plus this average minus half the jump :math:`c \mathbf{n} / 2`.
 The normal field just inside follows from the boundary condition
 :math:`\sigma_{in} E_n^{in} = \sigma_{out} E_n^{out}` and the jump
 :math:`E_n^{out} - E_n^{in} = c`,
@@ -135,6 +138,8 @@ After the solve:
 - ``Jn`` is :math:`\sigma_{in} E_n^{in}` and ``Pot`` the surface potential on
   every facet. On the electrodes it has the accurate integrals of the solve,
   elsewhere those of the ``num_neighbors`` nearest facets
+- ``E`` is the field just inside the surface, averaged over each facet as for
+  TMS
 
 The sum of the currents should be close to zero. Its size relative to the
 electrode currents is a quick check of a solve.
