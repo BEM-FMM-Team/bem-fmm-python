@@ -76,6 +76,14 @@ bemfmm.charge.surface\_field\_electric\_plain module
    :show-inheritance:
    :undoc-members:
 
+bemfmm.charge.surface\_field\_electric\_subdiv module
+-----------------------------------------------------
+
+.. automodule:: bemfmm.charge.surface_field_electric_subdiv
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 bemfmm.charge.surface\_field\_lhs module
 ----------------------------------------
 

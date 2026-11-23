@@ -13,8 +13,7 @@ Setup
     python scripts/benchmark.py --head       adds the full head model
 
 The tests turn the cache off (``BEMFMM_NO_CACHE=1``) so they always solve. The
-TMS and TES reference numbers in ``tests/test_solvers.py`` come from the code
-before the refactor, which the current solvers reproduce to machine precision.
+TMS and TES reference numbers in ``tests/test_solvers.py`` pin the numerics.
 If a change moves them, it changed the numerics.
 
 ``benchmark.py --save before.json`` and ``--compare before.json`` check a

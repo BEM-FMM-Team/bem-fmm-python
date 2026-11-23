@@ -5,7 +5,7 @@ import numpy as np
 
 from bemfmm.charge import (
     inc_field_electric,
-    surface_field_electric_plain,
+    surface_field_electric_subdiv,
     surface_field_lhs,
 )
 from bemfmm.fgmres import fgmres
@@ -156,11 +156,10 @@ def solve(
     print(f"conservation_law_error={conservation_law_error:.4e}")
     c = lowpass(c, area, mesh_neighbors(model.t))
 
-    # secondary continuous E-field, c is normalized by eps0
-    Psec, Esec = surface_field_electric_plain(
-        c=c, center=model.center, area=model.area, prec=1e-3
-    )
-    En = np.sum(model.normals * (Einc + Esec), 1)
+    # secondary continuous E-field averaged over each facet, c is normalized
+    # by eps0
+    _, Eadd = surface_field_electric_subdiv(c, model.P, model.t, area, prec=1e-3)
+    En = np.sum(model.normals * (Einc + Eadd), 1)
 
     # normal field just inside from the boundary condition condin En_in =
     # condout En_out with En_out - En_in = c, as bem2_charge_engine.m. A
@@ -169,7 +168,8 @@ def solve(
     En_in = np.divide(model.condout * c, jump, out=En - c / 2, where=jump != 0)
     Jn = model.condin * En_in
 
-    E = Einc + Esec
+    # total field just inside, bem3_surface_field_e.m with par = -1
+    E = Einc + Eadd - model.normals * c[:, None] / 2
     Emag = np.sqrt(np.sum(E**2, axis=1))
     timings["fields"] = perf_counter() - start
 
