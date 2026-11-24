@@ -39,6 +39,13 @@ memory = Memory(
 cache = memory.cache
 
 
+def colon(start, step, stop):
+    # start:step:stop as matlab counts it, np.arange(start, stop + step, step)
+    # can round its length up and give one sample more
+    n = int(np.floor((stop - start) / step + 1e-10))
+    return start + step * np.arange(n + 1)
+
+
 def get_asset_path(asset_name: str) -> Path:
     return Path(str(files("bemfmm") / "assets" / asset_name))
 

@@ -59,6 +59,7 @@ COIL_PARAMS = {
         "M": {"type": int, "default": 16},
         "flag": {"type": int, "default": 2},
         "sk": {"type": int, "default": 1},
+        "steps_per_pi": {"type": int, "default": 50},
     },
     "MagVenture_Cool_B35": {
         "turns": {"type": int, "default": 32},
@@ -177,6 +178,11 @@ PARAM_INFO = {
         "Edges around the wire cross-section in the model, more is finer and slower",
     ),
     "N": ("Edges per turn", "", "Edges along each turn of the loop"),
+    "steps_per_pi": (
+        "Points per half turn",
+        "",
+        "Points of the winding path per half turn of the spiral",
+    ),
     "flag": ("Wire cross-section", "", "Shape of the wire cross-section"),
     "sk": ("Current distribution", "", "Where the current flows inside the wire"),
 }

@@ -1,11 +1,12 @@
 import numpy as np
 
+from bemfmm.lib import colon
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
 
 
 def MagVenture_Cool_B35(turns, a0, a, b, M, flag, sk):
-    theta = np.arange(0, turns * 2 * np.pi - np.pi / 2, np.pi / 20)
+    theta = colon(0, np.pi / 20, turns * 2 * np.pi - np.pi / 2)
     b0 = (23e-3 - a0) / (turns * 2 * np.pi - np.pi / 2)
     r = a0 + b0 * theta
     x = r * np.cos(theta)

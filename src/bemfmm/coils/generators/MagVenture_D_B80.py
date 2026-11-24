@@ -1,11 +1,12 @@
 import numpy as np
 
+from bemfmm.lib import colon
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
 
 
 def MagVenture_D_B80(a0, b0, a, b, M, flag, sk):
-    theta = np.arange(4 * np.pi, 12 * np.pi + np.pi / 50, np.pi / 50)
+    theta = colon(4 * np.pi, np.pi / 50, 12 * np.pi)
     r = a0 + b0 * theta
     x1 = r * np.cos(theta)
     y1 = r * np.sin(theta)
@@ -20,12 +21,10 @@ def MagVenture_D_B80(a0, b0, a, b, M, flag, sk):
     P1, t1 = mesh_surface(Pcenter, a, b, M, flag)
     tind1 = np.ones((t1.shape[0], 1), dtype=int)
 
-    # second
+    # second, its spiral starts 3 mm further out
 
-    theta = np.arange(4 * np.pi, 10 * np.pi + np.pi / 50, np.pi / 50)
-    a0 = 0.027
-    b0 = 0.00061
-    r = a0 + b0 * theta
+    theta = colon(4 * np.pi, np.pi / 50, 10 * np.pi)
+    r = a0 + 0.003 + b0 * theta
     x1 = r * np.cos(theta)
     y1 = r * np.sin(theta)
     x2 = 2 * x1[-1] - x1[-2::-1]
@@ -33,12 +32,6 @@ def MagVenture_D_B80(a0, b0, a, b, M, flag, sk):
     x = np.concatenate([x1, x2])
     y = np.concatenate([y1, y2])
     x = x - np.mean(x)
-
-    a = 6.0e-3
-    b = 2.0e-3
-    M = 20
-    flag = 2
-    sk = 1
 
     Pcenter = np.column_stack([x, -y, np.full_like(x, a / 2)])
     Pwire2, Ewire2, Swire2 = meshwire(Pcenter, a, b, M, flag, sk)

@@ -67,7 +67,7 @@ def mesh_surface(Pcenter, a, b, M, flag):
         p1, tcapstart, added = meshfill(pbottom, PathVector1)
         NodesSides = P.shape[0] - NE
         tcapstart[tcapstart >= NE] += NodesSides
-        P = np.vstack((P, p1[NE, :]))
+        P = np.vstack((P, p1[NE:, :]))
         t = np.vstack((tcapstart, t))
         #   Add nodes/triangles for the end cap
         p2, tcapend, _ = meshfill(ptop, UnitPathVector)
