@@ -1,11 +1,12 @@
 import numpy as np
 
+from bemfmm.lib import colon
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
 
 
 def figure_eight(a0, b0, diameter, M, flag, sk):
-    theta = np.arange(0, 10 * np.pi + np.pi / 25, np.pi / 25)
+    theta = colon(0, np.pi / 25, 10 * np.pi)
     r = a0 + b0 * theta
     x1 = r * np.cos(theta)
     y1 = r * np.sin(theta)

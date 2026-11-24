@@ -1,11 +1,12 @@
 import numpy as np
 
+from bemfmm.lib import colon
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
 
 
 def ring_gen(radius, diameter, M, flag, sk):
-    theta = np.arange(0, 2 * np.pi + np.pi / 50, np.pi / 50)
+    theta = colon(0, np.pi / 50, 2 * np.pi)
     x = radius * np.cos(theta)
     y = radius * np.sin(theta)
 

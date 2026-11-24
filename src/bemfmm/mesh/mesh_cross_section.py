@@ -18,7 +18,7 @@ def mesh_cross_section(a, b, normal, M, flag):
         x = b / 2 * np.cos(t)
         z = a / 2 * np.sin(t)
     else:
-        M4 = int(round(M / 4))
+        M4 = int(np.floor(M / 4 + 0.5))
         x = np.linspace(-b / 2, b / 2, M4)
         z = np.linspace(-a / 2, a / 2, M4)
         xc = np.concatenate(

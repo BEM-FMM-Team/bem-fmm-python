@@ -1,12 +1,13 @@
 import numpy as np
 
+from bemfmm.lib import colon
 from bemfmm.mesh.mesh_rotate2 import mesh_rotate2
 from bemfmm.mesh.mesh_surface import mesh_surface
 from bemfmm.mesh.meshwire import meshwire
 
 
 def MagVenture_C_B60(a0, b0, height, thickness, M, flag, sk):
-    theta = np.arange(3 * np.pi / 2, 12 * np.pi + np.pi / 25, np.pi / 25)
+    theta = colon(3 * np.pi / 2, np.pi / 25, 12 * np.pi)
     r = a0 + b0 * theta
     x1 = r * np.cos(theta)
     y1 = r * np.sin(theta)
