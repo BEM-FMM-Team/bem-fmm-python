@@ -1,6 +1,6 @@
 import numpy as np
 
-AUTO_COLOR_PERCENTILES = (1, 99)
+AUTO_COLOR_PERCENTILES = (0.5, 99.5)
 
 
 def charge_density_display_scale(values):

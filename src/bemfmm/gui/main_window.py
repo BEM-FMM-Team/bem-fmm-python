@@ -124,8 +124,9 @@ NO_3D_MESSAGE = (
 
 VIEWER_KEYS = """Left click        select a coil or electrode
 Drag an item      move it over the surface
-Left drag         rotate
-Shift + left drag pan
+Left drag         turntable rotate (horizontal: azimuth, vertical: elevation)
+Shift + left drag constrain rotation to the dominant axis
+Middle drag       pan
 Right drag        zoom
 Scroll            zoom
 
@@ -322,7 +323,7 @@ class MainWindow(QMainWindow):
         spin(ui.planeOffset, -1000.0, 1000.0, 1, 1.0)
 
         for box in (ui.rangeLowPercentile, ui.rangeHighPercentile):
-            spin(box, 0.0, 100.0, 0, 1.0)
+            spin(box, 0.0, 100.0, 1, 1.0)
             box.setSuffix("%")
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
         ui.rangeLowPercentile.setValue(AUTO_COLOR_PERCENTILES[0])
@@ -366,9 +367,12 @@ class MainWindow(QMainWindow):
                 widget.setEnabled(False)
                 widget.setToolTip("Needs the 3D view")
             for action in (
-                ui.actionViewXY,
-                ui.actionViewXZ,
-                ui.actionViewYZ,
+                ui.actionViewTop,
+                ui.actionViewBottom,
+                ui.actionViewFront,
+                ui.actionViewBack,
+                ui.actionViewLeft,
+                ui.actionViewRight,
                 ui.actionResetView,
                 ui.actionSaveImage,
             ):
@@ -399,9 +403,12 @@ class MainWindow(QMainWindow):
         ui.actionRedo.triggered.connect(self.redo)
         ui.actionSettings.triggered.connect(self.open_settings)
         ui.actionModeTMS.toggled.connect(self.set_mode)
-        ui.actionViewXY.triggered.connect(lambda: self.viewport.view("xy"))
-        ui.actionViewXZ.triggered.connect(lambda: self.viewport.view("xz"))
-        ui.actionViewYZ.triggered.connect(lambda: self.viewport.view("yz"))
+        ui.actionViewTop.triggered.connect(lambda: self.viewport.view("top"))
+        ui.actionViewBottom.triggered.connect(lambda: self.viewport.view("bottom"))
+        ui.actionViewFront.triggered.connect(lambda: self.viewport.view("front"))
+        ui.actionViewBack.triggered.connect(lambda: self.viewport.view("back"))
+        ui.actionViewLeft.triggered.connect(lambda: self.viewport.view("left"))
+        ui.actionViewRight.triggered.connect(lambda: self.viewport.view("right"))
         ui.actionResetView.triggered.connect(self.viewport.reset_view)
         ui.actionRun.triggered.connect(self.run)
         ui.actionSphere.triggered.connect(self.run_sphere)

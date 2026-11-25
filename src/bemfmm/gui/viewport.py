@@ -32,6 +32,15 @@ VIEW_COLORS = {
     "dark": ("#2b3137", "#15181b", "#d8dde1"),
 }
 
+VIEW_PRESETS = {
+    "top": ((0, 0, 1), (0, 1, 0)),
+    "bottom": ((0, 0, -1), (0, -1, 0)),
+    "front": ((0, 1, 0), (0, 0, 1)),
+    "back": ((0, -1, 0), (0, 0, 1)),
+    "left": ((-1, 0, 0), (0, 0, 1)),
+    "right": ((1, 0, 0), (0, 0, 1)),
+}
+
 
 def electrode_color(voltage):
     if voltage > 0:
@@ -115,6 +124,8 @@ class Viewport:
 
         self.plt.add_callback("LeftButtonPress", self._on_click)
         self.plt.show(interactive=False)
+        # Azimuth/elevation rotation keeps the view-up direction natural.
+        self.plt.user_mode("Terrain")
         # presses on coils and electrodes are handled before vtk sees them
         self.mouse_filter = MouseFilter(self)
         self.widget.installEventFilter(self.mouse_filter)
@@ -333,6 +344,8 @@ class Viewport:
         # drags it over the pick surface, release drops it. Returns True for
         # the events it used, those never reach vtk and so never turn the camera
         kind = event.type()
+        if kind == QEvent.Wheel:
+            return self._on_wheel(event)
         if self.plane_grab is not None:
             return self._on_plane_mouse(event)
         if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
@@ -371,6 +384,15 @@ class Viewport:
             self.grab = self.drag_key = None
             return True
         return False
+
+    def _on_wheel(self, event):
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if not delta:
+            return False
+        self.plt.camera.Dolly(1.1 ** (delta / 120))
+        self.plt.renderer.ResetCameraClippingRange()
+        self.render()
+        return True
 
     def _on_plane_mouse(self, event):
         start, axis = self.plane_grab
@@ -490,11 +512,7 @@ class Viewport:
 
     # camera
     def view(self, flag):
-        position, up = {
-            "xy": ((0, 0, 1), (0, 1, 0)),
-            "xz": ((0, 1, 0), (0, 0, 1)),
-            "yz": ((1, 0, 0), (0, 0, 1)),
-        }[flag]
+        position, up = VIEW_PRESETS[flag]
         camera = self.plt.camera
         camera.SetFocalPoint(0, 0, 0)
         camera.SetPosition(*position)

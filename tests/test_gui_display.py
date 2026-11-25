@@ -27,10 +27,10 @@ def test_percentile_color_limits_use_requested_percentiles():
     np.testing.assert_allclose([low, high], [4.95, 94.05])
 
 
-def test_auto_color_limits_use_one_and_ninety_ninth_percentiles():
+def test_auto_color_limits_use_half_and_ninety_nine_and_a_half_percentiles():
     low, high = percentile_color_limits(np.arange(100), *AUTO_COLOR_PERCENTILES)
 
-    np.testing.assert_allclose([low, high], [0.99, 98.01])
+    np.testing.assert_allclose([low, high], [0.495, 98.505])
 
 
 def test_manual_percentile_color_limits():

@@ -229,7 +229,7 @@ switches to its mode.
 - **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
   normal current density, charge, potential) on any tissue. Results open on
   the tissue picked last, ``gm`` at first
-- **Colormap** and **Range** (automatic at the 1st and 99th percentiles, or
+- **Colormap** and **Range** (automatic at the 0.5th and 99.5th percentiles, or
   manual percentile limits from 0 to 100). The actual values for both limits
   are shown beside the percentile controls.
 - Only the selected percentile limits and their corresponding values are shown;
@@ -287,20 +287,21 @@ screen. Closing that window, or pressing **Dock**, puts it back.
 3D view mouse and keys
 ----------------------
 
-========================= ==================================
-Left click                select a coil or electrode, empty space clears
-Drag a coil or electrode  move it over the surface
-Esc                       leave Pick target, else clear the selection
-Delete, Backspace         remove the selected coil or electrode
-Left drag                 rotate
-Shift + left drag         pan
-Right drag or scroll      zoom
-r                         reset the camera
-w, s                      wireframe, surface
-f                         fly to the point under the mouse
-========================= ==================================
+- **Left click** selects a coil or electrode; clicking empty space clears the
+  selection.
+- **Drag a coil or electrode** to move it over the surface.
+- **Esc** leaves Pick target, or otherwise clears the selection.
+- **Delete** or **Backspace** removes the selected coil or electrode.
+- **Left drag** rotates turntable-style: horizontal motion changes azimuth,
+  vertical motion changes elevation, and the view-up direction stays natural.
+- **Shift + left drag** constrains rotation to the dominant axis.
+- **Middle drag** pans; **right drag** or scrolling zooms.
+- **r** resets the camera; **w** and **s** toggle wireframe and surface;
+  **f** flies to the point under the mouse.
 
-The XY, XZ, YZ and Reset buttons in the toolbar set the camera.
+The Top, Bottom, Front, Back, Left, Right and Reset buttons in the toolbar set
+the camera. Top/Bottom look from +Z/-Z, Front/Back from +Y/-Y, and Right/Left
+from +X/-X.
 
 Setups
 ------

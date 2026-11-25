@@ -1597,7 +1597,7 @@
               <item>
                <widget class="QCheckBox" name="autoRange">
                 <property name="toolTip">
-                 <string>Use the 1st and 99th percentiles</string>
+                 <string>Use the 0.5th and 99.5th percentiles</string>
                 </property>
                 <property name="text">
                  <string>Auto</string>
@@ -1618,11 +1618,14 @@
                 <property name="minimum">
                  <double>0.000000000000000</double>
                 </property>
+                <property name="decimals">
+                 <number>1</number>
+                </property>
                 <property name="maximum">
                  <double>100.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>1.000000000000000</double>
+                 <double>0.500000000000000</double>
                 </property>
                </widget>
               </item>
@@ -1644,11 +1647,14 @@
                 <property name="minimum">
                  <double>0.000000000000000</double>
                 </property>
+                <property name="decimals">
+                 <number>1</number>
+                </property>
                 <property name="maximum">
                  <double>100.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>99.000000000000000</double>
+                 <double>99.500000000000000</double>
                 </property>
                </widget>
               </item>
@@ -2127,9 +2133,13 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionViewXY"/>
-    <addaction name="actionViewXZ"/>
-    <addaction name="actionViewYZ"/>
+    <addaction name="actionViewTop"/>
+    <addaction name="actionViewBottom"/>
+    <addaction name="actionViewFront"/>
+    <addaction name="actionViewBack"/>
+    <addaction name="actionViewLeft"/>
+    <addaction name="actionViewRight"/>
+    <addaction name="separator"/>
     <addaction name="actionResetView"/>
    </widget>
    <widget class="QMenu" name="menuRun">
@@ -2180,10 +2190,14 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
-   <addaction name="actionViewXY"/>
-   <addaction name="actionViewXZ"/>
-   <addaction name="actionViewYZ"/>
+   <addaction name="actionViewTop"/>
+   <addaction name="actionViewBottom"/>
+   <addaction name="actionViewFront"/>
+   <addaction name="actionViewBack"/>
+   <addaction name="actionViewLeft"/>
+   <addaction name="actionViewRight"/>
    <addaction name="actionResetView"/>
+   <addaction name="separator"/>
    <addaction name="actionSaveImage"/>
    <addaction name="separator"/>
    <addaction name="actionRun"/>
@@ -2343,28 +2357,52 @@
     </property>
    </action>
   </actiongroup>
-  <action name="actionViewXY">
+  <action name="actionViewTop">
    <property name="text">
-    <string>Top (XY)</string>
+    <string>Top</string>
    </property>
    <property name="iconText">
-    <string>XY</string>
+    <string>Top</string>
    </property>
   </action>
-  <action name="actionViewXZ">
+  <action name="actionViewBottom">
    <property name="text">
-    <string>Front (XZ)</string>
+    <string>Bottom</string>
    </property>
    <property name="iconText">
-    <string>XZ</string>
+    <string>Bottom</string>
    </property>
   </action>
-  <action name="actionViewYZ">
+  <action name="actionViewFront">
    <property name="text">
-    <string>Side (YZ)</string>
+    <string>Front</string>
    </property>
    <property name="iconText">
-    <string>YZ</string>
+    <string>Front</string>
+   </property>
+  </action>
+  <action name="actionViewBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="iconText">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="actionViewLeft">
+   <property name="text">
+    <string>Left</string>
+   </property>
+   <property name="iconText">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionViewRight">
+   <property name="text">
+    <string>Right</string>
+   </property>
+   <property name="iconText">
+    <string>Right</string>
    </property>
   </action>
   <action name="actionResetView">

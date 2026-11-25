@@ -123,12 +123,18 @@ class Ui_MainWindow(object):
         self.actionRedo.setObjectName("actionRedo")
         self.actionSettings = QAction(MainWindow)
         self.actionSettings.setObjectName("actionSettings")
-        self.actionViewXY = QAction(MainWindow)
-        self.actionViewXY.setObjectName("actionViewXY")
-        self.actionViewXZ = QAction(MainWindow)
-        self.actionViewXZ.setObjectName("actionViewXZ")
-        self.actionViewYZ = QAction(MainWindow)
-        self.actionViewYZ.setObjectName("actionViewYZ")
+        self.actionViewTop = QAction(MainWindow)
+        self.actionViewTop.setObjectName("actionViewTop")
+        self.actionViewBottom = QAction(MainWindow)
+        self.actionViewBottom.setObjectName("actionViewBottom")
+        self.actionViewFront = QAction(MainWindow)
+        self.actionViewFront.setObjectName("actionViewFront")
+        self.actionViewBack = QAction(MainWindow)
+        self.actionViewBack.setObjectName("actionViewBack")
+        self.actionViewLeft = QAction(MainWindow)
+        self.actionViewLeft.setObjectName("actionViewLeft")
+        self.actionViewRight = QAction(MainWindow)
+        self.actionViewRight.setObjectName("actionViewRight")
         self.actionResetView = QAction(MainWindow)
         self.actionResetView.setObjectName("actionResetView")
         self.actionRun = QAction(MainWindow)
@@ -1304,8 +1310,9 @@ class Ui_MainWindow(object):
         self.rangeLowPercentile = QDoubleSpinBox(self.showGroup)
         self.rangeLowPercentile.setObjectName("rangeLowPercentile")
         self.rangeLowPercentile.setMinimum(0.0)
+        self.rangeLowPercentile.setDecimals(1)
         self.rangeLowPercentile.setMaximum(100.0)
-        self.rangeLowPercentile.setValue(1.0)
+        self.rangeLowPercentile.setValue(0.5)
         self.rangeLowPercentile.setEnabled(False)
 
         self.resultRangeLayout.addWidget(self.rangeLowPercentile)
@@ -1318,8 +1325,9 @@ class Ui_MainWindow(object):
         self.rangeHighPercentile = QDoubleSpinBox(self.showGroup)
         self.rangeHighPercentile.setObjectName("rangeHighPercentile")
         self.rangeHighPercentile.setMinimum(0.0)
+        self.rangeHighPercentile.setDecimals(1)
         self.rangeHighPercentile.setMaximum(100.0)
-        self.rangeHighPercentile.setValue(99.0)
+        self.rangeHighPercentile.setValue(99.5)
         self.rangeHighPercentile.setEnabled(False)
 
         self.resultRangeLayout.addWidget(self.rangeHighPercentile)
@@ -1650,9 +1658,13 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionSettings)
         self.menuMode.addAction(self.actionModeTMS)
         self.menuMode.addAction(self.actionModeTDCS)
-        self.menuView.addAction(self.actionViewXY)
-        self.menuView.addAction(self.actionViewXZ)
-        self.menuView.addAction(self.actionViewYZ)
+        self.menuView.addAction(self.actionViewTop)
+        self.menuView.addAction(self.actionViewBottom)
+        self.menuView.addAction(self.actionViewFront)
+        self.menuView.addAction(self.actionViewBack)
+        self.menuView.addAction(self.actionViewLeft)
+        self.menuView.addAction(self.actionViewRight)
+        self.menuView.addSeparator()
         self.menuView.addAction(self.actionResetView)
         self.menuRun.addAction(self.actionRun)
         self.menuRun.addSeparator()
@@ -1669,10 +1681,14 @@ class Ui_MainWindow(object):
         self.mainToolBar.addAction(self.actionUndo)
         self.mainToolBar.addAction(self.actionRedo)
         self.mainToolBar.addSeparator()
-        self.mainToolBar.addAction(self.actionViewXY)
-        self.mainToolBar.addAction(self.actionViewXZ)
-        self.mainToolBar.addAction(self.actionViewYZ)
+        self.mainToolBar.addAction(self.actionViewTop)
+        self.mainToolBar.addAction(self.actionViewBottom)
+        self.mainToolBar.addAction(self.actionViewFront)
+        self.mainToolBar.addAction(self.actionViewBack)
+        self.mainToolBar.addAction(self.actionViewLeft)
+        self.mainToolBar.addAction(self.actionViewRight)
         self.mainToolBar.addAction(self.actionResetView)
+        self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionSaveImage)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionRun)
@@ -1793,23 +1809,39 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Ctrl+,", None)
         )
         # endif // QT_CONFIG(shortcut)
-        self.actionViewXY.setText(
-            QCoreApplication.translate("MainWindow", "Top (XY)", None)
+        self.actionViewTop.setText(QCoreApplication.translate("MainWindow", "Top", None))
+        self.actionViewTop.setIconText(
+            QCoreApplication.translate("MainWindow", "Top", None)
         )
-        self.actionViewXY.setIconText(
-            QCoreApplication.translate("MainWindow", "XY", None)
+        self.actionViewBottom.setText(
+            QCoreApplication.translate("MainWindow", "Bottom", None)
         )
-        self.actionViewXZ.setText(
-            QCoreApplication.translate("MainWindow", "Front (XZ)", None)
+        self.actionViewBottom.setIconText(
+            QCoreApplication.translate("MainWindow", "Bottom", None)
         )
-        self.actionViewXZ.setIconText(
-            QCoreApplication.translate("MainWindow", "XZ", None)
+        self.actionViewFront.setText(
+            QCoreApplication.translate("MainWindow", "Front", None)
         )
-        self.actionViewYZ.setText(
-            QCoreApplication.translate("MainWindow", "Side (YZ)", None)
+        self.actionViewFront.setIconText(
+            QCoreApplication.translate("MainWindow", "Front", None)
         )
-        self.actionViewYZ.setIconText(
-            QCoreApplication.translate("MainWindow", "YZ", None)
+        self.actionViewBack.setText(
+            QCoreApplication.translate("MainWindow", "Back", None)
+        )
+        self.actionViewBack.setIconText(
+            QCoreApplication.translate("MainWindow", "Back", None)
+        )
+        self.actionViewLeft.setText(
+            QCoreApplication.translate("MainWindow", "Left", None)
+        )
+        self.actionViewLeft.setIconText(
+            QCoreApplication.translate("MainWindow", "Left", None)
+        )
+        self.actionViewRight.setText(
+            QCoreApplication.translate("MainWindow", "Right", None)
+        )
+        self.actionViewRight.setIconText(
+            QCoreApplication.translate("MainWindow", "Right", None)
         )
         self.actionResetView.setText(
             QCoreApplication.translate("MainWindow", "Reset view", None)
@@ -2484,7 +2516,7 @@ class Ui_MainWindow(object):
         # if QT_CONFIG(tooltip)
         self.autoRange.setToolTip(
             QCoreApplication.translate(
-                "MainWindow", "Use the 1st and 99th percentiles", None
+                "MainWindow", "Use the 0.5th and 99.5th percentiles", None
             )
         )
         # endif // QT_CONFIG(tooltip)
