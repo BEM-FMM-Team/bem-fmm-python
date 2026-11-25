@@ -229,8 +229,9 @@ switches to its mode.
 - **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
   normal current density, charge, potential) on any tissue. Results open on
   the tissue picked last, ``gm`` at first
-- **Colormap** and **Range** (automatic from the 5th to 95th percentile, or
-  fixed)
+- **Colormap** and **Range** (automatic at the 5th and 95th percentiles, or
+  manual percentile limits from 0 to 100). The actual values for both limits
+  are shown beside the percentile controls.
 - the minimum, median, 99th percentile and maximum of the values shown
 - Charge density is displayed with an SI prefix chosen from its magnitude
 - **Show in 3D view** switches between the result and the setup. It is ticked

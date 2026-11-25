@@ -1605,16 +1605,54 @@
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="rangeMin">
+               <widget class="QDoubleSpinBox" name="rangeLowPercentile">
+                <property name="toolTip">
+                 <string>Lower color limit percentile (0–100)</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>5.000000000000000</double>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="rangeMax">
+               <widget class="QLabel" name="rangeLowValue">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rangeHighPercentile">
+                <property name="toolTip">
+                 <string>Upper color limit percentile (0–100)</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>95.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="rangeHighValue">
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>

@@ -66,7 +66,7 @@ from .dialogs import (
     new_project_from_surfaces,
     open_project_folder,
 )
-from .field_display import auto_color_limits, charge_density_display_scale
+from .field_display import charge_density_display_scale, percentile_color_limits
 from .plots import PlotPanel
 from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
@@ -317,7 +317,16 @@ class MainWindow(QMainWindow):
             spin(box, -100.0, 100.0, 3, 0.1)
         spin(ui.planeOffset, -1000.0, 1000.0, 1, 1.0)
 
-        for box in (ui.rangeMin, ui.rangeMax, ui.sliceMin, ui.sliceMax):
+        for box in (ui.rangeLowPercentile, ui.rangeHighPercentile):
+            spin(box, 0.0, 100.0, 0, 1.0)
+            box.setSuffix("%")
+            box.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        ui.rangeLowPercentile.setValue(5)
+        ui.rangeHighPercentile.setValue(95)
+        ui.rangeLowPercentile.setMaximum(ui.rangeHighPercentile.value())
+        ui.rangeHighPercentile.setMinimum(ui.rangeLowPercentile.value())
+
+        for box in (ui.sliceMin, ui.sliceMax):
             spin(box, -1e12, 1e12, 4, 1.0)
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
         spin(ui.sliceLogFactor, 0.0001, 1.0, 4, 0.005)
@@ -485,8 +494,8 @@ class MainWindow(QMainWindow):
         ui.resultTissue.currentIndexChanged.connect(self.result_selection_changed)
         ui.resultColormap.currentIndexChanged.connect(self.update_result_view)
         ui.autoRange.toggled.connect(self.auto_range_toggled)
-        ui.rangeMin.valueChanged.connect(self.update_result_view)
-        ui.rangeMax.valueChanged.connect(self.update_result_view)
+        ui.rangeLowPercentile.valueChanged.connect(self.range_percentile_changed)
+        ui.rangeHighPercentile.valueChanged.connect(self.range_percentile_changed)
         ui.showResultButton.toggled.connect(self.show_result_toggled)
         ui.showItemsCheck.toggled.connect(self.show_items)
         ui.exportFieldsButton.clicked.connect(self.export_fields)
@@ -2166,6 +2175,8 @@ class MainWindow(QMainWindow):
         ui.resultTissue.clear()
         self.updating = False
         ui.resultStats.setText("")
+        ui.rangeLowValue.setText("")
+        ui.rangeHighValue.setText("")
         ui.electrodeResultGroup.setVisible(False)
         ui.viewTabs.setTabVisible(ui.viewTabs.indexOf(ui.electrodesTab), False)
         for widget in (
@@ -2218,20 +2229,37 @@ class MainWindow(QMainWindow):
             f"max {high:.4g} {unit}"
         )
         if self.ui.autoRange.isChecked():
-            self.set_range(*auto_color_limits(values))
+            self.set_range(5, 95)
+        low, high = percentile_color_limits(
+            values,
+            self.ui.rangeLowPercentile.value(),
+            self.ui.rangeHighPercentile.value(),
+        )
+        self.ui.rangeLowValue.setText(f"{low:.4g} {unit}")
+        self.ui.rangeHighValue.setText(f"{high:.4g} {unit}")
         self.update_result_view()
 
     def set_range(self, low, high):
         self.updating = True
-        self.ui.rangeMin.setValue(low)
-        self.ui.rangeMax.setValue(high)
+        self.ui.rangeLowPercentile.setMaximum(100)
+        self.ui.rangeHighPercentile.setMinimum(0)
+        self.ui.rangeLowPercentile.setValue(low)
+        self.ui.rangeHighPercentile.setValue(high)
+        self.ui.rangeLowPercentile.setMaximum(high)
+        self.ui.rangeHighPercentile.setMinimum(low)
         self.updating = False
 
     def auto_range_toggled(self, checked):
-        self.ui.rangeMin.setEnabled(not checked)
-        self.ui.rangeMax.setEnabled(not checked)
-        if checked:
-            self.result_selection_changed()
+        self.ui.rangeLowPercentile.setEnabled(not checked)
+        self.ui.rangeHighPercentile.setEnabled(not checked)
+        self.result_selection_changed()
+
+    def range_percentile_changed(self, *_):
+        if self.updating:
+            return
+        self.ui.rangeLowPercentile.setMaximum(self.ui.rangeHighPercentile.value())
+        self.ui.rangeHighPercentile.setMinimum(self.ui.rangeLowPercentile.value())
+        self.result_selection_changed()
 
     def update_result_view(self):
         if self.updating or not self.field_shown():
@@ -2242,13 +2270,18 @@ class MainWindow(QMainWindow):
         label, _ = FIELD_LABELS[name]
         tissue = self.ui.resultTissue.currentText()
         with busy():
+            low, high = percentile_color_limits(
+                values,
+                self.ui.rangeLowPercentile.value(),
+                self.ui.rangeHighPercentile.value(),
+            )
             self.viewport.show_field(
                 self.result.P,
                 self.result.t[self.result.facets(tissue)],
                 values,
                 self.ui.resultColormap.currentText(),
-                self.ui.rangeMin.value(),
-                self.ui.rangeMax.value(),
+                low,
+                high,
                 unit,
             )
         self.field_drawn = True

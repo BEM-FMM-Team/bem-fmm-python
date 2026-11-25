@@ -30,6 +30,5 @@ def charge_density_display_scale(values):
     return 10.0 ** -exponent, f"{prefixes[exponent]}C/m^2"
 
 
-def auto_color_limits(values):
-    # percentile limits are more robust to outliers than min/max
-    return np.percentile(values, [5, 95])
+def percentile_color_limits(values, lower, upper):
+    return np.percentile(values, [lower, upper])

@@ -1,6 +1,9 @@
 import numpy as np
 
-from bemfmm.gui.field_display import auto_color_limits, charge_density_display_scale
+from bemfmm.gui.field_display import (
+    charge_density_display_scale,
+    percentile_color_limits,
+)
 
 
 def test_charge_density_display_scale_uses_prefix_for_magnitude():
@@ -17,7 +20,13 @@ def test_charge_density_display_scale_keeps_zero_in_base_units():
     assert unit == "C/m^2"
 
 
-def test_auto_color_limits_use_fifth_and_ninety_fifth_percentiles():
-    low, high = auto_color_limits(np.arange(100))
+def test_percentile_color_limits_use_requested_percentiles():
+    low, high = percentile_color_limits(np.arange(100), 5, 95)
 
     np.testing.assert_allclose([low, high], [4.95, 94.05])
+
+
+def test_manual_percentile_color_limits():
+    low, high = percentile_color_limits(np.arange(100), 10, 90)
+
+    np.testing.assert_allclose([low, high], [9.9, 89.1])

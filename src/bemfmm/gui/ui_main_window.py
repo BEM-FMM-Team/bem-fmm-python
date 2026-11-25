@@ -1301,17 +1301,33 @@ class Ui_MainWindow(object):
 
         self.resultRangeLayout.addWidget(self.autoRange)
 
-        self.rangeMin = QDoubleSpinBox(self.showGroup)
-        self.rangeMin.setObjectName("rangeMin")
-        self.rangeMin.setEnabled(False)
+        self.rangeLowPercentile = QDoubleSpinBox(self.showGroup)
+        self.rangeLowPercentile.setObjectName("rangeLowPercentile")
+        self.rangeLowPercentile.setMinimum(0.0)
+        self.rangeLowPercentile.setMaximum(100.0)
+        self.rangeLowPercentile.setValue(5.0)
+        self.rangeLowPercentile.setEnabled(False)
 
-        self.resultRangeLayout.addWidget(self.rangeMin)
+        self.resultRangeLayout.addWidget(self.rangeLowPercentile)
 
-        self.rangeMax = QDoubleSpinBox(self.showGroup)
-        self.rangeMax.setObjectName("rangeMax")
-        self.rangeMax.setEnabled(False)
+        self.rangeLowValue = QLabel(self.showGroup)
+        self.rangeLowValue.setObjectName("rangeLowValue")
 
-        self.resultRangeLayout.addWidget(self.rangeMax)
+        self.resultRangeLayout.addWidget(self.rangeLowValue)
+
+        self.rangeHighPercentile = QDoubleSpinBox(self.showGroup)
+        self.rangeHighPercentile.setObjectName("rangeHighPercentile")
+        self.rangeHighPercentile.setMinimum(0.0)
+        self.rangeHighPercentile.setMaximum(100.0)
+        self.rangeHighPercentile.setValue(95.0)
+        self.rangeHighPercentile.setEnabled(False)
+
+        self.resultRangeLayout.addWidget(self.rangeHighPercentile)
+
+        self.rangeHighValue = QLabel(self.showGroup)
+        self.rangeHighValue.setObjectName("rangeHighValue")
+
+        self.resultRangeLayout.addWidget(self.rangeHighValue)
 
         self.showLayout.setLayout(
             3, QFormLayout.ItemRole.FieldRole, self.resultRangeLayout
@@ -2473,6 +2489,18 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Range", None)
         )
         self.autoRange.setText(QCoreApplication.translate("MainWindow", "Auto", None))
+        # if QT_CONFIG(tooltip)
+        self.rangeLowPercentile.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Lower color limit percentile (0–100)", None
+            )
+        )
+        self.rangeHighPercentile.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Upper color limit percentile (0–100)", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.resultStats.setText("")
         self.showResultButton.setText(
             QCoreApplication.translate("MainWindow", "Show in 3D view", None)
