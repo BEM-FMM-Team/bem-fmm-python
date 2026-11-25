@@ -36,6 +36,7 @@ from bemfmm.coils import (
 )
 from bemfmm.coils.rotation import axis_twist, quat_to_xyz
 from bemfmm.conductivity import conductivity, find_conductivity
+from bemfmm.constants import eps0
 from bemfmm.electrode import montage_problem
 from bemfmm.export import export_matlab
 from bemfmm.model import (
@@ -64,6 +65,11 @@ from .dialogs import (
     last_project,
     new_project_from_surfaces,
     open_project_folder,
+)
+from .field_display import (
+    AUTO_COLOR_PERCENTILES,
+    charge_density_display_scale,
+    percentile_color_limits,
 )
 from .plots import PlotPanel
 from .settings import Settings
@@ -118,8 +124,9 @@ NO_3D_MESSAGE = (
 
 VIEWER_KEYS = """Left click        select a coil or electrode
 Drag an item      move it over the surface
-Left drag         rotate around the head
-Shift + left drag pan
+Left drag         turntable rotate (horizontal: azimuth, vertical: elevation)
+Shift + left drag constrain rotation to the dominant axis
+Middle drag       pan
 Right drag        zoom
 Scroll            zoom
 
@@ -315,7 +322,16 @@ class MainWindow(QMainWindow):
             spin(box, -100.0, 100.0, 3, 0.1)
         spin(ui.planeOffset, -1000.0, 1000.0, 1, 1.0)
 
-        for box in (ui.rangeMin, ui.rangeMax, ui.sliceMin, ui.sliceMax):
+        for box in (ui.rangeLowPercentile, ui.rangeHighPercentile):
+            spin(box, 0.0, 100.0, 1, 1.0)
+            box.setSuffix("%")
+            box.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        ui.rangeLowPercentile.setValue(AUTO_COLOR_PERCENTILES[0])
+        ui.rangeHighPercentile.setValue(AUTO_COLOR_PERCENTILES[1])
+        ui.rangeLowPercentile.setMaximum(ui.rangeHighPercentile.value())
+        ui.rangeHighPercentile.setMinimum(ui.rangeLowPercentile.value())
+
+        for box in (ui.sliceMin, ui.sliceMax):
             spin(box, -1e12, 1e12, 4, 1.0)
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
         spin(ui.sliceLogFactor, 0.0001, 1.0, 4, 0.005)
@@ -351,9 +367,12 @@ class MainWindow(QMainWindow):
                 widget.setEnabled(False)
                 widget.setToolTip("Needs the 3D view")
             for action in (
-                ui.actionViewXY,
-                ui.actionViewXZ,
-                ui.actionViewYZ,
+                ui.actionViewTop,
+                ui.actionViewBottom,
+                ui.actionViewFront,
+                ui.actionViewBack,
+                ui.actionViewLeft,
+                ui.actionViewRight,
                 ui.actionResetView,
                 ui.actionSaveImage,
             ):
@@ -384,9 +403,12 @@ class MainWindow(QMainWindow):
         ui.actionRedo.triggered.connect(self.redo)
         ui.actionSettings.triggered.connect(self.open_settings)
         ui.actionModeTMS.toggled.connect(self.set_mode)
-        ui.actionViewXY.triggered.connect(lambda: self.viewport.view("xy"))
-        ui.actionViewXZ.triggered.connect(lambda: self.viewport.view("xz"))
-        ui.actionViewYZ.triggered.connect(lambda: self.viewport.view("yz"))
+        ui.actionViewTop.triggered.connect(lambda: self.viewport.view("top"))
+        ui.actionViewBottom.triggered.connect(lambda: self.viewport.view("bottom"))
+        ui.actionViewFront.triggered.connect(lambda: self.viewport.view("front"))
+        ui.actionViewBack.triggered.connect(lambda: self.viewport.view("back"))
+        ui.actionViewLeft.triggered.connect(lambda: self.viewport.view("left"))
+        ui.actionViewRight.triggered.connect(lambda: self.viewport.view("right"))
         ui.actionResetView.triggered.connect(self.viewport.reset_view)
         ui.actionRun.triggered.connect(self.run)
         ui.actionSphere.triggered.connect(self.run_sphere)
@@ -483,8 +505,8 @@ class MainWindow(QMainWindow):
         ui.resultTissue.currentIndexChanged.connect(self.result_selection_changed)
         ui.resultColormap.currentIndexChanged.connect(self.update_result_view)
         ui.autoRange.toggled.connect(self.auto_range_toggled)
-        ui.rangeMin.valueChanged.connect(self.update_result_view)
-        ui.rangeMax.valueChanged.connect(self.update_result_view)
+        ui.rangeLowPercentile.valueChanged.connect(self.range_percentile_changed)
+        ui.rangeHighPercentile.valueChanged.connect(self.range_percentile_changed)
         ui.showResultButton.toggled.connect(self.show_result_toggled)
         ui.showItemsCheck.toggled.connect(self.show_items)
         ui.exportFieldsButton.clicked.connect(self.export_fields)
@@ -1942,8 +1964,6 @@ class MainWindow(QMainWindow):
             str(ui.iterations.value()),
             "--relres",
             repr(ui.relres.value()),
-            "--weight",
-            repr(ui.weight.value()),
             "--save-format",
             ui.exportFormat.currentText(),
         ]
@@ -2084,6 +2104,8 @@ class MainWindow(QMainWindow):
         ui.resultField.clear()
         for name, (label, unit) in FIELD_LABELS.items():
             if name in result.fields:
+                if name == "c":
+                    _, unit = charge_density_display_scale(result.fields[name] * eps0)
                 ui.resultField.addItem(f"{label} ({unit})", name)
         ui.resultTissue.clear()
         ui.resultTissue.addItems(result.tissues)
@@ -2163,7 +2185,8 @@ class MainWindow(QMainWindow):
         ui.resultField.clear()
         ui.resultTissue.clear()
         self.updating = False
-        ui.resultStats.setText("")
+        ui.rangeLowValue.setText("")
+        ui.rangeHighValue.setText("")
         ui.electrodeResultGroup.setVisible(False)
         ui.viewTabs.setTabVisible(ui.viewTabs.indexOf(ui.electrodesTab), False)
         for widget in (
@@ -2190,54 +2213,80 @@ class MainWindow(QMainWindow):
         name = self.ui.resultField.currentData()
         tissue = self.ui.resultTissue.currentText()
         if self.result is None or name is None or not tissue:
-            return None, None
-        return name, self.result.on(name, tissue)
+            return None, None, None
+        values = self.result.on(name, tissue)
+        unit = FIELD_LABELS[name][1]
+        if name == "c":
+            # c is normalized by eps0; display the physical charge density.
+            scale, unit = charge_density_display_scale(self.result.fields[name] * eps0)
+            values = values * eps0 * scale
+        return name, values, unit
 
     def result_selection_changed(self):
         if self.updating:
             return
         self.result_tissue = self.ui.resultTissue.currentText()
-        name, values = self.result_values()
+        name, values, unit = self.result_values()
         if values is None:
             return
-        _, unit = FIELD_LABELS[name]
-        low, median, p99, high = np.percentile(values, [0, 50, 99, 100])
-        self.ui.resultStats.setText(
-            f"min {low:.4g}   median {median:.4g}   99th pct {p99:.4g}   "
-            f"max {high:.4g} {unit}"
+        label, _ = FIELD_LABELS[name]
+        self.ui.resultField.setItemText(
+            self.ui.resultField.currentIndex(), f"{label} ({unit})"
         )
         if self.ui.autoRange.isChecked():
-            self.set_range(low, high)
+            self.set_range(*AUTO_COLOR_PERCENTILES)
+        low, high = percentile_color_limits(
+            values,
+            self.ui.rangeLowPercentile.value(),
+            self.ui.rangeHighPercentile.value(),
+        )
+        self.ui.rangeLowValue.setText(f"{low:.4g} {unit}")
+        self.ui.rangeHighValue.setText(f"{high:.4g} {unit}")
         self.update_result_view()
 
     def set_range(self, low, high):
         self.updating = True
-        self.ui.rangeMin.setValue(low)
-        self.ui.rangeMax.setValue(high)
+        self.ui.rangeLowPercentile.setMaximum(100)
+        self.ui.rangeHighPercentile.setMinimum(0)
+        self.ui.rangeLowPercentile.setValue(low)
+        self.ui.rangeHighPercentile.setValue(high)
+        self.ui.rangeLowPercentile.setMaximum(high)
+        self.ui.rangeHighPercentile.setMinimum(low)
         self.updating = False
 
     def auto_range_toggled(self, checked):
-        self.ui.rangeMin.setEnabled(not checked)
-        self.ui.rangeMax.setEnabled(not checked)
-        if checked:
-            self.result_selection_changed()
+        self.ui.rangeLowPercentile.setEnabled(not checked)
+        self.ui.rangeHighPercentile.setEnabled(not checked)
+        self.result_selection_changed()
+
+    def range_percentile_changed(self, *_):
+        if self.updating:
+            return
+        self.ui.rangeLowPercentile.setMaximum(self.ui.rangeHighPercentile.value())
+        self.ui.rangeHighPercentile.setMinimum(self.ui.rangeLowPercentile.value())
+        self.result_selection_changed()
 
     def update_result_view(self):
         if self.updating or not self.field_shown():
             return
-        name, values = self.result_values()
+        name, values, unit = self.result_values()
         if values is None:
             return
-        label, unit = FIELD_LABELS[name]
+        label, _ = FIELD_LABELS[name]
         tissue = self.ui.resultTissue.currentText()
         with busy():
+            low, high = percentile_color_limits(
+                values,
+                self.ui.rangeLowPercentile.value(),
+                self.ui.rangeHighPercentile.value(),
+            )
             self.viewport.show_field(
                 self.result.P,
                 self.result.t[self.result.facets(tissue)],
                 values,
                 self.ui.resultColormap.currentText(),
-                self.ui.rangeMin.value(),
-                self.ui.rangeMax.value(),
+                low,
+                high,
                 unit,
             )
         self.field_drawn = True
@@ -2515,7 +2564,7 @@ class MainWindow(QMainWindow):
             "About BEM-FMM",
             f"<b>BEM-FMM</b> {package_version()}<br><br>"
             "Charge based boundary element fast multipole method for "
-            "modeling TMS and TES.<br><br>(c) 2026 WPI",
+            "modeling TMS and TES.<br><br>(c) 2026 The BEM-FMM Team",
         )
 
     def closeEvent(self, event):

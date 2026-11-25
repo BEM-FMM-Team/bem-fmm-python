@@ -120,6 +120,13 @@ QToolBar {
     padding: 2px 6px;
 }
 
+QToolBar::separator {
+    background: $toolbar_separator;
+    width: 1px;
+    height: 18px;
+    margin: 4px 5px;
+}
+
 QToolButton#modeButton {
     padding: 3px 16px;
     font-weight: 600;

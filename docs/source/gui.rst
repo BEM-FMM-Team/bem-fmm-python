@@ -206,8 +206,6 @@ Solver settings:
   settings while switching. Tolerance is typed and shown in
   scientific notation (``1e-6``, ``2.5e-7``), the arrows step by a factor of
   ten
-- **Conservation weight**: weight of the term that keeps the total charge
-  (TMS) or the total electrode current (TES) at zero
 
 Output:
 
@@ -231,8 +229,12 @@ switches to its mode.
 - **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
   normal current density, charge, potential) on any tissue. Results open on
   the tissue picked last, ``gm`` at first
-- **Colormap** and **Range** (automatic or fixed)
-- the minimum, median, 99th percentile and maximum of the values shown
+- **Colormap** and **Range** (automatic at the 0.5th and 99.5th percentiles, or
+  manual percentile limits from 0 to 100). The actual values for both limits
+  are shown beside the percentile controls.
+- Only the selected percentile limits and their corresponding values are shown;
+  min, median and max are omitted
+- Charge density is displayed with an SI prefix chosen from its magnitude
 - **Show in 3D view** switches between the result and the setup. It is ticked
   for every new result and keeps its state when switching tabs. On the
   Coils/Electrodes tab the view always shows the setup, since placing needs
@@ -285,20 +287,21 @@ screen. Closing that window, or pressing **Dock**, puts it back.
 3D view mouse and keys
 ----------------------
 
-========================= ==================================
-Left click                select a coil or electrode, empty space clears
-Drag a coil or electrode  move it over the surface
-Esc                       leave Pick target, else clear the selection
-Delete, Backspace         remove the selected coil or electrode
-Left drag                 rotate
-Shift + left drag         pan
-Right drag or scroll      zoom
-r                         reset the camera
-w, s                      wireframe, surface
-f                         fly to the point under the mouse
-========================= ==================================
+- **Left click** selects a coil or electrode; clicking empty space clears the
+  selection.
+- **Drag a coil or electrode** to move it over the surface.
+- **Esc** leaves Pick target, or otherwise clears the selection.
+- **Delete** or **Backspace** removes the selected coil or electrode.
+- **Left drag** rotates turntable-style: horizontal motion changes azimuth,
+  vertical motion changes elevation, and the view-up direction stays natural.
+- **Shift + left drag** constrains rotation to the dominant axis.
+- **Middle drag** pans; **right drag** or scrolling zooms.
+- **r** resets the camera; **w** and **s** toggle wireframe and surface;
+  **f** flies to the point under the mouse.
 
-The XY, XZ, YZ and Reset buttons in the toolbar set the camera.
+The Top, Bottom, Front, Back, Left, Right and Reset buttons in the toolbar set
+the camera. Top/Bottom look from +Z/-Z, Front/Back from +Y/-Y, and Right/Left
+from +X/-X.
 
 Setups
 ------

@@ -7,8 +7,6 @@ import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 
-from bemfmm.mesh import mesh_areas, mesh_tricenter
-
 TISSUE_COLORS = {
     "skin": "#e8c4a8",
     "bone": "#ede4cf",
@@ -34,12 +32,14 @@ VIEW_COLORS = {
     "dark": ("#2b3137", "#15181b", "#d8dde1"),
 }
 
-
-def surface_centroid(surfaces):
-    # area weighted, so it does not move with how finely each part is meshed
-    centers = np.vstack([mesh_tricenter(P, t) for P, t in surfaces])
-    areas = np.vstack([mesh_areas(P, t) for P, t in surfaces])
-    return np.sum(centers * areas, axis=0) / np.sum(areas)
+VIEW_PRESETS = {
+    "top": ((0, 0, 1), (0, 1, 0)),
+    "bottom": ((0, 0, -1), (0, -1, 0)),
+    "front": ((0, 1, 0), (0, 0, 1)),
+    "back": ((0, -1, 0), (0, 0, 1)),
+    "left": ((-1, 0, 0), (0, 0, 1)),
+    "right": ((1, 0, 0), (0, 0, 1)),
+}
 
 
 def electrode_color(voltage):
@@ -92,7 +92,6 @@ class Viewport:
         self.planes = []
         self.axes = None
         self.half = 0.1
-        self.pivot = np.zeros(3)  # head centroid, the camera turns around it
         self.field = None
         self.scalar_bar = None
         self.size = 0.2
@@ -125,10 +124,11 @@ class Viewport:
 
         self.plt.add_callback("LeftButtonPress", self._on_click)
         self.plt.show(interactive=False)
-        # presses on coils and electrodes and the r key are handled before vtk
-        # sees them
-        self.input_filter = InputFilter(self)
-        self.widget.installEventFilter(self.input_filter)
+        # Azimuth/elevation rotation keeps the view-up direction natural.
+        self.plt.user_mode("Terrain")
+        # presses on coils and electrodes are handled before vtk sees them
+        self.mouse_filter = MouseFilter(self)
+        self.widget.installEventFilter(self.mouse_filter)
         # the camera style grabs the mouse on press, so the button release only
         # reaches it and shows up here as the end of its interaction
         style = self.plt.interactor.GetInteractorStyle()
@@ -170,7 +170,6 @@ class Viewport:
 
         P = np.vstack([P for P, _ in surfaces.values()])
         half = np.max(np.abs(P)) if len(P) else 0.1
-        self.pivot = surface_centroid(surfaces.values()) if len(P) else np.zeros(3)
         # round up to 20 mm so the ticks land on whole 10 mm steps
         self.half = np.ceil(half * 50) / 50
         self.size = 2.5 * self.half
@@ -332,13 +331,6 @@ class Viewport:
         if self.on_select:
             self.on_select(name if kind in ("coil", "electrode") else None)
 
-    def _on_key(self, event):
-        # vedo's own r centers on every prop, axes and coils included
-        if event.key() == Qt.Key_R and event.modifiers() == Qt.NoModifier:
-            self.reset_view()
-            return True
-        return False
-
     def _display(self, event):
         # qt widget coordinates to vtk display coordinates
         scale = self.widget.devicePixelRatioF()
@@ -352,6 +344,8 @@ class Viewport:
         # drags it over the pick surface, release drops it. Returns True for
         # the events it used, those never reach vtk and so never turn the camera
         kind = event.type()
+        if kind == QEvent.Wheel:
+            return self._on_wheel(event)
         if self.plane_grab is not None:
             return self._on_plane_mouse(event)
         if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
@@ -390,6 +384,15 @@ class Viewport:
             self.grab = self.drag_key = None
             return True
         return False
+
+    def _on_wheel(self, event):
+        delta = event.angleDelta().y() or event.pixelDelta().y()
+        if not delta:
+            return False
+        self.plt.camera.Dolly(1.1 ** (delta / 120))
+        self.plt.renderer.ResetCameraClippingRange()
+        self.render()
+        return True
 
     def _on_plane_mouse(self, event):
         start, axis = self.plane_grab
@@ -509,43 +512,31 @@ class Viewport:
 
     # camera
     def view(self, flag):
-        position, up = {
-            "xy": ((0, 0, 1), (0, 1, 0)),
-            "xz": ((0, 1, 0), (0, 0, 1)),
-            "yz": ((1, 0, 0), (0, 0, 1)),
-        }[flag]
-        self._look(position, up)
+        position, up = VIEW_PRESETS[flag]
+        camera = self.plt.camera
+        camera.SetFocalPoint(0, 0, 0)
+        camera.SetPosition(*position)
+        camera.SetViewUp(*up)
+        self.plt.renderer.ResetCamera()
+        self.render()
 
     def reset_view(self):
-        self._look((1, -1.2, 0.6), (0, 0, 1))
-
-    def _look(self, direction, up):
-        # looks at the head centroid from direction, the camera turns around
-        # its focal point, so that is where rotation stays centered. Framed on
-        # a box around the head, a plain ResetCamera centers on every prop
         camera = self.plt.camera
-        camera.SetFocalPoint(*self.pivot)
-        camera.SetPosition(*(self.pivot + np.asarray(direction, dtype=float)))
-        camera.SetViewUp(*up)
-        # xmin, xmax, ymin, ymax, zmin, zmax
-        bounds = np.repeat(self.pivot, 2) + np.tile([-self.half, self.half], 3)
-        renderer = self.plt.renderer
-        renderer.ResetCamera(*bounds)
-        renderer.ResetCameraClippingRange()
+        camera.SetFocalPoint(0, 0, 0)
+        camera.SetPosition(1, -1.2, 0.6)
+        camera.SetViewUp(0, 0, 1)
+        self.plt.renderer.ResetCamera()
         self.render()
 
     def close(self):
         self.plt.close()
 
 
-class InputFilter(QObject):
-    # Viewport is not a QObject, this passes the 3D widget's mouse and key
-    # events to it
+class MouseFilter(QObject):
+    # Viewport is not a QObject, this passes the 3D widget's mouse events to it
     def __init__(self, viewport):
         super().__init__(viewport.widget)
         self.viewport = viewport
 
     def eventFilter(self, watched, event):
-        if event.type() == QEvent.KeyPress:
-            return self.viewport._on_key(event)
         return self.viewport._on_mouse(event)

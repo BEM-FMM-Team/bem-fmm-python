@@ -1229,29 +1229,6 @@
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="weightLabel">
-              <property name="text">
-               <string>Conservation weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QDoubleSpinBox" name="weight">
-              <property name="decimals">
-               <number>4</number>
-              </property>
-              <property name="maximum">
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep">
-               <double>0.050000000000000</double>
-              </property>
-              <property name="value">
-               <double>0.500000000000000</double>
-              </property>
-             </widget>
-            </item>
            </layout>
           </widget>
          </item>
@@ -1619,6 +1596,9 @@
              <layout class="QHBoxLayout" name="resultRangeLayout">
               <item>
                <widget class="QCheckBox" name="autoRange">
+                <property name="toolTip">
+                 <string>Use the 0.5th and 99.5th percentiles</string>
+                </property>
                 <property name="text">
                  <string>Auto</string>
                 </property>
@@ -1628,32 +1608,66 @@
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="rangeMin">
+               <widget class="QDoubleSpinBox" name="rangeLowPercentile">
+                <property name="toolTip">
+                 <string>Lower color limit percentile (0–100)</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="decimals">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.500000000000000</double>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QDoubleSpinBox" name="rangeMax">
+               <widget class="QLabel" name="rangeLowValue">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="rangeHighPercentile">
+                <property name="toolTip">
+                 <string>Upper color limit percentile (0–100)</string>
+                </property>
                 <property name="enabled">
                  <bool>false</bool>
+                </property>
+                <property name="minimum">
+                 <double>0.000000000000000</double>
+                </property>
+                <property name="decimals">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>99.500000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="rangeHighValue">
+                <property name="text">
+                 <string/>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item row="4" column="0" colspan="2">
-             <widget class="QLabel" name="resultStats">
-              <property name="text">
-               <string/>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="2">
              <widget class="QPushButton" name="showResultButton">
               <property name="enabled">
                <bool>false</bool>
@@ -1666,7 +1680,7 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="0" colspan="2">
+            <item row="5" column="0" colspan="2">
              <widget class="QCheckBox" name="showItemsCheck">
               <property name="toolTip">
                <string>Draw the coils or electrodes over the result</string>
@@ -2119,9 +2133,13 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionViewXY"/>
-    <addaction name="actionViewXZ"/>
-    <addaction name="actionViewYZ"/>
+    <addaction name="actionViewTop"/>
+    <addaction name="actionViewBottom"/>
+    <addaction name="actionViewFront"/>
+    <addaction name="actionViewBack"/>
+    <addaction name="actionViewLeft"/>
+    <addaction name="actionViewRight"/>
+    <addaction name="separator"/>
     <addaction name="actionResetView"/>
    </widget>
    <widget class="QMenu" name="menuRun">
@@ -2172,10 +2190,14 @@
    <addaction name="actionUndo"/>
    <addaction name="actionRedo"/>
    <addaction name="separator"/>
-   <addaction name="actionViewXY"/>
-   <addaction name="actionViewXZ"/>
-   <addaction name="actionViewYZ"/>
+   <addaction name="actionViewTop"/>
+   <addaction name="actionViewBottom"/>
+   <addaction name="actionViewFront"/>
+   <addaction name="actionViewBack"/>
+   <addaction name="actionViewLeft"/>
+   <addaction name="actionViewRight"/>
    <addaction name="actionResetView"/>
+   <addaction name="separator"/>
    <addaction name="actionSaveImage"/>
    <addaction name="separator"/>
    <addaction name="actionRun"/>
@@ -2335,28 +2357,52 @@
     </property>
    </action>
   </actiongroup>
-  <action name="actionViewXY">
+  <action name="actionViewTop">
    <property name="text">
-    <string>Top (XY)</string>
+    <string>Top</string>
    </property>
    <property name="iconText">
-    <string>XY</string>
+    <string>Top</string>
    </property>
   </action>
-  <action name="actionViewXZ">
+  <action name="actionViewBottom">
    <property name="text">
-    <string>Front (XZ)</string>
+    <string>Bottom</string>
    </property>
    <property name="iconText">
-    <string>XZ</string>
+    <string>Bottom</string>
    </property>
   </action>
-  <action name="actionViewYZ">
+  <action name="actionViewFront">
    <property name="text">
-    <string>Side (YZ)</string>
+    <string>Front</string>
    </property>
    <property name="iconText">
-    <string>YZ</string>
+    <string>Front</string>
+   </property>
+  </action>
+  <action name="actionViewBack">
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="iconText">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="actionViewLeft">
+   <property name="text">
+    <string>Left</string>
+   </property>
+   <property name="iconText">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionViewRight">
+   <property name="text">
+    <string>Right</string>
+   </property>
+   <property name="iconText">
+    <string>Right</string>
    </property>
   </action>
   <action name="actionResetView">

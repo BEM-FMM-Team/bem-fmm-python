@@ -123,12 +123,18 @@ class Ui_MainWindow(object):
         self.actionRedo.setObjectName("actionRedo")
         self.actionSettings = QAction(MainWindow)
         self.actionSettings.setObjectName("actionSettings")
-        self.actionViewXY = QAction(MainWindow)
-        self.actionViewXY.setObjectName("actionViewXY")
-        self.actionViewXZ = QAction(MainWindow)
-        self.actionViewXZ.setObjectName("actionViewXZ")
-        self.actionViewYZ = QAction(MainWindow)
-        self.actionViewYZ.setObjectName("actionViewYZ")
+        self.actionViewTop = QAction(MainWindow)
+        self.actionViewTop.setObjectName("actionViewTop")
+        self.actionViewBottom = QAction(MainWindow)
+        self.actionViewBottom.setObjectName("actionViewBottom")
+        self.actionViewFront = QAction(MainWindow)
+        self.actionViewFront.setObjectName("actionViewFront")
+        self.actionViewBack = QAction(MainWindow)
+        self.actionViewBack.setObjectName("actionViewBack")
+        self.actionViewLeft = QAction(MainWindow)
+        self.actionViewLeft.setObjectName("actionViewLeft")
+        self.actionViewRight = QAction(MainWindow)
+        self.actionViewRight.setObjectName("actionViewRight")
         self.actionResetView = QAction(MainWindow)
         self.actionResetView.setObjectName("actionResetView")
         self.actionRun = QAction(MainWindow)
@@ -1032,20 +1038,6 @@ class Ui_MainWindow(object):
 
         self.solverLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.relres)
 
-        self.weightLabel = QLabel(self.solverGroup)
-        self.weightLabel.setObjectName("weightLabel")
-
-        self.solverLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.weightLabel)
-
-        self.weight = QDoubleSpinBox(self.solverGroup)
-        self.weight.setObjectName("weight")
-        self.weight.setDecimals(4)
-        self.weight.setMaximum(1.000000000000000)
-        self.weight.setSingleStep(0.050000000000000)
-        self.weight.setValue(0.500000000000000)
-
-        self.solverLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.weight)
-
         self.solveLayout.addWidget(self.solverGroup)
 
         self.outputGroup = QGroupBox(self.solveTab)
@@ -1315,28 +1307,38 @@ class Ui_MainWindow(object):
 
         self.resultRangeLayout.addWidget(self.autoRange)
 
-        self.rangeMin = QDoubleSpinBox(self.showGroup)
-        self.rangeMin.setObjectName("rangeMin")
-        self.rangeMin.setEnabled(False)
+        self.rangeLowPercentile = QDoubleSpinBox(self.showGroup)
+        self.rangeLowPercentile.setObjectName("rangeLowPercentile")
+        self.rangeLowPercentile.setMinimum(0.0)
+        self.rangeLowPercentile.setDecimals(1)
+        self.rangeLowPercentile.setMaximum(100.0)
+        self.rangeLowPercentile.setValue(0.5)
+        self.rangeLowPercentile.setEnabled(False)
 
-        self.resultRangeLayout.addWidget(self.rangeMin)
+        self.resultRangeLayout.addWidget(self.rangeLowPercentile)
 
-        self.rangeMax = QDoubleSpinBox(self.showGroup)
-        self.rangeMax.setObjectName("rangeMax")
-        self.rangeMax.setEnabled(False)
+        self.rangeLowValue = QLabel(self.showGroup)
+        self.rangeLowValue.setObjectName("rangeLowValue")
 
-        self.resultRangeLayout.addWidget(self.rangeMax)
+        self.resultRangeLayout.addWidget(self.rangeLowValue)
+
+        self.rangeHighPercentile = QDoubleSpinBox(self.showGroup)
+        self.rangeHighPercentile.setObjectName("rangeHighPercentile")
+        self.rangeHighPercentile.setMinimum(0.0)
+        self.rangeHighPercentile.setDecimals(1)
+        self.rangeHighPercentile.setMaximum(100.0)
+        self.rangeHighPercentile.setValue(99.5)
+        self.rangeHighPercentile.setEnabled(False)
+
+        self.resultRangeLayout.addWidget(self.rangeHighPercentile)
+
+        self.rangeHighValue = QLabel(self.showGroup)
+        self.rangeHighValue.setObjectName("rangeHighValue")
+
+        self.resultRangeLayout.addWidget(self.rangeHighValue)
 
         self.showLayout.setLayout(
             3, QFormLayout.ItemRole.FieldRole, self.resultRangeLayout
-        )
-
-        self.resultStats = QLabel(self.showGroup)
-        self.resultStats.setObjectName("resultStats")
-        self.resultStats.setWordWrap(True)
-
-        self.showLayout.setWidget(
-            4, QFormLayout.ItemRole.SpanningRole, self.resultStats
         )
 
         self.showResultButton = QPushButton(self.showGroup)
@@ -1345,7 +1347,7 @@ class Ui_MainWindow(object):
         self.showResultButton.setCheckable(True)
 
         self.showLayout.setWidget(
-            5, QFormLayout.ItemRole.SpanningRole, self.showResultButton
+            4, QFormLayout.ItemRole.SpanningRole, self.showResultButton
         )
 
         self.showItemsCheck = QCheckBox(self.showGroup)
@@ -1353,7 +1355,7 @@ class Ui_MainWindow(object):
         self.showItemsCheck.setChecked(True)
 
         self.showLayout.setWidget(
-            6, QFormLayout.ItemRole.SpanningRole, self.showItemsCheck
+            5, QFormLayout.ItemRole.SpanningRole, self.showItemsCheck
         )
 
         self.resultsLayout.addWidget(self.showGroup)
@@ -1656,9 +1658,13 @@ class Ui_MainWindow(object):
         self.menuEdit.addAction(self.actionSettings)
         self.menuMode.addAction(self.actionModeTMS)
         self.menuMode.addAction(self.actionModeTDCS)
-        self.menuView.addAction(self.actionViewXY)
-        self.menuView.addAction(self.actionViewXZ)
-        self.menuView.addAction(self.actionViewYZ)
+        self.menuView.addAction(self.actionViewTop)
+        self.menuView.addAction(self.actionViewBottom)
+        self.menuView.addAction(self.actionViewFront)
+        self.menuView.addAction(self.actionViewBack)
+        self.menuView.addAction(self.actionViewLeft)
+        self.menuView.addAction(self.actionViewRight)
+        self.menuView.addSeparator()
         self.menuView.addAction(self.actionResetView)
         self.menuRun.addAction(self.actionRun)
         self.menuRun.addSeparator()
@@ -1675,10 +1681,14 @@ class Ui_MainWindow(object):
         self.mainToolBar.addAction(self.actionUndo)
         self.mainToolBar.addAction(self.actionRedo)
         self.mainToolBar.addSeparator()
-        self.mainToolBar.addAction(self.actionViewXY)
-        self.mainToolBar.addAction(self.actionViewXZ)
-        self.mainToolBar.addAction(self.actionViewYZ)
+        self.mainToolBar.addAction(self.actionViewTop)
+        self.mainToolBar.addAction(self.actionViewBottom)
+        self.mainToolBar.addAction(self.actionViewFront)
+        self.mainToolBar.addAction(self.actionViewBack)
+        self.mainToolBar.addAction(self.actionViewLeft)
+        self.mainToolBar.addAction(self.actionViewRight)
         self.mainToolBar.addAction(self.actionResetView)
+        self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionSaveImage)
         self.mainToolBar.addSeparator()
         self.mainToolBar.addAction(self.actionRun)
@@ -1799,23 +1809,39 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Ctrl+,", None)
         )
         # endif // QT_CONFIG(shortcut)
-        self.actionViewXY.setText(
-            QCoreApplication.translate("MainWindow", "Top (XY)", None)
+        self.actionViewTop.setText(QCoreApplication.translate("MainWindow", "Top", None))
+        self.actionViewTop.setIconText(
+            QCoreApplication.translate("MainWindow", "Top", None)
         )
-        self.actionViewXY.setIconText(
-            QCoreApplication.translate("MainWindow", "XY", None)
+        self.actionViewBottom.setText(
+            QCoreApplication.translate("MainWindow", "Bottom", None)
         )
-        self.actionViewXZ.setText(
-            QCoreApplication.translate("MainWindow", "Front (XZ)", None)
+        self.actionViewBottom.setIconText(
+            QCoreApplication.translate("MainWindow", "Bottom", None)
         )
-        self.actionViewXZ.setIconText(
-            QCoreApplication.translate("MainWindow", "XZ", None)
+        self.actionViewFront.setText(
+            QCoreApplication.translate("MainWindow", "Front", None)
         )
-        self.actionViewYZ.setText(
-            QCoreApplication.translate("MainWindow", "Side (YZ)", None)
+        self.actionViewFront.setIconText(
+            QCoreApplication.translate("MainWindow", "Front", None)
         )
-        self.actionViewYZ.setIconText(
-            QCoreApplication.translate("MainWindow", "YZ", None)
+        self.actionViewBack.setText(
+            QCoreApplication.translate("MainWindow", "Back", None)
+        )
+        self.actionViewBack.setIconText(
+            QCoreApplication.translate("MainWindow", "Back", None)
+        )
+        self.actionViewLeft.setText(
+            QCoreApplication.translate("MainWindow", "Left", None)
+        )
+        self.actionViewLeft.setIconText(
+            QCoreApplication.translate("MainWindow", "Left", None)
+        )
+        self.actionViewRight.setText(
+            QCoreApplication.translate("MainWindow", "Right", None)
+        )
+        self.actionViewRight.setIconText(
+            QCoreApplication.translate("MainWindow", "Right", None)
         )
         self.actionResetView.setText(
             QCoreApplication.translate("MainWindow", "Reset view", None)
@@ -2336,9 +2362,6 @@ class Ui_MainWindow(object):
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.weightLabel.setText(
-            QCoreApplication.translate("MainWindow", "Conservation weight", None)
-        )
         self.outputGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Output", None)
         )
@@ -2490,7 +2513,25 @@ class Ui_MainWindow(object):
             QCoreApplication.translate("MainWindow", "Range", None)
         )
         self.autoRange.setText(QCoreApplication.translate("MainWindow", "Auto", None))
-        self.resultStats.setText("")
+        # if QT_CONFIG(tooltip)
+        self.autoRange.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Use the 0.5th and 99.5th percentiles", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
+        self.rangeLowPercentile.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Lower color limit percentile (0–100)", None
+            )
+        )
+        self.rangeHighPercentile.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Upper color limit percentile (0–100)", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
         self.showResultButton.setText(
             QCoreApplication.translate("MainWindow", "Show in 3D view", None)
         )
