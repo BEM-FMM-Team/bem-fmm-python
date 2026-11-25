@@ -36,6 +36,7 @@ from bemfmm.coils import (
 )
 from bemfmm.coils.rotation import axis_twist, quat_to_xyz
 from bemfmm.conductivity import conductivity, find_conductivity
+from bemfmm.constants import eps0
 from bemfmm.electrode import montage_problem
 from bemfmm.export import export_matlab
 from bemfmm.model import (
