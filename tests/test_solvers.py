@@ -55,15 +55,25 @@ def test_tms_default_coil(sphere, tmp_path):
     assert again.info["coils"][0]["type"] == "default"
 
 
-def test_tdcs_three_electrodes(sphere):
+def test_tdcs_three_electrodes(sphere, monkeypatch):
     electrodes = [
         Electrode("E0", [0, 0, 0.042], 0.008, 1.0),
         Electrode("E1", [0, 0, -0.042], 0.008, -1.0),
         Electrode("E2", [0.042, 0, 0], 0.006, 0.5),
     ]
+    plain_calls = 0
+    plain = tdcs.surface_field_electric_plain
+
+    def counted_plain(*args, **kwargs):
+        nonlocal plain_calls
+        plain_calls += 1
+        return plain(*args, **kwargs)
+
+    monkeypatch.setattr(tdcs, "surface_field_electric_plain", counted_plain)
     result = tdcs.solve(sphere, electrodes, TDCS_OPTIONS)
     info = result.info["electrodes"]
 
+    assert plain_calls == 1
     assert [e["facets"] for e in info] == TDCS_FACETS
     np.testing.assert_allclose([e["current"] for e in info], TDCS_CURRENTS, rtol=RTOL)
     np.testing.assert_allclose(

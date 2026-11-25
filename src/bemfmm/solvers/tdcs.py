@@ -9,7 +9,6 @@ from scipy.linalg import lu_factor, lu_solve
 from scipy.spatial.distance import cdist
 
 from bemfmm.charge import (
-    electrode_current,
     potential_neighbor_ints,
     surface_field_electric_plain,
     surface_field_electric_subdiv,
@@ -320,7 +319,9 @@ def solve(
     start = perf_counter()
     report(progress, "fields")
     prec = 1e-2
-    Pot, _ = surface_field_electric_plain(c=c, center=center, area=area, prec=prec)
+    Pot, Ecenter = surface_field_electric_plain(
+        c=c, center=center, area=area, prec=prec
+    )
     # the electrodes with the integrals of the solve. MATLAB has those on
     # every facet, 450M integrals on a head, so the other facets get the
     # num_neighbors nearest, the self term is most of the correction
@@ -328,8 +329,13 @@ def solve(
     Pot = Pfmm + PC_near @ c
     Pot[indexe] = Pfmm[indexe] + PC @ c
 
-    currents, En_in = electrode_current(
-        c, center, area, normals, EC, prec, ElectrodeIndexes, condin
+    # Reuse the center-point field from the potential evaluation above.
+    En_in = -c / 2 + EC * c + np.sum(normals * Ecenter, axis=1)
+    currents = np.array(
+        [
+            -np.sum(En_in[index] * area[index] * condin[index])
+            for index in ElectrodeIndexes
+        ]
     )
 
     solved = np.array(
