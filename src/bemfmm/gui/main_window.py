@@ -118,7 +118,7 @@ NO_3D_MESSAGE = (
 
 VIEWER_KEYS = """Left click        select a coil or electrode
 Drag an item      move it over the surface
-Left drag         rotate
+Left drag         rotate around the head
 Shift + left drag pan
 Right drag        zoom
 Scroll            zoom
