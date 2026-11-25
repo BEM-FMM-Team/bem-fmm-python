@@ -1305,7 +1305,7 @@ class Ui_MainWindow(object):
         self.rangeLowPercentile.setObjectName("rangeLowPercentile")
         self.rangeLowPercentile.setMinimum(0.0)
         self.rangeLowPercentile.setMaximum(100.0)
-        self.rangeLowPercentile.setValue(5.0)
+        self.rangeLowPercentile.setValue(1.0)
         self.rangeLowPercentile.setEnabled(False)
 
         self.resultRangeLayout.addWidget(self.rangeLowPercentile)
@@ -1319,7 +1319,7 @@ class Ui_MainWindow(object):
         self.rangeHighPercentile.setObjectName("rangeHighPercentile")
         self.rangeHighPercentile.setMinimum(0.0)
         self.rangeHighPercentile.setMaximum(100.0)
-        self.rangeHighPercentile.setValue(95.0)
+        self.rangeHighPercentile.setValue(99.0)
         self.rangeHighPercentile.setEnabled(False)
 
         self.resultRangeLayout.addWidget(self.rangeHighPercentile)
@@ -1333,21 +1333,13 @@ class Ui_MainWindow(object):
             3, QFormLayout.ItemRole.FieldRole, self.resultRangeLayout
         )
 
-        self.resultStats = QLabel(self.showGroup)
-        self.resultStats.setObjectName("resultStats")
-        self.resultStats.setWordWrap(True)
-
-        self.showLayout.setWidget(
-            4, QFormLayout.ItemRole.SpanningRole, self.resultStats
-        )
-
         self.showResultButton = QPushButton(self.showGroup)
         self.showResultButton.setObjectName("showResultButton")
         self.showResultButton.setEnabled(False)
         self.showResultButton.setCheckable(True)
 
         self.showLayout.setWidget(
-            5, QFormLayout.ItemRole.SpanningRole, self.showResultButton
+            4, QFormLayout.ItemRole.SpanningRole, self.showResultButton
         )
 
         self.showItemsCheck = QCheckBox(self.showGroup)
@@ -1355,7 +1347,7 @@ class Ui_MainWindow(object):
         self.showItemsCheck.setChecked(True)
 
         self.showLayout.setWidget(
-            6, QFormLayout.ItemRole.SpanningRole, self.showItemsCheck
+            5, QFormLayout.ItemRole.SpanningRole, self.showItemsCheck
         )
 
         self.resultsLayout.addWidget(self.showGroup)
@@ -2490,6 +2482,13 @@ class Ui_MainWindow(object):
         )
         self.autoRange.setText(QCoreApplication.translate("MainWindow", "Auto", None))
         # if QT_CONFIG(tooltip)
+        self.autoRange.setToolTip(
+            QCoreApplication.translate(
+                "MainWindow", "Use the 1st and 99th percentiles", None
+            )
+        )
+        # endif // QT_CONFIG(tooltip)
+        # if QT_CONFIG(tooltip)
         self.rangeLowPercentile.setToolTip(
             QCoreApplication.translate(
                 "MainWindow", "Lower color limit percentile (0–100)", None
@@ -2501,7 +2500,6 @@ class Ui_MainWindow(object):
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.resultStats.setText("")
         self.showResultButton.setText(
             QCoreApplication.translate("MainWindow", "Show in 3D view", None)
         )

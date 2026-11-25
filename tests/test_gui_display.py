@@ -1,6 +1,7 @@
 import numpy as np
 
 from bemfmm.gui.field_display import (
+    AUTO_COLOR_PERCENTILES,
     charge_density_display_scale,
     percentile_color_limits,
 )
@@ -24,6 +25,12 @@ def test_percentile_color_limits_use_requested_percentiles():
     low, high = percentile_color_limits(np.arange(100), 5, 95)
 
     np.testing.assert_allclose([low, high], [4.95, 94.05])
+
+
+def test_auto_color_limits_use_one_and_ninety_ninth_percentiles():
+    low, high = percentile_color_limits(np.arange(100), *AUTO_COLOR_PERCENTILES)
+
+    np.testing.assert_allclose([low, high], [0.99, 98.01])
 
 
 def test_manual_percentile_color_limits():

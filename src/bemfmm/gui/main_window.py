@@ -66,7 +66,11 @@ from .dialogs import (
     new_project_from_surfaces,
     open_project_folder,
 )
-from .field_display import charge_density_display_scale, percentile_color_limits
+from .field_display import (
+    AUTO_COLOR_PERCENTILES,
+    charge_density_display_scale,
+    percentile_color_limits,
+)
 from .plots import PlotPanel
 from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
@@ -321,8 +325,8 @@ class MainWindow(QMainWindow):
             spin(box, 0.0, 100.0, 0, 1.0)
             box.setSuffix("%")
             box.setButtonSymbols(QAbstractSpinBox.NoButtons)
-        ui.rangeLowPercentile.setValue(5)
-        ui.rangeHighPercentile.setValue(95)
+        ui.rangeLowPercentile.setValue(AUTO_COLOR_PERCENTILES[0])
+        ui.rangeHighPercentile.setValue(AUTO_COLOR_PERCENTILES[1])
         ui.rangeLowPercentile.setMaximum(ui.rangeHighPercentile.value())
         ui.rangeHighPercentile.setMinimum(ui.rangeLowPercentile.value())
 
@@ -2174,7 +2178,6 @@ class MainWindow(QMainWindow):
         ui.resultField.clear()
         ui.resultTissue.clear()
         self.updating = False
-        ui.resultStats.setText("")
         ui.rangeLowValue.setText("")
         ui.rangeHighValue.setText("")
         ui.electrodeResultGroup.setVisible(False)
@@ -2223,13 +2226,8 @@ class MainWindow(QMainWindow):
         self.ui.resultField.setItemText(
             self.ui.resultField.currentIndex(), f"{label} ({unit})"
         )
-        low, median, p99, high = np.percentile(values, [0, 50, 99, 100])
-        self.ui.resultStats.setText(
-            f"min {low:.4g}   median {median:.4g}   99th pct {p99:.4g}   "
-            f"max {high:.4g} {unit}"
-        )
         if self.ui.autoRange.isChecked():
-            self.set_range(5, 95)
+            self.set_range(*AUTO_COLOR_PERCENTILES)
         low, high = percentile_color_limits(
             values,
             self.ui.rangeLowPercentile.value(),

@@ -1,5 +1,7 @@
 import numpy as np
 
+AUTO_COLOR_PERCENTILES = (1, 99)
+
 
 def charge_density_display_scale(values):
     prefixes = {
