@@ -66,6 +66,7 @@ from .dialogs import (
     new_project_from_surfaces,
     open_project_folder,
 )
+from .field_display import auto_color_limits, charge_density_display_scale
 from .plots import PlotPanel
 from .settings import Settings
 from .solve_runner import STAGES, SolveRunner
@@ -1943,8 +1944,6 @@ class MainWindow(QMainWindow):
             str(ui.iterations.value()),
             "--relres",
             repr(ui.relres.value()),
-            "--weight",
-            repr(ui.weight.value()),
             "--save-format",
             ui.exportFormat.currentText(),
         ]
@@ -2085,6 +2084,8 @@ class MainWindow(QMainWindow):
         ui.resultField.clear()
         for name, (label, unit) in FIELD_LABELS.items():
             if name in result.fields:
+                if name == "c":
+                    _, unit = charge_density_display_scale(result.fields[name] * eps0)
                 ui.resultField.addItem(f"{label} ({unit})", name)
         ui.resultTissue.clear()
         ui.resultTissue.addItems(result.tissues)
@@ -2191,26 +2192,33 @@ class MainWindow(QMainWindow):
         name = self.ui.resultField.currentData()
         tissue = self.ui.resultTissue.currentText()
         if self.result is None or name is None or not tissue:
-            return None, None
-        if name == "c": # report the charge in C/m², removing the effect of ε₀ normalization
-            return name, self.result.on(name, tissue) * eps0
-        return name, self.result.on(name, tissue)
+            return None, None, None
+        values = self.result.on(name, tissue)
+        unit = FIELD_LABELS[name][1]
+        if name == "c":
+            # c is normalized by eps0; display the physical charge density.
+            scale, unit = charge_density_display_scale(self.result.fields[name] * eps0)
+            values = values * eps0 * scale
+        return name, values, unit
 
     def result_selection_changed(self):
         if self.updating:
             return
         self.result_tissue = self.ui.resultTissue.currentText()
-        name, values = self.result_values()
+        name, values, unit = self.result_values()
         if values is None:
             return
-        _, unit = FIELD_LABELS[name]
+        label, _ = FIELD_LABELS[name]
+        self.ui.resultField.setItemText(
+            self.ui.resultField.currentIndex(), f"{label} ({unit})"
+        )
         low, median, p99, high = np.percentile(values, [0, 50, 99, 100])
         self.ui.resultStats.setText(
             f"min {low:.4g}   median {median:.4g}   99th pct {p99:.4g}   "
             f"max {high:.4g} {unit}"
         )
         if self.ui.autoRange.isChecked():
-            self.set_range(low, high)
+            self.set_range(*auto_color_limits(values))
         self.update_result_view()
 
     def set_range(self, low, high):
@@ -2228,10 +2236,10 @@ class MainWindow(QMainWindow):
     def update_result_view(self):
         if self.updating or not self.field_shown():
             return
-        name, values = self.result_values()
+        name, values, unit = self.result_values()
         if values is None:
             return
-        label, unit = FIELD_LABELS[name]
+        label, _ = FIELD_LABELS[name]
         tissue = self.ui.resultTissue.currentText()
         with busy():
             self.viewport.show_field(

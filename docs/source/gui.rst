@@ -206,8 +206,6 @@ Solver settings:
   settings while switching. Tolerance is typed and shown in
   scientific notation (``1e-6``, ``2.5e-7``), the arrows step by a factor of
   ten
-- **Conservation weight**: weight of the term that keeps the total charge
-  (TMS) or the total electrode current (TES) at zero
 
 Output:
 
@@ -231,8 +229,10 @@ switches to its mode.
 - **Quantity** and **Tissue**: any stored quantity (E-field, normal E-field,
   normal current density, charge, potential) on any tissue. Results open on
   the tissue picked last, ``gm`` at first
-- **Colormap** and **Range** (automatic or fixed)
+- **Colormap** and **Range** (automatic from the 5th to 95th percentile, or
+  fixed)
 - the minimum, median, 99th percentile and maximum of the values shown
+- Charge density is displayed with an SI prefix chosen from its magnitude
 - **Show in 3D view** switches between the result and the setup. It is ticked
   for every new result and keeps its state when switching tabs. On the
   Coils/Electrodes tab the view always shows the setup, since placing needs

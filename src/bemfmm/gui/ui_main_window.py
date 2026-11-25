@@ -1032,20 +1032,6 @@ class Ui_MainWindow(object):
 
         self.solverLayout.setWidget(4, QFormLayout.ItemRole.FieldRole, self.relres)
 
-        self.weightLabel = QLabel(self.solverGroup)
-        self.weightLabel.setObjectName("weightLabel")
-
-        self.solverLayout.setWidget(5, QFormLayout.ItemRole.LabelRole, self.weightLabel)
-
-        self.weight = QDoubleSpinBox(self.solverGroup)
-        self.weight.setObjectName("weight")
-        self.weight.setDecimals(4)
-        self.weight.setMaximum(1.000000000000000)
-        self.weight.setSingleStep(0.050000000000000)
-        self.weight.setValue(0.500000000000000)
-
-        self.solverLayout.setWidget(5, QFormLayout.ItemRole.FieldRole, self.weight)
-
         self.solveLayout.addWidget(self.solverGroup)
 
         self.outputGroup = QGroupBox(self.solveTab)
@@ -2336,9 +2322,6 @@ class Ui_MainWindow(object):
             )
         )
         # endif // QT_CONFIG(tooltip)
-        self.weightLabel.setText(
-            QCoreApplication.translate("MainWindow", "Conservation weight", None)
-        )
         self.outputGroup.setTitle(
             QCoreApplication.translate("MainWindow", "Output", None)
         )
