@@ -5,7 +5,8 @@ Coil placement used by the gui, on the three layer sphere
 import numpy as np
 import pytest
 
-from bemfmm.coils import default_params, make_coil
+from bemfmm.coils import default_coil, default_params, make_coil
+from bemfmm.coils.generators import GENERATORS
 from bemfmm.gui.stimulation import Stimulation
 
 
@@ -66,6 +67,39 @@ def test_aim_follows_the_align_tissue(sphere):
     np.testing.assert_allclose(coil_axis(coil), normal, atol=1e-9)
     np.testing.assert_allclose(
         coil.com, hit + normal * (0.020 + coil.bottom_to_com), atol=1e-9
+    )
+
+
+@pytest.mark.parametrize(
+    "make", [default_coil, lambda: make_coil("ring", default_params("ring"))]
+)
+def test_distance_is_to_the_coil_bottom(sphere, make):
+    stim = Stimulation(Quiet())
+    stim.set_surface(*sphere.surface("skin"))
+    coil = make()
+    id = stim.add_coil(coil)
+
+    stim.set_distance(id, 0.010)
+    axis = coil_axis(coil)
+    bottom = np.min((coil.cad_P - coil.com) @ axis)
+    np.testing.assert_allclose(bottom, -coil.bottom_to_com, atol=1e-12)
+    lowest = coil.com + bottom * axis
+    np.testing.assert_allclose(stim.nearest(lowest)[0], 0.010, atol=1e-4)
+
+    # moving by hand reads the distance back the same way
+    stim.move_coil(id, coil.com + 0.005 * axis)
+    np.testing.assert_allclose(coil.distance, 0.015, atol=1e-4)
+
+
+def test_wire_and_cad_share_a_frame():
+    # the generators give both in one frame, placing must not shift one
+    params = default_params("MagVenture_Cool_B35")
+    made = GENERATORS["MagVenture_Cool_B35"](**params)
+    coil = make_coil("MagVenture_Cool_B35", params)
+    np.testing.assert_allclose(
+        coil.Pwire - coil.cad_P.mean(axis=0),
+        made["Pwire"] - made["P"].mean(axis=0),
+        atol=1e-12,
     )
 
 
