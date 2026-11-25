@@ -19,9 +19,10 @@ it again without it. Arguments are passed on to ``bemfmm gui``, for example
 ``run.bat --mode tes``.
 
 On a Linux Wayland session the gui runs through XWayland, since the 3D view
-draws into an X window. When Qt cannot open an X window, usually because
-``libxcb-cursor0`` is not installed, it starts without the 3D view and says
-so. Setting ``QT_QPA_PLATFORM`` yourself overrides this.
+draws into an X window, also when ``QT_QPA_PLATFORM`` is set to ``wayland`` or
+``wayland-egl``. When Qt cannot open an X window, usually because
+``libxcb-cursor0`` is not installed, or ``QT_QPA_PLATFORM`` names another
+platform such as ``offscreen``, it starts without the 3D view and says so.
 
 The environment is kept in ``.venv`` and set up again when ``pyproject.toml``
 changed, for example after a ``git pull`` that changed the dependencies. To
