@@ -2191,6 +2191,8 @@ class MainWindow(QMainWindow):
         tissue = self.ui.resultTissue.currentText()
         if self.result is None or name is None or not tissue:
             return None, None
+        if name == "c": # report the charge in C/m², removing the effect of ε₀ normalization
+            return name, self.result.on(name, tissue) * eps0
         return name, self.result.on(name, tissue)
 
     def result_selection_changed(self):
