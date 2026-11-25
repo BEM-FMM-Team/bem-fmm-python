@@ -299,6 +299,17 @@ class HeadModel:
         used, t = np.unique(t, return_inverse=True)
         return self.P[used], t.reshape(-1, 3)
 
+    def surface_air(self, name):
+        index = self.tissue_id(name)
+        if self.outside[index] != "FreeSpace":
+            raise ValueError(f"{name} does not have FreeSpace outside")
+        # Equal interface labels mark facets without a neighboring tissue.
+        mask = (self.interface[:, 0] == index) & (self.interface[:, 1] == index)
+        if not mask.any():
+            raise ValueError(f"{name} has no facets exposed to FreeSpace")
+        used, t = np.unique(self.t[mask], return_inverse=True)
+        return self.P[used], t.reshape(-1, 3)
+
     def fingerprint(self):
         # hash of the index and every mesh file, stored with results
         h = hashlib.sha256()

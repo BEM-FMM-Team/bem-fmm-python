@@ -53,3 +53,35 @@ def test_shared_model_surface_reverses_neighbor_orientation(tmp_path):
     assert triangles.tolist() == [[0, 2, 1]]
 
 
+def test_model_air_surface_excludes_shared_faces(tmp_path):
+    points = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0],
+            [1.0, 0.0, 1.0],
+            [0.0, 1.0, 1.0],
+        ]
+    )
+    model = HeadModel(
+        index_path=tmp_path / "index.yaml",
+        names=["skin", "inside"],
+        files=[],
+        condinner=[0.1, 0.2],
+        condouter=[0.0, 0.0],
+        outside=["FreeSpace", "FreeSpace"],
+        P=points,
+        t=np.array([[0, 1, 2], [3, 4, 5]]),
+        normals=np.array([[0.0, 0.0, 1.0], [0.0, 0.0, 1.0]]),
+        condin=np.array([0.1, 0.1]),
+        condout=np.array([0.0, 0.2]),
+        interface=np.array([[0, 0], [0, 1]]),
+    )
+
+    exposed_points, triangles = model.surface_air("skin")
+
+    np.testing.assert_array_equal(exposed_points, points[:3])
+    assert triangles.tolist() == [[0, 1, 2]]
+
+

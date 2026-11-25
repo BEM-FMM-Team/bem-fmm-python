@@ -722,7 +722,9 @@ class MainWindow(QMainWindow):
         # signed distance of every coil center above its placement surface
         if not self.stim.coils:
             return {}
-        surface = Surface(*self.model.surface(self.ui.coilSurfaceCombo.currentText()))
+        surface = Surface(
+            *self.placement_surface(self.ui.coilSurfaceCombo.currentText())
+        )
         heights = {}
         for id, coil in self.stim.coils.items():
             _, center, normal = surface.nearest(coil.com)
@@ -734,7 +736,7 @@ class MainWindow(QMainWindow):
         if not self.stim.electrodes:
             return
         name = self.ui.electrodeSurfaceCombo.currentText()
-        self.stim.set_surface(*self.model.surface(name))
+        self.stim.set_surface(*self.placement_surface(name))
         moved = [
             id
             for id, electrode in self.stim.electrodes.items()
@@ -1090,11 +1092,20 @@ class MainWindow(QMainWindow):
         # what coils or electrodes of the current mode sit on
         return self.placement_combo().currentText()
 
+    def placement_surface(self, name):
+        skin = self.project.skin if self.project else self.settings["skin"]
+        if (
+            name == skin
+            and self.model.outside[self.model.tissue_id(name)] == "FreeSpace"
+        ):
+            return self.model.surface_air(name)
+        return self.model.surface(name)
+
     def apply_surfaces(self):
         if self.model is None or self.surface not in self.model.names:
             return
         name = self.surface
-        self.stim.set_surface(*self.model.surface(name))
+        self.stim.set_surface(*self.placement_surface(name))
         self.viewport.set_pick_surface(name)
         if name in self.display:
             self.display[name][0].setChecked(True)
@@ -1122,7 +1133,7 @@ class MainWindow(QMainWindow):
             align in self.model.names
             and align != self.ui.coilSurfaceCombo.currentText()
         ):
-            self.stim.set_align(*self.model.surface(align))
+            self.stim.set_align(*self.placement_surface(align))
         else:
             self.stim.set_align()
 
@@ -1833,7 +1844,7 @@ class MainWindow(QMainWindow):
         electrode_surface = self.ui.electrodeSurfaceCombo.currentText()
         if scene.electrodes and electrode_surface != self.surface:
             # electrodes snap to their own surface in a TMS setup
-            self.stim.set_surface(*self.model.surface(electrode_surface))
+            self.stim.set_surface(*self.placement_surface(electrode_surface))
         for electrode in scene.electrodes:
             self.stim.insert_electrode(electrode)
         self.apply_surfaces()

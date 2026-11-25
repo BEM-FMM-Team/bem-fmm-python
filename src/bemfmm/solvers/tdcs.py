@@ -75,9 +75,11 @@ def imprint_electrodes(
     GNP 2026
     SP 2026
     """
-    skin = interface[:, 0] == skin_idx
+    skin = (interface[:, 0] == skin_idx) & (interface[:, 1] == skin_idx)
+    if not skin.any():
+        raise ValueError(f"Skin tissue {skin_idx} has no facets exposed to FreeSpace")
 
-    # skin sub mesh with compact vertices
+    # Only air-facing skin facets are replaced; shared internal faces stay put.
     used, ts = np.unique(t[skin], return_inverse=True)
     ts = ts.reshape(-1, 3)
     Ps = P[used]
