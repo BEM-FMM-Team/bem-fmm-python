@@ -25,11 +25,16 @@ def run(tissue_index=None, setup=None, no_3d=False, mode=None, project=None):
     if not no_3d:
         prefer_x11()
     app = QApplication.instance() or QApplication(sys.argv)
-    if not no_3d and app.platformName() == "wayland":
+    platform = app.platformName()
+    if not no_3d and sys.platform.startswith("linux") and platform != "xcb":
         # the qt window is not an X window, vtk ends the process on it
-        print("-- qt could not open an X window, starting without the 3D view --")
-        print("qt's xcb plugin is missing a library, usually libxcb-cursor0,")
-        print("QT_DEBUG_PLUGINS=1 shows which")
+        print(
+            f"-- qt runs on {platform}, vtk needs an X window, "
+            "starting without the 3D view --"
+        )
+        if platform.startswith("wayland") and os.environ.get("DISPLAY"):
+            print("qt's xcb plugin is missing a library, usually libxcb-cursor0,")
+            print("QT_DEBUG_PLUGINS=1 shows which")
         no_3d = True
     app.setApplicationName("BEM-FMM")
     app.setOrganizationName("BEM-FMM Team")
@@ -53,10 +58,13 @@ def run(tissue_index=None, setup=None, no_3d=False, mode=None, project=None):
 
 def prefer_x11():
     # vtk draws into an X window on linux. On a wayland session qt makes
-    # wayland windows, so it is pointed at XWayland and only falls back to
-    # wayland when its xcb plugin cannot load
-    if sys.platform.startswith("linux") and os.environ.get("WAYLAND_DISPLAY"):
-        os.environ.setdefault("QT_QPA_PLATFORM", "xcb;wayland")
+    # wayland windows, also when QT_QPA_PLATFORM asks for wayland or
+    # wayland-egl, so it is pointed at XWayland and only falls back to wayland
+    # when its xcb plugin cannot load. Other QT_QPA_PLATFORM values are kept
+    if not sys.platform.startswith("linux") or not os.environ.get("DISPLAY"):
+        return
+    if os.environ.get("QT_QPA_PLATFORM", "wayland").startswith("wayland"):
+        os.environ["QT_QPA_PLATFORM"] = "xcb;wayland"
 
 
 def ask_project():
