@@ -38,6 +38,7 @@ from .common import (
 
 
 @dataclass
+class TDCSOptions:
     num_neighbors: int = 512
     num_neighbors_p: int = 512
     iter: int = 50
