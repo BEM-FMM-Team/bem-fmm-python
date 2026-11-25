@@ -2564,7 +2564,7 @@ class MainWindow(QMainWindow):
             "About BEM-FMM",
             f"<b>BEM-FMM</b> {package_version()}<br><br>"
             "Charge based boundary element fast multipole method for "
-            "modeling TMS and TES.<br><br>(c) 2026 WPI",
+            "modeling TMS and TES.<br><br>(c) 2026 The BEM-FMM Team",
         )
 
     def closeEvent(self, event):
