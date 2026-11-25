@@ -117,6 +117,7 @@ class Viewport:
         self.handle_picker.PickFromListOn()
         self.plane_grab = None  # (press position, handle direction on screen)
         self.point_pick = False
+        self.point_pick_surface = None
         self.on_plane_drag_begin = None
         self.on_plane_drag = None
         self.on_plane_drag_end = None
@@ -150,18 +151,24 @@ class Viewport:
         self.plt.screenshot(str(path))
 
     # head model
-    def set_surfaces(self, surfaces, visible=()):
+    def set_surfaces(self, surfaces, visible=(), colors=None):
         from vedo import Mesh
 
+        colors = colors or {}
         for mesh in self.surfaces.values():
             self.plt.remove(mesh)
         self.clear_field()
 
         self.surfaces = {}
         for i, (name, (P, t)) in enumerate(surfaces.items()):
-            color = TISSUE_COLORS.get(
-                name.lower(), FALLBACK_COLORS[i % len(FALLBACK_COLORS)]
+            color = colors.get(
+                name,
+                TISSUE_COLORS.get(
+                    name.lower(), FALLBACK_COLORS[i % len(FALLBACK_COLORS)]
+                ),
             )
+            if isinstance(color, list):
+                color = tuple(color)
             mesh = Mesh([P, t]).color(color).lighting("default")
             mesh.name = f"tissue:{name}"
             mesh.actor.SetVisibility(name in visible)
@@ -325,7 +332,11 @@ class Viewport:
         name = getattr(event.actor, "name", None)
         kind = name.split(":", 1)[0] if isinstance(name, str) else ""
         if self.point_pick:
-            if kind in ("tissue", "field") and self.on_point:
+            on_pick_surface = (
+                self.point_pick_surface is None
+                or name == f"tissue:{self.point_pick_surface}"
+            )
+            if kind in ("tissue", "field") and on_pick_surface and self.on_point:
                 self.on_point(np.array(event.picked3d))
             return
         if self.on_select:
@@ -458,11 +469,13 @@ class Viewport:
                 self.handle_picker.AddPickList(actor.actor)
         self.render()
 
-    def start_point_pick(self):
+    def start_point_pick(self, surface=None):
         self.point_pick = True
+        self.point_pick_surface = surface
 
     def stop_point_pick(self):
         self.point_pick = False
+        self.point_pick_surface = None
 
     def _to_display(self, point):
         renderer = self.plt.renderer

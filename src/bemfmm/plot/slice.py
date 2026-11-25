@@ -1,3 +1,5 @@
+import json
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.collections import LineCollection
@@ -67,6 +69,7 @@ def draw_efield_slice(
     log: bool = True,
     factor: float = LOG_FACTOR,
     limits: tuple[float, float] | None = None,
+    tissue_colors: dict[str, list[float] | str] | None = None,
 ):
     """
     Draws one slice into ax, color is used for the labels and ticks outside the
@@ -106,12 +109,19 @@ def draw_efield_slice(
         )
 
     n_tissues = len(tissue_list) if tissue_list else int(np.max(result.ci)) + 1
-    tissue_colors = plt.cm.prism(np.linspace(0, 1, max(n_tissues, 1)))
+    default_tissue_colors = plt.cm.prism(np.linspace(0, 1, max(n_tissues, 1)))
+
+    def tissue_color(index):
+        if tissue_list and index < len(tissue_list):
+            return (tissue_colors or {}).get(
+                tissue_list[index], default_tissue_colors[index % n_tissues]
+            )
+        return default_tissue_colors[index % n_tissues]
 
     count = []
     for m in np.unique(result.ci).astype(int):
         count.append(m)
-        col = tissue_colors[m % n_tissues]
+        col = tissue_color(m)
         # one collection per tissue, a line per edge is too slow to redraw
         segments = result.points_2d[result.edges[result.ci == m]]
         ax.add_collection(LineCollection(segments, colors=[col], linewidths=1.5))
@@ -138,7 +148,7 @@ def draw_efield_slice(
 
     if tissue_list and count:
         handles = [
-            Line2D([0], [0], color=tissue_colors[m % n_tissues], lw=2) for m in count
+            Line2D([0], [0], color=tissue_color(m), lw=2) for m in count
         ]
         labels = [tissue_list[m] if m < len(tissue_list) else str(m) for m in count]
         leg = ax.legend(handles, labels, loc="upper right", fontsize=legend_size)
@@ -153,16 +163,25 @@ def plot_efield_slice(
     tissue_list: list | None = None,
     outside: bool = True,
     levels: int = 200,
+    tissue_colors: dict[str, list[float] | str] | None = None,
 ) -> tuple[plt.Figure, plt.Axes]:
     fig, ax = plt.subplots(figsize=(14, 10))
     fig.patch.set_facecolor("black")
-    draw_efield_slice(fig, ax, result, tissue_list, levels, outside=outside)
+    draw_efield_slice(
+        fig,
+        ax,
+        result,
+        tissue_list,
+        levels,
+        outside=outside,
+        tissue_colors=tissue_colors,
+    )
 
     plt.tight_layout()
     plt.show()
 
 
-def save_slices(path, planes, slices, tissue_list, created=""):
+def save_slices(path, planes, slices, tissue_list, created="", tissue_colors=None):
     """
     planes and slices are lists of the same length. created is the time stamp
     of the result the slices belong to, so stale slices next to a newer result
@@ -172,6 +191,7 @@ def save_slices(path, planes, slices, tissue_list, created=""):
         "planes": np.array([[*p.normal, *p.point] for p in planes], dtype=float),
         "tissues": np.array(tissue_list, dtype=str),
         "created": np.array(created),
+        "tissue_colors": np.array(json.dumps(tissue_colors or {})),
     }
     for i, result in enumerate(slices):
         for name in SLICE_ARRAYS:
@@ -225,4 +245,9 @@ def load_slices(path):
             "slices": slices,
             "tissues": [str(t) for t in data["tissues"]],
             "created": str(data["created"]),
+            "tissue_colors": (
+                json.loads(str(data["tissue_colors"]))
+                if "tissue_colors" in data
+                else {}
+            ),
         }

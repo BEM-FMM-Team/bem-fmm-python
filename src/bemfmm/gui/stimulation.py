@@ -292,7 +292,7 @@ class Stimulation:
             self.selected = None
 
     # electrodes
-    def add_electrode(self, radius=0.005, voltage=None):
+    def add_electrode(self, radius=0.005, voltage=None, xyz=None):
         self.snapshot()
         if voltage is None:
             # alternate anode and cathode
@@ -303,7 +303,7 @@ class Stimulation:
         electrode = Electrode(radius=radius, voltage=voltage)
         electrode.id = self.new_id()
         electrode.name = f"E{electrode.id}"
-        self.snap_electrode(electrode, START_POINT)
+        self.snap_electrode(electrode, START_POINT if xyz is None else xyz)
         self.electrodes[electrode.id] = electrode
         self.draw_electrode(electrode, new=True)
         return electrode.id

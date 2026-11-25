@@ -13,6 +13,7 @@ from bemfmm.project import (
     Project,
     copy_project,
     default_project,
+    makaroff_40_project,
     new_project,
     sphere_project,
 )
@@ -42,7 +43,23 @@ def test_project(tmp_path):
 def test_default_project():
     project = default_project()
     assert project.name == "Default head"
+    assert not project.smooth_nonmanifold
     assert project.read_only and project.problems() == []
+
+
+def test_makaroff_40_project_metadata():
+    project = makaroff_40_project()
+    shells = read_index(project.index_path)
+
+    assert project.name == "Sim4Life 40-tissue head"
+    assert project.flip_xy and project.deduplicate_interfaces
+    assert project.smooth_nonmanifold
+    assert project.skin == "Skin"
+    assert project.read_only and project.problems() == []
+    assert len(shells) == len(project.tissue_colors) == 40
+    assert all(path.is_file() for _, _, path in shells.values())
+    assert shells["Skin"][0] == pytest.approx(0.148297)
+    assert project.tissue_colors["Air_internal"] == [0.0, 1.0, 0.0]
 
 
 def test_new_project(tmp_path):
@@ -87,6 +104,15 @@ def test_copy_project(tmp_path):
     )
     assert Project.for_index(copy.index_path).root == tmp_path / "copy"
     assert list(read_index(copy.index_path)) == list(read_index(source.index_path))
+
+    copy.flip_xy = True
+    copy.deduplicate_interfaces = True
+    copy.tissue_colors = {"skin": [1.0, 1.0, 1.0]}
+    copy.smooth_nonmanifold = True
+    copy.save()
+    copy2 = copy_project(copy, tmp_path / "copy-with-options")
+    assert copy2.flip_xy and copy2.deduplicate_interfaces and copy2.smooth_nonmanifold
+    assert copy2.tissue_colors == copy.tissue_colors
 
 
 def test_gui_sets_up_opengl_before_vtk():

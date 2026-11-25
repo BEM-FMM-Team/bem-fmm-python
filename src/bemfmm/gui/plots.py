@@ -191,5 +191,6 @@ def draw_slices(figure, data, index, color, cmap, outside, scale):
             legend_size=legend_size,
             cmap=cmap,
             outside=outside,
+            tissue_colors=data.get("tissue_colors"),
             **scale,
         )

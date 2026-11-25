@@ -9,7 +9,14 @@ from scipy.spatial import cKDTree
 from vtkmodules.util.numpy_support import vtk_to_numpy
 
 from bemfmm.lib import get_asset_path
-from bemfmm.mesh import mesh_areas, mesh_combine_simple, mesh_tricenter
+from bemfmm.mesh import (
+    mesh_areas,
+    mesh_combine_interfaces,
+    mesh_combine_simple,
+    mesh_normals,
+    mesh_taubin_smooth_nonmanifold,
+    mesh_tricenter,
+)
 
 MODEL_UNIT_SCALAR = 1e-3  # meshes are in [mm], the solvers work in [m]
 
@@ -143,10 +150,39 @@ class HeadModel:
 
     center: np.ndarray = field(repr=False, default=None)
     area: np.ndarray = field(repr=False, default=None)
+    flip_xy: bool = False
+    deduplicate_interfaces: bool = False
+    tissue_colors: dict[str, list[float] | str] = field(default_factory=dict)
+    smooth_nonmanifold: bool = False
 
     @classmethod
-    def load(cls, index_path=None, verbose=True):
+    def load(
+        cls,
+        index_path=None,
+        verbose=True,
+        flip_xy=None,
+        deduplicate_interfaces=None,
+        tissue_colors=None,
+        smooth_nonmanifold=None,
+    ):
         index_path = Path(index_path) if index_path else default_index()
+        if (
+            flip_xy is None
+            or deduplicate_interfaces is None
+            or tissue_colors is None
+            or smooth_nonmanifold is None
+        ):
+            from bemfmm.project import Project
+
+            project = Project.for_index(index_path)
+            if flip_xy is None:
+                flip_xy = project.flip_xy
+            if deduplicate_interfaces is None:
+                deduplicate_interfaces = project.deduplicate_interfaces
+            if tissue_colors is None:
+                tissue_colors = project.tissue_colors
+            if smooth_nonmanifold is None:
+                smooth_nonmanifold = project.smooth_nonmanifold
         shells = read_index(index_path)
 
         for name, (_, outside, _) in shells.items():
@@ -168,9 +204,10 @@ class HeadModel:
 
             mesh = vedo.Mesh(str(path))
             # vtk reads stl vertices as float32, the solvers need float64
-            Pcell.append(
-                np.asarray(mesh.vertices, dtype=np.float64) * MODEL_UNIT_SCALAR
-            )
+            points = np.asarray(mesh.vertices, dtype=np.float64) * MODEL_UNIT_SCALAR
+            if flip_xy:
+                points[:, :2] *= -1
+            Pcell.append(points)
             # straight from vtk, mesh.cells builds a python list per triangle
             polys = mesh.dataset.GetPolys().GetConnectivityArray()
             tcell.append(vtk_to_numpy(polys).reshape(-1, 3))
@@ -180,15 +217,31 @@ class HeadModel:
             if verbose:
                 print(f"Loaded: {path}")
 
-        P, t, normals, condin, condout, interface = mesh_combine_simple(
+        combine = (
+            mesh_combine_interfaces if deduplicate_interfaces else mesh_combine_simple
+        )
+        P, t, normals, condin, condout, interface = combine(
             Pcell, tcell, condinner, condouter
         )
+        if smooth_nonmanifold:
+            P = mesh_taubin_smooth_nonmanifold(P, t)
+            smoothed_normals = mesh_normals(P, t)
+            orientation = np.sign(np.einsum("ij,ij->i", normals, smoothed_normals))
+            normals = smoothed_normals * orientation[:, None]
         center = mesh_tricenter(P, t)
         area = mesh_areas(P, t)
 
-        # only shells that do not touch can be solved, a facet shared by two
-        # tissues would need the conductivity of each on its two sides
+        # Reject unresolved close facets. Matching material interfaces are
+        # intentional when the project opted into interface deduplication.
         pairs = stacked_facets(center, area)
+        if deduplicate_interfaces and len(pairs):
+            first = interface[pairs[:, 0]]
+            second = interface[pairs[:, 1]]
+            same_interface = (
+                np.all(first == second, axis=1)
+                | np.all(first == second[:, ::-1], axis=1)
+            )
+            pairs = pairs[~same_interface]
         if len(pairs):
             names = list(shells)
             a, b = (names[i] for i in interface[pairs[0], 0])
@@ -212,6 +265,10 @@ class HeadModel:
             interface=interface,
             center=center,
             area=area,
+            flip_xy=flip_xy,
+            deduplicate_interfaces=deduplicate_interfaces,
+            tissue_colors=dict(tissue_colors or {}),
+            smooth_nonmanifold=smooth_nonmanifold,
         )
 
     @property
@@ -228,11 +285,18 @@ class HeadModel:
         return self.names.index(name)
 
     def facets(self, name):
-        return self.interface[:, 0] == self.tissue_id(name)
+        return np.any(self.interface == self.tissue_id(name), axis=1)
 
     def surface(self, name):
-        # single shell with compact vertices, for display
-        used, t = np.unique(self.t[self.facets(name)], return_inverse=True)
+        # A shared interface belongs to both adjacent tissue surfaces.
+        index = self.tissue_id(name)
+        mask = self.facets(name)
+        t = self.t[mask].copy()
+        reverse = (self.interface[mask, 1] == index) & (
+            self.interface[mask, 0] != index
+        )
+        t[reverse] = t[reverse][:, [0, 2, 1]]
+        used, t = np.unique(t, return_inverse=True)
         return self.P[used], t.reshape(-1, 3)
 
     def fingerprint(self):
@@ -240,4 +304,13 @@ class HeadModel:
         h = hashlib.sha256()
         for path in [self.index_path, *self.files]:
             h.update(Path(path).read_bytes())
+        h.update(
+            bytes(
+                (
+                    self.flip_xy,
+                    self.deduplicate_interfaces,
+                    self.smooth_nonmanifold,
+                )
+            )
+        )
         return h.hexdigest()

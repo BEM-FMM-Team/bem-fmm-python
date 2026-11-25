@@ -1,8 +1,8 @@
 from typing import Any
 
 import numpy as np
-from fmm3dpy import lfmm3d
 
+from bemfmm.charge.fmm3d import lfmm3d
 
 def surface_field_potential_accurate(
     c: np.ndarray[tuple[Any, ...], np.dtype[np.float64]],

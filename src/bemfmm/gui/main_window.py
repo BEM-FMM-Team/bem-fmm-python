@@ -39,13 +39,7 @@ from bemfmm.conductivity import conductivity, find_conductivity
 from bemfmm.constants import eps0
 from bemfmm.electrode import montage_problem
 from bemfmm.export import export_matlab
-from bemfmm.model import (
-    HeadModel,
-    check_shells,
-    default_index,
-    read_index,
-    write_index,
-)
+from bemfmm.model import check_shells, default_index, read_index, write_index
 from bemfmm.planes import Plane, axis_planes, same_planes
 from bemfmm.plot.slice import LOG_FACTOR, load_slices
 from bemfmm.project import Project, copy_project
@@ -218,6 +212,7 @@ class MainWindow(QMainWindow):
         self.edit_session = None
         self.target_point = None
         self.aim_id = None  # coil the picked target is for
+        self.placing_electrode = False
         self.display = {}
         self.run_started = datetime.now()
         self.solver_settings = {m: p["Default"] for m, p in SOLVER_PRESETS.items()}
@@ -363,6 +358,7 @@ class MainWindow(QMainWindow):
             for widget in (
                 ui.aimButton,
                 ui.showResultButton,
+                ui.addElectrodeButton,
             ):
                 widget.setEnabled(False)
                 widget.setToolTip("Needs the 3D view")
@@ -564,6 +560,20 @@ class MainWindow(QMainWindow):
                 "Copy it to keep setups and runs in the project."
             )
         ui.projectName.setText(text)
+        if project.deduplicate_interfaces:
+            ui.tissueHint.setText(
+                "Shared triangles are merged into one interface. The Outside "
+                "column applies only to facets without a matching tissue surface."
+            )
+        else:
+            ui.tissueHint.setText(
+                "Each tissue is a closed surface. Outside is the tissue just "
+                "beyond that surface, FreeSpace for air."
+            )
+        if project.smooth_nonmanifold:
+            ui.tissueHint.setText(
+                ui.tissueHint.text() + " Non-manifold Taubin smoothing is enabled."
+            )
         ui.copyProjectButton.setEnabled(project.index_path.is_file())
         self.ui.outputDir.setText(self.output_dir())
         self.fill_project_setups()
@@ -644,7 +654,8 @@ class MainWindow(QMainWindow):
             with busy():
                 self.statusBar().showMessage(f"Loading {index_path}")
                 QApplication.processEvents()
-                model = HeadModel.load(index_path, verbose=False)
+                project = self.project or Project.for_index(index_path)
+                model = project.model(index_path=index_path, verbose=False)
         except (OSError, ValueError, RuntimeError) as error:
             QMessageBox.warning(self, "Could not load the model", str(error))
             self.statusBar().clearMessage()
@@ -664,7 +675,10 @@ class MainWindow(QMainWindow):
             skin = (outer or names)[0]
         target = ui.targetCombo.currentText()
         if target not in names:
-            target = next((t for t in ("wm", "gm") if t in names), names[-1])
+            target = next(
+                (t for t in ("wm", "gm", "Cerebrum_grey_matter") if t in names),
+                names[-1],
+            )
 
         # combos keep their tissue when the new model has it
         values = {}
@@ -677,6 +691,7 @@ class MainWindow(QMainWindow):
             self.viewport.set_surfaces(
                 {name: model.surface(name) for name in names},
                 visible=[values[self.placement_combo()]],
+                colors=model.tissue_colors,
             )
 
         self.updating = True
@@ -857,11 +872,21 @@ class MainWindow(QMainWindow):
     def default_conductivities(self):
         # one undo step, tissues not in the list keep their value
         shells, unknown = {}, []
+        project_shells = (
+            read_index(self.project.index_path)
+            if self.project and self.project.deduplicate_interfaces
+            else {}
+        )
         for name, (cond, outside, path) in self.read_tissue_table().items():
-            entry = find_conductivity(name)
-            if entry is None:
+            if name in project_shells:
+                default = project_shells[name][0]
+            else:
+                entry = find_conductivity(name)
+                default = entry.value if entry else None
+            if default is None:
                 unknown.append(name)
-            shells[name] = (entry.value if entry else cond, outside, path)
+                default = cond
+            shells[name] = (default, outside, path)
         if shells != self.shells:
             self.commit_tissues(shells, refill=True)
         message = "Conductivities set from the default list"
@@ -1189,7 +1214,11 @@ class MainWindow(QMainWindow):
 
     def escape(self):
         # leaves target or point picking first, then clears the selection
-        if self.ui.aimButton.isChecked() or self.ui.pickPlaneButton.isChecked():
+        if (
+            self.ui.aimButton.isChecked()
+            or self.ui.pickPlaneButton.isChecked()
+            or self.placing_electrode
+        ):
             self.stop_modes()
         else:
             self.stim_list().setCurrentRow(-1)
@@ -1202,8 +1231,12 @@ class MainWindow(QMainWindow):
         return super().eventFilter(watched, event)
 
     def stop_modes(self):
-        # leaving target picking any other way than Place coil cancels it
+        # Cancel any in-progress target or surface-pick interaction.
         self.target_point = None
+        if self.placing_electrode:
+            self.placing_electrode = False
+            self.viewport.stop_point_pick()
+            self.statusBar().clearMessage()
         if self.ui.aimButton.isChecked():
             self.ui.aimButton.setChecked(False)
         self.ui.pickPlaneButton.setChecked(False)
@@ -1399,10 +1432,22 @@ class MainWindow(QMainWindow):
 
     # electrodes
     def add_electrode(self):
-        if self.model is None:
+        if self.model is None or not self.viewport.available:
             return
         self.stop_modes()
-        self.stim.add_electrode()
+        self.edit_session = None
+        surface = self.ui.electrodeSurfaceCombo.currentText()
+        self.placing_electrode = True
+        self.viewport.start_point_pick(surface)
+        self.statusBar().showMessage(
+            f"Click on {surface} to place the electrode. Press Esc to cancel."
+        )
+
+    def place_electrode(self, point):
+        self.placing_electrode = False
+        self.viewport.stop_point_pick()
+        self.statusBar().clearMessage()
+        self.stim.add_electrode(xyz=point)
         self.edit_session = None
         self.mark_dirty()
         self.refresh_lists()
@@ -1620,6 +1665,9 @@ class MainWindow(QMainWindow):
             self.statusBar().clearMessage()
 
     def plane_point_picked(self, point):
+        if self.placing_electrode:
+            self.place_electrode(point)
+            return
         row = self.current_plane()
         if row is not None:
             self.replace_plane(Plane(self.stim.planes[row].normal, point))
@@ -1899,6 +1947,16 @@ class MainWindow(QMainWindow):
             return str(self.index_file)
         path = run_dir / "tissue_index.yaml"
         write_index(path, self.applied_shells)
+        if self.project is not None:
+            Project(
+                run_dir,
+                name=self.project.name,
+                skin=self.project.skin,
+                flip_xy=self.project.flip_xy,
+                deduplicate_interfaces=self.project.deduplicate_interfaces,
+                tissue_colors=dict(self.project.tissue_colors),
+                smooth_nonmanifold=self.project.smooth_nonmanifold,
+            ).save()
         return str(path)
 
     def run(self):
@@ -2109,7 +2167,7 @@ class MainWindow(QMainWindow):
                 ui.resultField.addItem(f"{label} ({unit})", name)
         ui.resultTissue.clear()
         ui.resultTissue.addItems(result.tissues)
-        for tissue in (self.result_tissue, "gm"):
+        for tissue in (self.result_tissue, "gm", "Cerebrum_grey_matter"):
             if tissue in result.tissues:
                 ui.resultTissue.setCurrentText(tissue)
                 break
@@ -2282,7 +2340,7 @@ class MainWindow(QMainWindow):
             )
             self.viewport.show_field(
                 self.result.P,
-                self.result.t[self.result.facets(tissue)],
+                self.result.triangles(tissue),
                 values,
                 self.ui.resultColormap.currentText(),
                 low,

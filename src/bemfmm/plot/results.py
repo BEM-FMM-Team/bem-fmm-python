@@ -17,13 +17,17 @@ from .slice import plot_efield_slice
 
 def tissue_or_last(result: Result, tissue):
     # models without the usual tissue names fall back to the innermost shell
-    return tissue if tissue in result.tissues else result.tissues[-1]
+    if tissue in result.tissues:
+        return tissue
+    equivalents = {"gm": "Cerebrum_grey_matter", "wm": "Cerebrum_white_matter"}
+    equivalent = equivalents.get(tissue)
+    return equivalent if equivalent in result.tissues else result.tissues[-1]
 
 
 def coil_planes(result: Result, coils, tissue="wm"):
     # the axis planes through the point where the first coil axis meets tissue,
     # or through the origin like tes when it misses
-    t = result.t[result.facets(tissue_or_last(result, tissue))]
+    t = result.triangles(tissue_or_last(result, tissue))
     start, end = coils[0].centerline
     hit = mesh_ray(result.P, t, start, end - start)
     return axis_planes(hit) if hit is not None else default_planes()
@@ -65,7 +69,11 @@ def show_slices(result: Result, planes, th_tissue, coils=(), slices=None):
     for data in slices:
         # the field in the air only means something for TMS
         args = (data, result.tissues, result.kind == "tms")
-        Process(target=plot_efield_slice, args=args).start()
+        Process(
+            target=plot_efield_slice,
+            args=args,
+            kwargs={"tissue_colors": result.info.get("tissue_colors", {})},
+        ).start()
 
 
 def show_tms(
@@ -80,7 +88,7 @@ def show_tms(
 
     plot_tissue = tissue_or_last(result, plot_tissue)
     plot_t_idx = result.facets(plot_tissue)
-    plot_t = result.t[plot_t_idx]
+    plot_t = result.triangles(plot_tissue)
     f = result.fields
 
     # move from m to mm for displaying
@@ -114,7 +122,7 @@ def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin", slices=None
         target=plot_electrode_worker,
         args=(
             P_mm,
-            result.t[plot_t_idx],
+            result.triangles(tissue_or_last(result, plot_tissue)),
             ("E-field Magnitude on Surface: ", "V/m", f["Emag"][plot_t_idx], "jet"),
             electrode_t,
             voltages,
@@ -136,16 +144,14 @@ def show_tdcs(result: Result, planes, plot_tissue="gm", skin="skin", slices=None
 def show_uniform(result: Result, plot_tissue="gm"):
     plot_residual(result.resvec)
 
-    plot_t_idx = result.facets(tissue_or_last(result, plot_tissue))
-    plot_t = result.t[plot_t_idx]
-    f = result.fields
-
+    plot_tissue = tissue_or_last(result, plot_tissue)
+    plot_t = result.triangles(plot_tissue)
     # fmt: off
     plots = [
-        ("Charge Solution on Surface: ",                "C/m^2", eps0 * f["c"][plot_t_idx]),
-        ("Potential on Surface: ",                      "V",     f["Pot"][plot_t_idx]),
-        ("Normal E-field on Surface: ",                 "V/m",   f["En"][plot_t_idx]),
-        ("Normal Current Density (inner) on Surface: ", "A/m^2", f["Jn"][plot_t_idx]),
+        ("Charge Solution on Surface: ",                "C/m^2", eps0 * result.on("c", plot_tissue)),
+        ("Potential on Surface: ",                      "V",     result.on("Pot", plot_tissue)),
+        ("Normal E-field on Surface: ",                 "V/m",   result.on("En", plot_tissue)),
+        ("Normal Current Density (inner) on Surface: ", "A/m^2", result.on("Jn", plot_tissue)),
     ]
     # fmt: on
 

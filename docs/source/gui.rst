@@ -17,11 +17,11 @@ Projects
 
 The program works in a project: a folder with a head model, its setups and its
 runs (see :doc:`files`). At start it asks which one to open: the bundled
-default head and three layer sphere, the recent projects (the last one
-selected), **Open folder...** for any other and **New from surfaces...** to
-make one. Untick **Ask at startup** to open the last project directly, File >
-Open project brings the dialog back. ``--project``, ``--tissue-index`` and
-``--setup`` skip it.
+default head, three layer sphere, and Sim4Life 40-tissue head; the recent
+projects (the last one selected), **Open folder...** for any other and **New
+from surfaces...** to make one. Untick **Ask at startup** to open the last
+project directly, File > Open project brings the dialog back. ``--project``,
+``--tissue-index`` and ``--setup`` skip it.
 
 The Project box at the top of the Model tab names the open project, with
 **Open**, **New** and **Copy**, also in the File menu:
@@ -67,20 +67,28 @@ Opens a tissue index and shows it as a table:
 **Add** reads more surfaces, named after their files and with the default
 conductivity when the name is in the list (see :doc:`files`, ``scalp.stl``
 gets 0.465 S/m), else 0.3 S/m. **Remove** deletes the selected row (whatever
-was inside it moves to its outside). **Defaults** sets every tissue in the list
-to its default conductivity, the status bar names the ones not in it. **Apply** checks the table and reloads the
-model with it, **Save as** writes it to a new tissue index. A run with applied
-but unsaved edits writes the edited index into the run folder, so the run can
-always be repeated.
+was inside it moves to its outside). **Defaults** sets every tissue to its
+project-specific value for shared-interface models, or the global default
+conductivity otherwise; the status bar names unknown tissues. **Apply** checks
+the table and reloads the model with it, **Save as** writes it to a new tissue
+index. A run with applied but unsaved edits writes the edited index into the
+run folder, so the run can always be repeated.
 
 While the Model tab is open, Undo and Redo step through the table edits. Undoing
 back to the loaded model clears the edited state, so Apply is not needed.
+Project mesh processing options are stored in ``project.yaml``. For example,
+``smooth_nonmanifold: true`` enables the prototype-style Taubin smoothing
+reported in the Model tab; it is enabled for the Sim4Life 40-tissue preset and
+off by default for other projects.
 
 When another model is loaded, electrodes are moved onto its surface (one undo
 step). Coils keep their pose, and a message lists every coil whose height above
 its surface changed by more than 5 mm.
 
 **Display** turns tissues on and off in the 3D view and sets their opacity.
+For models with shared interfaces, including the Sim4Life 40-tissue preset, the
+outside value is used only when a facet has no matching neighboring tissue
+surface; shared-face conductivities come from the two tissue entries.
 
 Coils tab (TMS)
 ---------------
@@ -138,9 +146,10 @@ Electrodes tab (TES)
   enters and leaves the head. It assumes the skin tissue (``skin``, or the name
   set in Settings) and can be changed to any tissue. Changing it moves the
   existing electrodes onto the new surface.
-- **Add electrode** adds a disk electrode. New ones alternate between +1 V
-  and -1 V. The 3D view draws the skin facets the solver will imprint for it,
-  so on curved or folded skin it shows the exact patch that carries current.
+- **Add electrode** waits for a click on the placement surface, then adds a
+  disk electrode there; press **Esc** to cancel. New ones alternate between
+  +1 V and -1 V. The 3D view draws the skin facets the solver will imprint for
+  it, so on curved or folded skin it shows the exact patch that carries current.
 - **Selected electrode**: position (snapped to the surface), radius in mm and
   voltage. Drag it in the 3D view like a coil.
 

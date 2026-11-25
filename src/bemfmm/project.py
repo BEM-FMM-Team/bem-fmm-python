@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
@@ -47,6 +47,10 @@ class Project:
     name: str = ""
     index: str = INDEX_FILE
     skin: str = "skin"
+    flip_xy: bool = False
+    deduplicate_interfaces: bool = False
+    tissue_colors: dict[str, list[float] | str] = field(default_factory=dict)
+    smooth_nonmanifold: bool = False
 
     def __post_init__(self):
         self.root = Path(self.root).resolve()
@@ -92,16 +96,32 @@ class Project:
             return [f"The skin tissue {self.skin} is not in {self.index}"]
         return []
 
-    def model(self, verbose=False):
-        return HeadModel.load(self.index_path, verbose=verbose)
+    def model(self, index_path=None, verbose=False):
+        return HeadModel.load(
+            Path(index_path) if index_path is not None else self.index_path,
+            verbose=verbose,
+            flip_xy=self.flip_xy,
+            deduplicate_interfaces=self.deduplicate_interfaces,
+            tissue_colors=self.tissue_colors,
+            smooth_nonmanifold=self.smooth_nonmanifold,
+        )
 
     def to_dict(self):
-        return {
+        data = {
             "version": PROJECT_VERSION,
             "name": self.name,
             "index": self.index,
             "skin": self.skin,
         }
+        if self.flip_xy:
+            data["flip_xy"] = True
+        if self.deduplicate_interfaces:
+            data["deduplicate_interfaces"] = True
+        if self.tissue_colors:
+            data["tissue_colors"] = self.tissue_colors
+        if self.smooth_nonmanifold:
+            data["smooth_nonmanifold"] = True
+        return data
 
     def save(self):
         (self.root / PROJECT_FILE).write_text(
@@ -135,17 +155,58 @@ class Project:
                 return cls(root)
             raise FileNotFoundError(f"{root} has no {PROJECT_FILE} or {INDEX_FILE}")
 
-        data = yaml.safe_load(file.read_text()) or {}
+        data = yaml.safe_load(file.read_text())
+        if data is None:
+            data = {}
+        if not isinstance(data, dict):
+            raise ValueError(f"{file} must contain a project mapping")
         version = data.get("version", 0)
         if version > PROJECT_VERSION:
             raise ValueError(
                 f"Project version {version} is newer than this version of bemfmm"
+            )
+        flip_xy = data.get("flip_xy", False)
+        deduplicate_interfaces = data.get("deduplicate_interfaces", False)
+        tissue_colors = data.get("tissue_colors", {})
+        smooth_nonmanifold = data.get("smooth_nonmanifold", False)
+        if tissue_colors is None:
+            tissue_colors = {}
+        if not isinstance(flip_xy, bool):
+            raise ValueError("flip_xy in project.yaml must be true or false")
+        if not isinstance(deduplicate_interfaces, bool):
+            raise ValueError(
+                "deduplicate_interfaces in project.yaml must be true or false"
+            )
+        if not isinstance(smooth_nonmanifold, bool):
+            raise ValueError("smooth_nonmanifold in project.yaml must be true or false")
+        valid_color = lambda color: (
+            isinstance(color, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", color)
+        ) or (
+            isinstance(color, list)
+            and len(color) == 3
+            and all(
+                isinstance(channel, (int, float))
+                and not isinstance(channel, bool)
+                and 0 <= channel <= 1
+                for channel in color
+            )
+        )
+        if not isinstance(tissue_colors, dict) or any(
+            not isinstance(name, str) or not valid_color(color)
+            for name, color in tissue_colors.items()
+        ):
+            raise ValueError(
+                "tissue_colors must map names to #RRGGBB colors or RGB triplets in [0, 1]"
             )
         return cls(
             root,
             name=str(data.get("name", "")),
             index=str(data.get("index", INDEX_FILE)),
             skin=str(data.get("skin", "skin")),
+            flip_xy=flip_xy,
+            deduplicate_interfaces=deduplicate_interfaces,
+            tissue_colors=tissue_colors,
+            smooth_nonmanifold=smooth_nonmanifold,
         )
 
 
@@ -275,7 +336,15 @@ def copy_project(project, folder, name=""):
     if project.setups_dir.is_dir():
         shutil.copytree(project.setups_dir, folder / "setups")
 
-    copy = Project(folder, name=name or f"{project.name} copy", skin=project.skin)
+    copy = Project(
+        folder,
+        name=name or f"{project.name} copy",
+        skin=project.skin,
+        flip_xy=project.flip_xy,
+        deduplicate_interfaces=project.deduplicate_interfaces,
+        tissue_colors=dict(project.tissue_colors),
+        smooth_nonmanifold=project.smooth_nonmanifold,
+    )
     copy.save()
     return copy
 
@@ -286,3 +355,7 @@ def default_project():
 
 def sphere_project():
     return Project.load(get_asset_path("sphere_3L"))
+
+
+def makaroff_40_project():
+    return Project.load(get_asset_path("makaroff-40"))

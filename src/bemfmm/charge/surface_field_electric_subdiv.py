@@ -1,6 +1,6 @@
 import numpy as np
-from fmm3dpy import lfmm3d
 
+from bemfmm.charge.fmm3d import lfmm3d
 from bemfmm.mesh.mesh_tri import mesh_tri
 
 

@@ -23,12 +23,28 @@ A project is a folder with a head model and the work done on it:
     name: Subject 01
     index: tissue_index.yaml
     skin: skin
+    flip_xy: true
+    deduplicate_interfaces: true
+    smooth_nonmanifold: true
+    tissue_colors:
+      skin: [1.0, 1.0, 1.0]
 
 ``index`` is relative to the project folder, ``skin`` is the tissue coils and
 electrodes sit on. All keys but ``version`` may be left out, and so may the
 whole file: a folder with a ``tissue_index.yaml`` is a project named after the
 folder. The default head and the sphere that ship with the package are
-projects too, read only, so their runs go to the output folder.
+projects too, read only, so their runs go to the output folder. The bundled
+Sim4Life 40-tissue model is another read-only project preset (codename
+``makaroff-40``).
+
+``flip_xy`` applies the X/Y coordinate flip used by the Sim4Life mesh source.
+``deduplicate_interfaces`` welds vertices across tissue meshes and merges
+coincident triangles, assigning each shared face the conductivity of its
+neighboring tissue. ``smooth_nonmanifold`` applies the prototype's pinned
+Taubin smoothing to the combined mesh after interface merging. These three
+processing options are off by default. ``tissue_colors`` maps
+tissue names to RGB triplets in the range 0–1 or ``#RRGGBB`` values; it is
+used for model surfaces and tissue outlines in slice plots.
 
 Tissue index
 ------------
@@ -43,9 +59,23 @@ A ``.yaml`` file that lists the tissues of a model, one closed surface each:
       gm   : [0.2750, "bone",      "gm.stl"]
 
 Each row is ``name : [conductivity inside in S/m, tissue outside, mesh file]``.
-The outside tissue must be another row or ``FreeSpace`` (air). Mesh paths are
-relative to the index file and the meshes are in mm. Normals must point out of
-the tissue.
+For ordinary nested models, the outside tissue must be another row or
+``FreeSpace`` (air). Mesh paths are relative to the index file and the meshes
+are in mm. Normals must point out of the tissue. With
+``deduplicate_interfaces`` enabled, coincident faces are treated as shared
+interfaces and the outside value applies only to faces without a matching
+neighboring surface.
+
+Sim4Life 40-tissue preset
+-------------------------
+
+The bundled **Sim4Life 40-tissue head** is selectable alongside the default
+head and sphere. Its preset codename is ``makaroff-40``. It includes the 40
+STL surfaces from the Sim4Life model, the project-specific X/Y flip, interface
+deduplication and Taubin smoothing, the supplied tDCS conductivities in S/m,
+and the supplied RGB colors. Its conductivity values are stored in its own
+``tissue_index.yaml``; the global **Defaults** list remains unchanged for
+other projects.
 
 Default conductivities
 ----------------------
@@ -54,6 +84,9 @@ The gui gives new tissues, and **Defaults** gives all of them, a conductivity
 from this list (``assets/conductivities.yaml``), the standard values of
 SimNIBS. A tissue is found by its name or a part of it, so ``scalp``,
 ``sub01_scalp.stl`` and ``lh.pial`` are found too.
+For a project with ``deduplicate_interfaces: true``, **Defaults** restores
+values from that project's tissue index instead. Newly added tissues still use
+the global list.
 
 ================ ======= ======================================== ==================
 tissue           S/m     also found as                            source

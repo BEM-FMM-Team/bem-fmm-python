@@ -672,8 +672,11 @@
               <layout class="QHBoxLayout" name="addElectrodeLayout">
                <item>
                 <widget class="QLabel" name="electrodeHint">
+                 <property name="wordWrap">
+                  <bool>true</bool>
+                 </property>
                  <property name="text">
-                  <string>Electrodes are held at a fixed voltage</string>
+                  <string>Click Add electrode, then click the surface to place it</string>
                  </property>
                 </widget>
                </item>

@@ -1,6 +1,5 @@
-from fmm3dpy import lfmm3d
-
 from bemfmm.constants import mu0
+from bemfmm.charge.fmm3d import lfmm3d
 
 from ..my_types import Mx3, StrCoil
 

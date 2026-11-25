@@ -21,6 +21,7 @@ FIELD_LABELS = {
     "c": ("Charge density", "C/m^2"),
     "Pot": ("Potential", "V"),
 }
+ORIENTATION_DEPENDENT_FIELDS = {"En", "Jn", "c"}
 
 
 def package_version():
@@ -66,10 +67,29 @@ class Result:
     info: dict = field(default_factory=dict)
 
     def facets(self, tissue):
-        return self.interface[:, 0] == self.tissues.index(tissue)
+        return np.any(self.interface == self.tissues.index(tissue), axis=1)
+
+    def triangles(self, tissue):
+        index = self.tissues.index(tissue)
+        mask = self.facets(tissue)
+        triangles = self.t[mask].copy()
+        reverse = (self.interface[mask, 1] == index) & (
+            self.interface[mask, 0] != index
+        )
+        triangles[reverse] = triangles[reverse][:, [0, 2, 1]]
+        return triangles
 
     def on(self, name, tissue):
-        return self.fields[name][self.facets(tissue)]
+        index = self.tissues.index(tissue)
+        mask = self.facets(tissue)
+        values = self.fields[name][mask]
+        if name in ORIENTATION_DEPENDENT_FIELDS:
+            reverse = (self.interface[:, 1] == index) & (
+                self.interface[:, 0] != index
+            )
+            values = values.copy()
+            values[reverse[mask]] *= -1
+        return values
 
     def stamp(self, **info):
         self.info.update(info)
@@ -112,10 +132,14 @@ class Result:
         facets = self.facets(tissue) if tissue else slice(None)
         suffix = f"_{tissue}" if tissue else ""
 
-        arrays = {name: self.fields[name][facets] for name in names}
+        arrays = {
+            name: self.on(name, tissue) if tissue else self.fields[name]
+            for name in names
+        }
         if mesh:
             arrays["P"] = self.P
-            arrays["t"] = self.t[facets] + (1 if fmt == "mat" else 0)
+            triangles = self.triangles(tissue) if tissue else self.t[facets].copy()
+            arrays["t"] = triangles + (1 if fmt == "mat" else 0)
 
         paths = []
         for name, arr in arrays.items():

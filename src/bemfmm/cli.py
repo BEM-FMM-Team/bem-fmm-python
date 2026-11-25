@@ -114,6 +114,7 @@ def write_slices(result, output_dir, planes, coils=(), progress=None):
         slices,
         result.tissues,
         result.info.get("created", ""),
+        result.info.get("tissue_colors", {}),
     )
     print(f"Saved slices to {path} in {perf_counter() - start:.1f}s")
     return slices
@@ -181,15 +182,17 @@ def tms(
     if plot:
         softgl.setup()
     from bemfmm.coils import default_coil
-    from bemfmm.model import HeadModel
     from bemfmm.plot.results import show_tms
+    from bemfmm.project import Project
     from bemfmm.scene import Scene
     from bemfmm.solvers.tms import TMSOptions, solve
 
     project = load_project(project)
     setup = resolve_setup(setup, project)
     scene = Scene.load(setup) if setup else None
-    model = HeadModel.load(resolve_index(tissue_index, scene, project))
+    index_path = resolve_index(tissue_index, scene, project)
+    model_project = Project.for_index(index_path)
+    model = model_project.model(index_path=index_path)
 
     if scene is None:
         coils, planes = [default_coil()], None
@@ -205,6 +208,7 @@ def tms(
         TMSOptions(num_neighbors, iter, relres, weight),
         progress_printer(progress),
     )
+    result.info["tissue_colors"] = model_project.tissue_colors
     print(f"Solved in {perf_counter() - start:.1f}s")
 
     output_dir = run_output(output_dir, project, "tms")
@@ -250,8 +254,8 @@ def tes(
     if plot:
         softgl.setup()
     from bemfmm.electrode import montage_problem
-    from bemfmm.model import HeadModel
     from bemfmm.plot.results import show_tdcs
+    from bemfmm.project import Project
     from bemfmm.scene import Scene
     from bemfmm.solvers.tdcs import TDCSOptions, default_electrodes, solve
 
@@ -269,8 +273,15 @@ def tes(
         typer.echo(f"error: {problem}", err=True)
         raise typer.Exit(1)
 
-    model = HeadModel.load(resolve_index(tissue_index, scene, project))
-    skin = skin or (scene.skin if scene else "") or (project and project.skin)
+    index_path = resolve_index(tissue_index, scene, project)
+    model_project = Project.for_index(index_path)
+    model = model_project.model(index_path=index_path)
+    skin = (
+        skin
+        or (scene.skin if scene else "")
+        or (project and project.skin)
+        or model_project.skin
+    )
     skin = skin or "skin"
 
     start = perf_counter()
@@ -280,6 +291,7 @@ def tes(
         TDCSOptions(num_neighbors, num_neighbors_p, iter, relres, weight, skin),
         progress_printer(progress),
     )
+    result.info["tissue_colors"] = model_project.tissue_colors
     print(f"Solved in {perf_counter() - start:.1f}s")
 
     info = result.info
@@ -440,9 +452,10 @@ def export_matlab(
 ):
     """Write a tissue index as CombinedMesh.mat for the matlab scripts."""
     from bemfmm.export import export_matlab as export
-    from bemfmm.model import HeadModel
+    from bemfmm.project import Project
 
-    model = HeadModel.load(resolve_index(tissue_index, None, load_project(project)))
+    index_path = resolve_index(tissue_index, None, load_project(project))
+    model = Project.for_index(index_path).model(index_path=index_path)
     export(model, out)
     print(f"Saved {out}")
 

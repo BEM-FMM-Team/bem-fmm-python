@@ -6,7 +6,14 @@ import pytest
 from bemfmm.coils import Coil, default_coil, default_params, make_coil
 from bemfmm.conductivity import find_conductivity
 from bemfmm.electrode import Electrode
-from bemfmm.mesh import mesh_connee, mesh_imprint, mesh_neighbors, mesh_normals
+from bemfmm.mesh import (
+    mesh_combine_interfaces,
+    mesh_connee,
+    mesh_imprint,
+    mesh_neighbors,
+    mesh_normals,
+    mesh_taubin_smooth_nonmanifold,
+)
 from bemfmm.model import (
     HeadModel,
     check_shells,
@@ -32,6 +39,17 @@ def test_sphere_model(sphere):
         normals = mesh_normals(P, t)
         center = P[t].mean(axis=1)
         assert np.all(np.sum(normals * center, axis=1) > 0)
+
+
+def test_model_load_applies_smoothing_option():
+    original = HeadModel.load(sphere_index(), verbose=False, smooth_nonmanifold=False)
+    smoothed = HeadModel.load(sphere_index(), verbose=False, smooth_nonmanifold=True)
+
+    assert smoothed.smooth_nonmanifold
+    assert not original.smooth_nonmanifold
+    assert original.fingerprint() != smoothed.fingerprint()
+    assert np.isfinite(smoothed.normals).all()
+    assert np.any(np.linalg.norm(smoothed.P - original.P, axis=1) > 0)
 
 
 def test_index_roundtrip(tmp_path):
@@ -188,3 +206,56 @@ def test_touching_shells(tmp_path):
     write_index(tmp_path / "tissue_index.yaml", shells)
     with pytest.raises(ValueError, match="3360 facets of skin and inner"):
         HeadModel.load(tmp_path / "tissue_index.yaml", verbose=False)
+
+
+def test_combine_coincident_interfaces():
+    points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+    Pcell = [points.copy() for _ in range(3)]
+    tcell = [
+        np.array([[0, 1, 2]]),
+        np.array([[0, 2, 1]]),
+        np.array([[0, 2, 1], [0, 2, 1]]),
+    ]
+
+    P, t, normals, condin, condout, interface = mesh_combine_interfaces(
+        Pcell, tcell, [0.1, 0.2, 0.3], [0.0] * 3
+    )
+
+    assert t.shape == (1, 3)
+    np.testing.assert_allclose(normals, [[0.0, 0.0, 1.0]])
+    np.testing.assert_allclose(condin, [0.1])
+    np.testing.assert_allclose(condout, [0.3])
+    np.testing.assert_array_equal(interface, [[0, 2]])
+
+
+def test_unmatched_interface_uses_outer_conductivity():
+    points = np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+    combined = mesh_combine_interfaces(
+        [points], [np.array([[0, 1, 2]])], [0.1], [0.04]
+    )
+
+    np.testing.assert_allclose(combined[3], [0.1])
+    np.testing.assert_allclose(combined[4], [0.04])
+    np.testing.assert_array_equal(combined[5], [[0, 0]])
+
+
+def test_taubin_smoothing_pins_nonmanifold_junctions():
+    points = np.array(
+        [
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [1.0, 1.0, 0.0],
+            [0.0, -1.0, 0.0],
+            [-1.0, 2.0, 0.0],
+            [1.0, 2.0, 0.0],
+        ]
+    )
+    faces = np.array(
+        [[0, 1, 2], [1, 0, 3], [0, 1, 4], [2, 5, 6]]
+    )
+
+    smoothed = mesh_taubin_smooth_nonmanifold(points, faces)
+
+    np.testing.assert_array_equal(smoothed[:5], points[:5])
+    assert not np.allclose(smoothed[5:], points[5:])

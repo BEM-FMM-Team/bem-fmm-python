@@ -2,9 +2,9 @@ import numpy as np
 
 # pyrefly: ignore [missing-import]
 from cbemfmm import potint2
-from fmm3dpy import lfmm3d
 from scipy.spatial import cKDTree
 
+from bemfmm.charge.fmm3d import lfmm3d
 
 def volume_field_electric(
     Points, c, P, t, Center, Area, normals, R, prec, planeABCD=[]

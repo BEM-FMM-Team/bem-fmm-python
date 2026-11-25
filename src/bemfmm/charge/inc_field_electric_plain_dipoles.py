@@ -1,5 +1,6 @@
 import numpy as np
-from fmm3dpy import lfmm3d
+
+from bemfmm.charge.fmm3d import lfmm3d
 
 
 def inc_field_electric_plain_dipoles(

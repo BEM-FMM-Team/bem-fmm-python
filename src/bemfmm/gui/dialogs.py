@@ -13,7 +13,13 @@ from PySide6.QtWidgets import (
 )
 
 from bemfmm.coils import CHOICES, COIL_LABELS, COIL_PARAMS, param_info
-from bemfmm.project import Project, default_project, new_project, sphere_project
+from bemfmm.project import (
+    Project,
+    default_project,
+    makaroff_40_project,
+    new_project,
+    sphere_project,
+)
 from bemfmm.results import FIELD_LABELS
 
 from .settings import START_MODES, Settings
@@ -111,7 +117,7 @@ class ProjectDialog(QDialog):
         self.project = None
         ui = self.ui
 
-        projects = [default_project(), sphere_project()]
+        projects = [default_project(), sphere_project(), makaroff_40_project()]
         for folder in settings.recent_projects():
             try:
                 project = Project.load(folder)

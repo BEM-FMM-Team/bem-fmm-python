@@ -639,6 +639,7 @@ class Ui_MainWindow(object):
         self.addElectrodeLayout.setObjectName("addElectrodeLayout")
         self.electrodeHint = QLabel(self.electrodePage)
         self.electrodeHint.setObjectName("electrodeHint")
+        self.electrodeHint.setWordWrap(True)
 
         self.addElectrodeLayout.addWidget(self.electrodeHint)
 
@@ -2144,7 +2145,7 @@ class Ui_MainWindow(object):
         # endif // QT_CONFIG(tooltip)
         self.electrodeHint.setText(
             QCoreApplication.translate(
-                "MainWindow", "Electrodes are held at a fixed voltage", None
+                "MainWindow", "Click Add electrode, then click the surface to place it", None
             )
         )
         self.addElectrodeButton.setText(

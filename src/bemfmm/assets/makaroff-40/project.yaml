@@ -1,0 +1,49 @@
+# bemfmm project, see the Files page of the docs
+version: 1
+name: Sim4Life 40-tissue head
+index: tissue_index.yaml
+skin: Skin
+flip_xy: true
+deduplicate_interfaces: true
+smooth_nonmanifold: true
+tissue_colors:
+  Skin: [1.0, 1.0, 1.0]
+  Air_internal: [0.0, 1.0, 0.0]
+  Other_tissues: [1.0, 0.2, 0.0]
+  Skull_cortical: [1.0, 0.0, 1.0]
+  Skull_cancellous: [1.0, 0.75, 0.65]
+  Dura: [1.0, 0.65, 0.0]
+  Cerebrospinal_fluid: [1.0, 1.0, 0.75]
+  Cerebrum_grey_matter: [0.8, 0.8, 0.8]
+  Cerebrum_white_matter: [1.0, 1.0, 1.0]
+  Eyes: [0.57, 0.93, 0.57]
+  Mucosa: [1.0, 1.0, 0.0]
+  Muscle_ocular: [0.0, 1.0, 0.0]
+  Spinal_cord: [1.0, 0.0, 1.0]
+  Artery: [1.0, 0.0, 0.0]
+  Vein: [0.6, 0.0, 0.0]
+  Nerve_cranial_II_optic: [1.0, 0.0, 1.0]
+  Hippocampus: [0.0, 0.0, 1.0]
+  Thalamus: [0.0, 1.0, 1.0]
+  Ventricles: [1.0, 0.75, 0.65]
+  Amygdala: [1.0, 0.0, 1.0]
+  Brainstem: [0.8, 0.6, 0.5]
+  Cartilage: [1.0, 1.0, 1.0]
+  Caudate_nucleus: [1.0, 1.0, 0.0]
+  Cerebellum_grey_matter: [0.8, 0.8, 0.8]
+  Cerebellum_white_matter: [1.0, 1.0, 1.0]
+  Globus_pallidus: [1.0, 0.0, 1.0]
+  Intervertebral_disc: [0.0, 0.0, 1.0]
+  Midbrain_ventral: [0.0, 0.5, 0.5]
+  Muscle: [1.0, 0.65, 0.0]
+  Nasal_septum: [1.0, 1.0, 0.75]
+  Nucleus_accumbens: [0.3, 1.0, 0.3]
+  Parotid_gland: [0.7, 0.5, 0.5]
+  Putamen: [0.72, 0.45, 0.2]
+  Sublingual_gland: [1.0, 0.0, 1.0]
+  Submandibular_gland: [1.0, 0.0, 0.0]
+  Tendon_galea_aponeurotica: [0.6, 0.6, 0.4]
+  Tendon_temporalis: [1.0, 0.0, 0.0]
+  Tongue: [1.0, 0.75, 0.65]
+  Vertebrae_cancellous: [1.0, 0.75, 0.65]
+  Vertebrae_cortical: [1.0, 0.0, 1.0]

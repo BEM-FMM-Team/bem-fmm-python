@@ -1,5 +1,6 @@
 from .mesh_areas import mesh_areas
 from .mesh_combine_simple import mesh_combine_simple
+from .mesh_combine_interfaces import mesh_combine_interfaces
 from .mesh_connee import mesh_connee
 from .mesh_cross_section import mesh_cross_section
 from .mesh_fix import mesh_fix
@@ -16,6 +17,7 @@ from .mesh_rotate1 import mesh_rotate1
 from .mesh_rotate2 import mesh_rotate2
 from .mesh_simpqual import mesh_simpqual
 from .mesh_surface import mesh_surface
+from .mesh_taubin_smooth_nonmanifold import mesh_taubin_smooth_nonmanifold
 from .mesh_tri import mesh_tri
 from .mesh_tricenter import mesh_tricenter
 from .meshcoil import meshcoil

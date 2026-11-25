@@ -134,6 +134,19 @@ def test_electrode_shows_the_imprint(sphere):
         assert np.linalg.norm(P - center, axis=1).max() < radius + 2e-4
 
 
+def test_add_electrode_snaps_to_requested_position(sphere):
+    view = Recorder()
+    stim = Stimulation(view)
+    stim.set_surface(*sphere.surface("skin"))
+    position = np.array([0.0, 0.0, 0.042])
+
+    id = stim.add_electrode(xyz=position)
+
+    np.testing.assert_allclose(
+        stim.electrodes[id].center, stim.nearest(position)[1]
+    )
+
+
 @pytest.mark.parametrize("radius", [1e-4, 0.002, 0.008, 0.015])
 def test_electrode_imprint_matches_solver(sphere, radius):
     from bemfmm.solvers.tdcs import imprint_electrodes
