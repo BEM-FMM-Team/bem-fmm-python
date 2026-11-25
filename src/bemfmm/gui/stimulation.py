@@ -213,7 +213,7 @@ class Stimulation:
     def move_coil(self, id, xyz):
         coil = self.coils[id]
         coil.place(xyz)
-        coil.distance = self.nearest(coil.com)[0]
+        coil.distance = self.nearest(coil.com)[0] - coil.bottom_to_com
         self.draw_coil(coil)
 
     def rotate_coil(self, id, rxryrz):

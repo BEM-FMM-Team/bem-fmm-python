@@ -38,12 +38,12 @@ class Coil:
 
         self.cad_P = None
         self.centerline = LOCAL_CENTERLINE.copy()
-        self.bottom_to_com = 0.0  # z delta from coil bottom to center of mass
+        self.bottom_to_com = 0.0  # from the coil bottom up to com, along the axis
 
         self.com = np.zeros(3)
         self.rot = np.array([0.0, 0.0, 0.0, 1.0])  # quaternion
         self.distance = 0.010  # distance from head
-        self.dIdt = 100 * 1e6  # A/s
+        self.dIdt = 9.4e7  # A/s (2*pi*I0/period), bem1_setup_coil.m
 
     def place(self, xyz, quat=None):
         # moves the templates to a new center of mass and optional rotation
@@ -105,13 +105,12 @@ def make_coil(coil_type, params):
     coil.Swire = mesh_data["Swire"]
     coil.t = mesh_data["t"]
 
+    # wire and cad move together, as matlab keeps them
     temp_cad = mesh_data["P"]
     cad_com = np.mean(temp_cad, axis=0)
-    coil.bottom_to_com = cad_com[2] - np.min(temp_cad[:, 2])
-
-    temp_wire = mesh_data["Pwire"]
     coil.cad_template_P = temp_cad - cad_com
-    coil.str_template_P = temp_wire - np.mean(temp_wire, axis=0)
+    coil.str_template_P = mesh_data["Pwire"] - cad_com
+    coil.bottom_to_com = -np.min(coil.cad_template_P[:, 2])
 
     coil.place(np.zeros(3))
     return coil
@@ -145,9 +144,9 @@ def load_template(name):
     coil.t = np.asarray(cad_data["t"], dtype=np.int64) - 1
 
     cad_com = np.mean(cad_P, axis=0)
-    coil.bottom_to_com = cad_com[2] - np.min(cad_P[:, 2])
     coil.cad_template_P = cad_P - cad_com
-    coil.str_template_P = Pwire - np.mean(Pwire, axis=0)
+    coil.str_template_P = Pwire - cad_com
+    coil.bottom_to_com = -np.min(coil.cad_template_P[:, 2])
 
     coil.place(np.zeros(3))
     return coil
@@ -165,8 +164,6 @@ def default_coil():
     """
     The coil used when no setup is given, placed above the left motor area
     """
-    dIdt = 9.4e7  # A/s (2*pi*I0/period)
-
     _strcoil = loadmat(get_asset_path("coil.mat"))["strcoil"]
     Pwire = _strcoil["Pwire"][0][0]
     Ewire = _strcoil["Ewire"][0][0] - 1
@@ -181,11 +178,11 @@ def default_coil():
     coil.name = "default"
     coil.str_template_P = Pwire
     coil.cad_template_P = CoilP
-    coil.bottom_to_com = np.mean(CoilP[:, 2]) - np.min(CoilP[:, 2])
+    # com is the origin of the template here, not the mean of the cad
+    coil.bottom_to_com = -np.min(CoilP[:, 2])
     coil.Ewire = Ewire
     coil.Swire = Swire
     coil.t = Coilt
-    coil.dIdt = dIdt
 
     # rotate about the centerline, tilt the centerline to [Nx, Ny, Nz], move
     coilaxis = [0, 0, 1]

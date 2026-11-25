@@ -92,7 +92,7 @@ A ``.json`` file written by the gui (File > Save setup) and read by
       "coils": [
         {"name": "figure_eight 1", "type": "figure_eight", "params": {"...": "..."},
          "com": [0.046, -0.012, 0.083], "rot": [0.13, 0.13, 0.39, 0.90],
-         "distance": 0.01, "dIdt": 1e8}
+         "distance": 0.01, "dIdt": 9.4e7}
       ],
       "electrodes": [
         {"name": "E0", "center": [0.0, 0.0, 0.042], "normal": [0.0, 0.0, 1.0],

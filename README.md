@@ -1,203 +1,132 @@
-# BEM-FMM-Python
+# dotnix
 
-Charge based boundary element fast multipole method for modeling TMS and TES
-on layered head models.
-
-## Setup and Running
-
-Download the repo (clone or download the zip and extract it).
-The run scripts install [uv](https://docs.astral.sh/uv/) and Python 3.13 when they are missing,
-and use an installed `python3.11+` when that fails. Python 3.11 to 3.14 are supported.
-
-The charge engine runs once per model and coil or electrode configuration. Its results are cached in
-`__compute_cache__/` in the repository root until that folder is removed, `BEMFMM_NO_CACHE=1` turns the cache off.
-
-### Windows
-
-Run the `run.bat` script either by double clicking or Open `cmd`/`powershell`/`conda shell`/`venv` in this directory.
-Windows may ask to allow the script to run.
-
-Remote desktop sessions usually only offer OpenGL 1.1 and the 3D view needs 3.2.
-The program then downloads Mesa's software renderer once (a 16 MB download, into `.venv\mesa\`) and draws the 3D view on the CPU.
-`bemfmm opengl` does the same by hand and says which OpenGL the 3D view uses.
-On a server with a GPU, the group policy "Use hardware graphics adapters for all Remote Desktop Services sessions" is faster.
-`run_no3d.bat` opens the same program without the 3D view. Everything except dragging in the view still works,
-so setups made on a local machine can be opened and solved on the server.
-When the window does not open because of the 3D view, `run.bat` starts it again without the 3D view by itself.
-
-When something fails the window stays open until a key is pressed, so the messages can be read.
-
-### MacOS (intel and arm)
-
-Run the `run.command` script either by double clicking or Open `terminal`/`conda shell` in this directory.
-MacOS may ask to allow the script to run.
-
-MacOS uses PySide6 6.9.3, newer versions stop the 3D view from opening.
-When the 3D view still fails, `run.command` starts again without it (`run_no3d.command`, `bemfmm gui --no-3d`).
-lfmm3d calls are slower on MacOS for this version.
-
-### Linux
-
-Run `run.command` (`run_no3d.command` without the 3D view) or proceed with the `Programs` section.
-
-#### Nix
-
-`nix develop` gives a shell with Python 3.14, uv and the formatters. It sets up `.venv` from
-`pyproject.toml` (again after `pyproject.toml` changed) and activates it, the Python packages
-come from PyPI and our index, not from nixpkgs. `treefmt` formats the code.
-
-
-## Programs
-
-`run.bat`/`run.command` tries to abstract away the installation complexity.
-They set up `.venv` on the first run and set it up again when `pyproject.toml` changed,
-for example after a `git pull` that changed the dependencies.
-Arguments are passed on to `bemfmm gui`, for example `run.bat --mode tes`.
-To set up an environment by hand:
+My NixOS config. The private parts (secrets, network drives, private DNS)
+live in a separate repo that builds on this one.
 
 ```bash
-python -m pip install uv
-python -m uv venv
-python -m uv pip install -e .
-source .venv/bin/activate           # Linux, MacOS
-.venv\Scripts\activate              # Windows
-```
-
-Everything is one command, `bemfmm` (or `python -m bemfmm`):
-
-```bash
-bemfmm gui                          # the graphical interface, asks for a project
-bemfmm gui --project my_head        # open a project directly
-bemfmm gui --mode tes               # start in TES mode
-bemfmm project new my_head surfaces/*.stl   # a project from closed surfaces
-bemfmm tms                          # default coil on the default head model
-bemfmm tes --save-format mat        # default four electrode montage, c, E and En as .mat
-bemfmm tms --setup setup.json       # coils saved from the gui
-bemfmm tms --project my_head        # the project's model, result in its runs folder
-bemfmm tes --setup setup.json --tissue-index my_model/tissue_index.yaml
-bemfmm tms --setup setup.json --slices   # also save E-field slices
-bemfmm slices __output__ --planes 30 -12 54   # slices for a saved result, mm
-bemfmm show __output__              # plot windows for a saved result
-bemfmm sphere                       # three layer sphere in a uniform field
-bemfmm dipole                       # primary field of a dipole on a skull
-bemfmm export-matlab --out CombinedMesh.mat
-```
-
-`bemfmm <command> --help` lists the options of each command.
-
-### The gui
-
-The gui works in a project: a folder with a head model (surfaces and a tissue index), its setups and its runs.
-At start it asks which one to open. The bundled default head and sphere are read only, Copy makes a project
-of them to work in, and New makes one from a set of closed surfaces, nesting them by which contains which.
-
-The window is always in TMS or TES mode, switched with the two buttons at the left of the toolbar
-(Ctrl+1, Ctrl+2). The mode is in the window title and the status bar, and the run button says what it runs.
-
-The side panel has five tabs:
-
-- **Model**: open, make or copy a project, open a tissue index, edit conductivities and which tissue is outside which, add or remove shells, then Apply to reload the model or Save as to write a new index
-- **Coils** (TMS): coils placed on a chosen surface (skin by default). Coils can be moved with the position fields, dragged over the surface, auto oriented, flipped, twisted, and aimed at a point on any tissue. Align to picks the tissue whose normal sets the coil axis, the Place on surface by default
-- **Electrodes** (TES): electrodes on their own Place on surface, the skin unless changed. Each has a position, radius and voltage
-- **Planes**: the slice planes for the E-field slices. Add, remove or turn them, move them with the slider, by dragging in the 3D view or through a picked point
-- **Solve**: solver settings and the output folder. Runs in the background with progress, the log and a Cancel button
-- **Results**: any field on any tissue in the 3D view, percentiles, electrode currents, field export and the classic plot windows
-
-Next to the 3D view are the result tabs: Convergence, Slices (E-field on the slice planes)
-and Electrodes (TES currents). The plots have the matplotlib toolbar for zooming and saving and can be popped out
-into their own windows. Edit > Settings has the theme (system, light or dark), the name of the skin tissue, the
-start mode and the output folder.
-
-Setups (`.json`) hold the coils, electrodes, slice planes, the mode, the placement surface and the tissue index they were made on.
-
-### From python
-
-```python
-from bemfmm.electrode import Electrode
-from bemfmm.model import HeadModel
-from bemfmm.solvers import tdcs
-
-model = HeadModel.load("tissue_index.yaml")
-electrodes = [
-    Electrode("anode", [-0.016, 0.065, 0.057], radius=0.015, voltage=1.0),
-    Electrode("cathode", [-0.040, 0.018, 0.064], radius=0.015, voltage=-1.0),
-]
-result = tdcs.solve(model, electrodes)
-
-result.info["electrodes"]   # set and solved voltage, current per electrode
-result.on("Emag", "gm")     # |E| on every gray matter facet
-result.save("run01")
-```
-
-`tms.solve(model, coils)` works the same way with `bemfmm.coils` (`make_coil`,
-`load_template`, `default_coil`). Units are SI throughout, meshes are read in mm.
-
-## Files
-
-**Tissue index** (`.yaml`), one closed surface per tissue:
-
-```yaml
-shells:
-  skin : [0.4650, "FreeSpace", "skin.stl"]   # [condin S/m, tissue outside, mesh]
-  bone : [0.010,  "skin",      "bone.stl"]
-```
-
-**Result folder**: `result.npz` (mesh, per facet fields, residuals) and `result.json`
-(settings, electrode currents, timings, package version and git commit). Fields:
-
-| name | meaning |
-|------|---------|
-| `c` | surface charge density / eps0 (V/m) |
-| `E`, `Emag` | continuous E-field at facet centers and its magnitude (V/m) |
-| `En` | normal component of the continuous E-field (V/m) |
-| `Jn` | outward normal current density just inside the surface (A/m^2) |
-| `Pot` | surface potential, TES only (V) |
-
-`--save-format mat|npz|csv|pkl` with `--save` also exports single fields, and so does Export fields in the gui.
-`slices.npz` holds the E-field slices when a run computed them.
-
-## Sphere model
-
-`src/bemfmm/assets/sphere_3L` is the three layer sphere (radii 42, 36, 28, 25 mm)
-used by `bemfmm sphere`, as stl files with a tissue index. It opens in the gui and
-works with every command, for example `bemfmm tes --project src/bemfmm/assets/sphere_3L`.
-`scripts/make_sphere_model.py` regenerates it.
-
-## Tests and benchmark
-
-```bash
-pip install -e ".[dev]"
-pytest                               # regression tests on the sphere model
-python scripts/benchmark.py --head   # timings and reference numbers
+nix develop
+just switch     # build this machine and switch
+just build      # build and show what changes
+just check      # evaluate every host, run the checks
+just update     # update inputs
+just iso        # build the live system and installer
 ```
 
 ## Layout
 
 ```
-src/bemfmm/
-  model.py        tissue index and the combined mesh (HeadModel)
-  coils/          coil generators, templates and placement
-  electrode.py    TES electrodes
-  scene.py        setup files
-  solvers/        tms, tdcs and uniform field solvers
-  results.py      result files
-  charge/, mesh/  the BEM-FMM engine
-  plot/           plot windows and E-field slices
-  gui/            the gui, *.ui files are edited with Qt Designer
-  cli.py          the bemfmm command
+flake.nix           inputs only
+modules/
+  flake/            outputs, lib (mkHost), checks
+  generic/          every class: dotnix.* options, nix (lix, caches), home-manager
+  nixos/ wsl/ iso/ darwin/
+                    one per class; each imports generic/
+  home/             home-manager modules
+  profiles/         my bundles of settings, turned on per host
+  hardware/         drop-in hardware modules
+  wm/               window managers, drop-in modules
+packages/           scripts (bin/), c-tools (src/), dotnix-install
+hosts/<name>/       one folder per machine
+home/<user>/        one folder per user
+old/                the previous config, until it is ported
 ```
 
-The full documentation is in `docs/` (`cd docs && make html`): a user guide for the gui and the command line,
-the Python API, file formats, the method and notes for developers.
+## Hosts
 
-After editing a `.ui` file regenerate its python module, for example
-`pyside6-uic src/bemfmm/gui/main_window.ui -o src/bemfmm/gui/ui_main_window.py`.
+A machine is `hosts/<name>/default.nix` plus one line in
+`modules/flake/default.nix`:
 
-# References
-[1] H. Cheng, L. Greengard, and V. Rokhlin, "A Fast Adaptive Multipole Algorithm in Three Dimensions," Journal of Computational Physics, vol. 155, no. 2, pp. 468-498, Nov. 1999, doi: 10.1006/jcph.1999.6355.
+```nix
+nixosConfigurations = mkHosts {
+  kazuha = { };
+  <name> = { };                        # x86_64 nixos
+  <name> = { arch = "aarch64"; };
+  <name> = { class = "iso"; };
+  <name> = { class = "wsl"; };         # needs the nixos-wsl input
+};
 
-[2] S. N. Makarov, G. M. Noetscher, T. Raij, and A. Nummenmaa, "A Quasi-Static Boundary Element Approach With Fast Multipole Acceleration for High-Resolution Bioelectromagnetic Models," IEEE Transactions on Biomedical Engineering, vol. 65, no. 12, pp. 2675-2683, Dec. 2018, doi: 10.1109/TBME.2018.2813261.
+darwinConfigurations = mkHosts {
+  <name> = { arch = "aarch64"; class = "darwin"; };   # needs the darwin input
+};
+```
 
-[3] S. N. Makaroff et al., "A fast direct solver for surface-based whole-head modeling of transcranial magnetic stimulation," Scientific Reports, vol. 13, no. 1, Oct. 2023, doi: 10.1038/s41598-023-45602-5.
+`mkHost` loads `hosts/<name>` and `modules/<class>`, and sets the host
+name and platform. For a new machine, generate its hardware file on it:
 
-[4] D. Tang et al., "A BEM-FMM TMS coil designer using MATLAB platform," Brain Stimulation, vol. 18, no. 1, pp. 128-130, 2025, doi: 10.1016/j.brs.2024.11.011.
+```bash
+nixos-generate-config --show-hardware-config > hosts/<name>/hardware.nix
+```
+
+## Live system
+
+`just iso` builds `result/iso/*.iso`: my desktop, shell, editors and theme
+on any machine, logged in as me. Write it to a stick with
+`dd if=result/iso/*.iso of=/dev/sdX bs=4M status=progress`.
+
+On it, mount the target at `/mnt` and run `dotnix-install`. It installs
+one of the machines in `hosts/`, sets up a new one (a host folder, its
+hardware file and a line in the host list), or plain NixOS. The config
+ends up in `~/dotnix` on the new machine; commit the new host from there.
+
+## Drop-in modules
+
+Modules under `modules/wm/` (more to come) only read their own
+`dotnix.<name>` options, so they work in any config:
+
+```nix
+imports = [ inputs.dotnix.nixosModules.niri ];
+dotnix.niri.enable = true;
+```
+
+`nix flake check` evaluates each one alone to keep it that way.
+
+## New machines
+
+For a machine that is not mine or not on NixOS yet. Every command works in
+fish and bash.
+
+Install Nix (Lix, with flakes on):
+
+```bash
+curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+```
+
+Try my editor or scripts without installing them:
+
+```bash
+nix run github:pandecode/hermes --extra-experimental-features 'nix-command flakes' --accept-flake-config
+nix shell github:pandecode/dotnix#scripts --extra-experimental-features 'nix-command flakes'
+```
+
+tmux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pandecode/dotnix/main/config/tmux/.tmux.conf -o ~/.tmux.conf
+```
+
+Join the tailnet, then trust the home CA and use firefly's cache. The
+`*.home.arpa` names resolve over tailscale only.
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+curl -fsSL https://raw.githubusercontent.com/pandecode/dotnix/main/keys/home-ca.crt -o /tmp/home-ca.crt
+sudo cp /tmp/home-ca.crt /usr/local/share/ca-certificates/home-ca.crt && sudo update-ca-certificates   # debian, ubuntu
+sudo trust anchor --store /tmp/home-ca.crt                                                              # fedora, arch
+printf 'extra-substituters = https://cache.home.arpa\nextra-trusted-public-keys = cache.home.arpa-1:MGX9S25yklvCd6fGThto3O9wfHw7AHr5JeKE/fFb7PA=\nconnect-timeout = 5\n' | sudo tee -a /etc/nix/nix.conf
+sudo systemctl restart nix-daemon
+```
+
+The cache key is `keys/nix-cache`; change it here too if that file changes.
+
+Give me access:
+
+```bash
+mkdir -p ~/.ssh && chmod 700 ~/.ssh && curl -fsSL https://raw.githubusercontent.com/pandecode/dotnix/main/keys/kazuha.pub >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+```
+
+Take it away again:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pandecode/dotnix/main/keys/kazuha.pub | grep -vxFf - ~/.ssh/authorized_keys > ~/.ssh/authorized_keys.new; mv ~/.ssh/authorized_keys.new ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+```
