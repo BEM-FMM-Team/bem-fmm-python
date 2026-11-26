@@ -42,3 +42,6 @@ __output__
 result/
 
 **/*.pkl
+
+# a gui setup saved with no project open lands in the folder it runs from
+/setup.json
