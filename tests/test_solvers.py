@@ -26,8 +26,9 @@ from bemfmm.solvers.common import check_solution, nearest_neighbors
 
 RTOL = 1e-6
 
-# the references were made with 32 potential integrals, the default is higher
-TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors_p=32)
+# the references were made with 4 neighbor and 32 potential integrals, the
+# defaults are higher
+TDCS_OPTIONS = tdcs.TDCSOptions(num_neighbors=4, num_neighbors_p=32)
 TDCS_FACETS = [240, 240, 18]
 TDCS_CURRENTS = [5.835232033540465e-3, -8.143583089190842e-3, 2.315855148958199e-3]
 UNIFORM_NORM_C = 82.7741895073473
@@ -91,7 +92,7 @@ def test_tdcs_gauss(sphere):
         Electrode("E1", [0, 0, -0.042], 0.008, -1.0),
         Electrode("E2", [0.042, 0, 0], 0.006, 0.5),
     ]
-    options = tdcs.TDCSOptions(num_neighbors_p=32, gauss=7)
+    options = tdcs.TDCSOptions(num_neighbors=4, num_neighbors_p=32, gauss=7)
     result = tdcs.solve(sphere, electrodes, options)
     currents = np.array([e["current"] for e in result.info["electrodes"]])
 
