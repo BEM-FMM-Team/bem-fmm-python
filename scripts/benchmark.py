@@ -7,19 +7,26 @@ and the numbers that should not change between versions
     python scripts/benchmark.py --save out.json keeps the numbers
     python scripts/benchmark.py --compare out.json
 
+Prints the machine it ran on first, and the peak memory of the run last.
 Set BEMFMM_NO_CACHE=1 to time the solver instead of the cache
 """
 
 import json
+import os
+import platform
+import subprocess
+import sys
 from pathlib import Path
 from time import perf_counter
 
 import numpy as np
+import psutil
 import typer
 
 from bemfmm.coils import default_coil
 from bemfmm.electrode import Electrode
 from bemfmm.model import HeadModel, default_index, sphere_index
+from bemfmm.results import git_commit
 from bemfmm.solvers import tdcs, tms, uniform
 
 SPHERE_ELECTRODES = [
@@ -27,6 +34,42 @@ SPHERE_ELECTRODES = [
     Electrode("E1", [0, 0, -0.042], 0.008, -1.0),
     Electrode("E2", [0.042, 0, 0], 0.006, 0.5),
 ]
+
+
+def cpu_name():
+    if sys.platform == "linux":
+        for line in Path("/proc/cpuinfo").read_text().splitlines():
+            if line.startswith("model name"):
+                return line.split(":", 1)[1].strip()
+    if sys.platform == "darwin":
+        cmd = ["sysctl", "-n", "machdep.cpu.brand_string"]
+        return subprocess.check_output(cmd, text=True).strip()
+    return platform.processor()
+
+
+def machine():
+    cores = f"{psutil.cpu_count(logical=False)} physical, {os.cpu_count()} logical"
+    return {
+        "CPU": cpu_name(),
+        "Cores": cores,
+        "RAM": f"{psutil.virtual_memory().total / 2**30:.1f} GiB",
+        "OS": platform.platform(),
+        "Python": platform.python_version(),
+        "Commit": git_commit()[:10] or "not a git checkout",
+        "OMP_NUM_THREADS": os.environ.get("OMP_NUM_THREADS", "not set"),
+        "Cache": "off" if os.environ.get("BEMFMM_NO_CACHE") else "on",
+    }
+
+
+def peak_ram():
+    # highest memory use of this process so far, in bytes
+    if sys.platform == "win32":
+        return psutil.Process().memory_info().peak_wset
+    import resource
+
+    # ru_maxrss is in bytes on macos and in kilobytes on linux
+    unit = 1 if sys.platform == "darwin" else 1024
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * unit
 
 
 def summary(result, seconds):
@@ -65,6 +108,10 @@ def main(
     reference = json.loads(Path(compare).read_text()) if compare else {}
     numbers = {}
 
+    info = machine()
+    for key, value in info.items():
+        print(f"{key + ':':<17}{value}")
+
     for name, run in cases(head):
         start = perf_counter()
         result = run()
@@ -81,6 +128,16 @@ def main(
             currents = ", ".join(f"{c:.4f}" for c in n["currents_mA"])
             print(f"{'':<16}currents [mA]: {currents}")
 
+    print()
+    print("time per step [s]")
+    for name, n in numbers.items():
+        steps = ", ".join(f"{k} {v:.1f}" for k, v in n["timings"].items())
+        print(f"  {name:<16}{steps}")
+
+    info["Peak RAM"] = f"{peak_ram() / 2**30:.1f} GiB"
+    print()
+    print(f"{'Peak RAM:':<17}{info['Peak RAM']}")
+
     if reference:
         print()
         print("relative change against", compare)
@@ -94,7 +151,7 @@ def main(
                     print(f"  {name:<16}{key:<10}{change:.2e}")
 
     if save:
-        Path(save).write_text(json.dumps(numbers, indent=2))
+        Path(save).write_text(json.dumps({"machine": info, **numbers}, indent=2))
         print(f"Saved {save}")
 
 

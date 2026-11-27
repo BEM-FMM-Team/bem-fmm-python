@@ -19,6 +19,12 @@ If a change moves them, it changed the numerics.
 ``benchmark.py --save before.json`` and ``--compare before.json`` check a
 change against the numbers from before it.
 
+The benchmark starts with the machine it runs on (CPU, cores, RAM, OS, Python,
+commit) and ends with the time of every solver step and the peak memory of the
+run, so its output can be kept as it is for a timing table::
+
+    BEMFMM_NO_CACHE=1 python scripts/benchmark.py --head > timings.txt
+
 Layout
 ------
 
